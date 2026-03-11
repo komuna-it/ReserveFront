@@ -1,0 +1,9 @@
+.app {
+  min-height: 100vh;
+  background: #0f172a;
+  color: white;
+}
+
+.content {
+  padding: 40px;
+}

@@ -1,0 +1,23 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: rgba(0,0,0,0.4);
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 22px;
+  color: white;
+}
+
+.menu a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: white;
+}
+
+.menu a:hover {
+  color: #38bdf8;
+}
