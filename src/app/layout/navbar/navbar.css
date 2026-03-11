@@ -11,6 +11,9 @@
   font-size: 22px;
   color: white;
 }
+.logo a:hover{
+  color:#38bdf8
+}
 
 .menu a {
   margin-left: 20px;

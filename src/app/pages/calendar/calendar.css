@@ -1,12 +1,66 @@
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #1e293b; 
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-.day {
-  padding: 16px;
-  background: #1e293b;
-  text-align: center;
+/* Dropdown sala */
+select {
+  background-color: white;
+  color: black;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+button {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #374151;
+}
+
+/* Dni w kalendarzu */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.day-tile {
+  padding: 8px;
+  background-color: #334155; 
   border-radius: 6px;
+  border: 1px solid #475569; 
+}
+
+.day-number {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+/* Godziny w dniu */
+.hour-btn {
+  font-size: 0.75rem;
+  margin: 2px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: white;
+}
+
+.hour-btn.available {
+  background-color: #16a34a;
+}
+
+.hour-btn.booked {
+  background-color: #dc2626; 
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
