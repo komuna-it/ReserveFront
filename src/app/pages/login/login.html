@@ -1,0 +1,44 @@
+<div class="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+
+  <div class="w-96 bg-slate-800 p-8 rounded-lg shadow-lg">
+
+    <h1 class="text-2xl font-bold mb-6 text-center">
+      Login
+    </h1>
+
+    <form (ngSubmit)="login()" class="space-y-4">
+
+      <div>
+        <label class="block mb-1">Username</label>
+        <input
+          type="text"
+          [(ngModel)]="username"
+          name="username"
+          class="w-full p-2 rounded text-white "
+          required
+        />
+      </div>
+
+      <div>
+        <label class="block mb-1 ">Password</label>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          class="w-full p-2 rounded text-white"
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded font-bold"
+      >
+        Login
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
