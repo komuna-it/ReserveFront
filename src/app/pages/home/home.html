@@ -1,2 +1,26 @@
-<h1>HOME PAGE DEBUG</h1>
-<p *ngIf="true">This should appear</p>
+<div class="carousel relative w-full max-w-4xl mx-auto overflow-hidden rounded-lg">
+  <!-- Images -->
+  <div class="carousel-inner relative w-full h-64">
+    <img 
+      *ngFor="let img of images; let i = index"
+      [src]="img"
+      [class.opacity-0]="i !== current"
+      [class.opacity-100]="i === current"
+      class="absolute w-full h-full object-cover transition-opacity duration-700"
+      alt="carousel image"
+    />
+  </div>
+
+  <button 
+    (click)="prev()" 
+    class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded">
+    ‹
+  </button>
+  <button 
+    (click)="next()" 
+    class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded">
+    ›
+  </button>
+</div>
+
+<img src="assets/images/tlo1.jfif" alt="test" class="w-64 h-64" />
