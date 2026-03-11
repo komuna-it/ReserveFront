@@ -10,7 +10,7 @@
   <!-- nav months -->
   <div class="flex justify-between items-center mb-4">
     <button (click)="prevMonth()" class="px-2 py-1 bg-gray-600 rounded">Poprzedni miesiąc</button>
-    <div class="text-lg font-bold">{{ currentYear }} - {{ currentMonth + 1 }}</div>
+    <div class="text-lg font-bold">{{ monthString[currentMonth] }} {{ currentYear }} </div>
     <button (click)="nextMonth()" class="px-2 py-1 bg-gray-600 rounded">Następny miesiąc</button>
   </div>
 
@@ -30,5 +30,18 @@
       </div>
     </div>
   </div>
+
+  
+<div *ngIf="showAuthPopup" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+  <div class="bg-white text-black p-6 rounded-lg w-80 text-center">
+    <h2 class="text-xl font-bold mb-4">Rezerwacja wymaga logowania</h2>
+    <p class="mb-6">Zaloguj się lub utwórz konto aby zarezerwować termin.</p>
+    <div class="flex gap-3 justify-center">
+      <button  [routerLink]="['/login']"  class="bg-blue-600 text-white px-4 py-2 rounded">Zaloguj się</button>
+      <button [routerLink]="['/register']" class="bg-green-600 text-white px-4 py-2 rounded">Zarejestruj</button>
+    </div>
+    <button (click)="closeAuthPopup()" class="mt-4 text-gray-600">Zamknij</button>
+  </div>
+</div>
 
 </div>

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+import { AuthService } from '../../services/auth';
+import { RouterModule } from '@angular/router';
 interface Booking {
   date: string;      
   hour: number;      
@@ -11,13 +12,25 @@ interface Booking {
 @Component({
   selector: 'calendar-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './calendar.html',
   styleUrls: ['./calendar.css']
 })
 export class CalendarPage {
+  showAuthPopup = false;
+  constructor(private auth: AuthService) {}
+
+    openAuthPopup() {
+    this.showAuthPopup = true;
+  }
+
+  closeAuthPopup() {
+    this.showAuthPopup = false;
+  }
+
   rooms = ['Sala 1', 'Sala 2', 'Sala 3', 'Sala 4'];
   selectedRoom = this.rooms[0];
+    monthString = ['Styczen', 'Luty', 'Marzec', 'Kwiecien', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpien', 'Wrzesien', 'Pazdziernik', 'Listopad', 'Grudzien'];
 
   today = new Date();
   currentMonth = this.today.getMonth();
@@ -73,6 +86,10 @@ export class CalendarPage {
   }
 
   toggleBooking(day: Date, hour: number) {
+    if (!this.auth.isLoggedIn()) {
+          this.showAuthPopup = true;
+      return;
+    }
     const dayStr = day.toISOString().slice(0, 10);
     const existing = this.bookings.find(
       b => b.date === dayStr && b.hour === hour && b.room === this.selectedRoom

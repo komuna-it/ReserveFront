@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth';
 import { FormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'login-page',
@@ -10,11 +12,15 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./login.css']
 })
 export class LoginPage {
+constructor(private auth: AuthService) {}
 
   username = '';
   password = '';
 
   login() {
+      const user = { id: 1, email: 'test@example.com', name: 'Vlad' };
+      this.auth.login(user);
+
     console.log('Login attempt');
     console.log('Username:', this.username);
     console.log('Password:', this.password);
