@@ -45,6 +45,7 @@ export class CalendarPage {
   }
 
   prevMonth() {
+    console.log('prevMonth clicked');
     this.currentMonth--;
     if (this.currentMonth < 0) {
       this.currentMonth = 11;
@@ -54,6 +55,8 @@ export class CalendarPage {
   }
 
   nextMonth() {
+    console.log('nextMonth clicked');
+
     this.currentMonth++;
     if (this.currentMonth > 11) {
       this.currentMonth = 0;
@@ -75,8 +78,10 @@ export class CalendarPage {
       b => b.date === dayStr && b.hour === hour && b.room === this.selectedRoom
     );
     if (existing) {
+      console.log('toggleBooking existing');
       this.bookings = this.bookings.filter(b => b !== existing);
     } else {
+      console.log('toggleBooking NOT existing');
       this.bookings.push({ date: dayStr, hour, room: this.selectedRoom });
     }
   }
