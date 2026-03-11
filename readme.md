@@ -1,7 +1,7 @@
 > [!IMPORTANT]
 > Structure:
 
-```src
+```
  ├── app
  │   ├── layout
  │   │   └── navbar
@@ -24,4 +24,4 @@
  │   │
  │   ├── app.ts
  │   ├── app.html
- │   └── routes.ts```
+ │   └── routes.ts
