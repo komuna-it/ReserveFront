@@ -1,12 +1,24 @@
-<nav class="navbar">
-
-  <div class="logo">
-    <a routerLink="/">VIP SOUND</a></div>
-
-  <div class="menu">
-    <a routerLink="/calendar">Zarezerwuj sale</a>
-    <a routerLink="/contact">Kontakt</a>
-    <a routerLink="/login">Login</a>
+<nav class="flex justify-between items-center px-10 py-5 bg-[rgba(76,193,223,0.4)]">
+  <!-- Logo -->
+  <div class="logo font-bold text-[22px] text-white">
+    <a routerLink="/">
+      <img src="assets/images/logo_scale.jfif" alt="Logo" class="h-10">
+    </a>
   </div>
 
+  <!-- Menu -->
+  <div class="menu flex">
+    <a routerLink="/calendar"
+       class="ml-5 text-white text-[18px] px-3 py-2 bg-[#14b83d] rounded-[15px] hover:text-[hsl(39,58%,55%)] transition-colors">
+       Zarezerwuj sale
+    </a>
+    <a routerLink="/contact"
+       class="ml-5 text-white text-[18px] px-3 py-2 bg-[#14b83d] rounded-[15px] hover:text-[hsl(39,58%,55%)] transition-colors">
+       Kontakt
+    </a>
+    <a routerLink="/login"
+       class="ml-5 text-white text-[18px] px-3 py-2 bg-[#14b83d] rounded-[15px] hover:text-[hsl(39,58%,55%)] transition-colors">
+       Login
+    </a>
+  </div>
 </nav>
