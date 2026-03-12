@@ -20,9 +20,11 @@ export class AuthService {
     }
   }
 
-  login(user: User) {
-    this.userSubject.next(user);
-    localStorage.setItem('user', JSON.stringify(user));
+  login(email: string, password: string ) {
+    return this.http.post<User>(
+    `${environment.apiUrl}/login`,
+    { email, password }
+  );
   }
 
   logout() {

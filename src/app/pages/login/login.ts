@@ -18,8 +18,7 @@ constructor(private auth: AuthService) {}
   password = '';
 
   login() {
-      const user = { id: 1, email: 'test@example.com', name: 'Vlad' };
-      this.auth.login(user);
+      this.auth.login(this.email, this.password);
 
     console.log('Login attempt');
     console.log('email:', this.email);

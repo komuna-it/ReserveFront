@@ -9,17 +9,15 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
-export class Register {
+export class RegisterPage {
 
-constructor( private auth: AuthService) {}
+  constructor( private auth: AuthService) {}
 
-email = '';
-password = '';
+  email = '';
+  password = '';
 
-register() {
-  const user = { id : 1, email : this.email, password: this.password};
-
-  
-}
+  register() {
+    this.auth.register(this.email, this.password);
+  }
 
 }
