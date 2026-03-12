@@ -14,7 +14,7 @@ import { FormsModule } from '@angular/forms';
 export class LoginPage {
 constructor(private auth: AuthService) {}
 
-  username = '';
+  email = '';
   password = '';
 
   login() {
@@ -22,10 +22,10 @@ constructor(private auth: AuthService) {}
       this.auth.login(user);
 
     console.log('Login attempt');
-    console.log('Username:', this.username);
+    console.log('email:', this.email);
     console.log('Password:', this.password);
 
-    if (this.username === 'admin' && this.password === 'admin') {
+    if (this.email === 'admin' && this.password === 'admin') {
       alert('Login successful');
     } else {
       alert('Invalid credentials');

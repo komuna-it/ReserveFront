@@ -1,22 +1,19 @@
-// src/app/services/auth.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-
-export interface User {
-  id: number;
-  email: string;
-  name: string;
-}
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+import { User } from '../model/user';
 
 @Injectable({
   providedIn: 'root' 
 })
 export class AuthService {
+  
   private userSubject = new BehaviorSubject<User | null>(null);
 
   user$ = this.userSubject.asObservable();
 
-  constructor() {
+  constructor(private http: HttpClient) {
     const saved = localStorage.getItem('user');
     if (saved) {
       this.userSubject.next(JSON.parse(saved));
@@ -40,4 +37,12 @@ export class AuthService {
   getUser(): User | null {
     return this.userSubject.value;
   }
+
+register(email: string, password: string) {
+  return this.http.post<User>(
+    `${environment.apiUrl}/register`,
+    { email, password }
+  );
+}
+
 }
