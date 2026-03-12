@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -15,17 +15,21 @@ export class HomePage {
     'assets/images/tlo3.jpg'
   ];
 
-  current = 0;
+  current = signal(0);
 
   constructor() {
-    setInterval(() => this.next(), 3000);
+    setInterval(() => {
+      this.next();
+    }, 5000);
   }
 
   next() {
-    this.current = (this.current + 1) % this.images.length;
+    this.current.set((this.current() + 1) % this.images.length);
   }
 
   prev() {
-    this.current = (this.current - 1 + this.images.length) % this.images.length;
+    this.current.set((this.current() - 1 + this.images.length) % this.images.length);
   }
+
+  currentImage = computed(() => this.images[this.current()]);
 }

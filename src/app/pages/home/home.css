@@ -1,7 +1,0 @@
-.carousel {
-  position: relative;
-}
-
-.carousel-inner img {
-  transition: opacity 0.7s ease-in-out;
-}
