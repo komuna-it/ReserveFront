@@ -1,24 +1,49 @@
-<nav class="flex justify-between items-center px-10 py-5 bg-black">
+<nav class="flex justify-between items-center px-10 py-5 bg-gradient-to-r from-black via-gray-900 to-black shadow-lg">
+  
   <!-- Logo -->
-  <div class="logo font-bold text-[22px] text-white">
-    <a routerLink="/">
-      <img src="assets/images/logo_scale.jfif" alt="Logo" class="h-10">
+  <div class="logo font-bold text-[22px] text-white flex items-center">
+    <a routerLink="/" class="flex items-center">
+      <img src="assets/images/logo_scale.jfif" alt="Logo" class="h-10 mr-2 rounded-full shadow-lg">
+      <span>VipSound</span>
     </a>
   </div>
 
   <!-- Menu -->
-  <div class="menu flex">
+  <div class="menu flex items-center space-x-4">
+    
     <a routerLink="/calendar"
-       class="ml-5 text-white text-[18px] px-3 py-2 bg-[#14b83d] rounded-[15px] hover:bg-blue-600 transition-colors">
-       Zarezerwuj sale
+       class="text-white text-[18px] px-4 py-2 bg-green-500 rounded-lg hover:bg-blue-600 transition-all shadow-md hover:shadow-lg">
+       Zarezerwuj salę
     </a>
-    <a routerLink="/contact"w
-       class="ml-5 text-white text-[18px] px-3 py-2 bg-[#14b83d] rounded-[15px] hover:bg-blue-600 transition-colors">
+    
+    <a routerLink="/contact"
+       class="text-white text-[18px] px-4 py-2 bg-green-500 rounded-lg hover:bg-blue-600 transition-all shadow-md hover:shadow-lg">
        Kontakt
     </a>
-    <a routerLink="/login"
-       class="ml-5 text-white text-[18px] px-3 py-2 bg-[#14b83d] rounded-[15px] hover:bg-blue-600 transition-colors">
-       Login
-    </a>
+
+    <!-- Show only if user is NOT logged in -->
+    <ng-container *ngIf="!auth.isLoggedIn()">
+      <a routerLink="/login"
+         class="text-white text-[18px] px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+         Login
+      </a>
+
+      <a routerLink="/register"
+         class="text-white text-[18px] px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-all shadow-md hover:shadow-lg">
+         Register
+      </a>
+    </ng-container>
+
+    <!-- Show only if user IS logged in -->
+    <ng-container *ngIf="auth.isLoggedIn()">
+      <span class="text-white font-semibold px-4 py-2 bg-gray-700 rounded-lg shadow-md">
+        Witaj, {{ auth.getUser()?.email }}
+      </span>
+      <button (click)="logout()"
+              class="text-white px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition-all shadow-md hover:shadow-lg">
+        Logout
+      </button>
+    </ng-container>
+
   </div>
 </nav>

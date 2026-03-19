@@ -1,0 +1,14 @@
+/* navbar.css */
+nav {
+  backdrop-filter: blur(6px);
+  background-color: rgba(0,0,0,0.85);
+}
+
+.menu a, .menu button, .menu span {
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.menu a:hover, .menu button:hover {
+  transform: scale(1.05);
+}

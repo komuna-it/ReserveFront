@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -12,23 +13,21 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./login.css']
 })
 export class LoginPage {
-constructor(private auth: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   email = '';
   password = '';
+  errorMessage = '';
 
-  login() {
-      this.auth.login(this.email, this.password);
-
-    console.log('Login attempt');
-    console.log('email:', this.email);
-    console.log('Password:', this.password);
-
-    if (this.email === 'admin' && this.password === 'admin') {
-      alert('Login successful');
-    } else {
-      alert('Invalid credentials');
+  async login() {
+    this.errorMessage = ''; // clear previous error
+    try {
+      const user = await this.authService.login(this.email, this.password);
+      if (user) {
+        this.router.navigate(['/']);
+      }
+    } catch (error: any) {
+      this.errorMessage = error.error?.message || 'Błąd logowania';
     }
   }
-
 }

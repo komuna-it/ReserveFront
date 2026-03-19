@@ -19,35 +19,33 @@ export class AuthService {
     }
   }
 
-  async login(email: string, password: string): Promise<User> {
-    const user = await firstValueFrom(
-      this.http.post<User>(`${environment.apiUrl}/login`, { email, password })
-    );
-    this.user.set(user);
-    localStorage.setItem('user', JSON.stringify(user));
-    return user;
-  }
-
-async register(email: string, password: string): Promise<User | null> {
-  try {
-    const user = await firstValueFrom(
-      this.http.post<User>(`${environment.apiUrl}/register`, { email, password })
-    );
-    this.user.set(user);
-    localStorage.setItem('user', JSON.stringify(user));
-    return user;
-  } catch (error: any) {
-    if (error.status === 400) {
-      // handle duplicate email 
-      console.error('Registration failed:', error.error.message);
-      return null;
-    } else {
-      console.error('Unexpected error', error);
-      throw error;
+  async register(email: string, password: string): Promise<User> {
+    try {
+      const user = await firstValueFrom(
+        this.http.post<User>(`${environment.apiUrl}/register`, { email, password })
+      );
+      this.user.set(user);
+      localStorage.setItem('user', JSON.stringify(user));
+      return user;
+    } catch (err: any) {
+      console.error('Register error caught in service:', err);
+      throw err;
     }
   }
-}
 
+  async login(email: string, password: string): Promise<User> {
+    try {
+      const user = await firstValueFrom(
+        this.http.post<User>(`${environment.apiUrl}/login`, { email, password })
+      );
+      this.user.set(user);
+      localStorage.setItem('user', JSON.stringify(user));
+      return user;
+    } catch (err: any) {
+      console.error('Login error caught in service:', err);
+      throw err;
+    }
+  }
   logout() {
     this.user.set(null);
     localStorage.removeItem('user');
