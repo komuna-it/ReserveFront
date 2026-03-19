@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -11,13 +12,22 @@ import { FormsModule } from '@angular/forms';
 })
 export class RegisterPage {
 
-  constructor( private auth: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   email = '';
   password = '';
+  errorMessage = '';
 
-  register() {
-    this.auth.register(this.email, this.password);
+
+   async register() {
+    try {
+      const user = await this.authService.register(this.email, this.password);
+      if (user) {
+        this.router.navigate(['/']);
+      }
+    } catch (error: any) {
+      this.errorMessage = error.error?.message || 'Błąd rejestracji';
+      console.error(error);
+    }
   }
-
 }

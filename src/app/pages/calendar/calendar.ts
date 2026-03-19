@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth';
 import { RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
+
 interface Booking {
   date: string;      
   hour: number;      
@@ -17,10 +21,16 @@ interface Booking {
   styleUrls: ['./calendar.css']
 })
 export class CalendarPage {
-  showAuthPopup = false;
-  constructor(private auth: AuthService) {}
 
-    openAuthPopup() {
+constructor(
+  private auth: AuthService, 
+  private http: HttpClient, 
+  private router: Router
+) {}
+
+showAuthPopup = false;
+  
+  openAuthPopup() {
     this.showAuthPopup = true;
   }
 
@@ -43,6 +53,10 @@ export class CalendarPage {
   ];
 
   daysInMonth: Date[] = [];
+
+  selectedBooking: { date: string; hour: number; room?: string; duration?: number } | null = null;
+  availableRooms: string[] = [];
+  durationOptions = Array.from({length: 8}, (_, i) => i + 1); // 1–8 hours
 
   ngOnInit() {
     this.generateCalendar();
@@ -86,6 +100,8 @@ export class CalendarPage {
   }
 
   toggleBooking(day: Date, hour: number) {
+    console.log('toggleBooking day: ' + day + ',  hour: ' + hour);
+
     if (!this.auth.isLoggedIn()) {
           this.showAuthPopup = true;
       return;
@@ -102,4 +118,64 @@ export class CalendarPage {
       this.bookings.push({ date: dayStr, hour, room: this.selectedRoom });
     }
   }
+
+openBookingPopup(day: Date, hour: number) {
+  const dayStr = day.toISOString().slice(0,10);
+
+  // Calculate available rooms for selected hour + max 8 hours
+  this.availableRooms = this.rooms.filter(room => {
+    for (let h = 0; h < 8; h++) {
+      if (this.bookings.find(b => b.date === dayStr && b.hour === hour + h && b.room === room)) {
+        return false; // room not free
+      }
+    }
+    return true;
+  });
+
+  if (this.availableRooms.length === 0) {
+    alert('Brak wolnych sal w tym terminie');
+    return;
+  }
+
+  this.selectedBooking = {
+    date: dayStr,
+    hour: hour,
+    room: this.availableRooms[0],
+    duration: 1
+  };
 }
+
+confirmBooking() {
+  if (!this.selectedBooking || !this.selectedBooking.room) {
+    console.log('date or room not selected');
+    return;
+  }
+
+  const { date, hour, room, duration } = this.selectedBooking;
+
+  // If user is logged in, send booking to backend
+  if (this.auth.isLoggedIn()) {
+    for (let h = 0; h < duration!; h++) {
+      const newBooking = { date, hour: hour + h, room: room! };
+      console.log('Booking hour:', newBooking.hour, 'Room:', newBooking.room, 'Date:', newBooking.date);
+      this.bookings.push(newBooking);  // local update
+    }
+
+    // Call backend API to save booking
+    this.http.post(`${environment.apiUrl}/bookings`, { 
+      date, 
+      startHour: hour, 
+      duration, 
+      room, 
+      userId: this.auth.getUser()?.id 
+    }).subscribe({
+      next: res => console.log('Booking saved to backend', res),
+      error: err => console.error('Backend booking error', err)
+    });
+
+    this.selectedBooking = null;
+  } else {
+    // Not logged in → redirect to register
+    this.router.navigate(['/register']);
+  }
+}}

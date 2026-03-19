@@ -1,3 +1,3 @@
 export const environment = {
-  apiUrl: 'http://vfedora1:6903/api/v1'
+  apiUrl: 'http://localhost:3000'
 };

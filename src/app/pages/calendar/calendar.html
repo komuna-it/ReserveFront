@@ -1,12 +1,5 @@
 <div class="p-6 bg-gray-800 text-white min-h-screen">
 
-  <div class="mb-4">
-    <label for="room">Wybierz salę:</label>
-    <select id="room" [(ngModel)]="selectedRoom" class="ml-2 text-black">
-      <option *ngFor="let r of rooms">{{ r }}</option>
-    </select>
-  </div>
-
   <!-- nav months -->
   <div class="flex justify-between items-center mb-4">
     <button (click)="prevMonth()" class="px-2 py-1 bg-gray-600 rounded">Poprzedni miesiąc</button>
@@ -19,28 +12,41 @@
     <div *ngFor="let day of daysInMonth" class="p-2 border rounded bg-gray-700">
       <div class="font-bold">{{ day.getDate() }}</div>
       <div class="flex flex-wrap">
-        <button
-          *ngFor="let h of [8,9,10,11,12,13,14,15,16,17]"
-          (click)="toggleBooking(day, h)"
-          [ngClass]="getBookingsForDay(day).includes(h) ? 'bg-red-600' : 'bg-green-600'"
-          class="text-xs m-0.5 px-1 rounded"
-        >
-          {{ h }}:00
-        </button>
+      <button
+        *ngFor="let h of [8,9,10,11,12,13,14,15,16,17]"
+        (click)="openBookingPopup(day, h)"
+        [ngClass]="getBookingsForDay(day).includes(h) ? 'bg-red-600' : 'bg-green-600'"
+        class="text-xs m-0.5 px-1 rounded hover:scale-105 transition-transform"
+      >
+        {{ h }}:00
+      </button>
       </div>
     </div>
   </div>
 
   
-<div *ngIf="showAuthPopup" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-  <div class="bg-white text-black p-6 rounded-lg w-80 text-center">
-    <h2 class="text-xl font-bold mb-4">Rezerwacja wymaga logowania</h2>
-    <p class="mb-6">Zaloguj się lub utwórz konto aby zarezerwować termin.</p>
-    <div class="flex gap-3 justify-center">
-      <button  [routerLink]="['/login']"  class="bg-blue-600 text-white px-4 py-2 rounded">Zaloguj się</button>
-      <button [routerLink]="['/register']" class="bg-green-600 text-white px-4 py-2 rounded">Zarejestruj</button>
+<div *ngIf="selectedBooking" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white text-black p-6 rounded-lg w-96">
+    <h2 class="text-xl font-bold mb-4">Wybierz salę i długość wynajmu</h2>
+    <p class="mb-2">Data: {{ selectedBooking.date }}</p>
+    <p class="mb-2">Start: {{ selectedBooking.hour }}:00</p>
+
+    <!-- Room selection -->
+    <label class="block mb-2">Sala:</label>
+    <select [(ngModel)]="selectedBooking.room" class="w-full mb-4 text-black">
+      <option *ngFor="let room of availableRooms">{{ room }}</option>
+    </select>
+
+    <!-- Duration selection -->
+    <label>Czas trwania (h):</label>
+    <select [(ngModel)]="selectedBooking!.duration" class="w-full mb-4 text-black">
+      <option *ngFor="let d of durationOptions" [value]="d">{{ d }}</option>
+    </select>
+
+    <div class="flex gap-3 justify-end">
+      <button (click)="confirmBooking()" class="bg-green-600 text-white px-4 py-2 rounded">Zarezerwuj</button>
+      <button (click)="selectedBooking=null" class="bg-gray-400 text-white px-4 py-2 rounded">Anuluj</button>
     </div>
-    <button (click)="closeAuthPopup()" class="mt-4 text-gray-600">Zamknij</button>
   </div>
 </div>
 
