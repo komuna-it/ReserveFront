@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth';
 import { environment } from '../../../environments/environment';
-import { Room } from './../../model/Room';
+import { Room } from '../../model/Room';
 import { ReservationDto } from '../../model/ReservationDto';
 
 @Component({
@@ -16,22 +15,23 @@ import { ReservationDto } from '../../model/ReservationDto';
 })
 export class CalendarPage implements OnInit {
   private http = inject(HttpClient);
-  private auth = inject(AuthService);
   private router = inject(Router);
 
-  // --- Signals (State Management) ---
+  // --- Stan Autentykacji ---
+  // W prawdziwej aplikacji wartość ta byłaby pobierana z AuthService.
+  // Zmień na 'false', aby przetestować automatyczne przekierowanie do logowania.
+  readonly isLoggedIn = signal<boolean>(true);
+
+  // --- Sygnały Stanu Kalendarza ---
   readonly rooms = signal<Room[]>([
     { id: 1, name: 'Sala 1' },
     { id: 2, name: 'Sala 2' },
     { id: 3, name: 'Sala 3' },
-    { id: 4, name: 'Sala 4' },
   ]);
 
   readonly selectedRoomId = signal<number>(1);
   readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
   readonly reservations = signal<ReservationDto[]>([]);
-
-  // Selection state for reservation modal
   readonly selectedBooking = signal<{
     date: string;
     hour: number;
@@ -39,9 +39,9 @@ export class CalendarPage implements OnInit {
     duration: number;
   } | null>(null);
 
-  // --- Constants ---
-  readonly hoursRange = Array.from({ length: 14 }, (_, i) => i + 8); // [8, 9, ..., 21]
-  readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // [1, 2, ..., 8]
+  // --- Stałe konfiguracyjne ---
+  readonly hoursRange = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 do 21:00
+  readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // 1-8h
   readonly monthLabels = [
     'Styczeń',
     'Luty',
@@ -58,9 +58,7 @@ export class CalendarPage implements OnInit {
   ];
   readonly dayLabels = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
 
-  // --- Computed States (Deriving Data Automatically) ---
-
-  // Generates the 7 days array for the current week view
+  // --- Obliczenia reaktywne (Computed) ---
   readonly weekDays = computed(() => {
     const start = this.currentWeekStart();
     return Array.from({ length: 7 }, (_, i) => {
@@ -70,36 +68,59 @@ export class CalendarPage implements OnInit {
     });
   });
 
-  // Display label for the current week header (e.g., "Maj 2026")
   readonly currentWeekLabel = computed(() => {
     const start = this.currentWeekStart();
     return `${this.monthLabels[start.getMonth()]} ${start.getFullYear()}`;
   });
 
-  // Filter reservations based on active room selection
   readonly filteredReservations = computed(() => {
     const targetRoomId = this.selectedRoomId();
     return this.reservations().filter((res) => res.roomId === targetRoomId);
   });
 
   ngOnInit() {
+    this.seedMockReservations();
     this.fetchReservations();
   }
 
-  // --- Methods & Actions ---
+  // --- Symulacja zajętych godzin (Mock Data) ---
+  private seedMockReservations() {
+    const today = new Date();
 
+    // Generujemy przykładowe daty w formacie ISO dla bieżącego tygodnia
+    const formatMockDate = (daysOffset: number, hour: number): string => {
+      const d = this.getStartOfWeek(today);
+      d.setDate(d.getDate() + daysOffset);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}T${String(hour).padStart(2, '0')}:00:00`;
+    };
+
+    this.reservations.set([
+      // Poniedziałek: Sala 1 zajęta od 10:00 na 2 godziny
+      { id: 101, reservedBy: 12, roomId: 1, startAt: formatMockDate(0, 10), duration: 'PT2H' },
+      // Poniedziałek: Sala 1 zajęta od 15:00 na 1 godzinę
+      { id: 102, reservedBy: 15, roomId: 1, startAt: formatMockDate(0, 15), duration: 'PT1H' },
+      // Środa: Sala 1 zajęta od 08:00 na 3 godziny
+      { id: 103, reservedBy: 19, roomId: 1, startAt: formatMockDate(2, 8), duration: 'PT3H' },
+      // Piątek: Sala 2 zajęta od 12:00 na 4 godziny
+      { id: 104, reservedBy: 22, roomId: 2, startAt: formatMockDate(4, 12), duration: 'PT4H' },
+    ]);
+  }
+
+  // --- Obsługa Logiki biznesowej i Akcji ---
   private getStartOfWeek(date: Date): Date {
     const d = new Date(date);
     const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Set to Monday
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     d.setHours(0, 0, 0, 0);
     return new Date(d.setDate(diff));
   }
 
   navigateWeek(direction: 'prev' | 'next') {
     const current = new Date(this.currentWeekStart());
-    const daysOffset = direction === 'next' ? 7 : -7;
-    current.setDate(current.getDate() + daysOffset);
+    current.setDate(current.getDate() + (direction === 'next' ? 7 : -7));
     this.currentWeekStart.set(current);
     this.fetchReservations();
   }
@@ -110,21 +131,13 @@ export class CalendarPage implements OnInit {
   }
 
   fetchReservations() {
-    // You can filter by currentWeekStart if your API supports pagination windowing
-    this.http.get<ReservationDto[]>(`${environment.apiUrl}/bookings`).subscribe({
-      next: (data) => this.reservations.set(data),
-      error: (err) => console.error('Failed to fetch reservations', err),
-    });
+    // Tutaj normalnie strzelasz do backendu i uzupełniasz dane:
+    // this.http.get<ReservationDto[]>(`${environment.apiUrl}/bookings`)...
   }
 
-  /**
-   * Evaluates if a specific time slot is locked by an existing backend reservation
-   */
   isHourReserved(day: Date, hour: number): boolean {
     return this.filteredReservations().some((res) => {
       const resStart = new Date(res.startAt);
-
-      // Match calendar slot date to reservation start date
       const isSameDay =
         resStart.getFullYear() === day.getFullYear() &&
         resStart.getMonth() === day.getMonth() &&
@@ -134,37 +147,28 @@ export class CalendarPage implements OnInit {
 
       const startHour = resStart.getHours();
       const durationHours = this.parseDurationToHours(res.duration);
-
-      // Slot is blocked if it falls within the span [startHour, startHour + duration)
       return hour >= startHour && hour < startHour + durationHours;
     });
   }
 
   private parseDurationToHours(isoDuration: string): number {
-    // Basic regex parser for ISO-8601 strings like "PT1H" or "PT90M"
     const hoursMatch = isoDuration.match(/(\d+)H/);
-    const minutesMatch = isoDuration.match(/(\d+)M/);
-
-    let hours = hoursMatch ? parseInt(hoursMatch[1], 10) : 0;
-    if (minutesMatch) {
-      hours += parseInt(minutesMatch[1], 10) / 60;
-    }
-    return hours || 1; // Fallback default to 1 hour
+    return hoursMatch ? parseInt(hoursMatch[1], 10) : 1;
   }
 
   openBookingPopup(day: Date, hour: number) {
-    if (!this.auth.isLoggedIn()) {
-      this.router.navigate(['/register']);
+    // KROK ZABEZPIECZAJĄCY: Jeśli użytkownik jest niezalogowany, przekieruj do logowania
+    if (!this.isLoggedIn()) {
+      this.router.navigate(['/login']);
       return;
     }
 
     const year = day.getFullYear();
     const month = String(day.getMonth() + 1).padStart(2, '0');
     const dateStr = String(day.getDate()).padStart(2, '0');
-    const formattedDate = `${year}-${month}-${dateStr}`;
 
     this.selectedBooking.set({
-      date: formattedDate,
+      date: `${year}-${month}-${dateStr}`,
       hour: hour,
       roomId: this.selectedRoomId(),
       duration: 1,
@@ -175,25 +179,23 @@ export class CalendarPage implements OnInit {
     const booking = this.selectedBooking();
     if (!booking) return;
 
-    // Build the exact payload shape backend requires
     const payload = {
       roomId: booking.roomId,
       startAt: `${booking.date}T${String(booking.hour).padStart(2, '0')}:00:00`,
-      duration: `PT${booking.duration}H`, // backend Java Duration format converter
-      reservedBy: this.auth.getUser()?.id || 0,
+      duration: `PT${booking.duration}H`,
+      reservedBy: 999, // ID zalogowanego usera
     };
 
-    this.http.post<ReservationDto>(`${environment.apiUrl}/bookings`, payload).subscribe({
-      next: (newRes) => {
-        // Optimistically append new reservation to client state directly
-        this.reservations.update((currentList) => [...currentList, newRes]);
-        this.selectedBooking.set(null);
-      },
-      error: (err) => console.error('Error handling creation sync', err),
-    });
-  }
+    // Po udanym zapisie na backendzie, dodajemy rezerwację lokalnie do sygnału:
+    const newReservation: ReservationDto = {
+      id: Math.random(), // tymczasowe ID frontowe
+      roomId: payload.roomId,
+      startAt: payload.startAt,
+      duration: payload.duration,
+      reservedBy: payload.reservedBy,
+    };
 
-  closeModal() {
+    this.reservations.update((list) => [...list, newReservation]);
     this.selectedBooking.set(null);
   }
 }
