@@ -1,181 +1,199 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../services/auth';
-import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth';
 import { environment } from '../../../environments/environment';
-
-interface Booking {
-  date: string;      
-  hour: number;      
-  room: string;      
-}
+import { Room } from './../../model/Room';
+import { ReservationDto } from '../../model/ReservationDto';
 
 @Component({
   selector: 'calendar-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './calendar.html',
-  styleUrls: ['./calendar.css']
 })
-export class CalendarPage {
+export class CalendarPage implements OnInit {
+  private http = inject(HttpClient);
+  private auth = inject(AuthService);
+  private router = inject(Router);
 
-constructor(
-  private auth: AuthService, 
-  private http: HttpClient, 
-  private router: Router
-) {}
+  // --- Signals (State Management) ---
+  readonly rooms = signal<Room[]>([
+    { id: 1, name: 'Sala 1' },
+    { id: 2, name: 'Sala 2' },
+    { id: 3, name: 'Sala 3' },
+    { id: 4, name: 'Sala 4' },
+  ]);
 
-showAuthPopup = false;
-  
-  openAuthPopup() {
-    this.showAuthPopup = true;
-  }
+  readonly selectedRoomId = signal<number>(1);
+  readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
+  readonly reservations = signal<ReservationDto[]>([]);
 
-  closeAuthPopup() {
-    this.showAuthPopup = false;
-  }
+  // Selection state for reservation modal
+  readonly selectedBooking = signal<{
+    date: string;
+    hour: number;
+    roomId: number;
+    duration: number;
+  } | null>(null);
 
-  rooms = ['Sala 1', 'Sala 2', 'Sala 3', 'Sala 4'];
-  selectedRoom = this.rooms[0];
-    monthString = ['Styczen', 'Luty', 'Marzec', 'Kwiecien', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpien', 'Wrzesien', 'Pazdziernik', 'Listopad', 'Grudzien'];
-
-  today = new Date();
-  currentMonth = this.today.getMonth();
-  currentYear = this.today.getFullYear();
-
-  bookings: Booking[] = [
-    { date: '2026-03-12', hour: 10, room: 'Sala 1' },
-    { date: '2026-03-12', hour: 11, room: 'Sala 2' },
-    { date: '2026-03-15', hour: 14, room: 'Sala 1' },
+  // --- Constants ---
+  readonly hoursRange = Array.from({ length: 14 }, (_, i) => i + 8); // [8, 9, ..., 21]
+  readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // [1, 2, ..., 8]
+  readonly monthLabels = [
+    'Styczeń',
+    'Luty',
+    'Marzec',
+    'Kwiecień',
+    'Maj',
+    'Czerwiec',
+    'Lipiec',
+    'Sierpień',
+    'Wrzesień',
+    'Październik',
+    'Listopad',
+    'Grudzień',
   ];
+  readonly dayLabels = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
 
-  daysInMonth: Date[] = [];
+  // --- Computed States (Deriving Data Automatically) ---
 
-  selectedBooking: { date: string; hour: number; room?: string; duration?: number } | null = null;
-  availableRooms: string[] = [];
-  durationOptions = Array.from({length: 8}, (_, i) => i + 1); // 1–8 hours
-
-  ngOnInit() {
-    this.generateCalendar();
-  }
-
-  generateCalendar() {
-    this.daysInMonth = [];
-    const date = new Date(this.currentYear, this.currentMonth, 1);
-    while (date.getMonth() === this.currentMonth) {
-      this.daysInMonth.push(new Date(date));
-      date.setDate(date.getDate() + 1);
-    }
-  }
-
-  prevMonth() {
-    console.log('prevMonth clicked');
-    this.currentMonth--;
-    if (this.currentMonth < 0) {
-      this.currentMonth = 11;
-      this.currentYear--;
-    }
-    this.generateCalendar();
-  }
-
-  nextMonth() {
-    console.log('nextMonth clicked');
-
-    this.currentMonth++;
-    if (this.currentMonth > 11) {
-      this.currentMonth = 0;
-      this.currentYear++;
-    }
-    this.generateCalendar();
-  }
-
-  getBookingsForDay(day: Date) {
-    const dayStr = day.toISOString().slice(0, 10);
-    return this.bookings.filter(
-      b => b.date === dayStr && b.room === this.selectedRoom
-    ).map(b => b.hour);
-  }
-
-  toggleBooking(day: Date, hour: number) {
-    console.log('toggleBooking day: ' + day + ',  hour: ' + hour);
-
-    if (!this.auth.isLoggedIn()) {
-          this.showAuthPopup = true;
-      return;
-    }
-    const dayStr = day.toISOString().slice(0, 10);
-    const existing = this.bookings.find(
-      b => b.date === dayStr && b.hour === hour && b.room === this.selectedRoom
-    );
-    if (existing) {
-      console.log('toggleBooking existing');
-      this.bookings = this.bookings.filter(b => b !== existing);
-    } else {
-      console.log('toggleBooking NOT existing');
-      this.bookings.push({ date: dayStr, hour, room: this.selectedRoom });
-    }
-  }
-
-openBookingPopup(day: Date, hour: number) {
-  const dayStr = day.toISOString().slice(0,10);
-
-  // Calculate available rooms for selected hour + max 8 hours
-  this.availableRooms = this.rooms.filter(room => {
-    for (let h = 0; h < 8; h++) {
-      if (this.bookings.find(b => b.date === dayStr && b.hour === hour + h && b.room === room)) {
-        return false; // room not free
-      }
-    }
-    return true;
+  // Generates the 7 days array for the current week view
+  readonly weekDays = computed(() => {
+    const start = this.currentWeekStart();
+    return Array.from({ length: 7 }, (_, i) => {
+      const day = new Date(start);
+      day.setDate(start.getDate() + i);
+      return day;
+    });
   });
 
-  if (this.availableRooms.length === 0) {
-    alert('Brak wolnych sal w tym terminie');
-    return;
+  // Display label for the current week header (e.g., "Maj 2026")
+  readonly currentWeekLabel = computed(() => {
+    const start = this.currentWeekStart();
+    return `${this.monthLabels[start.getMonth()]} ${start.getFullYear()}`;
+  });
+
+  // Filter reservations based on active room selection
+  readonly filteredReservations = computed(() => {
+    const targetRoomId = this.selectedRoomId();
+    return this.reservations().filter((res) => res.roomId === targetRoomId);
+  });
+
+  ngOnInit() {
+    this.fetchReservations();
   }
 
-  this.selectedBooking = {
-    date: dayStr,
-    hour: hour,
-    room: this.availableRooms[0],
-    duration: 1
-  };
-}
+  // --- Methods & Actions ---
 
-confirmBooking() {
-  if (!this.selectedBooking || !this.selectedBooking.room) {
-    console.log('date or room not selected');
-    return;
+  private getStartOfWeek(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Set to Monday
+    d.setHours(0, 0, 0, 0);
+    return new Date(d.setDate(diff));
   }
 
-  const { date, hour, room, duration } = this.selectedBooking;
+  navigateWeek(direction: 'prev' | 'next') {
+    const current = new Date(this.currentWeekStart());
+    const daysOffset = direction === 'next' ? 7 : -7;
+    current.setDate(current.getDate() + daysOffset);
+    this.currentWeekStart.set(current);
+    this.fetchReservations();
+  }
 
-  // If user is logged in, send booking to backend
-  if (this.auth.isLoggedIn()) {
-    for (let h = 0; h < duration!; h++) {
-      const newBooking = { date, hour: hour + h, room: room! };
-      console.log('Booking hour:', newBooking.hour, 'Room:', newBooking.room, 'Date:', newBooking.date);
-      this.bookings.push(newBooking);  // local update
+  onRoomChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    this.selectedRoomId.set(Number(selectElement.value));
+  }
+
+  fetchReservations() {
+    // You can filter by currentWeekStart if your API supports pagination windowing
+    this.http.get<ReservationDto[]>(`${environment.apiUrl}/bookings`).subscribe({
+      next: (data) => this.reservations.set(data),
+      error: (err) => console.error('Failed to fetch reservations', err),
+    });
+  }
+
+  /**
+   * Evaluates if a specific time slot is locked by an existing backend reservation
+   */
+  isHourReserved(day: Date, hour: number): boolean {
+    return this.filteredReservations().some((res) => {
+      const resStart = new Date(res.startAt);
+
+      // Match calendar slot date to reservation start date
+      const isSameDay =
+        resStart.getFullYear() === day.getFullYear() &&
+        resStart.getMonth() === day.getMonth() &&
+        resStart.getDate() === day.getDate();
+
+      if (!isSameDay) return false;
+
+      const startHour = resStart.getHours();
+      const durationHours = this.parseDurationToHours(res.duration);
+
+      // Slot is blocked if it falls within the span [startHour, startHour + duration)
+      return hour >= startHour && hour < startHour + durationHours;
+    });
+  }
+
+  private parseDurationToHours(isoDuration: string): number {
+    // Basic regex parser for ISO-8601 strings like "PT1H" or "PT90M"
+    const hoursMatch = isoDuration.match(/(\d+)H/);
+    const minutesMatch = isoDuration.match(/(\d+)M/);
+
+    let hours = hoursMatch ? parseInt(hoursMatch[1], 10) : 0;
+    if (minutesMatch) {
+      hours += parseInt(minutesMatch[1], 10) / 60;
+    }
+    return hours || 1; // Fallback default to 1 hour
+  }
+
+  openBookingPopup(day: Date, hour: number) {
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/register']);
+      return;
     }
 
-    // Call backend API to save booking
-    this.http.post(`${environment.apiUrl}/bookings`, { 
-      date, 
-      startHour: hour, 
-      duration, 
-      room, 
-      userId: this.auth.getUser()?.id 
-    }).subscribe({
-      next: res => console.log('Booking saved to backend', res),
-      error: err => console.error('Backend booking error', err)
-    });
+    const year = day.getFullYear();
+    const month = String(day.getMonth() + 1).padStart(2, '0');
+    const dateStr = String(day.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${dateStr}`;
 
-    this.selectedBooking = null;
-  } else {
-    // Not logged in → redirect to register
-    this.router.navigate(['/register']);
+    this.selectedBooking.set({
+      date: formattedDate,
+      hour: hour,
+      roomId: this.selectedRoomId(),
+      duration: 1,
+    });
   }
-}}
+
+  confirmBooking() {
+    const booking = this.selectedBooking();
+    if (!booking) return;
+
+    // Build the exact payload shape backend requires
+    const payload = {
+      roomId: booking.roomId,
+      startAt: `${booking.date}T${String(booking.hour).padStart(2, '0')}:00:00`,
+      duration: `PT${booking.duration}H`, // backend Java Duration format converter
+      reservedBy: this.auth.getUser()?.id || 0,
+    };
+
+    this.http.post<ReservationDto>(`${environment.apiUrl}/bookings`, payload).subscribe({
+      next: (newRes) => {
+        // Optimistically append new reservation to client state directly
+        this.reservations.update((currentList) => [...currentList, newRes]);
+        this.selectedBooking.set(null);
+      },
+      error: (err) => console.error('Error handling creation sync', err),
+    });
+  }
+
+  closeModal() {
+    this.selectedBooking.set(null);
+  }
+}
