@@ -1,0 +1,65 @@
+name: Build and Deploy Angular
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v3
+        with:
+          versionSpec: '5.x'
+
+      - name: Run GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v2
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Angular App
+        run: npm run build -- --configuration production
+
+      - name: Show build output
+        run: ls -R dist/
+
+      - name: Install SSH keys
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY_BETA }}" > ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+
+      - name: Upload Build via Rsync
+        run: |
+          VERSION=${{ steps.gitversion.outputs.fullSemVer }}
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+            mkdir -p '${{ secrets.WORK_DIR }}/$VERSION';
+            if [ -L '${{ secrets.WORK_DIR }}/latest' ]; then
+              unlink '${{ secrets.WORK_DIR }}/latest';
+            fi
+            ln -s '$VERSION' '${{ secrets.WORK_DIR }}/latest'
+          "
+
+          rsync -avz dist/vipsound/browser/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}/$VERSION/
+
+      - name: Restart Web Server
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "sudo systemctl reload nginx"
+
+      - name: Cleanup
+        run: rm -rf ~/.ssh
