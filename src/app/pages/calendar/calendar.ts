@@ -17,12 +17,8 @@ export class CalendarPage implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  // --- Stan Autentykacji ---
-  // W prawdziwej aplikacji wartość ta byłaby pobierana z AuthService.
-  // Zmień na 'false', aby przetestować automatyczne przekierowanie do logowania.
   readonly isLoggedIn = signal<boolean>(true);
 
-  // --- Sygnały Stanu Kalendarza ---
   readonly rooms = signal<Room[]>([
     { id: 1, name: 'Sala 1' },
     { id: 2, name: 'Sala 2' },
@@ -39,7 +35,6 @@ export class CalendarPage implements OnInit {
     duration: number;
   } | null>(null);
 
-  // --- Stałe konfiguracyjne ---
   readonly hoursRange = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 do 21:00
   readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // 1-8h
   readonly monthLabels = [
@@ -57,8 +52,9 @@ export class CalendarPage implements OnInit {
     'Grudzień',
   ];
   readonly dayLabels = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
+  selectedDay = signal<Date | null>(null);
+  workingHours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 
-  // --- Obliczenia reaktywne (Computed) ---
   readonly weekDays = computed(() => {
     const start = this.currentWeekStart();
     return Array.from({ length: 7 }, (_, i) => {
@@ -82,12 +78,22 @@ export class CalendarPage implements OnInit {
     this.seedMockReservations();
     this.fetchReservations();
   }
+  // kolorek  przycisku
+  isSelectedDay(day: Date): boolean {
+    const selected = this.selectedDay();
 
-  // --- Symulacja zajętych godzin (Mock Data) ---
+    if (!selected) return false;
+
+    return (
+      day.getDate() === selected.getDate() &&
+      day.getMonth() === selected.getMonth() &&
+      day.getFullYear() === selected.getFullYear()
+    );
+  }
+
   private seedMockReservations() {
     const today = new Date();
 
-    // Generujemy przykładowe daty w formacie ISO dla bieżącego tygodnia
     const formatMockDate = (daysOffset: number, hour: number): string => {
       const d = this.getStartOfWeek(today);
       d.setDate(d.getDate() + daysOffset);
@@ -98,24 +104,44 @@ export class CalendarPage implements OnInit {
     };
 
     this.reservations.set([
-      // Poniedziałek: Sala 1 zajęta od 10:00 na 2 godziny
       { id: 101, reservedBy: 12, roomId: 1, startAt: formatMockDate(0, 10), duration: 'PT2H' },
-      // Poniedziałek: Sala 1 zajęta od 15:00 na 1 godzinę
+      { id: 101, reservedBy: 12, roomId: 2, startAt: formatMockDate(0, 10), duration: 'PT2H' },
       { id: 102, reservedBy: 15, roomId: 1, startAt: formatMockDate(0, 15), duration: 'PT1H' },
-      // Środa: Sala 1 zajęta od 08:00 na 3 godziny
+      { id: 102, reservedBy: 15, roomId: 2, startAt: formatMockDate(0, 15), duration: 'PT1H' },
       { id: 103, reservedBy: 19, roomId: 1, startAt: formatMockDate(2, 8), duration: 'PT3H' },
-      // Piątek: Sala 2 zajęta od 12:00 na 4 godziny
+      { id: 103, reservedBy: 19, roomId: 2, startAt: formatMockDate(2, 8), duration: 'PT3H' },
+      { id: 104, reservedBy: 22, roomId: 1, startAt: formatMockDate(4, 12), duration: 'PT4H' },
       { id: 104, reservedBy: 22, roomId: 2, startAt: formatMockDate(4, 12), duration: 'PT4H' },
     ]);
   }
 
-  // --- Obsługa Logiki biznesowej i Akcji ---
   private getStartOfWeek(date: Date): Date {
     const d = new Date(date);
     const day = d.getDay();
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     d.setHours(0, 0, 0, 0);
     return new Date(d.setDate(diff));
+  }
+
+  getDayOfWeekFromDay(day: Date) {
+    const dayOfWeek = String(day).substring(0, 3);
+    switch (dayOfWeek) {
+      case 'Mon':
+        return 'Pon';
+      case 'Tue':
+        return 'Wt';
+      case 'Wed':
+        return 'Śr';
+      case 'Thu':
+        return 'Czw';
+      case 'Fri':
+        return 'Pt';
+      case 'Sat':
+        return 'Sob';
+      case 'Sun':
+        return 'Ndz';
+    }
+    return dayOfWeek;
   }
 
   navigateWeek(direction: 'prev' | 'next') {
@@ -130,10 +156,11 @@ export class CalendarPage implements OnInit {
     this.selectedRoomId.set(Number(selectElement.value));
   }
 
-  fetchReservations() {
-    // Tutaj normalnie strzelasz do backendu i uzupełniasz dane:
-    // this.http.get<ReservationDto[]>(`${environment.apiUrl}/bookings`)...
+  getReservationsForDay(day: Date) {
+    this.selectedDay.set(day);
   }
+
+  fetchReservations() {}
 
   isHourReserved(day: Date, hour: number): boolean {
     return this.filteredReservations().some((res) => {
@@ -157,7 +184,6 @@ export class CalendarPage implements OnInit {
   }
 
   openBookingPopup(day: Date, hour: number) {
-    // KROK ZABEZPIECZAJĄCY: Jeśli użytkownik jest niezalogowany, przekieruj do logowania
     if (!this.isLoggedIn()) {
       this.router.navigate(['/login']);
       return;
@@ -186,9 +212,8 @@ export class CalendarPage implements OnInit {
       reservedBy: 999, // ID zalogowanego usera
     };
 
-    // Po udanym zapisie na backendzie, dodajemy rezerwację lokalnie do sygnału:
     const newReservation: ReservationDto = {
-      id: Math.random(), // tymczasowe ID frontowe
+      id: Math.random(),
       roomId: payload.roomId,
       startAt: payload.startAt,
       duration: payload.duration,
