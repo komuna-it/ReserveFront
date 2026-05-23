@@ -1,63 +1,88 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { User } from '../model/user';
-import { firstValueFrom } from 'rxjs';
-
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
+  private http = inject(HttpClient);
 
-  user = signal<User | null>(null);
+  private authData = signal<AuthResponse | null>(null);
+  readonly currentAuthData = this.authData.asReadonly();
 
-  constructor(private http: HttpClient) {
-    const saved = localStorage.getItem('user');
+  readonly isLoggedIn = computed(() => !!this.authData());
+  readonly email = signal<String | null>(localStorage.getItem('auth_email'));
+
+  readonly token = computed(() => this.authData()?.accessToken ?? null);
+  readonly loginEndpoint = `${environment.apiUrl}/auth/login`;
+  readonly registerEndpoint = `${environment.apiUrl}/auth/register`;
+
+  constructor() {
+    const saved = localStorage.getItem('auth_data');
     if (saved) {
-      this.user.set(JSON.parse(saved));
+      try {
+        this.authData.set(JSON.parse(saved));
+      } catch (e) {
+        this.logout();
+      }
     }
   }
 
-  async register(email: string, password: string): Promise<User> {
+  async login(email: string, password: string): Promise<AuthResponse> {
     try {
-      const user = await firstValueFrom(
-        this.http.post<User>(`${environment.apiUrl}/register`, { email, password })
-      );
-      this.user.set(user);
-      localStorage.setItem('user', JSON.stringify(user));
-      return user;
+      // Prod
+      // const response = await firstValueFrom(
+      //   this.http.post<AuthResponse>(this.loginEndpoint, { email, password }),
+      // );
+
+      // Test
+      const resp = ` 
+      { "accessToken" : "aaaaaaaaaaaaaaaaaaa",
+      "refreshToken" : "bbbbbbbbbbbbbbbbbbbbbbbb"} 
+      `;
+      const response = JSON.parse(resp);
+      this.setAuth(response);
+      this.email.set(email);
+      localStorage.setItem('auth_email', email);
+      return response;
     } catch (err: any) {
-      console.error('Register error caught in service:', err);
+      console.error('Login error caught:', err);
       throw err;
     }
   }
 
-  async login(email: string, password: string): Promise<User> {
+  async register(email: string, password: string): Promise<String> {
     try {
-      const user = await firstValueFrom(
-        this.http.post<User>(`${environment.apiUrl}/login`, { email, password })
-      );
-      this.user.set(user);
-      localStorage.setItem('user', JSON.stringify(user));
-      return user;
+      // Prod
+      // const response = await firstValueFrom(
+      //   this.http.post<AuthResponse>(this.registerEndpoint, { email, password }),
+      // );
+
+      // Test
+      const response = JSON.parse(` 
+        { "email" : "mtroja98@gmail.com" }`);
+      this.setAuth(response);
+      return response;
     } catch (err: any) {
-      console.error('Login error caught in service:', err);
+      console.error('Register error caught:', err);
       throw err;
     }
   }
+
   logout() {
-    this.user.set(null);
-    localStorage.removeItem('user');
+    this.authData.set(null);
+    this.email.set(null);
+    localStorage.removeItem('auth_data');
+    localStorage.removeItem('auth_email');
   }
 
-  isLoggedIn(): boolean {
-    return !!this.user();
+  private setAuth(data: AuthResponse) {
+    this.authData.set(data);
+    localStorage.setItem('auth_data', JSON.stringify(data));
   }
-
-  getUser(): User | null {
-    return this.user();
-  }
-
-  
 }

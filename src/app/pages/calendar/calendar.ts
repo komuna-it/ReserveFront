@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { Room } from '../../model/Room';
 import { ReservationDto } from '../../model/ReservationDto';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'calendar-page',
@@ -16,17 +17,17 @@ import { ReservationDto } from '../../model/ReservationDto';
 export class CalendarPage implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private authService = inject(AuthService);
   readonly getAllRoomsEndpoint = `${environment.apiUrl}/room/all`;
-  readonly isLoggedIn = signal<boolean>(true);
-
   readonly rooms = signal<Room[]>([]);
+  readonly daySelectedByUser = signal<Date>(new Date());
 
   getRoomsFromBackend() {
     this.http.get<Room[]>(this.getAllRoomsEndpoint).subscribe({
       next: (data) => {
         this.rooms.set(data);
         console.log('Received rooms from server:');
-        console.log(data.toString);
+        console.log(data);
       },
       error: (e) => console.error('Failed to download rooms from backend: ', e),
     });
@@ -34,6 +35,7 @@ export class CalendarPage implements OnInit {
   }
 
   readonly selectedRoomId = signal<number>(1);
+  readonly selectedRoomNane = signal<string>('');
   readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
   readonly reservations = signal<ReservationDto[]>([]);
   readonly selectedBooking = signal<{
@@ -41,6 +43,7 @@ export class CalendarPage implements OnInit {
     hour: number;
     roomId: number;
     duration: number;
+    roomName: string;
   } | null>(null);
 
   readonly hoursRange = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 do 21:00
@@ -101,7 +104,7 @@ export class CalendarPage implements OnInit {
     this.seedMockReservations();
     this.fetchReservations();
   }
-  // kolorek  przycisku
+  // kolorek  przycisku dnia (select)
   isSelectedDay(day: Date): boolean {
     const selected = this.selectedDay();
 
@@ -185,7 +188,9 @@ export class CalendarPage implements OnInit {
 
   fetchReservations() {}
 
-  isHourReserved(day: Date, hour: number): boolean {
+  isHourReserved(hour: number): boolean {
+    const day = this.daySelectedByUser();
+
     return this.filteredReservations().some((res) => {
       const resStart = new Date(res.startAt);
       const isSameDay =
@@ -206,12 +211,13 @@ export class CalendarPage implements OnInit {
     return hoursMatch ? parseInt(hoursMatch[1], 10) : 1;
   }
 
-  openBookingPopup(day: Date, hour: number) {
-    if (!this.isLoggedIn()) {
+  openBookingPopup(hour: number, roomId: number) {
+    if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/login']);
       return;
     }
 
+    const day = this.daySelectedByUser();
     const year = day.getFullYear();
     const month = String(day.getMonth() + 1).padStart(2, '0');
     const dateStr = String(day.getDate()).padStart(2, '0');
@@ -221,7 +227,13 @@ export class CalendarPage implements OnInit {
       hour: hour,
       roomId: this.selectedRoomId(),
       duration: 1,
+      roomName: this.rooms()[roomId].name,
     });
+  }
+
+  setDayByUser(day: Date) {
+    console.log('user selected day:', day.getDate(), ' month: ', day.getMonth());
+    this.daySelectedByUser.set(day);
   }
 
   confirmBooking() {
@@ -245,5 +257,14 @@ export class CalendarPage implements OnInit {
 
     this.reservations.update((list) => [...list, newReservation]);
     this.selectedBooking.set(null);
+  }
+
+  handleBookingClick(hour: number, roomId: number) {
+    console.log('handleBookingClick hour ' + hour + ' roomId ' + roomId);
+    if (this.authService.isLoggedIn()) {
+      this.openBookingPopup(hour, roomId);
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 }

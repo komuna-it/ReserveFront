@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { signal, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth';
+import { AuthService, AuthResponse } from '../../services/auth';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,12 +8,9 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [RouterLink, CommonModule],
   templateUrl: './navbar.html',
-  styleUrls: ['./navbar.css']
+  styleUrls: ['./navbar.css'],
 })
 export class Navbar {
-  constructor(public auth: AuthService) {} 
-
-  logout() {
-    this.auth.logout();
-  }
+  authService = inject(AuthService);
+  readonly isLoggedIn = this.authService.isLoggedIn;
 }
