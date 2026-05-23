@@ -13,7 +13,6 @@
     </a>
   </div>
 
-  <!-- Menu -->
   <div class="menu flex items-center space-x-4">
     <a
       routerLink="/calendar"
@@ -32,7 +31,7 @@
     @if (!authService.isLoggedIn()) {
       <a
         routerLink="/login"
-        class="mx-2 text-white text-[18px] px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
+        class="text-white text-[18px] px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
       >
         Login
       </a>
@@ -45,14 +44,14 @@
       </a>
     } @else {
       <a
-        class="text-white font-semibold px-4 py-2 bg-blue-600 rounded-lg shadow-md"
+        class="text-white text-[18px] font-semibold px-4 py-2 bg-blue-600 rounded-lg shadow-md"
         href="/profile"
       >
         Mój profil
       </a>
       <button
         (click)="authService.logout()"
-        class="text-white px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition-all shadow-md hover:shadow-lg"
+        class="text-[18px] text-white px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition-all shadow-md hover:shadow-lg"
       >
         Wyloguj
       </button>
