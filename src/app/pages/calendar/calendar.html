@@ -6,17 +6,6 @@
       <label for="roomSelect" class="text-sm font-bold text-slate-300 tracking-wide text-gray"
         >Wybierz datę i godzinę:</label
       >
-
-      <!-- <select
-        id="roomSelect"
-        [value]="selectedRoomId()"
-        (change)="onRoomChange($event)"
-        class="bg-slate-700 text-white font-medium border border-slate-600 rounded-lg px-3 py-2 shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
-      >
-        @for (room of rooms(); track room.id) {
-          <option [value]="room.id">{{ room.name }}</option>
-        }
-      </select> -->
     </div>
 
     <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
@@ -62,7 +51,7 @@
                 'text-sm bg-slate-700 text-slate-100  mx-2': !isSelectedDay(day),
               }"
             >
-              {{ getDayOfWeekFromDay(day) }}
+              {{ getDayOfWeekFromDayPolish(day) }}
             </span>
           </div>
         </div>

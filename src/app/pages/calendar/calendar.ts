@@ -16,14 +16,22 @@ import { ReservationDto } from '../../model/ReservationDto';
 export class CalendarPage implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
-
+  readonly getAllRoomsEndpoint = `${environment.apiUrl}/room/all`;
   readonly isLoggedIn = signal<boolean>(true);
 
-  readonly rooms = signal<Room[]>([
-    { id: 1, name: 'Sala 1' },
-    { id: 2, name: 'Sala 2' },
-    { id: 3, name: 'Sala 3' },
-  ]);
+  readonly rooms = signal<Room[]>([]);
+
+  getRoomsFromBackend() {
+    this.http.get<Room[]>(this.getAllRoomsEndpoint).subscribe({
+      next: (data) => {
+        this.rooms.set(data);
+        console.log('Received rooms from server:');
+        console.log(data.toString);
+      },
+      error: (e) => console.error('Failed to download rooms from backend: ', e),
+    });
+    return this.rooms;
+  }
 
   readonly selectedRoomId = signal<number>(1);
   readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
@@ -51,6 +59,9 @@ export class CalendarPage implements OnInit {
     'Listopad',
     'Grudzień',
   ];
+
+  isMoreThanOneMonth(week: Date[]) {}
+
   readonly dayLabels = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
   selectedDay = signal<Date | null>(null);
   workingHours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
@@ -66,7 +77,18 @@ export class CalendarPage implements OnInit {
 
   readonly currentWeekLabel = computed(() => {
     const start = this.currentWeekStart();
-    return `${this.monthLabels[start.getMonth()]} ${start.getFullYear()}`;
+    const startMonth = start.getMonth();
+
+    const lastDayInWeek = new Date(start);
+    lastDayInWeek.setDate(start.getDate() + 6);
+
+    const endMonth = lastDayInWeek.getMonth();
+
+    if (startMonth === endMonth) {
+      return `${this.monthLabels[start.getMonth()]} ${start.getFullYear()}`;
+    }
+
+    return `${this.monthLabels[startMonth]} - ${this.monthLabels[lastDayInWeek.getMonth()]} ${start.getFullYear()}`;
   });
 
   readonly filteredReservations = computed(() => {
@@ -75,6 +97,7 @@ export class CalendarPage implements OnInit {
   });
 
   ngOnInit() {
+    this.getRoomsFromBackend();
     this.seedMockReservations();
     this.fetchReservations();
   }
@@ -118,12 +141,12 @@ export class CalendarPage implements OnInit {
   private getStartOfWeek(date: Date): Date {
     const d = new Date(date);
     const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const diff = d.getDate() - (day === 0 ? 6 : day - 1);
     d.setHours(0, 0, 0, 0);
     return new Date(d.setDate(diff));
   }
 
-  getDayOfWeekFromDay(day: Date) {
+  getDayOfWeekFromDayPolish(day: Date) {
     const dayOfWeek = String(day).substring(0, 3);
     switch (dayOfWeek) {
       case 'Mon':
@@ -209,7 +232,7 @@ export class CalendarPage implements OnInit {
       roomId: booking.roomId,
       startAt: `${booking.date}T${String(booking.hour).padStart(2, '0')}:00:00`,
       duration: `PT${booking.duration}H`,
-      reservedBy: 999, // ID zalogowanego usera
+      reservedBy: 999,
     };
 
     const newReservation: ReservationDto = {
