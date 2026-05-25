@@ -55,7 +55,7 @@ jobs:
             fi
             ln -s '$VERSION' '${{ secrets.WORK_DIR }}/latest'
           "
-          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT_BETA }}" dist/vipsound/browser/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}/$VERSION/
+          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT_BETA }}" dist/vipsoundfront/browser/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}/$VERSION/
 
       - name: Restart Web Server
         run: |
