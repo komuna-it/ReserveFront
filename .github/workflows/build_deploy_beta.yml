@@ -47,7 +47,7 @@ jobs:
       - name: Upload Build via Rsync
         run: |
           VERSION=${{ steps.gitversion.outputs.fullSemVer }}
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_BETA }}"
             mkdir -p '${{ secrets.WORK_DIR }}/$VERSION';
             if [ -L '${{ secrets.WORK_DIR }}/latest' ]; then
               unlink '${{ secrets.WORK_DIR }}/latest';
