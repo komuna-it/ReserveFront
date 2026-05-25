@@ -131,6 +131,7 @@ export class CalendarPage implements OnInit {
 
     this.reservations.set([
       { id: 101, reservedBy: 12, roomId: 1, startAt: formatMockDate(0, 10), duration: 'PT2H' },
+      { id: 101, reservedBy: 12, roomId: 1, startAt: formatMockDate(0, 10), duration: 'PT2H' },
       { id: 101, reservedBy: 12, roomId: 2, startAt: formatMockDate(0, 10), duration: 'PT2H' },
       { id: 102, reservedBy: 15, roomId: 1, startAt: formatMockDate(0, 15), duration: 'PT1H' },
       { id: 102, reservedBy: 15, roomId: 2, startAt: formatMockDate(0, 15), duration: 'PT1H' },
