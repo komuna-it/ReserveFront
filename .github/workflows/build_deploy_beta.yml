@@ -44,18 +44,18 @@ jobs:
 
       - name: Add Host to Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_BETA }} >> ~/.ssh/known_hosts
+
       - name: Upload Build via Rsync
         run: |
           VERSION=${{ steps.gitversion.outputs.fullSemVer }}
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_BETA }}"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_BETA }} "
             mkdir -p '${{ secrets.WORK_DIR }}/$VERSION';
             if [ -L '${{ secrets.WORK_DIR }}/latest' ]; then
               unlink '${{ secrets.WORK_DIR }}/latest';
             fi
             ln -s '$VERSION' '${{ secrets.WORK_DIR }}/latest'
           "
-
-          rsync -avz dist/vipsound/browser/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}/$VERSION/
+          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT_BETA }}" dist/vipsound/browser/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}/$VERSION/
 
       - name: Restart Web Server
         run: |
