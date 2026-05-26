@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { Room } from '../../model/Room';
-import { ReservationDto } from '../../model/ReservationDto';
+import { ReservationReq, ReservationResp } from '../../model/ReservationDto';
 import { AuthService } from '../../services/auth';
 
 @Component({
@@ -19,6 +19,7 @@ export class CalendarPage implements OnInit {
   private router = inject(Router);
   private authService = inject(AuthService);
   readonly getAllRoomsEndpoint = `${environment.apiUrl}/room/all`;
+  readonly getReservationsByRoomEndpoint = `${environment.apiUrl}/reservation/room`;
   readonly rooms = signal<Room[]>([]);
   readonly daySelectedByUser = signal<Date>(new Date());
 
@@ -28,6 +29,7 @@ export class CalendarPage implements OnInit {
         this.rooms.set(data);
         console.log('Received rooms from server:');
         console.log(data);
+        this.fetchReservations();
       },
       error: (e) => console.error('Failed to download rooms from backend: ', e),
     });
@@ -37,7 +39,8 @@ export class CalendarPage implements OnInit {
   readonly selectedRoomId = signal<number>(1);
   readonly selectedRoomNane = signal<string>('');
   readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
-  readonly reservations = signal<ReservationDto[]>([]);
+  readonly reservationRequests = signal<ReservationReq[]>([]);
+  readonly reservationResponses = signal<ReservationResp[]>([]);
   readonly selectedBooking = signal<{
     date: string;
     hour: number;
@@ -96,13 +99,11 @@ export class CalendarPage implements OnInit {
 
   readonly filteredReservations = computed(() => {
     const targetRoomId = this.selectedRoomId();
-    return this.reservations().filter((res) => res.roomId === targetRoomId);
+    return this.reservationResponses().filter((res) => res.roomId === targetRoomId);
   });
 
   ngOnInit() {
     this.getRoomsFromBackend();
-    this.seedMockReservations();
-    this.fetchReservations();
   }
   // kolorek  przycisku dnia (select)
   isSelectedDay(day: Date): boolean {
@@ -115,31 +116,6 @@ export class CalendarPage implements OnInit {
       day.getMonth() === selected.getMonth() &&
       day.getFullYear() === selected.getFullYear()
     );
-  }
-
-  private seedMockReservations() {
-    const today = new Date();
-
-    const formatMockDate = (daysOffset: number, hour: number): string => {
-      const d = this.getStartOfWeek(today);
-      d.setDate(d.getDate() + daysOffset);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}T${String(hour).padStart(2, '0')}:00:00`;
-    };
-
-    this.reservations.set([
-      { id: 101, reservedBy: 12, roomId: 1, startAt: formatMockDate(0, 10), duration: 'PT2H' },
-      { id: 101, reservedBy: 12, roomId: 1, startAt: formatMockDate(0, 10), duration: 'PT2H' },
-      { id: 101, reservedBy: 12, roomId: 2, startAt: formatMockDate(0, 10), duration: 'PT2H' },
-      { id: 102, reservedBy: 15, roomId: 1, startAt: formatMockDate(0, 15), duration: 'PT1H' },
-      { id: 102, reservedBy: 15, roomId: 2, startAt: formatMockDate(0, 15), duration: 'PT1H' },
-      { id: 103, reservedBy: 19, roomId: 1, startAt: formatMockDate(2, 8), duration: 'PT3H' },
-      { id: 103, reservedBy: 19, roomId: 2, startAt: formatMockDate(2, 8), duration: 'PT3H' },
-      { id: 104, reservedBy: 22, roomId: 1, startAt: formatMockDate(4, 12), duration: 'PT4H' },
-      { id: 104, reservedBy: 22, roomId: 2, startAt: formatMockDate(4, 12), duration: 'PT4H' },
-    ]);
   }
 
   private getStartOfWeek(date: Date): Date {
@@ -187,7 +163,29 @@ export class CalendarPage implements OnInit {
     this.selectedDay.set(day);
   }
 
-  fetchReservations() {}
+  fetchReservations() {
+    console.log('inside fetchReservations, rooms length : ', this.rooms().length);
+    if (this.rooms().length === 0) {
+      console.error('No rooms available after fetch attempt. Cannot fetch reservations.');
+      return;
+    }
+    for (const room of this.rooms()) {
+      const url = `${this.getReservationsByRoomEndpoint}/${room.id}`;
+      console.log('fetching reservations with url: ', url);
+      this.reservationResponses.set([]);
+
+      this.http.get<ReservationResp[]>(url).subscribe({
+        next: (data) => {
+          this.reservationResponses.set(data);
+          console.log(
+            'Received ' + data.length + ' reservation responses for room ' + room.id + ':',
+          );
+          console.log(data);
+        },
+        error: (e) => console.error('Failed to download reservation responses from backend: ', e),
+      });
+    }
+  }
 
   isHourReserved(hour: number): boolean {
     const day = this.daySelectedByUser();
@@ -248,15 +246,14 @@ export class CalendarPage implements OnInit {
       reservedBy: 999,
     };
 
-    const newReservation: ReservationDto = {
-      id: Math.random(),
+    const newReservation: ReservationReq = {
       roomId: payload.roomId,
       startAt: payload.startAt,
       duration: payload.duration,
       reservedBy: payload.reservedBy,
     };
 
-    this.reservations.update((list) => [...list, newReservation]);
+    this.reservationRequests.update((list) => [...list, newReservation]);
     this.selectedBooking.set(null);
   }
 
