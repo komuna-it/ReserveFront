@@ -36,7 +36,7 @@ export class CalendarPage implements OnInit {
     return this.rooms;
   }
 
-  readonly selectedRoomId = signal<number>(1);
+  readonly roomIdSelectedByUser = signal<number>(1);
   readonly selectedRoomNane = signal<string>('');
   readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
   readonly reservationRequests = signal<ReservationReq[]>([]);
@@ -97,11 +97,6 @@ export class CalendarPage implements OnInit {
     return `${this.monthLabels[startMonth]} - ${this.monthLabels[lastDayInWeek.getMonth()]} ${start.getFullYear()}`;
   });
 
-  readonly filteredReservations = computed(() => {
-    const targetRoomId = this.selectedRoomId();
-    return this.reservationResponses().filter((res) => res.roomId === targetRoomId);
-  });
-
   ngOnInit() {
     this.getRoomsFromBackend();
   }
@@ -156,7 +151,7 @@ export class CalendarPage implements OnInit {
 
   onRoomChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
-    this.selectedRoomId.set(Number(selectElement.value));
+    this.roomIdSelectedByUser.set(Number(selectElement.value));
   }
 
   getReservationsForDay(day: Date) {
@@ -187,22 +182,34 @@ export class CalendarPage implements OnInit {
     }
   }
 
-  isHourReserved(hour: number): boolean {
-    const day = this.daySelectedByUser();
+  isHourReserved(hour: number, checkingRoomId: number): boolean {
+    for (const existingReservation of this.reservationResponses()) {
+      if (existingReservation.roomId === checkingRoomId) {
+        const checkingDay = this.daySelectedByUser();
+        // check day
+        const reservationStart = new Date(existingReservation.startAt);
+        if (checkingDay.getDate() === reservationStart.getDate()) {
+          const isSameDay =
+            reservationStart.getFullYear() === checkingDay.getFullYear() &&
+            reservationStart.getMonth() === checkingDay.getMonth() &&
+            reservationStart.getDate() === checkingDay.getDate();
+          if (!isSameDay) return false;
 
-    return this.filteredReservations().some((res) => {
-      const resStart = new Date(res.startAt);
-      const isSameDay =
-        resStart.getFullYear() === day.getFullYear() &&
-        resStart.getMonth() === day.getMonth() &&
-        resStart.getDate() === day.getDate();
+          // check hour
+          const existingReservationStartHour = reservationStart.getHours();
+          const durationHours = this.parseDurationToHours(existingReservation.duration);
 
-      if (!isSameDay) return false;
+          if (
+            hour >= existingReservationStartHour &&
+            hour < existingReservationStartHour + durationHours
+          ) {
+            return true;
+          }
+        }
+      }
+    }
 
-      const startHour = resStart.getHours();
-      const durationHours = this.parseDurationToHours(res.duration);
-      return hour >= startHour && hour < startHour + durationHours;
-    });
+    return false;
   }
 
   private parseDurationToHours(isoDuration: string): number {
@@ -224,7 +231,7 @@ export class CalendarPage implements OnInit {
     this.selectedBooking.set({
       date: `${year}-${month}-${dateStr}`,
       hour: hour,
-      roomId: this.selectedRoomId(),
+      roomId: this.roomIdSelectedByUser(),
       duration: 1,
       roomName: this.rooms()[roomId].name,
     });
