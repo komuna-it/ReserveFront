@@ -1,11 +1,8 @@
-export interface ReservationReq {
+export interface ReservationDto {
+  id: number | null;
   reservedBy: number;
   behalfOf?: number | null;
   roomId: number;
   startAt: string;
   duration: string;
-}
-
-export interface ReservationResp extends ReservationReq {
-  id: number;
 }

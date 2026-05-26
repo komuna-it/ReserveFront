@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { Room } from '../../model/Room';
-import { ReservationReq, ReservationResp } from '../../model/ReservationDto';
+import { ReservationDto as ReservationDto } from '../../model/ReservationDto';
 import { AuthService } from '../../services/auth';
 
 @Component({
@@ -39,14 +39,14 @@ export class CalendarPage implements OnInit {
   readonly roomIdSelectedByUser = signal<number>(1);
   readonly selectedRoomNane = signal<string>('');
   readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
-  readonly reservationRequests = signal<ReservationReq[]>([]);
-  readonly reservationResponses = signal<ReservationResp[]>([]);
+  readonly reservationRequests = signal<ReservationDto[]>([]);
+  readonly reservationResponses = signal<ReservationDto[]>([]);
   readonly selectedBooking = signal<{
     date: string;
     hour: number;
     roomId: number;
     duration: number;
-    roomName: string;
+    roomName: string | undefined;
   } | null>(null);
 
   readonly hoursRange = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 do 21:00
@@ -169,9 +169,9 @@ export class CalendarPage implements OnInit {
       console.log('fetching reservations with url: ', url);
       this.reservationResponses.set([]);
 
-      this.http.get<ReservationResp[]>(url).subscribe({
+      this.http.get<ReservationDto[]>(url).subscribe({
         next: (data) => {
-          this.reservationResponses.set(data);
+          this.reservationResponses.update((prev) => [...prev, ...data]);
           console.log(
             'Received ' + data.length + ' reservation responses for room ' + room.id + ':',
           );
@@ -218,6 +218,7 @@ export class CalendarPage implements OnInit {
   }
 
   openBookingPopup(hour: number, roomId: number) {
+    console.log('Opening booking popup for hour: ', hour, ' roomId: ', roomId);
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/login']);
       return;
@@ -231,9 +232,9 @@ export class CalendarPage implements OnInit {
     this.selectedBooking.set({
       date: `${year}-${month}-${dateStr}`,
       hour: hour,
-      roomId: this.roomIdSelectedByUser(),
+      roomId: roomId,
       duration: 1,
-      roomName: this.rooms()[roomId].name,
+      roomName: this.rooms().find((r) => r.id === roomId)?.name,
     });
   }
 
@@ -244,24 +245,36 @@ export class CalendarPage implements OnInit {
 
   confirmBooking() {
     const booking = this.selectedBooking();
+    console.log('Confirming booking: ', booking);
     if (!booking) return;
 
     const payload = {
+      id: null,
+      behalfOf: 1,
       roomId: booking.roomId,
       startAt: `${booking.date}T${String(booking.hour).padStart(2, '0')}:00:00`,
       duration: `PT${booking.duration}H`,
-      reservedBy: 999,
+      reservedBy: 1,
     };
-
-    const newReservation: ReservationReq = {
+    console.log('Constructed payload for reservation: ', payload);
+    const newReservation: ReservationDto = {
+      id: payload.id,
+      behalfOf: payload.behalfOf,
       roomId: payload.roomId,
       startAt: payload.startAt,
       duration: payload.duration,
       reservedBy: payload.reservedBy,
     };
-
-    this.reservationRequests.update((list) => [...list, newReservation]);
+    console.log('Creating reservation with payload: ', payload);
+    this.http.post<ReservationDto>(`${environment.apiUrl}/reservation`, payload).subscribe({
+      next: (response) => {
+        console.log('Reservation created successfully:', response);
+        this.reservationRequests.update((requests) => [...requests, response]);
+      },
+      error: (e) => console.error('Failed to create reservation: ', e),
+    });
     this.selectedBooking.set(null);
+    this.reservationResponses.update((prev) => [...prev, newReservation]);
   }
 
   handleBookingClick(hour: number, roomId: number) {
