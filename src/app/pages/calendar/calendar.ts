@@ -18,8 +18,8 @@ export class CalendarPage implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private authService = inject(AuthService);
-  readonly getAllRoomsEndpoint = `${environment.apiUrl}/room/all`;
-  readonly getReservationsByRoomEndpoint = `${environment.apiUrl}/reservation/room`;
+  readonly getAllRoomsEndpoint = `${process.env.VSF_API_URL}/room/all`;
+  readonly getReservationsByRoomEndpoint = `${process.env.VSF_API_URL}/reservation/room`;
   readonly rooms = signal<Room[]>([]);
   readonly daySelectedByUser = signal<Date>(new Date());
 
