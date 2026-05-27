@@ -266,7 +266,7 @@ export class CalendarPage implements OnInit {
       reservedBy: payload.reservedBy,
     };
     console.log('Creating reservation with payload: ', payload);
-    this.http.post<ReservationDto>(`${environment.apiUrl}/reservation`, payload).subscribe({
+    this.http.post<ReservationDto>(`${process.env.VSF_API_URL}/reservation`, payload).subscribe({
       next: (response) => {
         console.log('Reservation created successfully:', response);
         this.reservationRequests.update((requests) => [...requests, response]);
