@@ -1,9 +1,18 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+import { CookieService } from 'ngx-cookie-service';
+import { Observable, tap, of, map } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
+}
+
+interface JwtPayload {
+  sub: string;
+  iat: number;
+  exp: number;
 }
 
 @Injectable({
@@ -11,78 +20,110 @@ export interface AuthResponse {
 })
 export class AuthService {
   private http = inject(HttpClient);
+  private cookieService = inject(CookieService);
 
-  private authData = signal<AuthResponse | null>(null);
-  readonly currentAuthData = this.authData.asReadonly();
+  private apiUrl = process.env['VSF_API_URL'] || '';
 
-  readonly isLoggedIn = computed(() => !!this.authData());
-  readonly email = signal<String | null>(localStorage.getItem('auth_email'));
+  private isAuthenticatedSignal = signal<boolean>(this.hasValidToken());
+  public isAuthenticated = this.isAuthenticatedSignal.asReadonly();
 
-  readonly token = computed(() => this.authData()?.accessToken ?? null);
-  readonly loginEndpoint = `${environment.apiUrl}/auth/login`;
-  readonly registerEndpoint = `${environment.apiUrl}/auth/register`;
+  readonly loginEndpoint = `${this.apiUrl}/auth/login`;
+  readonly registerEndpoint = `${this.apiUrl}/auth/register`;
 
-  constructor() {
-    const saved = localStorage.getItem('auth_data');
-    if (saved) {
-      try {
-        this.authData.set(JSON.parse(saved));
-      } catch (e) {
-        this.logout();
-      }
-    }
+  login(email: string, password: string): Observable<void> {
+    //   Prod
+    //   return this.http.post<AuthResponse>(this.loginEndpoint, { email, password }).pipe(
+    //     tap(response => this.handleAuthentication(response))
+    //   );
+
+    // Test
+    const resp: AuthResponse = {
+      accessToken: 'aaaaaaaaaaaaaaaaaaa',
+      refreshToken: 'bbbbbbbbbbbbbbbbbbbbbbbb',
+    };
+
+    return of(resp).pipe(
+      tap((response) => this.handleAuthentication(response)),
+      map(() => void 0),
+    );
   }
 
-  async login(email: string, password: string): Promise<AuthResponse> {
+  async register(email: string, password: string): Promise<string> {
     try {
       // Prod
       // const response = await firstValueFrom(
-      //   this.http.post<AuthResponse>(this.loginEndpoint, { email, password }),
+      //   this.http.post<{ email: string }>(this.registerEndpoint, { email, password }),
       // );
+      // return response.email;
 
       // Test
-      const resp = ` 
-      { "accessToken" : "aaaaaaaaaaaaaaaaaaa",
-      "refreshToken" : "bbbbbbbbbbbbbbbbbbbbbbbb"} 
-      `;
-      const response = JSON.parse(resp);
-      this.setAuth(response);
-      this.email.set(email);
-      localStorage.setItem('auth_email', email);
-      return response;
-    } catch (err: any) {
-      console.error('Login error caught:', err);
-      throw err;
-    }
-  }
-
-  async register(email: string, password: string): Promise<String> {
-    try {
-      // Prod
-      // const response = await firstValueFrom(
-      //   this.http.post<AuthResponse>(this.registerEndpoint, { email, password }),
-      // );
-
-      // Test
-      const response = JSON.parse(` 
-        { "email" : "mtroja98@gmail.com" }`);
-      this.setAuth(response);
-      return response;
+      const response = JSON.parse(`{ "email" : "mtroja98@gmail.com" }`);
+      return response.email;
     } catch (err: any) {
       console.error('Register error caught:', err);
       throw err;
     }
   }
 
-  logout() {
-    this.authData.set(null);
-    this.email.set(null);
-    localStorage.removeItem('auth_data');
-    localStorage.removeItem('auth_email');
+  private handleAuthentication(response: AuthResponse) {
+    const accessExpiry = new Date();
+    accessExpiry.setMinutes(accessExpiry.getMinutes() + 2);
+
+    const refreshExpiry = new Date();
+    refreshExpiry.setDate(refreshExpiry.getDate() + 10);
+
+    this.cookieService.set(
+      'access_token',
+      response.accessToken,
+      accessExpiry,
+      '/',
+      undefined,
+      true,
+      'Strict',
+    );
+
+    this.cookieService.set(
+      'refresh_token',
+      response.refreshToken,
+      refreshExpiry,
+      '/',
+      undefined,
+      true,
+      'Strict',
+    );
+
+    this.cookieService.set('user_id', '1', refreshExpiry, '/', undefined, true, 'Strict');
+
+    console.log('setting authenticated true');
+    this.isAuthenticatedSignal.set(true);
+    console.log('isAuthenticated after login:', this.isAuthenticated());
   }
 
-  private setAuth(data: AuthResponse) {
-    this.authData.set(data);
-    localStorage.setItem('auth_data', JSON.stringify(data));
+  public getAccessToken(): string {
+    return this.cookieService.get('access_token');
+  }
+
+  public getUserIdFromToken(): string | null {
+    const token = this.getAccessToken();
+    if (!token) return null;
+
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      return decoded.sub;
+    } catch (error) {
+      console.error('Błąd podczas dekodowania tokenu:', error);
+      return null;
+    }
+  }
+
+  public logout() {
+    this.cookieService.delete('access_token', '/');
+    this.cookieService.delete('refresh_token', '/');
+    this.cookieService.delete('user_id', '/');
+    this.isAuthenticatedSignal.set(false);
+  }
+
+  private hasValidToken(): boolean {
+    return this.cookieService.check('access_token');
   }
 }

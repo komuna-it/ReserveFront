@@ -4,30 +4,47 @@ import { AuthService } from '../../services/auth';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-
 @Component({
   selector: 'login-page',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  styleUrls: ['./login.css'],
 })
 export class LoginPage {
-  constructor(private authService: AuthService, private router: Router) {}
-
   email = '';
   password = '';
   errorMessage = '';
+  isLoading = false;
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
-  async login() {
-    this.errorMessage = ''; // clear previous error
-    try {
-      const user = await this.authService.login(this.email, this.password);
-      if (user) {
+  login() {
+    this.errorMessage = '';
+    this.isLoading = true;
+
+    this.authService.login(this.email, this.password).subscribe({
+      next: () => {
+        this.isLoading = false;
         this.router.navigate(['/']);
-      }
-    } catch (error: any) {
-      this.errorMessage = error.error?.message || 'Błąd logowania';
-    }
+      },
+
+      error: (err) => {
+        this.isLoading = false;
+
+        if (err.status === 401 || err.status === 403) {
+          this.errorMessage = 'Nieprawidłowy adres e-mail lub hasło';
+        } else if (err.status === 0) {
+          this.errorMessage = 'Brak połączenia z serwerem';
+        } else {
+          this.errorMessage =
+            err.error?.message || 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później';
+        }
+
+        console.error('Błąd logowania:', err);
+      },
+    });
   }
 }

@@ -48,7 +48,7 @@ export class CalendarPage implements OnInit {
     duration: number;
     roomName: string | undefined;
   } | null>(null);
-
+  readonly displayBookingSuccesfulPopup = signal<boolean>(false);
   readonly hoursRange = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 do 21:00
   readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // 1-8h
   readonly monthLabels = [
@@ -219,7 +219,7 @@ export class CalendarPage implements OnInit {
 
   openBookingPopup(hour: number, roomId: number) {
     console.log('Opening booking popup for hour: ', hour, ' roomId: ', roomId);
-    if (!this.authService.isLoggedIn()) {
+    if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login']);
       return;
     }
@@ -275,11 +275,16 @@ export class CalendarPage implements OnInit {
     });
     this.selectedBooking.set(null);
     this.reservationResponses.update((prev) => [...prev, newReservation]);
+    this.openBookingSuccessfulPopup();
+  }
+
+  openBookingSuccessfulPopup() {
+    this.displayBookingSuccesfulPopup.set(true);
   }
 
   handleBookingClick(hour: number, roomId: number) {
     console.log('handleBookingClick hour ' + hour + ' roomId ' + roomId);
-    if (this.authService.isLoggedIn()) {
+    if (this.authService.isAuthenticated()) {
       this.openBookingPopup(hour, roomId);
     } else {
       this.router.navigate(['/login']);

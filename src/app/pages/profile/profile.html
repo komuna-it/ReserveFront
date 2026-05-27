@@ -1,47 +1,136 @@
 <div class="p-6 bg-slate-900 text-slate-100 min-h-screen antialiased">
-  <div class="flex flex-col">
-    <div class="flex justify-center"><span>Profil zespołu: ZESPÓŁ</span></div>
-    <div class="flex justify-between my-10">
+  <div class="max-w-6xl mx-auto flex flex-col gap-6">
+    <div
+      class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col md:flex-row justify-between items-center gap-4"
+    >
       <div>
-        <span class="flex items-center justify-center gap-4 w-full">Moje rezerwacje</span>
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="border-b border-slate-600 text-slate-400">
-              <th class="py-3 px-4 font-semibold text-center">Lp</th>
-              <th class="py-3 px-4 font-semibold text-center">Data</th>
-              <th class="py-3 px-4 font-semibold text-center">Sala</th>
-              <th class="py-3 px-4 font-semibold text-center">Cena</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>data</td>
-              <td>sala</td>
-              <td>cena</td>
-            </tr>
-          </tbody>
-        </table>
+        <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          Profil zespołu: <span class="text-blue-400">{{ organization.name }}</span>
+        </h1>
+        <p class="text-sm text-slate-400 mt-1">
+          Zarządzaj rezerwacjami sal i składem swojego zespołu
+        </p>
       </div>
-      <div>
-        <span>Moje zespoły</span>
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="border-b border-slate-600 text-slate-400">
-              <th class="py-3 px-4 font-semibold text-center">Lp</th>
-              <th class="py-3 px-4 font-semibold text-center">Imię</th>
-              <th class="py-3 px-4 font-semibold text-center">email</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>michal</td>
-              <td>mtroja98@gmail.com</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="bg-slate-900 px-4 py-2 rounded-lg border border-slate-700 text-xs font-mono">
+        <span class="text-slate-500"> debug ID konta:</span>
+        <span class="text-slate-500 font-bold ml-1">{{ userId || 'Brak (Niezalogowany)' }}</span>
       </div>
     </div>
+
+    <div class="flex border-b border-slate-700 gap-2">
+      <button
+        (click)="activeTab.set('reservations')"
+        [class.border-blue-500]="activeTab() === 'reservations'"
+        [class.text-blue-400]="activeTab() === 'reservations'"
+        [class.bg-slate-800]="activeTab() === 'reservations'"
+        class="px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all rounded-t-lg"
+      >
+        Moje rezerwacje
+      </button>
+      <button
+        (click)="activeTab.set('team')"
+        [class.border-blue-500]="activeTab() === 'team'"
+        [class.text-blue-400]="activeTab() === 'team'"
+        [class.bg-slate-800]="activeTab() === 'team'"
+        class="px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all rounded-t-lg"
+      >
+        Mój zespół
+      </button>
+    </div>
+
+    @if (activeTab() === 'reservations') {
+      <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
+        <div
+          class="p-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center"
+        >
+          <h3 class="font-semibold text-slate-200">Rezerwacje przypisane do Twojej organizacji</h3>
+          <button
+            (click)="fetchReservations()"
+            class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded transition"
+          >
+            Odśwież dane
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          @for (res of filteredReservations(); track res.id; let i = $index) {
+            @if (i === 0) {
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr
+                    class="bg-slate-900/50 border-b border-slate-700 text-slate-400 text-xs font-semibold uppercase tracking-wider"
+                  >
+                    <th class="py-3 px-6">Lp</th>
+                    <th class="py-3 px-6">Sala</th>
+                    <th class="py-3 px-6">Data rozpoczęcia</th>
+                    <th class="py-3 px-6">Czas trwania</th>
+                    <th class="py-3 px-6">Rezerwujący</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700 text-sm">
+                  @for (innerRes of filteredReservations(); track innerRes.id; let idx = $index) {
+                    <tr class="hover:bg-slate-700/30 transition">
+                      <td class="py-4 px-6 text-slate-500 font-mono">{{ idx + 1 }}</td>
+                      <td class="py-4 px-6">
+                        <span
+                          class="bg-slate-900 px-2 py-1 rounded text-slate-300 text-xs border border-slate-700"
+                        >
+                          Sala {{ innerRes.roomId }}
+                        </span>
+                      </td>
+                      <td class="py-4 px-6 text-slate-300">{{ formatDate(innerRes.startAt) }}</td>
+                      <td class="py-4 px-6 font-mono text-emerald-400">
+                        {{ formatDuration(innerRes.duration) }}
+                      </td>
+                      <td class="py-4 px-6 text-slate-400">User {{ innerRes.reservedBy }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          } @empty {
+            <div class="p-12 text-center text-slate-500">
+              <p class="text-lg">
+                Brak aktywnych rezerwacji dla organizacji o ID {{ organization.id }}.
+              </p>
+              <p class="text-sm text-slate-600 mt-1">
+                Upewnij się, że pole 'behalf_of' w bazie danych odpowiada Twojemu zespołowi.
+              </p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'team') {
+      <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
+        <div class="p-4 bg-slate-800/50 border-b border-slate-700">
+          <h3 class="font-semibold text-slate-200">Członkowie zespołu</h3>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr
+                class="bg-slate-900/50 border-b border-slate-700 text-slate-400 text-xs font-semibold uppercase tracking-wider"
+              >
+                <th class="py-3 px-6">Lp</th>
+                <th class="py-3 px-6">Nazwa użytkownika</th>
+                <th class="py-3 px-6">Adres E-mail</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-700 text-sm">
+              @for (user of organization.users; track user.id; let index = $index) {
+                <tr class="hover:bg-slate-700/30 transition">
+                  <td class="py-4 px-6 text-slate-500 font-mono">{{ index + 1 }}</td>
+                  <td class="py-4 px-6 font-semibold text-white">{{ user.nick }}</td>
+                  <td class="py-4 px-6 text-slate-300 font-mono text-xs">{{ user.email }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
   </div>
 </div>
