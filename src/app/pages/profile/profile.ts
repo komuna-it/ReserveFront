@@ -2,22 +2,10 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth'; // Twój bezpieczny serwis auth
-import { User } from '../../model/User';
-import { Organization } from '../../model/Organization';
-
-export interface ReservationDto {
-  id: number;
-  reservedBy: number;
-  behalfOf: number;
-  roomId: number;
-  startAt: string;
-  duration: string;
-}
-
-interface RoomMock {
-  id: number;
-  name: string;
-}
+import { User } from '../../model/user';
+import { Organization } from '../../model/organization';
+import { ReservationDto } from '../../model/reservationDto';
+import { Room } from '../../model/room';
 
 @Component({
   selector: 'app-profile',
@@ -43,7 +31,7 @@ export class ProfilePage implements OnInit {
   readonly users = [this.user1, this.user2, this.user3];
   readonly organization = new Organization(1, 'ZESPÓŁ', this.users);
 
-  readonly rooms = signal<RoomMock[]>([
+  readonly rooms = signal<Room[]>([
     { id: 1, name: 'Sala Konferencyjna A' },
     { id: 2, name: 'Studio Nagrań B' },
   ]);

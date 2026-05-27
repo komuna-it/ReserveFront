@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { environment } from '../../../environments/environment';
-import { Room } from '../../model/Room';
-import { ReservationDto as ReservationDto } from '../../model/ReservationDto';
+import { ReservationDto } from '../../model/reservationDto';
+import { Room } from '../../model/room';
 import { AuthService } from '../../services/auth';
 
 @Component({
