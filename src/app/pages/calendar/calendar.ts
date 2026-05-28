@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReservationDto } from '../../model/reservationDto';
+import { HourWrapper } from '../../model/hourWrapper';
 import { Room } from '../../model/room';
 import { AuthService } from '../../services/auth';
 
@@ -14,25 +15,22 @@ import { AuthService } from '../../services/auth';
   templateUrl: './calendar.html',
 })
 export class CalendarPage implements OnInit, OnDestroy {
-  // DI
   private http = inject(HttpClient);
   private router = inject(Router);
   private authService = inject(AuthService);
   private eventSource: EventSource | null = null;
 
-  // endpoints
-  readonly getAllRoomsEndpoint = `${process.env.VSF_API_URL}/room/all`;
-  readonly getReservationsByRoomEndpoint = `${process.env.VSF_API_URL}/reservation/room`;
-  readonly sseReservationEndpoint = `${process.env.VSF_API_URL}/reservation/sse`;
+  readonly apiUrl = process.env['VSF_API_URL'] || '';
+  readonly getAllRoomsEndpoint = `${this.apiUrl}/room/all`;
+  readonly getReservationsByRoomEndpoint = `${this.apiUrl}/reservation/room`;
+  readonly sseReservationEndpoint = `${this.apiUrl}/reservation/sse`;
+  readonly postReservationEndpoint = `${this.apiUrl}/reservation`;
 
-  // signals
-  readonly roomIdSelectedByUser = signal<number>(1);
-  readonly selectedRoomNane = signal<string>('');
-  readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
-  readonly reservationRequests = signal<ReservationDto[]>([]);
-  readonly reservationResponses = signal<ReservationDto[]>([]);
   readonly rooms = signal<Room[]>([]);
+  readonly reservationResponses = signal<ReservationDto[]>([]);
   readonly daySelectedByUser = signal<Date>(new Date());
+  readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
+  readonly currentMonthDate = signal<Date>(new Date());
 
   readonly selectedBooking = signal<{
     date: string;
@@ -43,23 +41,8 @@ export class CalendarPage implements OnInit, OnDestroy {
   } | null>(null);
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
 
-  // ===
-  // === dates constants
-  // ===
-  readonly selectedDay = signal<Date | null>(null);
-  readonly workingHours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
-
-  readonly weekDays = computed(() => {
-    const start = this.currentWeekStart();
-    return Array.from({ length: 7 }, (_, i) => {
-      const day = new Date(start);
-      day.setDate(start.getDate() + i);
-      return day;
-    });
-  });
-
   readonly hoursRange = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 - 21:00
-  readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // 1-8h
+  readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // max 8 hs
   readonly monthLabels = [
     'Styczeń',
     'Luty',
@@ -74,65 +57,115 @@ export class CalendarPage implements OnInit, OnDestroy {
     'Listopad',
     'Grudzień',
   ];
+  readonly weekDayLabels = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Ndz'];
 
-  getDayOfWeekFromDayPolish(day: Date) {
-    const dayOfWeek = String(day).substring(0, 3);
-    switch (dayOfWeek) {
-      case 'Mon':
-        return 'Pon';
-      case 'Tue':
-        return 'Wt';
-      case 'Wed':
-        return 'Śr';
-      case 'Thu':
-        return 'Czw';
-      case 'Fri':
-        return 'Pt';
-      case 'Sat':
-        return 'Sob';
-      case 'Sun':
-        return 'Ndz';
-    }
-    return dayOfWeek;
-  }
+  readonly weekDays = computed(() => {
+    const start = this.currentWeekStart();
+    return Array.from({ length: 7 }, (_, i) => {
+      const day = new Date(start);
+      day.setDate(start.getDate() + i);
+      return day;
+    });
+  });
 
-  isMoreThanOneMonth(week: Date[]) {}
+  readonly monthGridDays = computed(() => {
+    const viewDate = this.currentMonthDate();
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
 
-  readonly dayLabels = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
+    const firstDayOfMonth = new Date(year, month, 1);
+    let startOffset = firstDayOfMonth.getDay();
+    if (startOffset === 0) startOffset = 7;
+
+    const startGridDate = new Date(firstDayOfMonth);
+    startGridDate.setDate(firstDayOfMonth.getDate() - (startOffset - 1));
+
+    return Array.from({ length: 42 }, (_, i) => {
+      const day = new Date(startGridDate);
+      day.setDate(startGridDate.getDate() + i);
+      return day;
+    });
+  });
+
+  readonly currentMonthLabel = computed(() => {
+    const date = this.currentMonthDate();
+    return `${this.monthLabels[date.getMonth()]} ${date.getFullYear()}`;
+  });
 
   readonly currentWeekLabel = computed(() => {
     const start = this.currentWeekStart();
-    const startMonth = start.getMonth();
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
 
-    const lastDayInWeek = new Date(start);
-    lastDayInWeek.setDate(start.getDate() + 6);
-
-    const endMonth = lastDayInWeek.getMonth();
-
-    if (startMonth === endMonth) {
+    if (start.getMonth() === end.getMonth()) {
       return `${this.monthLabels[start.getMonth()]} ${start.getFullYear()}`;
     }
-
-    return `${this.monthLabels[startMonth]} - ${this.monthLabels[lastDayInWeek.getMonth()]} ${start.getFullYear()}`;
+    return `${this.monthLabels[start.getMonth()]} - ${this.monthLabels[end.getMonth()]} ${start.getFullYear()}`;
   });
 
-  // ==========
+  readonly tableRows = computed(() => {
+    const selectedDate = this.daySelectedByUser();
+    const reservations = this.reservationResponses();
+    const roomsList = this.rooms();
+    const now = new Date();
+
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfSelected = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+    );
+    const isPastDay = startOfSelected < startOfToday;
+    const isToday = startOfSelected.getTime() === startOfToday.getTime();
+
+    return this.hoursRange.map((hour) => {
+      const cells = roomsList.map((room) => {
+        const isPastHour = isPastDay || (isToday && hour <= now.getHours());
+
+        const isReserved = reservations.some((res) => {
+          if (res.roomId !== room.id) return false;
+          const resStart = new Date(res.startAt);
+
+          const isSameDay =
+            resStart.getFullYear() === selectedDate.getFullYear() &&
+            resStart.getMonth() === selectedDate.getMonth() &&
+            resStart.getDate() === selectedDate.getDate();
+
+          if (!isSameDay) return false;
+
+          const startHour = resStart.getHours();
+          const duration = this.parseDurationToHours(res.duration);
+          return hour >= startHour && hour < startHour + duration;
+        });
+
+        const isDisabled = isReserved || isPastHour;
+
+        return {
+          roomId: room.id,
+          hourWrapper: new HourWrapper(hour, isDisabled, false),
+        };
+      });
+
+      return { hour, cells };
+    });
+  });
 
   ngOnInit() {
-    this.getRoomsFromBackend();
+    this.fetchRoomsAndReservations();
     this.connectToReservationStream();
   }
 
-  // kolorek  przycisku dnia (select)
-  isSelectedDay(day: Date): boolean {
-    const selected = this.selectedDay();
+  selectDay(day: Date) {
+    this.daySelectedByUser.set(day);
+    this.currentWeekStart.set(this.getStartOfWeek(day));
+    this.currentMonthDate.set(new Date(day.getFullYear(), day.getMonth(), 1));
+  }
 
-    if (!selected) return false;
-
+  isSameDay(d1: Date, d2: Date): boolean {
     return (
-      day.getDate() === selected.getDate() &&
-      day.getMonth() === selected.getMonth() &&
-      day.getFullYear() === selected.getFullYear()
+      d1.getDate() === d2.getDate() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getFullYear() === d2.getFullYear()
     );
   }
 
@@ -148,83 +181,42 @@ export class CalendarPage implements OnInit, OnDestroy {
     const current = new Date(this.currentWeekStart());
     current.setDate(current.getDate() + (direction === 'next' ? 7 : -7));
     this.currentWeekStart.set(current);
-    this.fetchReservations();
+    this.daySelectedByUser.set(current);
   }
 
-  onRoomChange(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    this.roomIdSelectedByUser.set(Number(selectElement.value));
+  navigateMonth(direction: 'prev' | 'next') {
+    const d = new Date(this.currentMonthDate());
+    d.setMonth(d.getMonth() + (direction === 'next' ? 1 : -1));
+    this.currentMonthDate.set(d);
   }
 
-  getReservationsForDay(day: Date) {
-    this.selectedDay.set(day);
-  }
-
-  getRoomsFromBackend() {
+  fetchRoomsAndReservations() {
     this.http.get<Room[]>(this.getAllRoomsEndpoint).subscribe({
       next: (data) => {
         this.rooms.set(data);
-        console.log('Received rooms from server:');
-        console.log(data);
         this.fetchReservations();
       },
-      error: (e) => console.error('Failed to download rooms from backend: ', e),
+      error: (e) => console.error('Failed to download rooms: ', e),
     });
-    return this.rooms;
   }
 
   fetchReservations() {
-    console.log('inside fetchReservations, rooms length : ', this.rooms().length);
-    if (this.rooms().length === 0) {
-      console.error('No rooms available after fetch attempt. Cannot fetch reservations.');
-      return;
-    }
+    if (this.rooms().length === 0) return;
+
+    this.reservationResponses.set([]);
     for (const room of this.rooms()) {
       const url = `${this.getReservationsByRoomEndpoint}/${room.id}`;
-      console.log('fetching reservations with url: ', url);
-      this.reservationResponses.set([]);
-
       this.http.get<ReservationDto[]>(url).subscribe({
         next: (data) => {
-          this.reservationResponses.update((prev) => [...prev, ...data]);
-          console.log(
-            'Received ' + data.length + ' reservation responses for room ' + room.id + ':',
-          );
-          console.log(data);
+          const startOfToday = new Date();
+          startOfToday.setHours(0, 0, 0, 0);
+          const filteredData = data.filter((res) => new Date(res.startAt) >= startOfToday);
+
+          this.reservationResponses.update((prev) => [...prev, ...filteredData]);
         },
-        error: (e) => console.error('Failed to download reservation responses from backend: ', e),
+        error: (e) => console.error('Failed to download reservations: ', e),
       });
     }
-  }
-
-  isHourReserved(hour: number, checkingRoomId: number): boolean {
-    for (const existingReservation of this.reservationResponses()) {
-      if (existingReservation.roomId === checkingRoomId) {
-        const checkingDay = this.daySelectedByUser();
-        // check day
-        const reservationStart = new Date(existingReservation.startAt);
-        if (checkingDay.getDate() === reservationStart.getDate()) {
-          const isSameDay =
-            reservationStart.getFullYear() === checkingDay.getFullYear() &&
-            reservationStart.getMonth() === checkingDay.getMonth() &&
-            reservationStart.getDate() === checkingDay.getDate();
-          if (!isSameDay) return false;
-
-          // check hour
-          const existingReservationStartHour = reservationStart.getHours();
-          const durationHours = this.parseDurationToHours(existingReservation.duration);
-
-          if (
-            hour >= existingReservationStartHour &&
-            hour < existingReservationStartHour + durationHours
-          ) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
   }
 
   private parseDurationToHours(isoDuration: string): number {
@@ -232,8 +224,7 @@ export class CalendarPage implements OnInit, OnDestroy {
     return hoursMatch ? parseInt(hoursMatch[1], 10) : 1;
   }
 
-  openBookingPopup(hour: number, roomId: number) {
-    console.log('Opening booking popup for hour: ', hour, ' roomId: ', roomId);
+  handleBookingClick(hour: number, roomId: number) {
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login']);
       return;
@@ -253,14 +244,8 @@ export class CalendarPage implements OnInit, OnDestroy {
     });
   }
 
-  setDayByUser(day: Date) {
-    console.log('user selected day:', day.getDate(), ' month: ', day.getMonth());
-    this.daySelectedByUser.set(day);
-  }
-
   confirmBooking() {
     const booking = this.selectedBooking();
-    console.log('Confirming booking: ', booking);
     if (!booking) return;
 
     const payload = {
@@ -271,64 +256,26 @@ export class CalendarPage implements OnInit, OnDestroy {
       duration: `PT${booking.duration}H`,
       reservedBy: 1,
     };
-    console.log('Constructed payload for reservation: ', payload);
-    const newReservation: ReservationDto = {
-      id: payload.id,
-      behalfOf: payload.behalfOf,
-      roomId: payload.roomId,
-      startAt: payload.startAt,
-      duration: payload.duration,
-      reservedBy: payload.reservedBy,
-    };
-    console.log('Creating reservation with payload: ', payload);
-    this.http.post<ReservationDto>(`${process.env.VSF_API_URL}/reservation`, payload).subscribe({
+
+    this.http.post<ReservationDto>(this.postReservationEndpoint, payload).subscribe({
       next: (response) => {
-        console.log('Reservation created successfully:', response);
-        this.reservationRequests.update((requests) => [...requests, response]);
+        this.reservationResponses.update((prev) => [...prev, response]);
+        this.displayBookingSuccesfulPopup.set(true);
       },
       error: (e) => console.error('Failed to create reservation: ', e),
     });
     this.selectedBooking.set(null);
-    this.reservationResponses.update((prev) => [...prev, newReservation]);
-    this.openBookingSuccessfulPopup();
-  }
-
-  openBookingSuccessfulPopup() {
-    this.displayBookingSuccesfulPopup.set(true);
-  }
-
-  handleBookingClick(hour: number, roomId: number) {
-    console.log('handleBookingClick hour ' + hour + ' roomId ' + roomId);
-    if (this.authService.isAuthenticated()) {
-      this.openBookingPopup(hour, roomId);
-    } else {
-      this.router.navigate(['/login']);
-    }
   }
 
   ngOnDestroy() {
-    console.log('SSE connection closed');
+    if (this.eventSource) this.eventSource.close();
   }
 
-  // SSE
   private connectToReservationStream() {
     this.eventSource = new EventSource(this.sseReservationEndpoint);
-    console.log('Connecting to SSE at: ', this.sseReservationEndpoint);
-
-    this.eventSource.addEventListener('RESERVATION_CREATED', (event: MessageEvent) => {
-      console.log('Received SSE:', event.data);
-
-      try {
-        const data = JSON.parse(event.data); // eventType, reservationId
-        console.log('Parsed SSE data:', data);
-        this.fetchReservations();
-      } catch (error) {
-        console.error('Failed to parse SSE event data:', error);
-      }
+    this.eventSource.addEventListener('RESERVATION_CREATED', () => {
+      this.fetchReservations();
     });
-
-    this.eventSource.onerror = (error) => {
-      console.error('SSE connection error occurred:', error);
-    };
+    this.eventSource.onerror = (error) => console.error('SSE error:', error);
   }
 }

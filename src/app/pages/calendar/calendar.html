@@ -1,74 +1,115 @@
 <div class="p-6 bg-slate-900 text-slate-100 min-h-screen antialiased">
-  <div
-    class="flex flex-col justify-between items-center gap-4 bg-slate-800 p-4 rounded-xl shadow-lg mb-6 border border-slate-700"
-  >
-    <div class="flex items-center gap-3 w-full sm:w-auto">
-      <label for="roomSelect" class="text-sm font-bold text-slate-300 tracking-wide text-gray"
-        >Wybierz datę i godzinę:</label
-      >
-    </div>
-
-    <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-      <button
-        (click)="navigateWeek('prev')"
-        class="flex items-center justify-center bg-slate-700 rounded-lg hover:bg-slate-600 active:bg-slate-500 text-sm px-4 py-2 font-medium rounded-lg border border-slate-600"
-      >
-        Poprzedni tydzień
-      </button>
-
-      <span class="text-lg font-bold tracking-tight min-w-[120px] text-center text-emerald-400">
-        {{ currentWeekLabel() }}
-      </span>
-
-      <button
-        (click)="navigateWeek('next')"
-        class="flex items-center bg-slate-700 justify-center rounded-lg border border-slate-600 text-sm px-4 py-2"
-      >
-        Następny tydzień
-      </button>
-    </div>
-
-    <div class="grid grid-cols-7 pad-4 px-4">
-      @for (day of weekDays(); track day.getTime(); let index = $index) {
-        <div>
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-4 bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-700 h-fit">
+      <div class="flex items-center justify-between mb-4 px-2">
+        <h3 class="text-md font-bold text-emerald-400 tracking-wide uppercase">
+          {{ currentMonthLabel() }}
+        </h3>
+        <div class="flex gap-2">
           <button
-            (click)="getReservationsForDay(day); setDayByUser(day)"
-            class="flex items-center justify-center text-lg w-12 h-11 px-4 pad-4 py-1 hover:bg-slate-600 active:bg-slate-500 border border-slate-600 bg-slate-700 rounded-full mx-2 transition-colors shadow-sm m-2"
+            (click)="navigateMonth('prev')"
+            class="p-1 bg-slate-700 hover:bg-slate-600 rounded text-xs px-2 border border-slate-600"
+          >
+            &lt;
+          </button>
+          <button
+            (click)="navigateMonth('next')"
+            class="p-1 bg-slate-700 hover:bg-slate-600 rounded text-xs px-2 border border-slate-600"
+          >
+            &gt;
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 mb-2">
+        @for (label of weekDayLabels; track label) {
+          <div class="py-1">{{ label }}</div>
+        }
+      </div>
+
+      <div class="grid grid-cols-7 gap-1">
+        @for (day of monthGridDays(); track day.getTime()) {
+          <button
+            (click)="selectDay(day)"
+            class="aspect-square flex items-center justify-center text-xs font-medium rounded-lg transition-colors"
             [ngClass]="{
-              'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400': isSelectedDay(day),
-              'bg-slate-700 text-slate-100 hover:bg-slate-600 active:bg-slate-500 mx-2 ':
-                !isSelectedDay(day),
+              'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400': isSameDay(
+                day,
+                daySelectedByUser()
+              ),
+              'bg-slate-700 text-slate-100 hover:bg-slate-600':
+                !isSameDay(day, daySelectedByUser()) &&
+                day.getMonth() === currentMonthDate().getMonth(),
+              'bg-slate-800 text-slate-500 hover:bg-slate-700':
+                !isSameDay(day, daySelectedByUser()) &&
+                day.getMonth() !== currentMonthDate().getMonth(),
             }"
           >
             {{ day.getDate() }}
           </button>
-
-          <div class="flex justify-center text-sm w-full">
-            <span
-              class="px-3 py-1 rounded-full text-xs transition-all shadow-sm"
-              [ngClass]="{
-                'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400 mx-2':
-                  isSelectedDay(day),
-                'bg-slate-700 text-slate-400 border border-slate-600 mx-2': !isSelectedDay(day),
-              }"
-            >
-              {{ getDayOfWeekFromDayPolish(day) }}
-            </span>
-          </div>
-        </div>
-      }
+        }
+      </div>
     </div>
 
-    @if (selectedDay()) {
+    <div class="lg:col-span-8 space-y-4">
+      <div
+        class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-700"
+      >
+        <button
+          (click)="navigateWeek('prev')"
+          class="w-full sm:w-auto bg-slate-700 hover:bg-slate-600 active:bg-slate-500 text-xs px-4 py-2 font-medium rounded-lg border border-slate-600"
+        >
+          Poprzedni tydzień
+        </button>
+
+        <span class="text-md font-bold tracking-tight text-center text-emerald-400">
+          Tydzień: {{ currentWeekLabel() }}
+        </span>
+
+        <button
+          (click)="navigateWeek('next')"
+          class="w-full sm:w-auto bg-slate-700 hover:bg-slate-600 active:bg-slate-500 text-xs px-4 py-2 font-medium rounded-lg border border-slate-600"
+        >
+          Następny tydzień
+        </button>
+      </div>
+
+      <div
+        class="grid grid-cols-7 gap-2 bg-slate-800 p-3 rounded-xl border border-slate-700 text-center"
+      >
+        @for (day of weekDays(); track day.getTime()) {
+          <button
+            (click)="selectDay(day)"
+            class="flex flex-col items-center p-2 rounded-lg transition-all"
+            [ngClass]="{
+              'bg-emerald-600 text-white font-bold shadow': isSameDay(day, daySelectedByUser()),
+              'bg-slate-700/50 text-slate-300 hover:bg-slate-700': !isSameDay(
+                day,
+                daySelectedByUser()
+              ),
+            }"
+          >
+            <span
+              class="text-xs text-slate-400 block uppercase"
+              [class.text-emerald-100]="isSameDay(day, daySelectedByUser())"
+            >
+              {{ weekDayLabels[day.getDay() === 0 ? 6 : day.getDay() - 1] }}
+            </span>
+            <span class="text-lg font-bold">{{ day.getDate() }}</span>
+          </button>
+        }
+      </div>
+
       <div class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
-        <h2 class="flex justify-center text-xl font-bold text-emerald-400 mb-6">
-          {{ selectedDay() | date: 'dd.MM.yyyy' }}
+        <h2 class="text-xl font-bold text-center text-emerald-400 mb-6">
+          Rozpiska: {{ daySelectedByUser() | date: 'dd.MM.yyyy' }}
         </h2>
 
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="border-b border-slate-600 text-slate-400">
+              <tr class="border-b border-slate-600 text-slate-400 text-sm">
+                <th class="py-3 px-4 font-semibold text-center w-24">Godzina</th>
                 @for (room of rooms(); track room.id) {
                   <th class="py-3 px-4 font-semibold text-center">{{ room.name }}</th>
                 }
@@ -76,21 +117,28 @@
             </thead>
 
             <tbody>
-              @for (hour of workingHours; track hour) {
-                <tr class="border-b border-slate-700 hover:bg-slate-700/50 transition-colors">
-                  @for (room of rooms(); track room.id) {
+              @for (row of tableRows(); track row.hour) {
+                <tr class="border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
+                  <td
+                    class="py-3 px-4 text-center font-bold text-slate-400 bg-slate-900/20 text-sm"
+                  >
+                    {{ row.hour }}:00
+                  </td>
+
+                  @for (cell of row.cells; track cell.roomId) {
                     <td class="py-3 px-4 text-center">
-                      @if (isHourReserved(hour, room.id)) {
+                      @if (cell.hourWrapper.isReserved) {
                         <span
-                          class="line-through inline-block px-3 py-1 rounded-full text-xs bg-emerald-500/20 text-gray-500"
-                          >{{ hour }}:00
+                          class="inline-block px-3 py-1 rounded-full text-xs bg-red-500/10 text-red-400/60 border border-red-500/20 font-medium cursor-not-allowed"
+                        >
+                          Niedostępne
                         </span>
                       } @else {
                         <button
-                          (click)="handleBookingClick(hour, room.id)"
-                          class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 hover:ring-2 transition-all"
+                          (click)="handleBookingClick(row.hour, cell.roomId)"
+                          class="inline-block px-4 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-white border border-emerald-500/30 transition-all"
                         >
-                          {{ hour }}:00
+                          Wolne
                         </button>
                       }
                     </td>
@@ -101,79 +149,78 @@
           </table>
         </div>
       </div>
-    }
+    </div>
+  </div>
 
-    @if (selectedBooking(); as booking) {
+  @if (selectedBooking(); as booking) {
+    <div
+      class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50"
+    >
       <div
-        class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity"
+        class="bg-slate-800 border border-slate-700 text-slate-100 p-6 rounded-2xl w-full max-w-sm shadow-2xl"
       >
+        <h2 class="text-xl font-bold tracking-tight mb-4 text-emerald-400">Potwierdź rezerwację</h2>
+
         <div
-          class="bg-slate-800 border border-slate-700 text-slate-100 p-6 rounded-2xl w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-150"
+          class="space-y-2 text-sm text-slate-300 mb-6 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"
         >
-          <h2 class="text-xl font-bold tracking-tight mb-4 text-emerald-400">
-            Potwierdź rezerwację
-          </h2>
-
-          <div
-            class="space-y-2 text-sm text-slate-300 mb-6 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"
-          >
-            <p><strong>Data:</strong> {{ booking.date }}</p>
-            <p><strong>Rozpoczęcie:</strong> {{ booking.hour }}:00</p>
-            <p><strong>Miejsce:</strong> {{ booking.roomName }}</p>
-          </div>
-
-          <div class="mb-6">
-            <label
-              for="durationSelect"
-              class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
-              >Czas trwania (godziny):</label
-            >
-            <select
-              id="durationSelect"
-              [(ngModel)]="booking.duration"
-              class="w-full bg-slate-700 text-white font-medium border border-slate-600 rounded-lg px-3 py-2 shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-            >
-              @for (opt of durationOptions; track opt) {
-                <option [value]="opt">{{ opt }} {{ opt === 1 ? 'godzina' : 'godziny' }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="flex gap-3 justify-end">
-            <button
-              (click)="selectedBooking.set(null)"
-              class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 active:bg-slate-500 transition-colors"
-            >
-              Anuluj
-            </button>
-            <button
-              (click)="confirmBooking()"
-              class="px-4 py-2 text-sm font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-md active:bg-emerald-700 transition-colors"
-            >
-              Zarezerwuj
-            </button>
-          </div>
+          <p><strong>Data:</strong> {{ booking.date }}</p>
+          <p><strong>Rozpoczęcie:</strong> {{ booking.hour }}:00</p>
+          <p><strong>Miejsce:</strong> {{ booking.roomName }}</p>
         </div>
-      </div>
-    }
 
-    @if (displayBookingSuccesfulPopup()) {
-      <div
-        class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity"
-      >
-        <div
-          class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 animate-in fade-in zoom-in-95 duration-150"
-        >
-          <h2 class="text-xl font-bold tracking-tight mb-4">Rezerwacja udana!</h2>
-          <p class="text-sm">Twoja rezerwacja została pomyślnie dokonana.</p>
-          <button
-            (click)="displayBookingSuccesfulPopup.set(false)"
-            class="mt-4 px-4 py-2 text-sm font-semibold rounded-lg bg-white text-l-600 hover:bg-gray-200 active:bg-gray-300 transition-colors"
+        <div class="mb-6">
+          <label
+            for="durationSelect"
+            class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
           >
-            Zamknij
+            Czas trwania (godziny):
+          </label>
+          <select
+            id="durationSelect"
+            [(ngModel)]="booking.duration"
+            class="w-full bg-slate-700 text-white font-medium border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+          >
+            @for (opt of durationOptions; track opt) {
+              <option [value]="opt">{{ opt }} {{ opt === 1 ? 'godzina' : 'godziny' }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="flex gap-3 justify-end">
+          <button
+            (click)="selectedBooking.set(null)"
+            class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
+          >
+            Anuluj
+          </button>
+          <button
+            (click)="confirmBooking()"
+            class="px-4 py-2 text-sm font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition-colors"
+          >
+            Zarezerwuj
           </button>
         </div>
       </div>
-    }
-  </div>
+    </div>
+  }
+
+  @if (displayBookingSuccesfulPopup()) {
+    <div
+      class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
+      >
+        <h2 class="text-xl font-bold tracking-tight mb-2">Sukces!</h2>
+        <p class="text-sm text-emerald-100 mb-4">Rezerwacja została utworzona</p>
+        <button
+          (click)="displayBookingSuccesfulPopup.set(false)"
+          class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
+        >
+          Zamknij
+        </button>
+      </div>
+    </div>
+  }
 </div>
