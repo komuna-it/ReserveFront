@@ -87,4 +87,30 @@ export class ProfilePage implements OnInit {
   formatDuration(durationStr: string): string {
     return durationStr.replace('PT', '').replace('H', ' godz').replace('M', ' min');
   }
+
+  deleteReservation(reservationId: number) {
+    console.log(`Trying to delete reservation with id ${reservationId}`);
+    // not implemented
+    // const url = `${this.apiUrl}/reservation/${reservationId}`;
+    // this.http.delete(url).subscribe({
+    //   next: () => {
+    //     console.log(`Deleted reservation with id ${reservationId}`);
+    //     this.fetchReservations();
+    //   },
+    //   error: (e) => console.error('Failed to delete reservation: ', e),
+    // });
+  }
+
+  deleteTeamMember(userId: number) {
+    console.log(`Trying to delete team member with id ${userId}`);
+    // not implemented
+    // const url = `${this.apiUrl}/organization/${this.organization.id}/member/${userId}`;
+    // this.http.delete(url).subscribe({
+    //   next: () => {
+    //     console.log(`Deleted team member with id ${userId}`);
+    //     this.fetchOrganization();
+    //   },
+    //   error: (e) => console.error('Failed to delete team member: ', e),
+    // });
+  }
 }

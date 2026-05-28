@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -13,33 +13,27 @@ import { AuthService } from '../../services/auth';
   imports: [CommonModule, FormsModule],
   templateUrl: './calendar.html',
 })
-export class CalendarPage implements OnInit {
+export class CalendarPage implements OnInit, OnDestroy {
+  // DI
   private http = inject(HttpClient);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private eventSource: EventSource | null = null;
+
+  // endpoints
   readonly getAllRoomsEndpoint = `${process.env.VSF_API_URL}/room/all`;
   readonly getReservationsByRoomEndpoint = `${process.env.VSF_API_URL}/reservation/room`;
-  readonly rooms = signal<Room[]>([]);
-  readonly daySelectedByUser = signal<Date>(new Date());
+  readonly sseReservationEndpoint = `${process.env.VSF_API_URL}/reservation/sse`;
 
-  getRoomsFromBackend() {
-    this.http.get<Room[]>(this.getAllRoomsEndpoint).subscribe({
-      next: (data) => {
-        this.rooms.set(data);
-        console.log('Received rooms from server:');
-        console.log(data);
-        this.fetchReservations();
-      },
-      error: (e) => console.error('Failed to download rooms from backend: ', e),
-    });
-    return this.rooms;
-  }
-
+  // signals
   readonly roomIdSelectedByUser = signal<number>(1);
   readonly selectedRoomNane = signal<string>('');
   readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
   readonly reservationRequests = signal<ReservationDto[]>([]);
   readonly reservationResponses = signal<ReservationDto[]>([]);
+  readonly rooms = signal<Room[]>([]);
+  readonly daySelectedByUser = signal<Date>(new Date());
+
   readonly selectedBooking = signal<{
     date: string;
     hour: number;
@@ -48,7 +42,23 @@ export class CalendarPage implements OnInit {
     roomName: string | undefined;
   } | null>(null);
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
-  readonly hoursRange = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 do 21:00
+
+  // ===
+  // === dates constants
+  // ===
+  readonly selectedDay = signal<Date | null>(null);
+  readonly workingHours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
+
+  readonly weekDays = computed(() => {
+    const start = this.currentWeekStart();
+    return Array.from({ length: 7 }, (_, i) => {
+      const day = new Date(start);
+      day.setDate(start.getDate() + i);
+      return day;
+    });
+  });
+
+  readonly hoursRange = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 - 21:00
   readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // 1-8h
   readonly monthLabels = [
     'Styczeń',
@@ -64,61 +74,6 @@ export class CalendarPage implements OnInit {
     'Listopad',
     'Grudzień',
   ];
-
-  isMoreThanOneMonth(week: Date[]) {}
-
-  readonly dayLabels = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
-  selectedDay = signal<Date | null>(null);
-  workingHours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
-
-  readonly weekDays = computed(() => {
-    const start = this.currentWeekStart();
-    return Array.from({ length: 7 }, (_, i) => {
-      const day = new Date(start);
-      day.setDate(start.getDate() + i);
-      return day;
-    });
-  });
-
-  readonly currentWeekLabel = computed(() => {
-    const start = this.currentWeekStart();
-    const startMonth = start.getMonth();
-
-    const lastDayInWeek = new Date(start);
-    lastDayInWeek.setDate(start.getDate() + 6);
-
-    const endMonth = lastDayInWeek.getMonth();
-
-    if (startMonth === endMonth) {
-      return `${this.monthLabels[start.getMonth()]} ${start.getFullYear()}`;
-    }
-
-    return `${this.monthLabels[startMonth]} - ${this.monthLabels[lastDayInWeek.getMonth()]} ${start.getFullYear()}`;
-  });
-
-  ngOnInit() {
-    this.getRoomsFromBackend();
-  }
-  // kolorek  przycisku dnia (select)
-  isSelectedDay(day: Date): boolean {
-    const selected = this.selectedDay();
-
-    if (!selected) return false;
-
-    return (
-      day.getDate() === selected.getDate() &&
-      day.getMonth() === selected.getMonth() &&
-      day.getFullYear() === selected.getFullYear()
-    );
-  }
-
-  private getStartOfWeek(date: Date): Date {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = d.getDate() - (day === 0 ? 6 : day - 1);
-    d.setHours(0, 0, 0, 0);
-    return new Date(d.setDate(diff));
-  }
 
   getDayOfWeekFromDayPolish(day: Date) {
     const dayOfWeek = String(day).substring(0, 3);
@@ -141,6 +96,54 @@ export class CalendarPage implements OnInit {
     return dayOfWeek;
   }
 
+  isMoreThanOneMonth(week: Date[]) {}
+
+  readonly dayLabels = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
+
+  readonly currentWeekLabel = computed(() => {
+    const start = this.currentWeekStart();
+    const startMonth = start.getMonth();
+
+    const lastDayInWeek = new Date(start);
+    lastDayInWeek.setDate(start.getDate() + 6);
+
+    const endMonth = lastDayInWeek.getMonth();
+
+    if (startMonth === endMonth) {
+      return `${this.monthLabels[start.getMonth()]} ${start.getFullYear()}`;
+    }
+
+    return `${this.monthLabels[startMonth]} - ${this.monthLabels[lastDayInWeek.getMonth()]} ${start.getFullYear()}`;
+  });
+
+  // ==========
+
+  ngOnInit() {
+    this.getRoomsFromBackend();
+    this.connectToReservationStream();
+  }
+
+  // kolorek  przycisku dnia (select)
+  isSelectedDay(day: Date): boolean {
+    const selected = this.selectedDay();
+
+    if (!selected) return false;
+
+    return (
+      day.getDate() === selected.getDate() &&
+      day.getMonth() === selected.getMonth() &&
+      day.getFullYear() === selected.getFullYear()
+    );
+  }
+
+  private getStartOfWeek(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - (day === 0 ? 6 : day - 1);
+    d.setHours(0, 0, 0, 0);
+    return new Date(d.setDate(diff));
+  }
+
   navigateWeek(direction: 'prev' | 'next') {
     const current = new Date(this.currentWeekStart());
     current.setDate(current.getDate() + (direction === 'next' ? 7 : -7));
@@ -155,6 +158,19 @@ export class CalendarPage implements OnInit {
 
   getReservationsForDay(day: Date) {
     this.selectedDay.set(day);
+  }
+
+  getRoomsFromBackend() {
+    this.http.get<Room[]>(this.getAllRoomsEndpoint).subscribe({
+      next: (data) => {
+        this.rooms.set(data);
+        console.log('Received rooms from server:');
+        console.log(data);
+        this.fetchReservations();
+      },
+      error: (e) => console.error('Failed to download rooms from backend: ', e),
+    });
+    return this.rooms;
   }
 
   fetchReservations() {
@@ -288,5 +304,31 @@ export class CalendarPage implements OnInit {
     } else {
       this.router.navigate(['/login']);
     }
+  }
+
+  ngOnDestroy() {
+    console.log('SSE connection closed');
+  }
+
+  // SSE
+  private connectToReservationStream() {
+    this.eventSource = new EventSource(this.sseReservationEndpoint);
+    console.log('Connecting to SSE at: ', this.sseReservationEndpoint);
+
+    this.eventSource.addEventListener('RESERVATION_CREATED', (event: MessageEvent) => {
+      console.log('Received SSE:', event.data);
+
+      try {
+        const data = JSON.parse(event.data); // eventType, reservationId
+        console.log('Parsed SSE data:', data);
+        this.fetchReservations();
+      } catch (error) {
+        console.error('Failed to parse SSE event data:', error);
+      }
+    });
+
+    this.eventSource.onerror = (error) => {
+      console.error('SSE connection error occurred:', error);
+    };
   }
 }
