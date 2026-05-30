@@ -30,6 +30,7 @@ export class ProfilePage implements OnInit {
   readonly user3 = new User(3, 'email3@email.com', 'username3');
   readonly users = [this.user1, this.user2, this.user3];
   readonly organization = new Organization(1, 'ZESPÓŁ', this.users);
+  readonly organizations = signal<Organization[]>([]);
 
   readonly rooms = signal<Room[]>([
     { id: 1, name: 'Sala Konferencyjna A' },
@@ -44,6 +45,18 @@ export class ProfilePage implements OnInit {
 
   ngOnInit() {
     this.fetchReservations();
+    this.fetchOrganizations();
+  }
+
+  fetchOrganizations() {
+    this.organizations.set([]);
+    this.http.get<Organization[]>(`${this.apiUrl}/user/${this.userId}/rganizations`).subscribe({
+      next: (data) => {
+        this.organizations.set(data);
+        console.log('Fetched organizations: ', data);
+      },
+      error: (e) => console.error('Failed to fetch organizations: ', e),
+    });
   }
 
   fetchReservations() {
