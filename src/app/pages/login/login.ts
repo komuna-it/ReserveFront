@@ -24,11 +24,12 @@ export class LoginPage {
   login() {
     this.errorMessage = '';
     this.isLoading = true;
-
+    console.log('Attempting login with email:', this.email, 'and password:', this.password);
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
         this.isLoading = false;
         this.router.navigate(['/']);
+        console.log('Login successful, navigating to home page');
       },
 
       error: (err) => {

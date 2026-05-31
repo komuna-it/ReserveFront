@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth'; // Twój bezpieczny serwis auth
 import { User } from '../../model/user';
 import { Organization } from '../../model/organization';
@@ -50,13 +50,17 @@ export class ProfilePage implements OnInit {
 
   fetchOrganizations() {
     this.organizations.set([]);
-    this.http.get<Organization[]>(`${this.apiUrl}/user/${this.userId}/rganizations`).subscribe({
-      next: (data) => {
-        this.organizations.set(data);
-        console.log('Fetched organizations: ', data);
-      },
-      error: (e) => console.error('Failed to fetch organizations: ', e),
-    });
+    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
+
+    this.http
+      .get<Organization[]>(`${this.apiUrl}/user/${this.userId}/organizations`, { headers: header })
+      .subscribe({
+        next: (data) => {
+          this.organizations.set(data);
+          console.log('Fetched organizations: ', data);
+        },
+        error: (e) => console.error('Failed to fetch organizations: ', e),
+      });
   }
 
   fetchReservations() {
@@ -72,7 +76,9 @@ export class ProfilePage implements OnInit {
       const url = `${this.getReservationsByRoomEndpoint}/${room.id}`;
       console.log('fetching reservations with url: ', url);
 
-      this.http.get<ReservationDto[]>(url).subscribe({
+      const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
+
+      this.http.get<ReservationDto[]>(url, { headers: header }).subscribe({
         next: (data) => {
           this.reservationResponses.update((prev) => [...prev, ...data]);
           console.log(`Received ${data.length} responses for room ${room.id}`);

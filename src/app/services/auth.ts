@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
-import { Observable, tap, of, map } from 'rxjs';
+import { Observable, tap, of, map, firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 
 export interface AuthResponse {
@@ -25,44 +25,58 @@ export class AuthService {
   private apiUrl = process.env['VSF_API_URL'] || '';
 
   private isAuthenticatedSignal = signal<boolean>(this.hasValidToken());
+  readonly accessToken = signal<string>(this.getAccessToken() || '');
+  readonly refreshToken = signal<string>(this.cookieService.get('refresh_token') || '');
+  readonly authResponse = signal<AuthResponse | null>(null);
   public isAuthenticated = this.isAuthenticatedSignal.asReadonly();
-
   readonly loginEndpoint = `${this.apiUrl}/auth/login`;
   readonly registerEndpoint = `${this.apiUrl}/auth/register`;
 
-  login(email: string, password: string): Observable<void> {
-    //   Prod
-    //   return this.http.post<AuthResponse>(this.loginEndpoint, { email, password }).pipe(
-    //     tap(response => this.handleAuthentication(response))
-    //   );
+  login(email: string, password: string): Observable<AuthResponse> {
+    // Prod
+    return this.http.post<AuthResponse>(this.loginEndpoint, { email, password }).pipe(
+      // 2. Use tap() for side-effects (saving state/cookies)
+      tap((response) => {
+        console.log('Login response received: ', response);
+        this.authResponse.set(response);
+        this.handleAuthentication(response);
+      }),
+    );
 
     // Test
-    const resp: AuthResponse = {
-      accessToken: 'aaaaaaaaaaaaaaaaaaa',
-      refreshToken: 'bbbbbbbbbbbbbbbbbbbbbbbb',
-    };
-
-    return of(resp).pipe(
-      tap((response) => this.handleAuthentication(response)),
-      map(() => void 0),
-    );
+    // const resp: AuthResponse = {
+    //   accessToken: 'aaaaaaaaaaaaaaaaaaa',
+    //   refreshToken: 'bbbbbbbbbbbbbbbbbbbbbbbb',
+    // };
+    // this.authResponse.set(resp);
+    // this.handleAuthentication(resp);
   }
 
-  async register(email: string, password: string): Promise<string> {
+  async register(email: string, password: string, nick: string): Promise<string> {
+    // Prod
+    this.accessToken.set('');
     try {
-      // Prod
-      // const response = await firstValueFrom(
-      //   this.http.post<{ email: string }>(this.registerEndpoint, { email, password }),
-      // );
-      // return response.email;
-
-      // Test
-      const response = JSON.parse(`{ "email" : "mtroja98@gmail.com" }`);
-      return response.email;
+      console.log('Sending registration request to endpoint:', this.registerEndpoint);
+      console.log('Registration request payload:', { email, password, nick });
+      const response = await firstValueFrom(
+        this.http.post<{ accessToken: string }>(this.registerEndpoint, { email, password, nick }),
+      );
+      console.log('Registration response received: ', response);
+      console.log('Access token from registration response: ', response.accessToken);
+      this.accessToken.set(response.accessToken);
+      return response.accessToken;
     } catch (err: any) {
       console.error('Register error caught:', err);
       throw err;
     }
+
+    // Test
+    //   const response = JSON.parse(`{ "email" : "mtroja98@gmail.com" }`);
+    //   return response.email;
+    // } catch (err: any) {
+    //   console.error('Register error caught:', err);
+    //   throw err;
+    // }
   }
 
   private handleAuthentication(response: AuthResponse) {
@@ -96,7 +110,11 @@ export class AuthService {
 
     console.log('setting authenticated true');
     this.isAuthenticatedSignal.set(true);
+    this.accessToken.set(response.accessToken);
+    this.refreshToken.set(response.refreshToken);
     console.log('isAuthenticated after login:', this.isAuthenticated());
+    console.log('Access token set to:', this.accessToken());
+    console.log('Refresh token set to:', this.refreshToken());
   }
 
   public getAccessToken(): string {

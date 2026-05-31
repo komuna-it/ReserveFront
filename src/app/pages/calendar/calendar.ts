@@ -1,12 +1,13 @@
 import { Component, OnInit, signal, computed, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReservationDto } from '../../model/reservationDto';
 import { HourWrapper } from '../../model/hourWrapper';
 import { Room } from '../../model/room';
 import { AuthService } from '../../services/auth';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 @Component({
   selector: 'calendar-page',
@@ -19,6 +20,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   private router = inject(Router);
   private authService = inject(AuthService);
   private eventSource: EventSource | null = null;
+  private sseController: AbortController | null = null;
 
   readonly apiUrl = process.env['VSF_API_URL'] || '';
   readonly getAllRoomsEndpoint = `${this.apiUrl}/room/all`;
@@ -31,7 +33,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   readonly daySelectedByUser = signal<Date>(new Date());
   readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
-
+  readonly accessToken = computed(() => this.authService.accessToken());
   readonly selectedBooking = signal<{
     date: string;
     hour: number;
@@ -41,7 +43,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   } | null>(null);
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
 
-  readonly hoursRange = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 - 21:00
+  readonly hoursRange = Array.from({ length: 12 }, (_, i) => i + 8); // 8:00 - 21:00
   readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // max 8 hs
   readonly monthLabels = [
     'Styczeń',
@@ -191,7 +193,9 @@ export class CalendarPage implements OnInit, OnDestroy {
   }
 
   fetchRoomsAndReservations() {
-    this.http.get<Room[]>(this.getAllRoomsEndpoint).subscribe({
+    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
+
+    this.http.get<Room[]>(this.getAllRoomsEndpoint, { headers: header }).subscribe({
       next: (data) => {
         this.rooms.set(data);
         this.fetchReservations();
@@ -202,11 +206,12 @@ export class CalendarPage implements OnInit, OnDestroy {
 
   fetchReservations() {
     if (this.rooms().length === 0) return;
+    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
 
     this.reservationResponses.set([]);
     for (const room of this.rooms()) {
       const url = `${this.getReservationsByRoomEndpoint}/${room.id}`;
-      this.http.get<ReservationDto[]>(url).subscribe({
+      this.http.get<ReservationDto[]>(url, { headers: header }).subscribe({
         next: (data) => {
           const startOfToday = new Date();
           startOfToday.setHours(0, 0, 0, 0);
@@ -256,26 +261,44 @@ export class CalendarPage implements OnInit, OnDestroy {
       duration: `PT${booking.duration}H`,
       reservedBy: 1,
     };
+    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
 
-    this.http.post<ReservationDto>(this.postReservationEndpoint, payload).subscribe({
-      next: (response) => {
-        this.reservationResponses.update((prev) => [...prev, response]);
-        this.displayBookingSuccesfulPopup.set(true);
-      },
-      error: (e) => console.error('Failed to create reservation: ', e),
-    });
-    this.selectedBooking.set(null);
-  }
-
-  ngOnDestroy() {
-    if (this.eventSource) this.eventSource.close();
+    this.http
+      .post<ReservationDto>(this.postReservationEndpoint, payload, { headers: header })
+      .subscribe({
+        next: (response) => {
+          this.reservationResponses.update((prev) => [...prev, response]);
+          this.displayBookingSuccesfulPopup.set(true);
+          this.selectedBooking.set(null);
+        },
+        error: (e) => console.error('Failed to create reservation: ', e),
+      });
   }
 
   private connectToReservationStream() {
-    this.eventSource = new EventSource(this.sseReservationEndpoint);
-    this.eventSource.addEventListener('RESERVATION_CREATED', () => {
-      this.fetchReservations();
+    this.sseController = new AbortController();
+
+    fetchEventSource(this.sseReservationEndpoint, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${this.authService.accessToken()}`,
+      },
+      signal: this.sseController.signal,
+      onmessage: (msg) => {
+        if (msg.event === 'RESERVATION_CREATED') {
+          console.log('Wykryto nową rezerwację przez SSE, odświeżam listę...');
+          this.fetchReservations();
+        }
+      },
+      onerror: (err) => {
+        console.error('SSE error:', err);
+      },
     });
-    this.eventSource.onerror = (error) => console.error('SSE error:', error);
+  }
+
+  ngOnDestroy() {
+    if (this.sseController) {
+      this.sseController.abort();
+    }
   }
 }
