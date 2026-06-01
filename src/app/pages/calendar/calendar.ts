@@ -25,6 +25,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   readonly apiUrl = process.env['VSF_API_URL'] || '';
   readonly getAllRoomsEndpoint = `${this.apiUrl}/room/all`;
   readonly getReservationsByRoomEndpoint = `${this.apiUrl}/reservation/room`;
+  readonly getFutureReservationsEndpoint = `${this.apiUrl}/reservation/future`;
   readonly sseReservationEndpoint = `${this.apiUrl}/reservation/sse`;
   readonly postReservationEndpoint = `${this.apiUrl}/reservation`;
 
@@ -43,7 +44,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   } | null>(null);
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
 
-  readonly hoursRange = Array.from({ length: 12 }, (_, i) => i + 8); // 8:00 - 21:00
+  readonly hoursRange = Array.from({ length: 12 }, (_, i) => i + 10); // 10:00 - 21:00
   readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // max 8 hs
   readonly monthLabels = [
     'Styczeń',
@@ -124,7 +125,7 @@ export class CalendarPage implements OnInit, OnDestroy {
       const cells = roomsList.map((room) => {
         const isPastHour = isPastDay || (isToday && hour <= now.getHours());
 
-        const isReserved = reservations.some((res) => {
+        const matchedReservation = reservations.find((res) => {
           if (res.roomId !== room.id) return false;
           const resStart = new Date(res.startAt);
 
@@ -140,11 +141,26 @@ export class CalendarPage implements OnInit, OnDestroy {
           return hour >= startHour && hour < startHour + duration;
         });
 
+        const isReserved = !!matchedReservation;
         const isDisabled = isReserved || isPastHour;
+
+        let isFirstHour = false;
+        let isLastHour = false;
+
+        if (matchedReservation) {
+          const resStart = new Date(matchedReservation.startAt);
+          const startHour = resStart.getHours();
+          const duration = this.parseDurationToHours(matchedReservation.duration);
+
+          isFirstHour = hour === startHour;
+          isLastHour = hour === startHour + duration - 1;
+        }
+
+        const hourWrapper = new HourWrapper(hour, isDisabled, isFirstHour, isLastHour, false);
 
         return {
           roomId: room.id,
-          hourWrapper: new HourWrapper(hour, isDisabled, false),
+          hourWrapper: hourWrapper,
         };
       });
 
@@ -209,19 +225,13 @@ export class CalendarPage implements OnInit, OnDestroy {
     const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
 
     this.reservationResponses.set([]);
-    for (const room of this.rooms()) {
-      const url = `${this.getReservationsByRoomEndpoint}/${room.id}`;
-      this.http.get<ReservationDto[]>(url, { headers: header }).subscribe({
-        next: (data) => {
-          const startOfToday = new Date();
-          startOfToday.setHours(0, 0, 0, 0);
-          const filteredData = data.filter((res) => new Date(res.startAt) >= startOfToday);
-
-          this.reservationResponses.update((prev) => [...prev, ...filteredData]);
-        },
-        error: (e) => console.error('Failed to download reservations: ', e),
-      });
-    }
+    const url = `${this.getFutureReservationsEndpoint}`;
+    this.http.get<ReservationDto[]>(url, { headers: header }).subscribe({
+      next: (data) => {
+        this.reservationResponses.update((prev) => [...prev, ...data]);
+      },
+      error: (e) => console.error('Failed to download reservations: ', e),
+    });
   }
 
   private parseDurationToHours(isoDuration: string): number {

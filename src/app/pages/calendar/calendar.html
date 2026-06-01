@@ -118,28 +118,53 @@
 
             <tbody>
               @for (row of tableRows(); track row.hour) {
-                <tr class="border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
+                <tr class="border-b border-slate-700/50 hover:bg-slate-700/10 transition-colors">
                   <td
-                    class="py-3 px-4 text-center font-bold text-slate-400 bg-slate-900/20 text-sm"
+                    class="py-4 px-4 text-center font-bold text-slate-400 bg-slate-900/20 text-sm w-24"
                   >
                     {{ row.hour }}:00
                   </td>
 
                   @for (cell of row.cells; track cell.roomId) {
-                    <td class="py-3 px-4 text-center">
-                      @if (cell.hourWrapper.isReserved) {
-                        <span
-                          class="inline-block px-3 py-1 rounded-full text-xs bg-red-500/10 text-red-400/60 border border-red-500/20 font-medium cursor-not-allowed"
+                    <td class="py-0 px-1 text-center vertical-align-middle">
+                      @if (
+                        cell.hourWrapper.isFirstHourOfReservation &&
+                        cell.hourWrapper.isLastHourOfReservation
+                      ) {
+                        <div
+                          class="h-full py-3 bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl text-xs font-medium cursor-not-allowed"
                         >
-                          Niedostępne
-                        </span>
+                          Rezerwacja (1h)
+                        </div>
+                      }
+
+                      @if (cell.hourWrapper.isFirstHourOfReservation) {
+                        <div
+                          class="h-full py-3 bg-red-500/20 text-red-400 border-t border-x border-red-500/30 rounded-t-xl text-xs font-medium cursor-not-allowed"
+                        >
+                          Początek rezerwacji
+                        </div>
+                      } @else if (cell.hourWrapper.isLastHourOfReservation) {
+                        <div
+                          class="h-full py-3 bg-red-500/20 text-red-400 border-b border-x border-red-500/30 rounded-b-xl text-xs font-medium cursor-not-allowed"
+                        >
+                          Koniec rezerwacji
+                        </div>
+                      } @else if (cell.hourWrapper.isReserved) {
+                        <div
+                          class="px-4 h-full py-3 bg-red-500/20 text-red-400/40 border-x border-red-500/20 text-xs font-medium cursor-not-allowed"
+                        >
+                          •
+                        </div>
                       } @else {
-                        <button
-                          (click)="handleBookingClick(row.hour, cell.roomId)"
-                          class="inline-block px-4 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-white border border-emerald-500/30 transition-all"
-                        >
-                          Wolne
-                        </button>
+                        <div class="py-2">
+                          <button
+                            (click)="handleBookingClick(row.hour, cell.roomId)"
+                            class="inline-block px-4 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-white border border-emerald-500/30 transition-all"
+                          >
+                            Wolne
+                          </button>
+                        </div>
                       }
                     </td>
                   }
