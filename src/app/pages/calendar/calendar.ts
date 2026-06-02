@@ -125,6 +125,7 @@ export class CalendarPage implements OnInit, OnDestroy {
       const cells = roomsList.map((room) => {
         const isPastHour = isPastDay || (isToday && hour <= now.getHours());
 
+        // Zamiast some(), używamy find(), aby złapać konkretną rezerwację
         const matchedReservation = reservations.find((res) => {
           if (res.roomId !== room.id) return false;
           const resStart = new Date(res.startAt);
@@ -141,12 +142,15 @@ export class CalendarPage implements OnInit, OnDestroy {
           return hour >= startHour && hour < startHour + duration;
         });
 
+        // Jeśli find() coś znalazł, to znaczy, że jest rezerwacja
         const isReserved = !!matchedReservation;
         const isDisabled = isReserved || isPastHour;
 
+        // Domyślne wartości dla wolnych godzin
         let isFirstHour = false;
         let isLastHour = false;
 
+        // Jeśli mamy rezerwację, sprawdzamy, czy to jej pierwsza lub ostatnia godzina
         if (matchedReservation) {
           const resStart = new Date(matchedReservation.startAt);
           const startHour = resStart.getHours();
@@ -158,6 +162,7 @@ export class CalendarPage implements OnInit, OnDestroy {
 
         const hourWrapper = new HourWrapper(hour, isDisabled, isFirstHour, isLastHour, false);
 
+        // Ten return jest prawidłowo na poziomie roomsList.map()
         return {
           roomId: room.id,
           hourWrapper: hourWrapper,

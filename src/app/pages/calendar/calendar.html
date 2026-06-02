@@ -106,10 +106,10 @@
         </h2>
 
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+          <table class="w-full text-left border-collapse table-fixed">
             <thead>
               <tr class="border-b border-slate-600 text-slate-400 text-sm">
-                <th class="py-3 px-4 font-semibold text-center w-24">Godzina</th>
+                <th class="py-3 px-4 font-semibold text-center w-24 shrink-0">Godzina</th>
                 @for (room of rooms(); track room.id) {
                   <th class="py-3 px-4 font-semibold text-center">{{ room.name }}</th>
                 }
@@ -118,46 +118,50 @@
 
             <tbody>
               @for (row of tableRows(); track row.hour) {
-                <tr class="border-b border-slate-700/50 hover:bg-slate-700/10 transition-colors">
+                <tr class="h-14 hover:bg-slate-700/10 transition-colors">
                   <td
-                    class="py-4 px-4 text-center font-bold text-slate-400 bg-slate-900/20 text-sm w-24"
+                    class="px-4 text-center font-bold text-slate-400 bg-slate-900/20 text-sm w-24 shrink-0 border-b border-slate-700/50 h-14"
                   >
                     {{ row.hour }}:00
                   </td>
 
                   @for (cell of row.cells; track cell.roomId) {
-                    <td class="py-0 px-1 text-center vertical-align-middle">
+                    <td
+                      class="py-0 px-1 text-center min-w-0 h-14"
+                      [ngClass]="{
+                        'border-b border-slate-700/50':
+                          !cell.hourWrapper.isReserved || cell.hourWrapper.isLastHourOfReservation,
+                      }"
+                    >
                       @if (
                         cell.hourWrapper.isFirstHourOfReservation &&
                         cell.hourWrapper.isLastHourOfReservation
                       ) {
                         <div
-                          class="h-full py-3 bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl text-xs font-medium cursor-not-allowed"
+                          class="w-full h-full flex items-center justify-center bg-red-500/20 text-red-400 border border-red-500/30 rounded-full text-xs font-medium cursor-not-allowed truncate px-1"
                         >
                           Rezerwacja (1h)
                         </div>
-                      }
-
-                      @if (cell.hourWrapper.isFirstHourOfReservation) {
+                      } @else if (cell.hourWrapper.isFirstHourOfReservation) {
                         <div
-                          class="h-full py-3 bg-red-500/20 text-red-400 border-t border-x border-red-500/30 rounded-t-xl text-xs font-medium cursor-not-allowed"
+                          class="w-full h-full flex items-center justify-center bg-red-500/20 text-red-400 border-t border-x border-red-500/30 rounded-t-full text-xs font-medium cursor-not-allowed truncate px-1"
                         >
                           Początek rezerwacji
                         </div>
                       } @else if (cell.hourWrapper.isLastHourOfReservation) {
                         <div
-                          class="h-full py-3 bg-red-500/20 text-red-400 border-b border-x border-red-500/30 rounded-b-xl text-xs font-medium cursor-not-allowed"
+                          class="w-full h-full flex items-center justify-center bg-red-500/20 text-red-400 border-b border-x border-red-500/30 rounded-b-full text-xs font-medium cursor-not-allowed truncate px-1"
                         >
                           Koniec rezerwacji
                         </div>
                       } @else if (cell.hourWrapper.isReserved) {
                         <div
-                          class="px-4 h-full py-3 bg-red-500/20 text-red-400/40 border-x border-red-500/20 text-xs font-medium cursor-not-allowed"
+                          class="w-full h-full flex items-center justify-center bg-red-500/20 text-red-400/40 border-x border-red-500/20 text-xs font-medium cursor-not-allowed truncate px-1"
                         >
                           •
                         </div>
                       } @else {
-                        <div class="py-2">
+                        <div class="w-full h-full flex items-center justify-center">
                           <button
                             (click)="handleBookingClick(row.hour, cell.roomId)"
                             class="inline-block px-4 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-white border border-emerald-500/30 transition-all"
