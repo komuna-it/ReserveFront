@@ -173,6 +173,17 @@ export class ProfilePage implements OnInit {
   }
   deleteReservation(reservationId: number) {
     console.log(`Trying to delete reservation with id ${reservationId}`);
+    this.http
+      .delete(`${this.apiUrl}/reservation/${reservationId}`, {
+        headers: new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` }),
+      })
+      .subscribe({
+        next: () => {
+          console.log(`Successfully deleted reservation with id ${reservationId}`);
+          this.fetchReservationsWhereUserBelongs();
+        },
+        error: (e) => console.error(`Failed to delete reservation with id ${reservationId}`, e),
+      });
   }
 
   deleteTeamMember(userId: number) {
