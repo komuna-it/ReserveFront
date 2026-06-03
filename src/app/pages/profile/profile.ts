@@ -8,6 +8,7 @@ import { ReservationDto } from '../../model/reservationDto';
 import { Room } from '../../model/room';
 import { Tab } from '../../model/tab';
 import { OrganizationFront } from '../../model/organizationFront';
+import { forkJoin, map } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -50,7 +51,6 @@ export class ProfilePage implements OnInit {
 
   ngOnInit() {
     this.fetchOrganizationsOfUser();
-    this.buildOrganizationFront();
   }
 
   fetchOrganizationsOfUser() {
@@ -72,42 +72,72 @@ export class ProfilePage implements OnInit {
   }
 
   buildOrganizationFront() {
-    this.organizationFront.set([]);
-    for (const org of this.organizations()) {
-      const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
+    const orgs = this.organizations();
+    if (orgs.length === 0) {
+      this.organizationFront.set([]);
+      this.buildTabs();
+      this.fetchReservationsWhereUserBelongs();
+      return;
+    }
+
+    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
+
+    const requests = orgs.map((org) =>
       this.http
         .get<User[]>(`${this.getOrganizationMembersEndpoint}${org.id}`, { headers: header })
-        .subscribe({
-          next: (data) => {
-            this.organizationFront.update((prev) => [
-              ...prev,
-              { ...org, users: data, id: org.id, name: org.name, ownerId: org.ownerId },
-            ]);
-            this.fetchReservationsWhereUserBelongs();
-            this.buildTabs();
-          },
-          error: (e) => console.error(`Failed to fetch members for organization ${org.name}: `, e),
-        });
-    }
-  }
+        .pipe(
+          map(
+            (users) =>
+              ({
+                ...org,
+                users,
+                id: org.id,
+                name: org.name,
+                ownerId: org.ownerId,
+              }) as OrganizationFront,
+          ),
+        ),
+    );
 
+    forkJoin(requests).subscribe({
+      next: (completedOrgsFront) => {
+        this.organizationFront.set(completedOrgsFront);
+
+        this.fetchReservationsWhereUserBelongs();
+        this.buildTabs();
+      },
+      error: (e) => console.error('Failed to fetch members for organizations: ', e),
+    });
+  }
   fetchReservationsWhereUserBelongs() {
-    this.reservationResponses.set([]);
-    console.log('Fetching reservations for organizations: ', this.organizationFront());
-    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
-    for (const org of this.organizationFront()) {
-      const url = `${this.getReservationsByOrganizationEndpoint}${org.id}`;
-      this.http.get<ReservationDto[]>(url, { headers: header }).subscribe({
-        next: (data) => {
-          this.reservationResponses.update((prev) => [...prev, ...data]);
-          console.log(`Fetched reservations for organization ${org.name}: `, data);
-        },
-        error: (e) =>
-          console.error(`Failed to download reservations for organization ${org.name}: `, e),
-      });
+    const orgsFront = this.organizationFront();
+    if (orgsFront.length === 0) {
+      this.reservationResponses.set([]);
+      return;
     }
-  }
 
+    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
+    const requests = orgsFront.map((org) =>
+      this.http.get<ReservationDto[]>(`${this.getReservationsByOrganizationEndpoint}${org.id}`, {
+        headers: header,
+      }),
+    );
+
+    forkJoin(requests).subscribe({
+      next: (allReservationsArrays) => {
+        let allData = allReservationsArrays.flat();
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        allData = allData.filter((res) => res.startAt > now.toISOString());
+        allData.sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
+
+        this.reservationResponses.set(allData);
+      },
+      error: (e) => console.error(`Failed to download reservations`, e),
+    });
+  }
   formatDate(dateStr: string): string {
     try {
       const d = new Date(dateStr);
@@ -128,16 +158,17 @@ export class ProfilePage implements OnInit {
   }
 
   buildTabs() {
-    this.allTabs.set([]);
     let id = 0;
-    const reservationsTab = new Tab(id++, 'Moje rezerwacje', 'reservations', undefined);
-    this.allTabs.update((prev) => [...prev, reservationsTab]);
-    for (const org of this.organizationFront()) {
-      const organizationTab = new Tab(id++, org.name, 'organization', org);
-      this.allTabs.update((prev) => [...prev, organizationTab]);
-    }
-  }
+    const newTabs: Tab[] = [];
 
+    newTabs.push(new Tab(id++, 'Moje rezerwacje', 'reservations', undefined));
+
+    for (const org of this.organizationFront()) {
+      newTabs.push(new Tab(id++, org.name, 'organization', org));
+    }
+
+    this.allTabs.set(newTabs);
+  }
   deleteReservation(reservationId: number) {
     console.log(`Trying to delete reservation with id ${reservationId}`);
   }
