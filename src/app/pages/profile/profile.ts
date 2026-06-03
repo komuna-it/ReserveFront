@@ -127,6 +127,8 @@ export class ProfilePage implements OnInit {
       next: (allReservationsArrays) => {
         let allData = allReservationsArrays.flat();
 
+        allData = Array.from(new Map(allData.map((res) => [res.id, res])).values());
+
         const now = new Date();
         now.setHours(0, 0, 0, 0);
 
