@@ -36,7 +36,7 @@
             [class.bg-slate-800]="activeTab().id === tab.id"
             class="px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all rounded-t-lg whitespace-nowrap"
           >
-            {{ tab.organizationName }}
+            {{ tab.org?.name }}
           </button>
         }
       }
@@ -49,7 +49,7 @@
         >
           <h3 class="font-semibold text-slate-200">Rezerwacje przypisane do moich zespołów</h3>
           <button
-            (click)="fetchReservations()"
+            (click)="fetchReservationsWhereUserBelongs()"
             class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded transition"
           >
             Odśwież dane
@@ -57,7 +57,7 @@
         </div>
 
         <div class="overflow-x-auto">
-          @if (filteredReservations().length > 0) {
+          @if (reservationResponses().length > 0) {
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr
@@ -67,12 +67,12 @@
                   <th class="py-3 px-6">Sala</th>
                   <th class="py-3 px-6">Data rozpoczęcia</th>
                   <th class="py-3 px-6">Czas trwania</th>
-                  <th class="py-3 px-6">Rezerwujący</th>
+                  <th class="py-3 px-6">Zespół</th>
                   <th class="py-3 px-6">Odwołaj</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-700 text-sm">
-                @for (res of filteredReservations(); track res.id; let idx = $index) {
+                @for (res of reservationResponses(); track res.id; let idx = $index) {
                   <tr class="hover:bg-slate-700/30 transition">
                     <td class="py-4 px-6 text-slate-500 font-mono">{{ idx + 1 }}</td>
                     <td class="py-4 px-6">
@@ -86,7 +86,7 @@
                     <td class="py-4 px-6 font-mono text-emerald-400">
                       {{ formatDuration(res.duration) }}
                     </td>
-                    <td class="py-4 px-6 text-slate-400">UserId {{ res.reservedBy }}</td>
+                    <td class="py-4 px-6 text-slate-400">{{ reservedByLabel(res) }}</td>
                     <td class="py-4 px-6">
                       <button
                         (click)="deleteReservation(res.id!)"
@@ -127,7 +127,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-700 text-sm">
-              @for (user of organization.users; track user.id; let index = $index) {
+              @for (user of activeTab().org?.users; track user.id; let index = $index) {
                 <tr class="hover:bg-slate-700/30 transition">
                   <td class="py-4 px-6 text-slate-500 font-mono">{{ index + 1 }}</td>
                   <td class="py-4 px-6 font-semibold text-white">{{ user.nick }}</td>

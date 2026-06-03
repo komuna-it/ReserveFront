@@ -208,6 +208,24 @@
           </select>
         </div>
 
+        <div>
+          <label
+            for="bandSelect"
+            class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
+          >
+            Zespół:
+          </label>
+          <select
+            id="bandSelect"
+            [(ngModel)]="booking.organizationId"
+            class="w-full bg-slate-700 text-white font-medium border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+          >
+            @for (org of organizations(); track org.id) {
+              <option [value]="org.id">{{ org.name }}</option>
+            }
+          </select>
+        </div>
+
         <div class="flex gap-3 justify-end">
           <button
             (click)="selectedBooking.set(null)"

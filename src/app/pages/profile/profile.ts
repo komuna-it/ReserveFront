@@ -7,6 +7,7 @@ import { Organization } from '../../model/organization';
 import { ReservationDto } from '../../model/reservationDto';
 import { Room } from '../../model/room';
 import { Tab } from '../../model/tab';
+import { OrganizationFront } from '../../model/organizationFront';
 
 @Component({
   selector: 'app-profile',
@@ -20,42 +21,39 @@ export class ProfilePage implements OnInit {
   private authService = inject(AuthService);
 
   private apiUrl = process.env['VSF_API_URL'] || '';
-  readonly getReservationsByRoomEndpoint = `${this.apiUrl}/reservation/room`;
+  readonly getReservationsByOrganizationEndpoint = `${this.apiUrl}/reservation/organization/`;
   readonly getOrganizationsEndpoint = `${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`;
   readonly getFutureReservationsEndpoint = `${this.apiUrl}/reservation/future`;
+  readonly getOrganizationMembersEndpoint = `${this.apiUrl}/organizationUser/organization/members/`;
 
   readonly userId = parseInt(this.authService.userId() || '-1');
 
-  activeTab = signal<Tab>(new Tab(0, 'Moje rezerwacje', 'reservations', undefined, undefined));
+  reservedByLabel(reservation: ReservationDto): string {
+    const org = this.organizations().find((o) => o.id === reservation.behalfOf);
+    return org ? `${org.name}` : `Nieznany`;
+  }
+
+  activeTab = signal<Tab>(new Tab(0, 'Moje rezerwacje', 'reservations', undefined));
   allTabs = signal<Tab[]>([]);
+  activeOrgsUsers = computed(() => {
+    const activeTab = this.activeTab();
+    if (activeTab.type === 'organization' && activeTab.org) {
+      return activeTab.org.users;
+    }
+    return [];
+  });
 
-  readonly teamTab = new Tab(-1, 'team', 'Mój Zespół', undefined, undefined);
-
-  readonly user1 = new User(1, 'email1@email.com', 'username1');
-  readonly user2 = new User(2, 'email2@email.com', 'username2');
-  readonly user3 = new User(3, 'email3@email.com', 'username3');
-  readonly users = [this.user1, this.user2, this.user3];
-  readonly organization = new Organization(1, 'ZESPÓŁ', this.users);
   readonly organizations = signal<Organization[]>([]);
-
-  readonly rooms = signal<Room[]>([
-    { id: 1, name: 'Sala Konferencyjna A' },
-    { id: 2, name: 'Studio Nagrań B' },
-  ]);
+  readonly organizationFront = signal<OrganizationFront[]>([]);
 
   readonly reservationResponses = signal<ReservationDto[]>([]);
 
-  readonly filteredReservations = computed(() => {
-    return this.reservationResponses().filter((res) => res.behalfOf === this.organization.id);
-  });
-
   ngOnInit() {
-    this.fetchReservations();
-    this.fetchOrganizations();
-    this.fetchTabs();
+    this.fetchOrganizationsOfUser();
+    this.buildOrganizationFront();
   }
 
-  fetchOrganizations() {
+  fetchOrganizationsOfUser() {
     this.organizations.set([]);
     const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
 
@@ -65,32 +63,49 @@ export class ProfilePage implements OnInit {
       >(`${this.apiUrl}/organizationUser/user/${this.userId}/allOrganizations`, { headers: header })
       .subscribe({
         next: (data) => {
+          this.organizations.set([]);
           this.organizations.set(data);
-          console.log('Fetched organizations: ', data);
+          this.buildOrganizationFront();
         },
         error: (e) => console.error('Failed to fetch organizations: ', e),
       });
   }
 
-  fetchReservations() {
-    if (this.rooms().length === 0) {
-      console.error('No rooms available after fetch attempt. Cannot fetch reservations.');
-      return;
+  buildOrganizationFront() {
+    this.organizationFront.set([]);
+    for (const org of this.organizations()) {
+      const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
+      this.http
+        .get<User[]>(`${this.getOrganizationMembersEndpoint}${org.id}`, { headers: header })
+        .subscribe({
+          next: (data) => {
+            this.organizationFront.update((prev) => [
+              ...prev,
+              { ...org, users: data, id: org.id, name: org.name, ownerId: org.ownerId },
+            ]);
+            this.fetchReservationsWhereUserBelongs();
+            this.buildTabs();
+          },
+          error: (e) => console.error(`Failed to fetch members for organization ${org.name}: `, e),
+        });
     }
+  }
 
+  fetchReservationsWhereUserBelongs() {
     this.reservationResponses.set([]);
-
+    console.log('Fetching reservations for organizations: ', this.organizationFront());
     const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
-
-    this.reservationResponses.set([]);
-    const url = `${this.getFutureReservationsEndpoint}`;
-    this.http.get<ReservationDto[]>(url, { headers: header }).subscribe({
-      next: (data) => {
-        this.reservationResponses.update((prev) => [...prev, ...data]);
-        console.log(`Fetched reservations: `, data);
-      },
-      error: (e) => console.error('Failed to download reservations: ', e),
-    });
+    for (const org of this.organizationFront()) {
+      const url = `${this.getReservationsByOrganizationEndpoint}${org.id}`;
+      this.http.get<ReservationDto[]>(url, { headers: header }).subscribe({
+        next: (data) => {
+          this.reservationResponses.update((prev) => [...prev, ...data]);
+          console.log(`Fetched reservations for organization ${org.name}: `, data);
+        },
+        error: (e) =>
+          console.error(`Failed to download reservations for organization ${org.name}: `, e),
+      });
+    }
   }
 
   formatDate(dateStr: string): string {
@@ -112,30 +127,15 @@ export class ProfilePage implements OnInit {
     return durationStr.replace('PT', '').replace('H', ' godz ').replace('M', ' min');
   }
 
-  fetchTabs() {
-    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
-
-    this.http.get<Organization[]>(this.getOrganizationsEndpoint, { headers: header }).subscribe({
-      next: (data) => {
-        this.organizations.set(data);
-        let id = 0;
-        const reservationTab = new Tab(
-          ++id,
-          'Moje rezerwacje',
-          'reservations',
-          undefined,
-          undefined,
-        );
-
-        const organizationTabs = data.map(
-          (org) => new Tab(++id, org.name, 'organization', org.name, org.id),
-        );
-        console.log('Fetched organizations for tabs: ', data);
-        this.allTabs.set([reservationTab, ...organizationTabs]);
-        console.log('Constructed tabs: ', this.allTabs());
-      },
-      error: (e) => console.error('Failed to fetch organizations for tabs: ', e),
-    });
+  buildTabs() {
+    this.allTabs.set([]);
+    let id = 0;
+    const reservationsTab = new Tab(id++, 'Moje rezerwacje', 'reservations', undefined);
+    this.allTabs.update((prev) => [...prev, reservationsTab]);
+    for (const org of this.organizationFront()) {
+      const organizationTab = new Tab(id++, org.name, 'organization', org);
+      this.allTabs.update((prev) => [...prev, organizationTab]);
+    }
   }
 
   deleteReservation(reservationId: number) {

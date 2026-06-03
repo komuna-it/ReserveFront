@@ -1,9 +1,10 @@
 import { User } from './user';
 
-export class Organization {
+export class OrganizationFront {
   constructor(
     public id: number,
-    public name: string,
     public ownerId: number,
+    public name: string,
+    public users: User[],
   ) {}
 }

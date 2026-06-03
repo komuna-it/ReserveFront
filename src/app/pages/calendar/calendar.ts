@@ -8,6 +8,7 @@ import { HourWrapper } from '../../model/hourWrapper';
 import { Room } from '../../model/room';
 import { AuthService } from '../../services/auth';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { Organization } from '../../model/organization';
 
 @Component({
   selector: 'calendar-page',
@@ -28,19 +29,23 @@ export class CalendarPage implements OnInit, OnDestroy {
   readonly getFutureReservationsEndpoint = `${this.apiUrl}/reservation/future`;
   readonly sseReservationEndpoint = `${this.apiUrl}/reservation/sse`;
   readonly postReservationEndpoint = `${this.apiUrl}/reservation`;
+  readonly getOrganizationsEndpoint = `${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`;
 
+  readonly organizations = signal<Organization[]>([]);
   readonly rooms = signal<Room[]>([]);
   readonly reservationResponses = signal<ReservationDto[]>([]);
   readonly daySelectedByUser = signal<Date>(new Date());
   readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
   readonly accessToken = computed(() => this.authService.accessToken());
+
   readonly selectedBooking = signal<{
     date: string;
     hour: number;
     roomId: number;
     duration: number;
     roomName: string | undefined;
+    organizationId: number;
   } | null>(null);
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
 
@@ -162,7 +167,6 @@ export class CalendarPage implements OnInit, OnDestroy {
 
         const hourWrapper = new HourWrapper(hour, isDisabled, isFirstHour, isLastHour, false);
 
-        // Ten return jest prawidłowo na poziomie roomsList.map()
         return {
           roomId: room.id,
           hourWrapper: hourWrapper,
@@ -176,6 +180,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   ngOnInit() {
     this.fetchRoomsAndReservations();
     this.connectToReservationStream();
+    this.fetchOrganizationsOfUser();
   }
 
   selectDay(day: Date) {
@@ -261,6 +266,7 @@ export class CalendarPage implements OnInit, OnDestroy {
       roomId: roomId,
       duration: 1,
       roomName: this.rooms().find((r) => r.id === roomId)?.name,
+      organizationId: this.organizations()[0]?.id || 0,
     });
   }
 
@@ -270,11 +276,11 @@ export class CalendarPage implements OnInit, OnDestroy {
 
     const payload = {
       id: null,
-      behalfOf: 1,
+      behalfOf: booking.organizationId,
       roomId: booking.roomId,
       startAt: `${booking.date}T${String(booking.hour).padStart(2, '0')}:00:00`,
       duration: `PT${booking.duration}H`,
-      reservedBy: 1,
+      reservedBy: this.authService.userId(),
     };
     const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
 
@@ -315,5 +321,23 @@ export class CalendarPage implements OnInit, OnDestroy {
     if (this.sseController) {
       this.sseController.abort();
     }
+  }
+
+  fetchOrganizationsOfUser() {
+    this.organizations.set([]);
+    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
+
+    this.http
+      .get<
+        Organization[]
+      >(`${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`, { headers: header })
+      .subscribe({
+        next: (data) => {
+          this.organizations.set([]);
+          this.organizations.set(data);
+          console.log('Fetched organizations: ', data);
+        },
+        error: (e) => console.error('Failed to fetch organizations: ', e),
+      });
   }
 }
