@@ -1,11 +1,12 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AuthService } from '../../services/auth'; // Twój bezpieczny serwis auth
+import { AuthService } from '../../services/auth';
 import { User } from '../../model/user';
 import { Organization } from '../../model/organization';
 import { ReservationDto } from '../../model/reservationDto';
 import { Room } from '../../model/room';
+import { Tab } from '../../model/tab';
 
 @Component({
   selector: 'app-profile',
@@ -20,10 +21,15 @@ export class ProfilePage implements OnInit {
 
   private apiUrl = process.env['VSF_API_URL'] || '';
   readonly getReservationsByRoomEndpoint = `${this.apiUrl}/reservation/room`;
+  readonly getOrganizationsEndpoint = `${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`;
+  readonly getFutureReservationsEndpoint = `${this.apiUrl}/reservation/future`;
 
-  // readonly userId = this.authService.getUserIdFromToken();
-  readonly userId = '1';
-  activeTab = signal<'reservations' | 'team'>('reservations');
+  readonly userId = parseInt(this.authService.userId() || '-1');
+
+  activeTab = signal<Tab>(new Tab(0, 'Moje rezerwacje', 'reservations', undefined, undefined));
+  allTabs = signal<Tab[]>([]);
+
+  readonly teamTab = new Tab(-1, 'team', 'Mój Zespół', undefined, undefined);
 
   readonly user1 = new User(1, 'email1@email.com', 'username1');
   readonly user2 = new User(2, 'email2@email.com', 'username2');
@@ -46,6 +52,7 @@ export class ProfilePage implements OnInit {
   ngOnInit() {
     this.fetchReservations();
     this.fetchOrganizations();
+    this.fetchTabs();
   }
 
   fetchOrganizations() {
@@ -53,7 +60,9 @@ export class ProfilePage implements OnInit {
     const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
 
     this.http
-      .get<Organization[]>(`${this.apiUrl}/user/${this.userId}/organizations`, { headers: header })
+      .get<
+        Organization[]
+      >(`${this.apiUrl}/organizationUser/user/${this.userId}/allOrganizations`, { headers: header })
       .subscribe({
         next: (data) => {
           this.organizations.set(data);
@@ -64,7 +73,6 @@ export class ProfilePage implements OnInit {
   }
 
   fetchReservations() {
-    console.log('inside fetchReservations, rooms length : ', this.rooms().length);
     if (this.rooms().length === 0) {
       console.error('No rooms available after fetch attempt. Cannot fetch reservations.');
       return;
@@ -72,20 +80,17 @@ export class ProfilePage implements OnInit {
 
     this.reservationResponses.set([]);
 
-    for (const room of this.rooms()) {
-      const url = `${this.getReservationsByRoomEndpoint}/${room.id}`;
-      console.log('fetching reservations with url: ', url);
+    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
 
-      const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
-
-      this.http.get<ReservationDto[]>(url, { headers: header }).subscribe({
-        next: (data) => {
-          this.reservationResponses.update((prev) => [...prev, ...data]);
-          console.log(`Received ${data.length} responses for room ${room.id}`);
-        },
-        error: (e) => console.error('Failed to download reservation responses from backend: ', e),
-      });
-    }
+    this.reservationResponses.set([]);
+    const url = `${this.getFutureReservationsEndpoint}`;
+    this.http.get<ReservationDto[]>(url, { headers: header }).subscribe({
+      next: (data) => {
+        this.reservationResponses.update((prev) => [...prev, ...data]);
+        console.log(`Fetched reservations: `, data);
+      },
+      error: (e) => console.error('Failed to download reservations: ', e),
+    });
   }
 
   formatDate(dateStr: string): string {
@@ -104,32 +109,40 @@ export class ProfilePage implements OnInit {
   }
 
   formatDuration(durationStr: string): string {
-    return durationStr.replace('PT', '').replace('H', ' godz').replace('M', ' min');
+    return durationStr.replace('PT', '').replace('H', ' godz ').replace('M', ' min');
+  }
+
+  fetchTabs() {
+    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
+
+    this.http.get<Organization[]>(this.getOrganizationsEndpoint, { headers: header }).subscribe({
+      next: (data) => {
+        this.organizations.set(data);
+        let id = 0;
+        const reservationTab = new Tab(
+          ++id,
+          'Moje rezerwacje',
+          'reservations',
+          undefined,
+          undefined,
+        );
+
+        const organizationTabs = data.map(
+          (org) => new Tab(++id, org.name, 'organization', org.name, org.id),
+        );
+        console.log('Fetched organizations for tabs: ', data);
+        this.allTabs.set([reservationTab, ...organizationTabs]);
+        console.log('Constructed tabs: ', this.allTabs());
+      },
+      error: (e) => console.error('Failed to fetch organizations for tabs: ', e),
+    });
   }
 
   deleteReservation(reservationId: number) {
     console.log(`Trying to delete reservation with id ${reservationId}`);
-    // not implemented
-    // const url = `${this.apiUrl}/reservation/${reservationId}`;
-    // this.http.delete(url).subscribe({
-    //   next: () => {
-    //     console.log(`Deleted reservation with id ${reservationId}`);
-    //     this.fetchReservations();
-    //   },
-    //   error: (e) => console.error('Failed to delete reservation: ', e),
-    // });
   }
 
   deleteTeamMember(userId: number) {
     console.log(`Trying to delete team member with id ${userId}`);
-    // not implemented
-    // const url = `${this.apiUrl}/organization/${this.organization.id}/member/${userId}`;
-    // this.http.delete(url).subscribe({
-    //   next: () => {
-    //     console.log(`Deleted team member with id ${userId}`);
-    //     this.fetchOrganization();
-    //   },
-    //   error: (e) => console.error('Failed to delete team member: ', e),
-    // });
   }
 }

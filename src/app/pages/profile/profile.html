@@ -5,7 +5,7 @@
     >
       <div>
         <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          Profil zespołu: <span class="text-blue-400">{{ organization.name }}</span>
+          Twój profil
         </h1>
         <p class="text-sm text-slate-400 mt-1">
           Zarządzaj rezerwacjami sal i składem swojego zespołu
@@ -17,33 +17,37 @@
       </div>
     </div>
 
-    <div class="flex border-b border-slate-700 gap-2">
-      <button
-        (click)="activeTab.set('reservations')"
-        [class.border-blue-500]="activeTab() === 'reservations'"
-        [class.text-blue-400]="activeTab() === 'reservations'"
-        [class.bg-slate-800]="activeTab() === 'reservations'"
-        class="px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all rounded-t-lg"
-      >
-        Moje rezerwacje
-      </button>
-      <button
-        (click)="activeTab.set('team')"
-        [class.border-blue-500]="activeTab() === 'team'"
-        [class.text-blue-400]="activeTab() === 'team'"
-        [class.bg-slate-800]="activeTab() === 'team'"
-        class="px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all rounded-t-lg"
-      >
-        Mój zespół
-      </button>
+    <div class="flex border-b border-slate-700 gap-2 overflow-x-auto">
+      @for (tab of allTabs(); track tab.id) {
+        @if (tab.type === 'reservations') {
+          <button
+            (click)="activeTab.set(tab)"
+            [class.border-blue-500]="activeTab().id === tab.id"
+            [class.text-blue-400]="activeTab().id === tab.id"
+            class="bg-red-800 px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all rounded-t-lg whitespace-nowrap"
+          >
+            Rezerwacje
+          </button>
+        } @else if (tab.type === 'organization') {
+          <button
+            (click)="activeTab.set(tab)"
+            [class.border-blue-500]="activeTab().id === tab.id"
+            [class.text-blue-400]="activeTab().id === tab.id"
+            [class.bg-slate-800]="activeTab().id === tab.id"
+            class="px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all rounded-t-lg whitespace-nowrap"
+          >
+            {{ tab.organizationName }}
+          </button>
+        }
+      }
     </div>
 
-    @if (activeTab() === 'reservations') {
+    @if (activeTab().type === 'reservations') {
       <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
         <div
           class="p-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center"
         >
-          <h3 class="font-semibold text-slate-200">Rezerwacje przypisane do Twojej organizacji</h3>
+          <h3 class="font-semibold text-slate-200">Rezerwacje przypisane do moich zespołów</h3>
           <button
             (click)="fetchReservations()"
             class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded transition"
@@ -53,65 +57,58 @@
         </div>
 
         <div class="overflow-x-auto">
-          @for (res of filteredReservations(); track res.id; let i = $index) {
-            @if (i === 0) {
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr
-                    class="bg-slate-900/50 border-b border-slate-700 text-slate-400 text-xs font-semibold uppercase tracking-wider"
-                  >
-                    <th class="py-3 px-6">Lp</th>
-                    <th class="py-3 px-6">Sala</th>
-                    <th class="py-3 px-6">Data rozpoczęcia</th>
-                    <th class="py-3 px-6">Czas trwania</th>
-                    <th class="py-3 px-6">Rezerwujący</th>
-                    <th class="py-3 px-6">Odwołaj</th>
+          @if (filteredReservations().length > 0) {
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr
+                  class="bg-slate-900/50 border-b border-slate-700 text-slate-400 text-xs font-semibold uppercase tracking-wider"
+                >
+                  <th class="py-3 px-6">Lp</th>
+                  <th class="py-3 px-6">Sala</th>
+                  <th class="py-3 px-6">Data rozpoczęcia</th>
+                  <th class="py-3 px-6">Czas trwania</th>
+                  <th class="py-3 px-6">Rezerwujący</th>
+                  <th class="py-3 px-6">Odwołaj</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-700 text-sm">
+                @for (res of filteredReservations(); track res.id; let idx = $index) {
+                  <tr class="hover:bg-slate-700/30 transition">
+                    <td class="py-4 px-6 text-slate-500 font-mono">{{ idx + 1 }}</td>
+                    <td class="py-4 px-6">
+                      <span
+                        class="bg-slate-900 px-2 py-1 rounded text-slate-300 text-xs border border-slate-700"
+                      >
+                        Sala {{ res.roomId }}
+                      </span>
+                    </td>
+                    <td class="py-4 px-6 text-slate-300">{{ formatDate(res.startAt) }}</td>
+                    <td class="py-4 px-6 font-mono text-emerald-400">
+                      {{ formatDuration(res.duration) }}
+                    </td>
+                    <td class="py-4 px-6 text-slate-400">UserId {{ res.reservedBy }}</td>
+                    <td class="py-4 px-6">
+                      <button
+                        (click)="deleteReservation(res.id!)"
+                        class="text-white text-xs bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
+                      >
+                        Odwołaj
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-700 text-sm">
-                  @for (innerRes of filteredReservations(); track innerRes.id; let idx = $index) {
-                    <tr class="hover:bg-slate-700/30 transition">
-                      <td class="py-4 px-6 text-slate-500 font-mono">{{ idx + 1 }}</td>
-                      <td class="py-4 px-6">
-                        <span
-                          class="bg-slate-900 px-2 py-1 rounded text-slate-300 text-xs border border-slate-700"
-                        >
-                          Sala {{ innerRes.roomId }}
-                        </span>
-                      </td>
-                      <td class="py-4 px-6 text-slate-300">{{ formatDate(innerRes.startAt) }}</td>
-                      <td class="py-4 px-6 font-mono text-emerald-400">
-                        {{ formatDuration(innerRes.duration) }}
-                      </td>
-                      <td class="py-4 px-6 text-slate-400">UserId {{ innerRes.reservedBy }}</td>
-                      <td class="py-4 px-6 text-slate-400">
-                        <button
-                          (click)="deleteReservation(innerRes.roomId)"
-                          class="text-white text-xs bg-red-700 hover:bg-slate-600 px-3 py-1.5 rounded transition"
-                        >
-                          Odwołaj
-                        </button>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            }
-          } @empty {
+                }
+              </tbody>
+            </table>
+          } @else {
             <div class="p-12 text-center text-slate-500">
-              <p class="text-lg">
-                Brak aktywnych rezerwacji dla organizacji o ID {{ organization.id }}.
-              </p>
-              <p class="text-sm text-slate-600 mt-1">
-                Upewnij się, że pole 'behalf_of' w bazie danych odpowiada Twojemu zespołowi.
-              </p>
+              <p class="text-lg">Brak aktywnych rezerwacji dla moich zespołów</p>
             </div>
           }
         </div>
       </div>
     }
 
-    @if (activeTab() === 'team') {
+    @if (activeTab().type === 'organization') {
       <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
         <div class="p-4 bg-slate-800/50 border-b border-slate-700">
           <h3 class="font-semibold text-slate-200">Członkowie zespołu</h3>
@@ -134,13 +131,11 @@
                 <tr class="hover:bg-slate-700/30 transition">
                   <td class="py-4 px-6 text-slate-500 font-mono">{{ index + 1 }}</td>
                   <td class="py-4 px-6 font-semibold text-white">{{ user.nick }}</td>
-                  <td class="py-4 px-6 font-semibold text-white">
-                    {{ user.email }}
-                  </td>
+                  <td class="py-4 px-6 text-slate-300">{{ user.email }}</td>
                   <td class="py-4 px-6">
                     <button
                       (click)="deleteTeamMember(user.id)"
-                      class="text-white bg-red-700 hover:bg-pink-100 px-3 py-1.5 rounded transition"
+                      class="text-white bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
                     >
                       Usuń
                     </button>

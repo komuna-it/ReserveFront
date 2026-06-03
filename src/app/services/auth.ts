@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { Observable, tap, of, map, firstValueFrom } from 'rxjs';
@@ -29,6 +29,18 @@ export class AuthService {
   readonly refreshToken = signal<string>(this.cookieService.get('refresh_token') || '');
   readonly authResponse = signal<AuthResponse | null>(null);
   public isAuthenticated = this.isAuthenticatedSignal.asReadonly();
+  readonly userId = computed<string | null>(() => {
+    const token = this.accessToken();
+    if (!token) return null;
+
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      return decoded.sub;
+    } catch (error) {
+      console.error('Błąd podczas dekodowania tokenu w computed:', error);
+      return null;
+    }
+  });
   readonly loginEndpoint = `${this.apiUrl}/auth/login`;
   readonly registerEndpoint = `${this.apiUrl}/auth/register`;
 
