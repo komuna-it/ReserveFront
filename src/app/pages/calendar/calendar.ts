@@ -116,6 +116,7 @@ export class CalendarPage implements OnInit, OnDestroy {
     const selectedDate = this.daySelectedByUser();
     const reservations = this.reservationResponses();
     const roomsList = this.rooms();
+    const myTeams = this.organizations();
     const now = new Date();
 
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -152,6 +153,8 @@ export class CalendarPage implements OnInit, OnDestroy {
 
         let isFirstHour = false;
         let isLastHour = false;
+        let isReservedByMyOrganization = false;
+        let bandName = '';
 
         if (matchedReservation) {
           const resStart = new Date(matchedReservation.startAt);
@@ -160,9 +163,23 @@ export class CalendarPage implements OnInit, OnDestroy {
 
           isFirstHour = hour === startHour;
           isLastHour = hour === startHour + duration - 1;
+
+          const matchingTeam = myTeams.find((t) => t.id === matchedReservation.behalfOf);
+          if (matchingTeam) {
+            isReservedByMyOrganization = true;
+            bandName = matchingTeam.name;
+          }
         }
 
-        const hourWrapper = new HourWrapper(hour, isDisabled, isFirstHour, isLastHour, false);
+        const hourWrapper = new HourWrapper(
+          hour,
+          isDisabled,
+          isFirstHour,
+          isLastHour,
+          isReservedByMyOrganization,
+        );
+
+        (hourWrapper as any).bandName = bandName;
 
         return {
           roomId: room.id,
@@ -310,7 +327,6 @@ export class CalendarPage implements OnInit, OnDestroy {
 
           const msgData = JSON.parse(msg.data);
           const newReservationId = msgData.id;
-
           const myBooking = this.selectedBooking();
 
           if (!myBooking) {
@@ -338,7 +354,6 @@ export class CalendarPage implements OnInit, OnDestroy {
                     return;
                   }
 
-                  // Sprawdzanie daty
                   const resStart = new Date(newRes.startAt);
                   const day = this.daySelectedByUser();
                   const isSameDay =
@@ -357,7 +372,6 @@ export class CalendarPage implements OnInit, OnDestroy {
 
                   const isTimeOverlapping =
                     newResStartHour < myEndHour && newResEndHour > myStartHour;
-
                   const overlaps = isSameDay && isSameRoom && isTimeOverlapping;
 
                   let userFromBookingStr = '';
@@ -367,7 +381,6 @@ export class CalendarPage implements OnInit, OnDestroy {
                     userFromBookingStr = String(newRes.reservedBy || '');
                   }
                   const userInSessionStr = String(this.authService.userId() || '');
-
                   const isDifferentUser = userInSessionStr !== userFromBookingStr;
 
                   if (overlaps && isDifferentUser) {
@@ -379,9 +392,7 @@ export class CalendarPage implements OnInit, OnDestroy {
                   console.groupEnd();
                   console.groupEnd();
                 },
-                error: (e) => {
-                  console.error('Błąd pobierania rezerwacji w locie SSE:', e);
-                },
+                error: (e) => console.error('Błąd pobierania rezerwacji w locie SSE:', e),
               });
           }, 300);
         } else if (msg.event === 'RESERVATION_REMOVED') {
@@ -389,11 +400,10 @@ export class CalendarPage implements OnInit, OnDestroy {
           this.fetchReservations();
         }
       },
-      onerror: (err) => {
-        console.error('SSE: error:', err);
-      },
+      onerror: (err) => console.error('SSE: error:', err),
     });
   }
+
   checkIfReservationIdOverlapsWithDayAndRoom(reservationId: number): boolean {
     const day = this.daySelectedByUser();
     const roomId = this.selectedBooking()?.roomId;
@@ -422,17 +432,12 @@ export class CalendarPage implements OnInit, OnDestroy {
     this.organizations.set([]);
     const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
 
-    this.http
-      .get<
-        Organization[]
-      >(`${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`, { headers: header })
-      .subscribe({
-        next: (data) => {
-          this.organizations.set([]);
-          this.organizations.set(data);
-          console.log('Fetched organizations: ', data);
-        },
-        error: (e) => console.error('Failed to fetch organizations: ', e),
-      });
+    this.http.get<Organization[]>(this.getOrganizationsEndpoint, { headers: header }).subscribe({
+      next: (data) => {
+        this.organizations.set(data);
+        console.log('Fetched organizations: ', data);
+      },
+      error: (e) => console.error('Failed to fetch organizations: ', e),
+    });
   }
 }

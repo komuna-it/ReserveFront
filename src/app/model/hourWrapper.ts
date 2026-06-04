@@ -1,9 +1,10 @@
 export class HourWrapper {
+  public bandName: string = '';
   constructor(
     public hour: number,
     public isReserved: boolean,
-    public isFirstHourOfReservation: boolean | undefined,
-    public isLastHourOfReservation: boolean | undefined,
+    public isFirstHourOfReservation: boolean,
+    public isLastHourOfReservation: boolean,
     public isReservedByMyOrganization: boolean,
   ) {}
 }

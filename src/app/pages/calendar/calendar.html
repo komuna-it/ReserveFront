@@ -37,7 +37,7 @@
                 day,
                 daySelectedByUser()
               ),
-              'bg-slate-700 text-slate-100 hover:bg-slate-600':
+              'bg-slate-700 text-slate-1100 hover:bg-slate-600':
                 !isSameDay(day, daySelectedByUser()) &&
                 day.getMonth() === currentMonthDate().getMonth(),
               'bg-slate-800 text-slate-500 hover:bg-slate-700':
@@ -133,25 +133,44 @@
                           !cell.hourWrapper.isReserved || cell.hourWrapper.isLastHourOfReservation,
                       }"
                     >
-                      @if (
-                        cell.hourWrapper.isFirstHourOfReservation &&
-                        cell.hourWrapper.isLastHourOfReservation
-                      ) {
+                      @if (cell.hourWrapper.isReserved) {
                         <div
-                          class="inline-block w-24 h-full flex items-center justify-center bg-red-500/20 text-red-400 border border-red-500/30 rounded-full text-xs font-medium cursor-not-allowed truncate px-1"
-                        ></div>
-                      } @else if (cell.hourWrapper.isFirstHourOfReservation) {
-                        <div
-                          class="inline-block w-24 h-full flex items-center justify-center bg-red-500/20 text-red-400 border-t border-x border-red-500/30 rounded-t-3xl text-xs font-medium cursor-not-allowed truncate px-1"
-                        ></div>
-                      } @else if (cell.hourWrapper.isLastHourOfReservation) {
-                        <div
-                          class="inline-block w-24 h-full flex items-center justify-center bg-red-500/20 text-red-400 border-b border-x border-red-500/30 rounded-b-3xl text-xs font-medium cursor-not-allowed truncate px-1"
-                        ></div>
-                      } @else if (cell.hourWrapper.isReserved) {
-                        <div
-                          class="inline-block w-24 h-full flex items-center justify-center bg-red-500/20 text-red-400/40 border-x border-red-500/20 text-xs font-medium cursor-not-allowed truncate px-1"
-                        ></div>
+                          class="flex-col text-center w-full h-full flex items-center justify-center text-xs font-medium cursor-not-allowed truncate px-2 transition-all"
+                          [ngClass]="{
+                            'bg-blue-500/20 text-blue-400 border-blue-500/40':
+                              cell.hourWrapper.isReservedByMyOrganization,
+                            'bg-red-500/20 text-red-400 border-red-500/30':
+                              !cell.hourWrapper.isReservedByMyOrganization,
+                            'text-red-400/40 border-red-500/15':
+                              !cell.hourWrapper.isReservedByMyOrganization &&
+                              !cell.hourWrapper.isFirstHourOfReservation &&
+                              !cell.hourWrapper.isLastHourOfReservation,
+                            'text-blue-400/50 border-blue-500/20':
+                              cell.hourWrapper.isReservedByMyOrganization &&
+                              !cell.hourWrapper.isFirstHourOfReservation &&
+                              !cell.hourWrapper.isLastHourOfReservation,
+                            'rounded-full border':
+                              cell.hourWrapper.isFirstHourOfReservation &&
+                              cell.hourWrapper.isLastHourOfReservation,
+                            'rounded-t-3xl border-t border-x':
+                              cell.hourWrapper.isFirstHourOfReservation &&
+                              !cell.hourWrapper.isLastHourOfReservation,
+                            'rounded-b-3xl border-b border-x':
+                              !cell.hourWrapper.isFirstHourOfReservation &&
+                              cell.hourWrapper.isLastHourOfReservation,
+                            'border-x':
+                              !cell.hourWrapper.isFirstHourOfReservation &&
+                              !cell.hourWrapper.isLastHourOfReservation,
+                          }"
+                        >
+                          @if (cell.hourWrapper.isReservedByMyOrganization) {
+                            <span
+                              class="font-bold text-[10px] tracking-wide uppercase text-blue-300 block truncate w-full px-1"
+                            >
+                              {{ cell.hourWrapper.bandName }}
+                            </span>
+                          }
+                        </div>
                       } @else {
                         <div class="py-3 inline-block w-24 h-full flex items-center justify-center">
                           <button
@@ -208,7 +227,7 @@
           </select>
         </div>
 
-        <div>
+        <div class="mb-6">
           <label
             for="bandSelect"
             class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
@@ -262,6 +281,7 @@
       </div>
     </div>
   }
+
   @if (displayBookingErrorPopup()) {
     <div
       class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50"
