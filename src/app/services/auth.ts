@@ -44,14 +44,13 @@ export class AuthService {
   readonly loginEndpoint = `${this.apiUrl}/auth/login`;
   readonly registerEndpoint = `${this.apiUrl}/auth/register`;
 
-  login(email: string, password: string): Observable<AuthResponse> {
+  login(email: string, password: string, rememberMe: boolean): Observable<AuthResponse> {
     // Prod
     return this.http.post<AuthResponse>(this.loginEndpoint, { email, password }).pipe(
-      // 2. Use tap() for side-effects (saving state/cookies)
       tap((response) => {
         console.log('Login response received: ', response);
         this.authResponse.set(response);
-        this.handleAuthentication(response);
+        this.handleAuthentication(response, rememberMe);
       }),
     );
 
@@ -91,12 +90,18 @@ export class AuthService {
     // }
   }
 
-  private handleAuthentication(response: AuthResponse) {
-    const accessExpiry = new Date();
-    accessExpiry.setMinutes(accessExpiry.getMinutes() + 2);
+  private handleAuthentication(response: AuthResponse, rememberMe: boolean) {
+    let accessExpiry: Date | undefined = undefined;
+    let refreshExpiry: Date | undefined = undefined;
 
-    const refreshExpiry = new Date();
-    refreshExpiry.setDate(refreshExpiry.getDate() + 10);
+    if (rememberMe) {
+      accessExpiry = new Date();
+      accessExpiry.setMinutes(accessExpiry.getMinutes() + 60); // 60 mins
+
+      refreshExpiry = new Date();
+      refreshExpiry.setDate(refreshExpiry.getDate() + 10); // 10 days
+    }
+    // else -- session cookies that expire when the browser is closed
 
     this.cookieService.set(
       'access_token',
@@ -118,15 +123,20 @@ export class AuthService {
       'Strict',
     );
 
-    this.cookieService.set('user_id', '1', refreshExpiry, '/', undefined, true, 'Strict');
+    this.cookieService.set(
+      'user_id',
+      this.userId() || '0',
+      refreshExpiry,
+      '/',
+      undefined,
+      true,
+      'Strict',
+    );
 
     console.log('setting authenticated true');
     this.isAuthenticatedSignal.set(true);
     this.accessToken.set(response.accessToken);
     this.refreshToken.set(response.refreshToken);
-    console.log('isAuthenticated after login:', this.isAuthenticated());
-    console.log('Access token set to:', this.accessToken());
-    console.log('Refresh token set to:', this.refreshToken());
   }
 
   public getAccessToken(): string {

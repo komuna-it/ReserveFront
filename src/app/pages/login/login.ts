@@ -16,6 +16,8 @@ export class LoginPage {
   password = '';
   errorMessage = '';
   isLoading = false;
+  rememberMe = false;
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -24,8 +26,15 @@ export class LoginPage {
   login() {
     this.errorMessage = '';
     this.isLoading = true;
-    console.log('Attempting login with email:', this.email, 'and password:', this.password);
-    this.authService.login(this.email, this.password).subscribe({
+    console.log(
+      'Attempting login with email:',
+      this.email,
+      'and password:',
+      this.password,
+      ', rememberMe:',
+      this.rememberMe,
+    );
+    this.authService.login(this.email, this.password, this.rememberMe).subscribe({
       next: () => {
         this.isLoading = false;
         this.router.navigate(['/']);
