@@ -9,6 +9,7 @@ import { Room } from '../../model/room';
 import { Tab } from '../../model/tab';
 import { OrganizationFront } from '../../model/organizationFront';
 import { forkJoin, map } from 'rxjs';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 @Component({
   selector: 'app-profile',
@@ -26,7 +27,11 @@ export class ProfilePage implements OnInit {
   readonly getOrganizationsEndpoint = `${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`;
   readonly getFutureReservationsEndpoint = `${this.apiUrl}/reservation/future`;
   readonly getOrganizationMembersEndpoint = `${this.apiUrl}/organizationUser/organization/members/`;
+  readonly getOrganizationsOfUserEndpoint = `${this.apiUrl}/organizationUser/user`;
   readonly createOrganizationEndpoint = `${this.apiUrl}/organization/`;
+  readonly sseReservationEndpoint = `${this.apiUrl}/reservation/sse`;
+
+  private sseController: AbortController | null = null;
 
   readonly userId = parseInt(this.authService.userId() || '-1');
 
@@ -217,5 +222,35 @@ export class ProfilePage implements OnInit {
         },
         error: (e) => console.error(`Failed to create organization with name ${name}`, e),
       });
+  }
+
+  private connectToReservationStream() {
+    this.sseController = new AbortController();
+    console.log('Connected to SSE for reservations');
+    fetchEventSource(this.sseReservationEndpoint, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${this.authService.accessToken()}`,
+      },
+      signal: this.sseController.signal,
+      onmessage: (msg) => {
+        console.log('Received SSE message: ', msg);
+        if (msg.event === 'RESERVATION_CREATED') {
+          console.log('Wykryto nową rezerwację przez SSE, odświeżam listę...');
+          this.fetchReservationsWhereUserBelongs();
+        } else if (msg.event === 'RESERVATION_REMOVED') {
+          console.log('Wykryto usuniętą rezerwację przez SSE, odświeżam listę...');
+          this.fetchReservationsWhereUserBelongs();
+        }
+      },
+      onerror: (err) => {
+        console.error('SSE error:', err);
+      },
+    });
+  }
+  ngOnDestroy() {
+    if (this.sseController) {
+      this.sseController.abort();
+    }
   }
 }

@@ -20,7 +20,6 @@ export class CalendarPage implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private router = inject(Router);
   private authService = inject(AuthService);
-  private eventSource: EventSource | null = null;
   private sseController: AbortController | null = null;
 
   readonly apiUrl = process.env['VSF_API_URL'] || '';
@@ -46,6 +45,7 @@ export class CalendarPage implements OnInit, OnDestroy {
     duration: number;
     roomName: string | undefined;
     organizationId: number;
+    reservedByUserId: number;
   } | null>(null);
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
   readonly displayBookingErrorPopup = signal<boolean>(false);
@@ -131,7 +131,6 @@ export class CalendarPage implements OnInit, OnDestroy {
       const cells = roomsList.map((room) => {
         const isPastHour = isPastDay || (isToday && hour <= now.getHours());
 
-        // Zamiast some(), używamy find(), aby złapać konkretną rezerwację
         const matchedReservation = reservations.find((res) => {
           if (res.roomId !== room.id) return false;
           const resStart = new Date(res.startAt);
@@ -148,15 +147,12 @@ export class CalendarPage implements OnInit, OnDestroy {
           return hour >= startHour && hour < startHour + duration;
         });
 
-        // Jeśli find() coś znalazł, to znaczy, że jest rezerwacja
         const isReserved = !!matchedReservation;
         const isDisabled = isReserved || isPastHour;
 
-        // Domyślne wartości dla wolnych godzin
         let isFirstHour = false;
         let isLastHour = false;
 
-        // Jeśli mamy rezerwację, sprawdzamy, czy to jej pierwsza lub ostatnia godzina
         if (matchedReservation) {
           const resStart = new Date(matchedReservation.startAt);
           const startHour = resStart.getHours();
@@ -268,6 +264,7 @@ export class CalendarPage implements OnInit, OnDestroy {
       duration: 1,
       roomName: this.rooms().find((r) => r.id === roomId)?.name,
       organizationId: this.organizations()[0]?.id || 0,
+      reservedByUserId: parseInt(this.authService.userId() || '0', 0),
     });
   }
 
@@ -300,6 +297,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   private connectToReservationStream() {
     this.sseController = new AbortController();
     console.log('Connected to SSE for reservations');
+
     fetchEventSource(this.sseReservationEndpoint, {
       method: 'GET',
       headers: {
@@ -308,22 +306,110 @@ export class CalendarPage implements OnInit, OnDestroy {
       signal: this.sseController.signal,
       onmessage: (msg) => {
         if (msg.event === 'RESERVATION_CREATED') {
-          console.log('Wykryto nową rezerwację przez SSE, odświeżam listę...');
-          this.fetchReservations();
-          if (this.displayBookingSuccesfulPopup()) {
-            this.displayBookingSuccesfulPopup.set(false);
-            this.displayBookingErrorPopup.set(true);
-            console.log('Ukrywam popup z informacją o sukcesie rezerwacji');
+          console.group('=== SSE: WYKRYTO NOWĄ REZERWACJĘ ===');
+
+          const msgData = JSON.parse(msg.data);
+          const newReservationId = msgData.id;
+
+          const myBooking = this.selectedBooking();
+
+          if (!myBooking) {
+            this.fetchReservations();
+            console.groupEnd();
+            return;
           }
+
+          setTimeout(() => {
+            const header = new HttpHeaders({
+              Authorization: `Bearer ${this.authService.accessToken()}`,
+            });
+
+            this.http
+              .get<ReservationDto[]>(this.getFutureReservationsEndpoint, { headers: header })
+              .subscribe({
+                next: (data) => {
+                  this.reservationResponses.set(data);
+
+                  const newRes = data.find((r) => r.id === newReservationId);
+                  if (!newRes) {
+                    console.warn(
+                      `Nie znaleziono rezerwacji o ID ${newReservationId} na pobranej liście!`,
+                    );
+                    return;
+                  }
+
+                  // Sprawdzanie daty
+                  const resStart = new Date(newRes.startAt);
+                  const day = this.daySelectedByUser();
+                  const isSameDay =
+                    resStart.getFullYear() === day.getFullYear() &&
+                    resStart.getMonth() === day.getMonth() &&
+                    resStart.getDate() === day.getDate();
+
+                  const isSameRoom = newRes.roomId === myBooking.roomId;
+
+                  const newResStartHour = resStart.getHours();
+                  const newResDuration = this.parseDurationToHours(newRes.duration);
+                  const newResEndHour = newResStartHour + newResDuration;
+
+                  const myStartHour = myBooking.hour;
+                  const myEndHour = myStartHour + myBooking.duration;
+
+                  const isTimeOverlapping =
+                    newResStartHour < myEndHour && newResEndHour > myStartHour;
+
+                  const overlaps = isSameDay && isSameRoom && isTimeOverlapping;
+
+                  let userFromBookingStr = '';
+                  if (newRes.reservedBy && typeof newRes.reservedBy === 'object') {
+                    userFromBookingStr = String((newRes.reservedBy as any).id || '');
+                  } else {
+                    userFromBookingStr = String(newRes.reservedBy || '');
+                  }
+                  const userInSessionStr = String(this.authService.userId() || '');
+
+                  const isDifferentUser = userInSessionStr !== userFromBookingStr;
+
+                  if (overlaps && isDifferentUser) {
+                    this.selectedBooking.set(null);
+                    this.displayBookingSuccesfulPopup.set(false);
+                    this.displayBookingErrorPopup.set(true);
+                  }
+
+                  console.groupEnd();
+                  console.groupEnd();
+                },
+                error: (e) => {
+                  console.error('Błąd pobierania rezerwacji w locie SSE:', e);
+                },
+              });
+          }, 300);
         } else if (msg.event === 'RESERVATION_REMOVED') {
-          console.log('Wykryto usuniętą rezerwację przez SSE, odświeżam listę...');
+          console.log('SSE: RESERVATION_REMOVED event received, refreshing reservations list...');
           this.fetchReservations();
         }
       },
       onerror: (err) => {
-        console.error('SSE error:', err);
+        console.error('SSE: error:', err);
       },
     });
+  }
+  checkIfReservationIdOverlapsWithDayAndRoom(reservationId: number): boolean {
+    const day = this.daySelectedByUser();
+    const roomId = this.selectedBooking()?.roomId;
+    if (!roomId) return false;
+    const reservations = this.reservationResponses();
+    const reservation = reservations.find((res) => res.id === reservationId);
+    if (!reservation) return false;
+
+    const reservationStartDate = new Date(reservation.startAt);
+    const isSameDay =
+      reservationStartDate.getFullYear() === day.getFullYear() &&
+      reservationStartDate.getMonth() === day.getMonth() &&
+      reservationStartDate.getDate() === day.getDate();
+    const isSameRoom = reservation.roomId === roomId;
+
+    return isSameDay && isSameRoom;
   }
 
   ngOnDestroy() {
