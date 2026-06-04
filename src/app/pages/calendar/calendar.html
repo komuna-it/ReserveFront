@@ -262,4 +262,22 @@
       </div>
     </div>
   }
+  @if (displayBookingErrorPopup()) {
+    <div
+      class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
+      >
+        <h2 class="text-xl font-bold tracking-tight mb-2">Ktoś cię ubiegł!</h2>
+        <p class="text-sm text-emerald-100 mb-4">Inna osoba właśnie zarezerwowała te godziny.</p>
+        <button
+          (click)="displayBookingErrorPopup.set(false)"
+          class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
+        >
+          Wróć do kalendarza
+        </button>
+      </div>
+    </div>
+  }
 </div>

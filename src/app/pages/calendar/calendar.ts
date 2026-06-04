@@ -48,6 +48,7 @@ export class CalendarPage implements OnInit, OnDestroy {
     organizationId: number;
   } | null>(null);
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
+  readonly displayBookingErrorPopup = signal<boolean>(false);
 
   readonly hoursRange = Array.from({ length: 12 }, (_, i) => i + 10); // 10:00 - 21:00
   readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // max 8 hs
@@ -238,7 +239,7 @@ export class CalendarPage implements OnInit, OnDestroy {
     const url = `${this.getFutureReservationsEndpoint}`;
     this.http.get<ReservationDto[]>(url, { headers: header }).subscribe({
       next: (data) => {
-        this.reservationResponses.update((prev) => [...prev, ...data]);
+        this.reservationResponses.set(data);
       },
       error: (e) => console.error('Failed to download reservations: ', e),
     });
@@ -298,7 +299,7 @@ export class CalendarPage implements OnInit, OnDestroy {
 
   private connectToReservationStream() {
     this.sseController = new AbortController();
-
+    console.log('Connected to SSE for reservations');
     fetchEventSource(this.sseReservationEndpoint, {
       method: 'GET',
       headers: {
@@ -308,6 +309,14 @@ export class CalendarPage implements OnInit, OnDestroy {
       onmessage: (msg) => {
         if (msg.event === 'RESERVATION_CREATED') {
           console.log('Wykryto nową rezerwację przez SSE, odświeżam listę...');
+          this.fetchReservations();
+          if (this.displayBookingSuccesfulPopup()) {
+            this.displayBookingSuccesfulPopup.set(false);
+            this.displayBookingErrorPopup.set(true);
+            console.log('Ukrywam popup z informacją o sukcesie rezerwacji');
+          }
+        } else if (msg.event === 'RESERVATION_REMOVED') {
+          console.log('Wykryto usuniętą rezerwację przez SSE, odświeżam listę...');
           this.fetchReservations();
         }
       },
