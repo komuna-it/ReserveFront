@@ -30,7 +30,7 @@ export class ProfilePage implements OnInit {
   readonly getOrganizationsOfUserEndpoint = `${this.apiUrl}/organizationUser/user`;
   readonly createOrganizationEndpoint = `${this.apiUrl}/organization/`;
   readonly sseReservationEndpoint = `${this.apiUrl}/reservation/sse`;
-
+  readonly email = this.authService.email();
   private sseController: AbortController | null = null;
 
   readonly userId = parseInt(this.authService.userId() || '-1');

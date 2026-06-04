@@ -29,6 +29,8 @@ export class AuthService {
   readonly refreshToken = signal<string>(this.cookieService.get('refresh_token') || '');
   readonly authResponse = signal<AuthResponse | null>(null);
   public isAuthenticated = this.isAuthenticatedSignal.asReadonly();
+  readonly email = signal<string | null>(null);
+
   readonly userId = computed<string | null>(() => {
     const token = this.accessToken();
     if (!token) return null;
@@ -48,6 +50,7 @@ export class AuthService {
     // Prod
     return this.http.post<AuthResponse>(this.loginEndpoint, { email, password }).pipe(
       tap((response) => {
+        this.email.set(email);
         console.log('Login response received: ', response);
         this.authResponse.set(response);
         this.handleAuthentication(response, rememberMe);
@@ -75,6 +78,7 @@ export class AuthService {
       console.log('Registration response received: ', response);
       console.log('Access token from registration response: ', response.accessToken);
       this.accessToken.set(response.accessToken);
+
       return response.accessToken;
     } catch (err: any) {
       console.error('Register error caught:', err);
