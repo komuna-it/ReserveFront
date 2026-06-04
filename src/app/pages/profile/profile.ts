@@ -26,6 +26,7 @@ export class ProfilePage implements OnInit {
   readonly getOrganizationsEndpoint = `${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`;
   readonly getFutureReservationsEndpoint = `${this.apiUrl}/reservation/future`;
   readonly getOrganizationMembersEndpoint = `${this.apiUrl}/organizationUser/organization/members/`;
+  readonly createOrganizationEndpoint = `${this.apiUrl}/organization/`;
 
   readonly userId = parseInt(this.authService.userId() || '-1');
 
@@ -168,6 +169,7 @@ export class ProfilePage implements OnInit {
     for (const org of this.organizationFront()) {
       newTabs.push(new Tab(id++, org.name, 'organization', org));
     }
+    newTabs.push(new Tab(id++, 'Utwórz zespół', 'createorganization', undefined));
 
     this.allTabs.set(newTabs);
   }
@@ -188,5 +190,32 @@ export class ProfilePage implements OnInit {
 
   deleteTeamMember(userId: number) {
     console.log(`Trying to delete team member with id ${userId}`);
+  }
+
+  readonly clickedCreateTeam = signal(false);
+  handleClickCreateTeam() {
+    this.clickedCreateTeam.set(true);
+  }
+
+  createOrganization(event: Event, name: string) {
+    event.preventDefault();
+
+    if (!name.trim()) return;
+
+    this.http
+      .post(
+        this.createOrganizationEndpoint,
+        { name },
+        {
+          headers: new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` }),
+        },
+      )
+      .subscribe({
+        next: () => {
+          console.log(`Successfully created organization with name ${name}`);
+          this.fetchOrganizationsOfUser();
+        },
+        error: (e) => console.error(`Failed to create organization with name ${name}`, e),
+      });
   }
 }
