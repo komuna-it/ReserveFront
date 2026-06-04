@@ -103,6 +103,9 @@ export class AuthService {
     }
     // else -- session cookies that expire when the browser is closed
 
+    this.accessToken.set(response.accessToken);
+    this.refreshToken.set(response.refreshToken);
+
     this.cookieService.set(
       'access_token',
       response.accessToken,
@@ -135,8 +138,6 @@ export class AuthService {
 
     console.log('setting authenticated true');
     this.isAuthenticatedSignal.set(true);
-    this.accessToken.set(response.accessToken);
-    this.refreshToken.set(response.refreshToken);
   }
 
   public getAccessToken(): string {
@@ -161,6 +162,7 @@ export class AuthService {
     this.cookieService.delete('refresh_token', '/');
     this.cookieService.delete('user_id', '/');
     this.isAuthenticatedSignal.set(false);
+    this.authResponse.set(null);
   }
 
   private hasValidToken(): boolean {
