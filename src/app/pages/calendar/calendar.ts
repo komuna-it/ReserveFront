@@ -9,6 +9,7 @@ import { Room } from '../../model/room';
 import { AuthService } from '../../services/auth';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { Organization } from '../../model/organization';
+import { Utils } from '../../services/utils/utils';
 
 @Component({
   selector: 'calendar-page',
@@ -20,6 +21,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private router = inject(Router);
   private authService = inject(AuthService);
+  readonly utils = inject(Utils);
   private sseController: AbortController | null = null;
 
   readonly apiUrl = process.env['VSF_API_URL'] || '';
@@ -50,31 +52,13 @@ export class CalendarPage implements OnInit, OnDestroy {
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
   readonly displayBookingErrorPopup = signal<boolean>(false);
 
-  readonly hoursRange = Array.from({ length: 12 }, (_, i) => i + 10); // 10:00 - 21:00
-  readonly durationOptions = Array.from({ length: 8 }, (_, i) => i + 1); // max 8 hs
-  readonly monthLabels = [
-    'Styczeń',
-    'Luty',
-    'Marzec',
-    'Kwiecień',
-    'Maj',
-    'Czerwiec',
-    'Lipiec',
-    'Sierpień',
-    'Wrzesień',
-    'Październik',
-    'Listopad',
-    'Grudzień',
-  ];
-  readonly weekDayLabels = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Ndz'];
+  readonly hoursRange = this.utils.hoursRange;
+  readonly durationOptions = this.utils.durationOptions;
+  readonly monthLabels = this.utils.monthLabels;
+  readonly weekDayLabels = this.utils.weekDayLabels;
 
   readonly weekDays = computed(() => {
-    const start = this.currentWeekStart();
-    return Array.from({ length: 7 }, (_, i) => {
-      const day = new Date(start);
-      day.setDate(start.getDate() + i);
-      return day;
-    });
+    return this.utils.weekDays();
   });
 
   readonly monthGridDays = computed(() => {
@@ -94,22 +78,6 @@ export class CalendarPage implements OnInit, OnDestroy {
       day.setDate(startGridDate.getDate() + i);
       return day;
     });
-  });
-
-  readonly currentMonthLabel = computed(() => {
-    const date = this.currentMonthDate();
-    return `${this.monthLabels[date.getMonth()]} ${date.getFullYear()}`;
-  });
-
-  readonly currentWeekLabel = computed(() => {
-    const start = this.currentWeekStart();
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-
-    if (start.getMonth() === end.getMonth()) {
-      return `${this.monthLabels[start.getMonth()]} ${start.getFullYear()}`;
-    }
-    return `${this.monthLabels[start.getMonth()]} - ${this.monthLabels[end.getMonth()]} ${start.getFullYear()}`;
   });
 
   readonly tableRows = computed(() => {
@@ -212,11 +180,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   }
 
   private getStartOfWeek(date: Date): Date {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = d.getDate() - (day === 0 ? 6 : day - 1);
-    d.setHours(0, 0, 0, 0);
-    return new Date(d.setDate(diff));
+    return this.utils.getStartOfWeek(date);
   }
 
   navigateWeek(direction: 'prev' | 'next') {
@@ -259,8 +223,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   }
 
   private parseDurationToHours(isoDuration: string): number {
-    const hoursMatch = isoDuration.match(/(\d+)H/);
-    return hoursMatch ? parseInt(hoursMatch[1], 10) : 1;
+    return this.utils.parseDurationToHours(isoDuration);
   }
 
   handleBookingClick(hour: number, roomId: number) {

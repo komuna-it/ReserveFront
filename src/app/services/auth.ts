@@ -78,7 +78,11 @@ export class AuthService {
       console.log('Registration response received: ', response);
       console.log('Access token from registration response: ', response.accessToken);
       this.accessToken.set(response.accessToken);
-
+      this.login(email, password, true).subscribe({
+        next: (loginResponse) => {
+          console.log('Login after registration successful, response: ', loginResponse);
+        },
+      });
       return response.accessToken;
     } catch (err: any) {
       console.error('Register error caught:', err);
