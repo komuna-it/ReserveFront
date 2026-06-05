@@ -115,15 +115,16 @@ export class AuthService {
 
     this.accessToken.set(response.accessToken);
     this.refreshToken.set(response.refreshToken);
-
+    const isSecure = window.location.protocol === 'https:';
+    const sameSite = isSecure ? 'Strict' : 'Lax';
     this.cookieService.set(
       'access_token',
       response.accessToken,
       accessExpiry,
       '/',
       undefined,
-      true,
-      'Strict',
+      isSecure,
+      sameSite,
     );
 
     this.cookieService.set(
@@ -132,8 +133,8 @@ export class AuthService {
       refreshExpiry,
       '/',
       undefined,
-      true,
-      'Strict',
+      isSecure,
+      sameSite,
     );
 
     this.cookieService.set(
@@ -142,11 +143,12 @@ export class AuthService {
       refreshExpiry,
       '/',
       undefined,
-      true,
-      'Strict',
+      isSecure,
+      sameSite,
     );
 
     console.log('setting authenticated true');
+    console.log('cookies user_id: ' + this.cookieService.get('user_id'));
     this.isAuthenticatedSignal.set(true);
   }
 
