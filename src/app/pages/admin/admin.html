@@ -1,6 +1,8 @@
 <div class="min-h-screen flex bg-slate-900 text-slate-100">
   <aside class="w-64 bg-slate-800 border-r border-slate-700 p-6 flex flex-col">
-    <h1 class="text-xl font-bold text-emerald-400 mb-10">Panel Admina</h1>
+    <h1 class="text-xl font-bold mb-10 text-uppercase text-center text-white border-b-2 border">
+      Panel Admina
+    </h1>
 
     <nav class="space-y-4">
       <a
@@ -18,7 +20,7 @@
         Cennik
       </a>
       <a
-        routerLink="/admin/teams"
+        routerLink="/admin/organizations"
         routerLinkActive="bg-emerald-600 text-white"
         class="block px-4 py-2 rounded-lg hover:bg-slate-700 transition-all"
       >
@@ -26,12 +28,7 @@
       </a>
     </nav>
   </aside>
-
-  @if (utils.activeAdminTab().type === 'reservations') {
-    <app-admin-calendar></app-admin-calendar>
-  } @else {
-    <div class="flex-1 flex items-center justify-center">
-      <p class="text-lg text-slate-400">Wybierz zakładkę z menu po lewej</p>
-    </div>
-  }
+  <main class="flex-1 p-6">
+    <router-outlet></router-outlet>
+  </main>
 </div>

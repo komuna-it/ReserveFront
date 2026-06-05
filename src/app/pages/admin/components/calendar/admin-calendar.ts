@@ -1,17 +1,17 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AuthService } from '../../services/auth';
-import { User } from '../../model/user';
-import { Organization } from '../../model/organization';
-import { ReservationDto } from '../../model/reservationDto';
-import { Room } from '../../model/room';
-import { Tab } from '../../model/tab';
-import { OrganizationFront } from '../../model/organizationFront';
+import { AuthService } from '../../../../services/auth';
+import { User } from '../../../../model/user';
+import { Organization } from '../../../../model/organization';
+import { ReservationDto } from '../../../../model/reservationDto';
+import { Room } from '../../../../model/room';
+import { Tab } from '../../../../model/tab';
+import { OrganizationFront } from '../../../../model/organizationFront';
 import { forkJoin, map } from 'rxjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { Utils } from '../../services/utils/utils';
-import { HourWrapper } from '../../model/hourWrapper';
+import { Utils } from '../../../../services/utils/utils';
+import { HourWrapper } from '../../../../model/hourWrapper';
 
 @Component({
   selector: 'app-admin-calendar',

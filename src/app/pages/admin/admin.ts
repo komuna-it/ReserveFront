@@ -10,12 +10,12 @@ import { Tab } from '../../model/tab';
 import { OrganizationFront } from '../../model/organizationFront';
 import { forkJoin, map } from 'rxjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { AdminCalendar } from '../../components/admin-calendar/admin-calendar';
+import { AdminCalendar } from './components/calendar/admin-calendar';
 import { Utils } from '../../services/utils/utils';
-
+import { RouterLink, RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-admin',
-  imports: [AdminCalendar],
+  imports: [AdminCalendar, RouterLink, RouterOutlet],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
