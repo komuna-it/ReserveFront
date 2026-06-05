@@ -135,7 +135,7 @@
                     >
                       @if (cell.hourWrapper.isReserved) {
                         <div
-                          class="flex-col text-center w-full h-full flex items-center justify-center text-xs font-medium cursor-not-allowed truncate px-2 transition-all"
+                          class="bg-red-500/20 flex-col text-center w-full h-full flex items-center justify-center text-xs font-medium truncate px-2 transition-all"
                           [ngClass]="{
                             'text-red-400/40 border-red-500/15':
                               !cell.hourWrapper.isFirstHourOfReservation &&

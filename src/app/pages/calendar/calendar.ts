@@ -148,6 +148,10 @@ export class CalendarPage implements OnInit, OnDestroy {
         );
 
         (hourWrapper as any).bandName = bandName;
+        if (hourWrapper.isReserved) {
+          console.log(`Reserved hour:`, hourWrapper);
+        }
+        console.log('organizations: ' + this.utils.organizations());
 
         return {
           roomId: room.id,

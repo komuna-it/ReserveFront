@@ -15,7 +15,7 @@ import { Utils } from '../../services/utils/utils';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-admin',
-  imports: [AdminCalendar, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })

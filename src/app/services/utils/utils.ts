@@ -15,12 +15,20 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
   providedIn: 'root',
 })
 export class Utils {
+  ngOnInit() {
+    this.fetchRoomsAndReservations();
+    this.fetchOrganizationsOfUser();
+    this.fetchAllOrganizations();
+  }
+
   constructor() {}
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   readonly rooms = signal<Room[]>([]);
 
   private apiUrl = process.env['VSF_API_URL'] || '';
+  readonly getAllRoomsEndpoint = `${this.apiUrl}/room/all`;
+  readonly getReservationsByRoomEndpoint = `${this.apiUrl}/reservation/room`;
   readonly getReservationsByOrganizationEndpoint = `${this.apiUrl}/reservation/organization/`;
   readonly getOrganizationsEndpoint = `${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`;
   readonly getFutureReservationsEndpoint = `${this.apiUrl}/reservation/future`;
@@ -162,5 +170,55 @@ export class Utils {
   public parseDurationToHours(isoDuration: string): number {
     const hoursMatch = isoDuration.match(/(\d+)H/);
     return hoursMatch ? parseInt(hoursMatch[1], 10) : 1;
+  }
+
+  fetchAllReservations() {
+    for (const room of this.rooms()) {
+      this.http
+        .get<
+          ReservationDto[]
+        >(`${this.getReservationsByRoomEndpoint}/${room.id}`, { headers: this.authHeader })
+        .subscribe({
+          next: (data) => {
+            console.log(`Reservations for room ${room.id}: `, data);
+            this.reservations.update((res) => [...res, ...data]);
+          },
+          error: (e) => console.error(`Failed to download reservations for room ${room.id}: `, e),
+        });
+    }
+  }
+
+  fetchRoomsAndReservations() {
+    this.http.get<Room[]>(this.getAllRoomsEndpoint, { headers: this.authHeader }).subscribe({
+      next: (data) => {
+        console.log('Rooms downloaded: ', data);
+        this.rooms.set(data);
+        this.fetchAllReservations();
+      },
+      error: (e) => console.error('Failed to download rooms: ', e),
+    });
+  }
+  fetchOrganizationsOfUser() {
+    this.http
+      .get<Organization[]>(this.getOrganizationsEndpoint, { headers: this.authHeader })
+      .subscribe({
+        next: (data) => {
+          this.organizations.set(data);
+          console.log('Fetched organizations: ', data);
+        },
+        error: (e) => console.error('Failed to fetch organizations: ', e),
+      });
+  }
+
+  fetchAllOrganizations() {
+    this.http
+      .get<Organization[]>(this.getOrganizationsEndpoint, { headers: this.authHeader })
+      .subscribe({
+        next: (data) => {
+          this.organizations.set(data);
+          console.log('Fetched organizations: ', data);
+        },
+        error: (e) => console.error('Failed to fetch organizations: ', e),
+      });
   }
 }

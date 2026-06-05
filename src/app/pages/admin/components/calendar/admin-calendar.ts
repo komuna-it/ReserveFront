@@ -33,16 +33,13 @@ export class AdminCalendar {
   readonly monthLabels = this.utils.monthLabels;
   readonly weekDayLabels = this.utils.weekDayLabels;
 
-  private apiUrl = process.env['VSF_API_URL'] || '';
   readonly reservations = signal<ReservationDto[]>([]);
-  readonly getAllRoomsEndpoint = `${this.apiUrl}/room/all`;
-  readonly getReservationsByRoomEndpoint = `${this.apiUrl}/reservation/room`;
-  readonly rooms = signal<Room[]>([]);
   readonly organizations = signal<Organization[]>([]);
   readonly reservationResponses = signal<ReservationDto[]>([]);
   readonly daySelectedByUser = signal<Date>(new Date());
   readonly currentWeekStart = signal<Date>(this.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
+
   private getStartOfWeek(date: Date): Date {
     return this.utils.getStartOfWeek(date);
   }
@@ -63,47 +60,8 @@ export class AdminCalendar {
     this.currentMonthDate.set(new Date(day.getFullYear(), day.getMonth(), 1));
   }
 
-  fetchAllReservations() {
-    for (const room of this.rooms()) {
-      const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
-      this.http
-        .get<
-          ReservationDto[]
-        >(`${this.getReservationsByRoomEndpoint}/${room.id}`, { headers: header })
-        .subscribe({
-          next: (data) => {
-            this.reservations.update((res) => [...res, ...data]);
-          },
-          error: (e) => console.error(`Failed to download reservations for room ${room.id}: `, e),
-        });
-    }
-  }
-
-  fetchRoomsAndReservations() {
-    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
-
-    this.http.get<Room[]>(this.getAllRoomsEndpoint, { headers: header }).subscribe({
-      next: (data) => {
-        this.rooms.set(data);
-        this.fetchAllReservations();
-      },
-      error: (e) => console.error('Failed to download rooms: ', e),
-    });
-  }
-
   deleteReservation(reservationId: number) {
-    console.log(`Trying to delete reservation with id ${reservationId}`);
-    this.http
-      .delete(`${this.apiUrl}/reservation/${reservationId}`, {
-        headers: new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` }),
-      })
-      .subscribe({
-        next: () => {
-          console.log(`Successfully deleted reservation with id ${reservationId}`);
-          this.fetchRoomsAndReservations();
-        },
-        error: (e) => console.error(`Failed to delete reservation with id ${reservationId}`, e),
-      });
+    this.utils.deleteReservation(reservationId);
   }
   navigateWeek(direction: 'prev' | 'next') {
     const current = new Date(this.currentWeekStart());
@@ -118,14 +76,13 @@ export class AdminCalendar {
     this.currentMonthDate.set(d);
   }
   ngOnInit() {
-    this.fetchRoomsAndReservations();
+    this.utils.fetchRoomsAndReservations();
   }
 
   readonly tableRows = computed(() => {
     const selectedDate = this.daySelectedByUser();
-    const reservations = this.reservationResponses();
-    const roomsList = this.rooms();
-    const myTeams = this.organizations();
+    const reservations = this.utils.reservations();
+    const roomsList = this.utils.rooms();
     const now = new Date();
 
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -165,6 +122,15 @@ export class AdminCalendar {
         let isReservedByMyOrganization = false;
         let bandName = '';
 
+        for (const org of this.utils.organizations()) {
+          for (const res of this.utils.reservations()) {
+            if (org.id === res.behalfOf) {
+              bandName = org.name;
+              console.log('band found: ' + bandName);
+            }
+          }
+        }
+
         if (matchedReservation) {
           const resStart = new Date(matchedReservation.startAt);
           const startHour = resStart.getHours();
@@ -173,7 +139,9 @@ export class AdminCalendar {
           isFirstHour = hour === startHour;
           isLastHour = hour === startHour + duration - 1;
 
-          const matchingTeam = myTeams.find((t) => t.id === matchedReservation.behalfOf);
+          const matchingTeam = this.utils
+            .organizations()
+            .find((t) => t.id === matchedReservation.behalfOf);
           if (matchingTeam) {
             isReservedByMyOrganization = true;
             bandName = matchingTeam.name;
@@ -189,7 +157,10 @@ export class AdminCalendar {
         );
 
         (hourWrapper as any).bandName = bandName;
-
+        if (hourWrapper.isReserved) {
+          console.log(`Reserved hour:`, hourWrapper);
+        }
+        console.log('organizations: ' + this.utils.organizations());
         return {
           roomId: room.id,
           hourWrapper: hourWrapper,
