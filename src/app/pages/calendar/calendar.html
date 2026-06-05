@@ -135,18 +135,9 @@
                     >
                       @if (cell.hourWrapper.isReserved) {
                         <div
-                          class="flex-col text-center w-full h-full flex items-center justify-center text-xs font-medium cursor-not-allowed truncate px-2 transition-all"
+                          class="bg-red-500/20 flex-col text-center w-full h-full flex items-center justify-center text-xs font-medium truncate px-2 transition-all"
                           [ngClass]="{
-                            'bg-blue-500/20 text-blue-400 border-blue-500/40':
-                              cell.hourWrapper.isReservedByMyOrganization,
-                            'bg-red-500/20 text-red-400 border-red-500/30':
-                              !cell.hourWrapper.isReservedByMyOrganization,
                             'text-red-400/40 border-red-500/15':
-                              !cell.hourWrapper.isReservedByMyOrganization &&
-                              !cell.hourWrapper.isFirstHourOfReservation &&
-                              !cell.hourWrapper.isLastHourOfReservation,
-                            'text-blue-400/50 border-blue-500/20':
-                              cell.hourWrapper.isReservedByMyOrganization &&
                               !cell.hourWrapper.isFirstHourOfReservation &&
                               !cell.hourWrapper.isLastHourOfReservation,
                             'rounded-full border':
@@ -163,14 +154,16 @@
                               !cell.hourWrapper.isLastHourOfReservation,
                           }"
                         >
-                          @if (cell.hourWrapper.isReservedByMyOrganization) {
-                            <span
-                              class="font-bold text-[10px] tracking-wide uppercase text-blue-300 block truncate w-full px-1"
-                            >
-                              {{ cell.hourWrapper.bandName }}
-                            </span>
-                          }
+                          <span
+                            class="font-bold text-[10px] tracking-wide uppercase text-blue-300 block truncate w-full px-1"
+                          >
+                            {{ cell.hourWrapper.bandName }}
+                          </span>
                         </div>
+                      } @else if (cell.hourWrapper.isDisabled) {
+                        <div
+                          class="bg-red-500/20 flex-col text-center w-full h-full flex items-center justify-center text-xs font-medium truncate px-2 transition-all"
+                        ></div>
                       } @else {
                         <div class="py-3 inline-block w-24 h-full flex items-center justify-center">
                           <button

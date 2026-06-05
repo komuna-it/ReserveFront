@@ -99,6 +99,7 @@ export class AdminCalendar {
         const isPastHour = isPastDay || (isToday && hour <= now.getHours());
 
         const matchedReservation = reservations.find((res) => {
+          console.log('reservations lenght : ' + this.utils.reservations().length);
           if (res.roomId !== room.id) return false;
           const resStart = new Date(res.startAt);
 
@@ -115,7 +116,6 @@ export class AdminCalendar {
         });
 
         const isReserved = !!matchedReservation;
-        const isDisabled = isReserved || isPastHour;
 
         let isFirstHour = false;
         let isLastHour = false;
@@ -126,7 +126,7 @@ export class AdminCalendar {
           for (const res of this.utils.reservations()) {
             if (org.id === res.behalfOf) {
               bandName = org.name;
-              console.log('band found: ' + bandName);
+              // console.log('band found: ' + bandName);
             }
           }
         }
@@ -150,17 +150,18 @@ export class AdminCalendar {
 
         const hourWrapper = new HourWrapper(
           hour,
-          isDisabled,
+          isReserved,
           isFirstHour,
           isLastHour,
           isReservedByMyOrganization,
+          isPastHour,
         );
 
         (hourWrapper as any).bandName = bandName;
         if (hourWrapper.isReserved) {
-          console.log(`Reserved hour:`, hourWrapper);
+          console.log(`Found reserved hour:`, hourWrapper);
         }
-        console.log('organizations: ' + this.utils.organizations());
+        // console.log('organizations: ' + this.utils.organizations());
         return {
           roomId: room.id,
           hourWrapper: hourWrapper,

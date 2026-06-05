@@ -82,9 +82,8 @@ export class CalendarPage implements OnInit, OnDestroy {
 
   readonly tableRows = computed(() => {
     const selectedDate = this.daySelectedByUser();
-    const reservations = this.reservationResponses();
-    const roomsList = this.rooms();
-    const myTeams = this.organizations();
+    const reservations = this.utils.reservations();
+    const roomsList = this.utils.rooms();
     const now = new Date();
 
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -101,6 +100,7 @@ export class CalendarPage implements OnInit, OnDestroy {
         const isPastHour = isPastDay || (isToday && hour <= now.getHours());
 
         const matchedReservation = reservations.find((res) => {
+          console.log('reservations lenght : ' + this.utils.reservations().length);
           if (res.roomId !== room.id) return false;
           const resStart = new Date(res.startAt);
 
@@ -117,12 +117,20 @@ export class CalendarPage implements OnInit, OnDestroy {
         });
 
         const isReserved = !!matchedReservation;
-        const isDisabled = isReserved || isPastHour;
 
         let isFirstHour = false;
         let isLastHour = false;
         let isReservedByMyOrganization = false;
         let bandName = '';
+
+        for (const org of this.utils.organizations()) {
+          for (const res of this.utils.reservations()) {
+            if (org.id === res.behalfOf) {
+              bandName = org.name;
+              // console.log('band found: ' + bandName);
+            }
+          }
+        }
 
         if (matchedReservation) {
           const resStart = new Date(matchedReservation.startAt);
@@ -132,7 +140,9 @@ export class CalendarPage implements OnInit, OnDestroy {
           isFirstHour = hour === startHour;
           isLastHour = hour === startHour + duration - 1;
 
-          const matchingTeam = myTeams.find((t) => t.id === matchedReservation.behalfOf);
+          const matchingTeam = this.utils
+            .organizations()
+            .find((t) => t.id === matchedReservation.behalfOf);
           if (matchingTeam) {
             isReservedByMyOrganization = true;
             bandName = matchingTeam.name;
@@ -141,17 +151,20 @@ export class CalendarPage implements OnInit, OnDestroy {
 
         const hourWrapper = new HourWrapper(
           hour,
-          isDisabled,
+          isReserved,
           isFirstHour,
           isLastHour,
           isReservedByMyOrganization,
+          isPastHour,
         );
 
         (hourWrapper as any).bandName = bandName;
         if (hourWrapper.isReserved) {
-          // console.log(`Reserved hour:`, hourWrapper);
+          console.log(`Found reserved hour:`, hourWrapper);
         }
-
+        if (hourWrapper.hour === 20) {
+          console.log(`Found hour === 20:`, hourWrapper);
+        }
         return {
           roomId: room.id,
           hourWrapper: hourWrapper,

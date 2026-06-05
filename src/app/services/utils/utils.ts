@@ -191,6 +191,7 @@ export class Utils {
   }
 
   fetchAllReservations() {
+    this.reservations.set([]);
     for (const room of this.rooms()) {
       this.http
         .get<

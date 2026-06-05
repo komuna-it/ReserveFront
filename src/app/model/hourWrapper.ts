@@ -6,5 +6,6 @@ export class HourWrapper {
     public isFirstHourOfReservation: boolean,
     public isLastHourOfReservation: boolean,
     public isReservedByMyOrganization: boolean,
+    public isDisabled: boolean,
   ) {}
 }
