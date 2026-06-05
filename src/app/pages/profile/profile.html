@@ -132,7 +132,7 @@
                     <td class="py-4 px-6 text-slate-400">{{ reservedByLabel(res) }}</td>
                     <td class="py-4 px-6">
                       <button
-                        (click)="deleteReservation(res.id!)"
+                        (click)="handleDeleteReservationClick(res)"
                         class="text-white text-xs bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
                       >
                         Odwołaj
@@ -148,6 +148,32 @@
             </div>
           }
         </div>
+        @if (areYouSure() && reservationToDelete(); as res) {
+          <div
+            class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50"
+          >
+            <div
+              class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
+            >
+              <h2 class="text-xl font-bold tracking-tight mb-2">Odwołać rezerwację?</h2>
+              <p class="text-sm text-emerald-100 mb-4">
+                {{ utils.generateDurationLabel(res.startAt, res.duration) }}
+              </p>
+              <button
+                (click)="deleteReservation(res.id!)"
+                class="w-full px-4 py-2 my-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-black transition-colors shadow-md"
+              >
+                Tak
+              </button>
+              <button
+                (click)="areYouSure.set(false)"
+                class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
+              >
+                Nie
+              </button>
+            </div>
+          </div>
+        }
       </div>
     }
 

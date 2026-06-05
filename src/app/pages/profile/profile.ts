@@ -10,6 +10,8 @@ import { Tab } from '../../model/tab';
 import { OrganizationFront } from '../../model/organizationFront';
 import { forkJoin, map } from 'rxjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { ReservationWrapper } from '../../model/reservationWrapper';
+import { Utils } from '../../services/utils/utils';
 
 @Component({
   selector: 'app-profile',
@@ -21,7 +23,7 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
 export class ProfilePage implements OnInit {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
-
+  readonly utils = inject(Utils);
   private apiUrl = process.env['VSF_API_URL'] || '';
   readonly getReservationsByOrganizationEndpoint = `${this.apiUrl}/reservation/organization/`;
   readonly getOrganizationsEndpoint = `${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`;
@@ -31,6 +33,8 @@ export class ProfilePage implements OnInit {
   readonly createOrganizationEndpoint = `${this.apiUrl}/organization/`;
   readonly sseReservationEndpoint = `${this.apiUrl}/reservation/sse`;
   readonly email = this.authService.email();
+  readonly reservationToDelete = signal<ReservationDto | null>(null);
+
   private sseController: AbortController | null = null;
 
   readonly userId = parseInt(this.authService.userId() || '-1');
@@ -52,11 +56,17 @@ export class ProfilePage implements OnInit {
 
   readonly organizations = signal<Organization[]>([]);
   readonly organizationFront = signal<OrganizationFront[]>([]);
-
   readonly reservationResponses = signal<ReservationDto[]>([]);
+  readonly areYouSure = signal<boolean>(false);
 
   ngOnInit() {
     this.fetchOrganizationsOfUser();
+  }
+
+  handleDeleteReservationClick(reservation: ReservationDto) {
+    console.log('clicked remove reservationId: ' + reservation);
+    this.reservationToDelete.set(reservation);
+    this.areYouSure.set(true);
   }
 
   fetchOrganizationsOfUser() {
@@ -188,6 +198,7 @@ export class ProfilePage implements OnInit {
         next: () => {
           console.log(`Successfully deleted reservation with id ${reservationId}`);
           this.fetchReservationsWhereUserBelongs();
+          this.areYouSure.set(false);
         },
         error: (e) => console.error(`Failed to delete reservation with id ${reservationId}`, e),
       });

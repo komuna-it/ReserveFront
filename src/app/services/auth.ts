@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { Observable, tap, of, map, firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { Router } from '@angular/router';
 
 export interface AuthResponse {
   accessToken: string;
@@ -21,6 +22,7 @@ interface JwtPayload {
 export class AuthService {
   private http = inject(HttpClient);
   private cookieService = inject(CookieService);
+  private router = inject(Router);
 
   private apiUrl = process.env['VSF_API_URL'] || '';
 
@@ -171,6 +173,7 @@ export class AuthService {
     this.cookieService.delete('user_id', '/');
     this.isAuthenticatedSignal.set(false);
     this.authResponse.set(null);
+    this.router.navigate(['/']);
   }
 
   private hasValidToken(): boolean {

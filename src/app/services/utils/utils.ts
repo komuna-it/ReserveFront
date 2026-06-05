@@ -10,18 +10,17 @@ import { Tab } from '../../model/tab';
 import { OrganizationFront } from '../../model/organizationFront';
 import { forkJoin, map } from 'rxjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { ReservationWrapper } from '../../model/reservationWrapper';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Utils {
-  ngOnInit() {
+  constructor() {
     this.fetchRoomsAndReservations();
     this.fetchOrganizationsOfUser();
     this.fetchAllOrganizations();
   }
-
-  constructor() {}
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   readonly rooms = signal<Room[]>([]);
@@ -88,6 +87,25 @@ export class Utils {
 
   activeAdminTab = signal<Tab>(new Tab(0, 'Rezerwacje', 'reservations', undefined));
   allAdminTabs = signal<Tab[]>([]);
+
+  generateDurationLabel(dateStartString: string, duration: string): string {
+    const dateStart = new Date(dateStartString);
+    const day = dateStart.getDay();
+    const year = dateStart.getFullYear();
+    const month = String(dateStart.getMonth() + 1).padStart(2, '0');
+    const startAt = dateStart.getHours();
+    const durationHours = this.parseDurationToHours(duration);
+    const endAt = startAt + durationHours;
+    return `${day}.${month}.${year} ${startAt}:00 - ${endAt}:00`;
+  }
+  generateDateLabel(dateString: string): string {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const startAt = date.getHours();
+    return `${day}.${month}.${year} ${startAt}:00`;
+  }
 
   readonly weekDays = computed(() => {
     const start = this.currentWeekStart();
@@ -210,6 +228,7 @@ export class Utils {
       });
   }
 
+  // to update
   fetchAllOrganizations() {
     this.http
       .get<Organization[]>(this.getOrganizationsEndpoint, { headers: this.authHeader })
@@ -220,5 +239,32 @@ export class Utils {
         },
         error: (e) => console.error('Failed to fetch organizations: ', e),
       });
+  }
+
+  convertToReservationWrapper(
+    reservationDto: ReservationDto,
+    room: Room,
+    user: User,
+    organization: Organization | null,
+  ): ReservationWrapper {
+    const durationLabel = this.generateDurationLabel(
+      reservationDto.startAt,
+      reservationDto.duration,
+    );
+    console.log('durationLabel :' + durationLabel);
+    const wrapper = new ReservationWrapper(
+      user.id,
+      user.email,
+      room.id,
+      room.name,
+      this.generateDateLabel(reservationDto.startAt),
+      reservationDto.duration,
+      reservationDto.id || null,
+      reservationDto.behalfOf || null,
+      organization?.name || null,
+    );
+    wrapper.durationLabel = durationLabel;
+    console.log('wrapper: ' + wrapper);
+    return wrapper;
   }
 }

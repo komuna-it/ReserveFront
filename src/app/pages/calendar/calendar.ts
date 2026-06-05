@@ -149,9 +149,8 @@ export class CalendarPage implements OnInit, OnDestroy {
 
         (hourWrapper as any).bandName = bandName;
         if (hourWrapper.isReserved) {
-          console.log(`Reserved hour:`, hourWrapper);
+          // console.log(`Reserved hour:`, hourWrapper);
         }
-        console.log('organizations: ' + this.utils.organizations());
 
         return {
           roomId: room.id,
@@ -294,77 +293,10 @@ export class CalendarPage implements OnInit, OnDestroy {
 
           const msgData = JSON.parse(msg.data);
           const newReservationId = msgData.id;
-          const myBooking = this.selectedBooking();
-
-          if (!myBooking) {
-            this.fetchReservations();
-            console.groupEnd();
-            return;
-          }
-
-          setTimeout(() => {
-            const header = new HttpHeaders({
-              Authorization: `Bearer ${this.authService.accessToken()}`,
-            });
-
-            this.http
-              .get<ReservationDto[]>(this.getFutureReservationsEndpoint, { headers: header })
-              .subscribe({
-                next: (data) => {
-                  this.reservationResponses.set(data);
-
-                  const newRes = data.find((r) => r.id === newReservationId);
-                  if (!newRes) {
-                    console.warn(
-                      `Nie znaleziono rezerwacji o ID ${newReservationId} na pobranej liście!`,
-                    );
-                    return;
-                  }
-
-                  const resStart = new Date(newRes.startAt);
-                  const day = this.daySelectedByUser();
-                  const isSameDay =
-                    resStart.getFullYear() === day.getFullYear() &&
-                    resStart.getMonth() === day.getMonth() &&
-                    resStart.getDate() === day.getDate();
-
-                  const isSameRoom = newRes.roomId === myBooking.roomId;
-
-                  const newResStartHour = resStart.getHours();
-                  const newResDuration = this.parseDurationToHours(newRes.duration);
-                  const newResEndHour = newResStartHour + newResDuration;
-
-                  const myStartHour = myBooking.hour;
-                  const myEndHour = myStartHour + myBooking.duration;
-
-                  const isTimeOverlapping =
-                    newResStartHour < myEndHour && newResEndHour > myStartHour;
-                  const overlaps = isSameDay && isSameRoom && isTimeOverlapping;
-
-                  let userFromBookingStr = '';
-                  if (newRes.reservedBy && typeof newRes.reservedBy === 'object') {
-                    userFromBookingStr = String((newRes.reservedBy as any).id || '');
-                  } else {
-                    userFromBookingStr = String(newRes.reservedBy || '');
-                  }
-                  const userInSessionStr = String(this.authService.userId() || '');
-                  const isDifferentUser = userInSessionStr !== userFromBookingStr;
-
-                  if (overlaps && isDifferentUser) {
-                    this.selectedBooking.set(null);
-                    this.displayBookingSuccesfulPopup.set(false);
-                    this.displayBookingErrorPopup.set(true);
-                  }
-
-                  console.groupEnd();
-                  console.groupEnd();
-                },
-                error: (e) => console.error('Błąd pobierania rezerwacji w locie SSE:', e),
-              });
-          }, 300);
+          this.handleSse(newReservationId, msg.event);
         } else if (msg.event === 'RESERVATION_REMOVED') {
           console.log('SSE: RESERVATION_REMOVED event received, refreshing reservations list...');
-          this.fetchReservations();
+          this.handleSse(0, msg.event);
         }
       },
       onerror: (err) => console.error('SSE: error:', err),
@@ -406,5 +338,76 @@ export class CalendarPage implements OnInit, OnDestroy {
       },
       error: (e) => console.error('Failed to fetch organizations: ', e),
     });
+  }
+
+  handleSse(newReservationId: number | undefined, event: string) {
+    if (event === 'RESERVATION_CREATED') {
+      const myBooking = this.selectedBooking();
+
+      if (!myBooking) {
+        this.fetchReservations();
+        console.groupEnd();
+        return;
+      }
+
+      setTimeout(() => {
+        const header = new HttpHeaders({
+          Authorization: `Bearer ${this.authService.accessToken()}`,
+        });
+
+        this.http
+          .get<ReservationDto[]>(this.getFutureReservationsEndpoint, { headers: header })
+          .subscribe({
+            next: (data) => {
+              this.reservationResponses.set(data);
+
+              const newRes = data.find((r) => r.id === newReservationId);
+              if (!newRes) {
+                console.warn(
+                  `Nie znaleziono rezerwacji o ID ${newReservationId} na pobranej liście!`,
+                );
+                return;
+              }
+
+              const resStart = new Date(newRes.startAt);
+              const day = this.daySelectedByUser();
+              const isSameDay =
+                resStart.getFullYear() === day.getFullYear() &&
+                resStart.getMonth() === day.getMonth() &&
+                resStart.getDate() === day.getDate();
+
+              const isSameRoom = newRes.roomId === myBooking.roomId;
+
+              const newResStartHour = resStart.getHours();
+              const newResDuration = this.parseDurationToHours(newRes.duration);
+              const newResEndHour = newResStartHour + newResDuration;
+
+              const myStartHour = myBooking.hour;
+              const myEndHour = myStartHour + myBooking.duration;
+
+              const isTimeOverlapping = newResStartHour < myEndHour && newResEndHour > myStartHour;
+              const overlaps = isSameDay && isSameRoom && isTimeOverlapping;
+
+              let userFromBookingStr = '';
+              if (newRes.reservedBy && typeof newRes.reservedBy === 'object') {
+                userFromBookingStr = String((newRes.reservedBy as any).id || '');
+              } else {
+                userFromBookingStr = String(newRes.reservedBy || '');
+              }
+              const userInSessionStr = String(this.authService.userId() || '');
+              const isDifferentUser = userInSessionStr !== userFromBookingStr;
+
+              if (overlaps && isDifferentUser) {
+                this.selectedBooking.set(null);
+                this.displayBookingSuccesfulPopup.set(false);
+                this.displayBookingErrorPopup.set(true);
+              }
+            },
+            error: (e) => console.error('Błąd pobierania rezerwacji w locie SSE:', e),
+          });
+      }, 300);
+    } else if (event === 'RESERVATION_REMOVED') {
+      this.fetchReservations();
+    }
   }
 }
