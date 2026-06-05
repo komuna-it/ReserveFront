@@ -12,10 +12,10 @@ import { forkJoin, map } from 'rxjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { AdminCalendar } from './components/calendar/admin-calendar';
 import { Utils } from '../../services/utils/utils';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-admin',
-  imports: [AdminCalendar, RouterLink, RouterOutlet],
+  imports: [AdminCalendar, RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
