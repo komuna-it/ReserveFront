@@ -11,8 +11,27 @@
           Zarządzaj rezerwacjami sal i składem swoich zespołów
         </p>
       </div>
-      <div class="bg-slate-900 px-4 py-2 rounded-lg border border-slate-700 text-xs font-mono">
-        <span class="text-slate-500 font-bold ml-1">{{ email || 'Brak (Niezalogowany)' }}</span>
+      <div class="flex bg-slate-900 px-4 py-2 rounded-lg border border-slate-700 text-xs font-mono">
+        <table>
+          <thead>
+            <tr>
+              <span class="text-slate-500 font-bold ml-1"
+                >isAuthenticated: {{ this.authService.isAuthenticated() ? 'tak' : 'nie' }}</span
+              >
+            </tr>
+            <tr>
+              <span class="text-slate-500 font-bold ml-1"
+                >Email: {{ this.authService.email() || 'Brak (Niezalogowany)' }}</span
+              >
+            </tr>
+
+            <tr>
+              <span class="text-slate-500 font-bold ml-1"
+                >Admin: {{ this.authService.isAdmin() ? 'tak' : 'nie' }}</span
+              >
+            </tr>
+          </thead>
+        </table>
       </div>
     </div>
 

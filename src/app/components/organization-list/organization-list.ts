@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject, Input, OnInit, OnDestroy, computed } from '@angular/core';
+import { ReservationStore } from '../reservation/reservation.store';
+import { ReservationFacade } from '../reservation/reservation.facade';
 
 @Component({
   selector: 'app-organization-list',
@@ -6,4 +8,14 @@ import { Component } from '@angular/core';
   templateUrl: './organization-list.html',
   styleUrl: './organization-list.css',
 })
-export class OrganizationList {}
+export class OrganizationList implements OnInit, OnDestroy {
+  readonly store = inject(ReservationStore);
+  readonly facade = inject(ReservationFacade);
+
+  ngOnInit(): void {
+    this.facade.fetchAllMembersAllOrganizations();
+  }
+  ngOnDestroy(): void {
+    // this.store.teamsList.set([]);
+  }
+}

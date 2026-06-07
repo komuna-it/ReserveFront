@@ -32,8 +32,8 @@ export class AuthService {
   readonly accessToken = signal<string>(this.getAccessToken() || '');
   readonly refreshToken = signal<string>(this.cookieService.get('refresh_token') || '');
   readonly authResponse = signal<AuthResponse | null>(null);
-  public isAuthenticated = this.isAuthenticatedSignal.asReadonly();
-  readonly email = signal<string | null>(null);
+  readonly isAuthenticated = this.isAuthenticatedSignal.asReadonly();
+  readonly email = signal<string | null>(this.getEmail());
   readonly isAdmin = signal<boolean>(true);
 
   readonly userId = computed<string | null>(() => {
@@ -58,7 +58,7 @@ export class AuthService {
         this.email.set(email);
         console.log('Login response received: ', response);
         this.authResponse.set(response);
-        this.handleAuthentication(response, rememberMe);
+        this.handleAuthentication(response, rememberMe, email);
       }),
     );
 
@@ -103,7 +103,7 @@ export class AuthService {
     // }
   }
 
-  private handleAuthentication(response: AuthResponse, rememberMe: boolean) {
+  private handleAuthentication(response: AuthResponse, rememberMe: boolean, email: string) {
     let accessExpiry: Date | undefined = undefined;
     let refreshExpiry: Date | undefined = undefined;
 
@@ -149,7 +149,15 @@ export class AuthService {
       isSecure,
       sameSite,
     );
-
+    this.cookieService.set(
+      'email',
+      email || '0',
+      refreshExpiry,
+      '/',
+      undefined,
+      isSecure,
+      sameSite,
+    );
     console.log('setting authenticated true');
     console.log('cookies user_id: ' + this.cookieService.get('user_id'));
     this.isAuthenticatedSignal.set(true);
@@ -158,7 +166,9 @@ export class AuthService {
   public getAccessToken(): string {
     return this.cookieService.get('access_token');
   }
-
+  public getEmail(): string {
+    return this.cookieService.get('email');
+  }
   public getUserIdFromToken(): string | null {
     const token = this.getAccessToken();
     if (!token) return null;

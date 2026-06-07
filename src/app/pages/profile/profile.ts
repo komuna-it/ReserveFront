@@ -22,7 +22,7 @@ import { Utils } from '../../services/utils';
 })
 export class ProfilePage implements OnInit {
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
+  readonly authService = inject(AuthService);
   readonly utils = inject(Utils);
   private apiUrl = process.env['VSF_API_URL'] || '';
   readonly getReservationsByOrganizationEndpoint = `${this.apiUrl}/reservation/organization/`;
@@ -102,19 +102,19 @@ export class ProfilePage implements OnInit {
       this.http
         .get<User[]>(`${this.getOrganizationMembersEndpoint}${org.id}`, { headers: header })
         .pipe(
-          map(
-            (users) =>
-              ({
-                ...org,
-                users,
-                id: org.id,
-                name: org.name,
-                ownerId: org.ownerId,
-              }) as OrganizationFront,
-          ),
+          map((users) => {
+            const owner = users.find((user) => user.id === org.ownerId) || null;
+
+            return {
+              id: org.id,
+              name: org.name,
+              ownerId: org.ownerId,
+              owner: owner,
+              users: users,
+            } as OrganizationFront;
+          }),
         ),
     );
-
     forkJoin(requests).subscribe({
       next: (completedOrgsFront) => {
         this.organizationFront.set(completedOrgsFront);

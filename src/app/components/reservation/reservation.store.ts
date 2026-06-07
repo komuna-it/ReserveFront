@@ -8,6 +8,7 @@ import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
 import { max } from 'rxjs';
+import { User } from '../../model/user';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
@@ -20,7 +21,7 @@ export class ReservationStore {
   readonly reservations = signal<ReservationDto[]>([]);
   readonly userOrganizations = signal<Organization[]>([]);
   readonly allOrganizations = signal<Organization[]>([]);
-
+  readonly orgAndMembersMap = signal<Map<Organization, User[]>>(new Map());
   readonly daySelectedByUser = signal<Date>(new Date());
   readonly currentWeekStart = signal<Date>(this.helper.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
@@ -63,6 +64,7 @@ export class ReservationStore {
     () => new Map(this.userOrganizations().map((o) => [o.id, o.name])),
   );
   readonly allOrgsMap = computed(() => new Map(this.allOrganizations().map((o) => [o.id, o.name])));
+  readonly teamsList = signal<OrganizationFront[]>([]);
 
   readonly currentDayReservations = computed(() => {
     const selectedDate = this.daySelectedByUser();

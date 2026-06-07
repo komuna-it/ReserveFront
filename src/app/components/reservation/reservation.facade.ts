@@ -5,6 +5,9 @@ import { CalendarHelper } from '../calendar/calendar.helper';
 import { AuthService } from '../../services/auth';
 import { Router } from '@angular/router';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { Organization } from '../../model/organization';
+import { User } from '../../model/user';
+import { OrganizationFront } from '../../model/organizationFront';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -142,7 +145,33 @@ export class ReservationFacade {
       },
     });
   }
+  fetchAllMembersAllOrganizations() {
+    this.api.getAllOrganizations().subscribe({
+      next: (organizations) => {
+        this.store.allOrganizations.set(organizations);
+        console.log('organizations ', organizations);
+        this.store.teamsList.set([]);
+        for (const org of organizations) {
+          this.api.getMembersOfOrganization(org.id).subscribe({
+            next: (users) => {
+              console.log('downloaded users for org: ', org.id, ' : ', users);
 
+              const owner = users.find((user) => user.id === org.ownerId)!;
+              this.store.teamsList.update((old) => {
+                const of = new OrganizationFront(org.id, owner, org.name, users);
+                console.log('of: ', of);
+                console.log('owner: ', owner);
+
+                return [...old, of];
+              });
+            },
+            error: () => console.error('Error fetching members of org: ', org.id),
+          });
+        }
+      },
+      error: (e) => console.error('error : ', e),
+    });
+  }
   disconnectStream() {
     if (this.sseController) {
       this.sseController.abort();

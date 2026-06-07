@@ -5,6 +5,7 @@ import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
 import { Observable } from 'rxjs';
+import { User } from '../../model/user';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationApi {
@@ -60,5 +61,13 @@ export class ReservationApi {
     return this.http.post<ReservationDto>(`${this.apiUrl}/reservation`, payload, {
       headers: this.authHeader,
     });
+  }
+  getMembersOfOrganization(organizationId: number) {
+    return this.http.get<User[]>(
+      `${process.env['VSF_API_URL'] || ''}/organizationUser/organization/members/${organizationId}`,
+      {
+        headers: this.authHeader,
+      },
+    );
   }
 }
