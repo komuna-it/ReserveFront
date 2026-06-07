@@ -27,13 +27,12 @@
       <label class="flex items-center gap-2 mt-2 cursor-pointer text-sm text-slate-300">
         <input
           type="checkbox"
-          (change)="rememberMe = !rememberMe"
+          [(ngModel)]="rememberMe"
+          name="rememberMe"
           class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-blue-500"
-          checked
         />
         Zapamiętaj mnie
       </label>
-
       <div *ngIf="errorMessage" class="text-red-500 text-sm mt-1">
         {{ errorMessage }}
       </div>
