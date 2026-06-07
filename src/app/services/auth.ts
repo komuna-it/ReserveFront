@@ -4,6 +4,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { Observable, tap, of, map, firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
+import { Utils } from './utils';
 
 export interface AuthResponse {
   accessToken: string;
@@ -23,6 +24,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private cookieService = inject(CookieService);
   private router = inject(Router);
+  // private utils = inject(Utils);
 
   private apiUrl = process.env['VSF_API_URL'] || '';
 
@@ -32,6 +34,7 @@ export class AuthService {
   readonly authResponse = signal<AuthResponse | null>(null);
   public isAuthenticated = this.isAuthenticatedSignal.asReadonly();
   readonly email = signal<string | null>(null);
+  readonly isAdmin = signal<boolean>(true);
 
   readonly userId = computed<string | null>(() => {
     const token = this.accessToken();
@@ -170,6 +173,7 @@ export class AuthService {
   }
 
   public logout() {
+    // this.utils.resetState();
     this.cookieService.delete('access_token', '/');
     this.cookieService.delete('refresh_token', '/');
     this.cookieService.delete('user_id', '/');

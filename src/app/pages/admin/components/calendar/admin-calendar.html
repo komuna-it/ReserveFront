@@ -7,13 +7,13 @@
         </h3>
         <div class="flex gap-2">
           <button
-            (click)="navigateMonth('prev')"
+            (click)="utils.navigateMonth('prev')"
             class="p-1 bg-slate-700 hover:bg-slate-600 rounded text-xs px-2 border border-slate-600"
           >
             &lt;
           </button>
           <button
-            (click)="navigateMonth('next')"
+            (click)="utils.navigateMonth('next')"
             class="p-1 bg-slate-700 hover:bg-slate-600 rounded text-xs px-2 border border-slate-600"
           >
             &gt;
@@ -30,19 +30,19 @@
       <div class="grid grid-cols-7 gap-1">
         @for (day of utils.monthGridDays(); track day.getTime()) {
           <button
-            (click)="selectDay(day)"
+            (click)="utils.selectDay(day)"
             class="aspect-square flex items-center justify-center text-xs font-medium rounded-lg transition-colors"
             [ngClass]="{
-              'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400': isSameDay(
+              'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400': utils.isSameDay(
                 day,
-                daySelectedByUser()
+                utils.daySelectedByUser()
               ),
               'bg-slate-700 text-slate-1100 hover:bg-slate-600':
-                !isSameDay(day, daySelectedByUser()) &&
-                day.getMonth() === currentMonthDate().getMonth(),
+                !utils.isSameDay(day, utils.daySelectedByUser()) &&
+                day.getMonth() === utils.currentMonthDate().getMonth(),
               'bg-slate-800 text-slate-500 hover:bg-slate-700':
-                !isSameDay(day, daySelectedByUser()) &&
-                day.getMonth() !== currentMonthDate().getMonth(),
+                !utils.isSameDay(day, utils.daySelectedByUser()) &&
+                day.getMonth() !== utils.currentMonthDate().getMonth(),
             }"
           >
             {{ day.getDate() }}
@@ -56,7 +56,7 @@
         class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-700"
       >
         <button
-          (click)="navigateWeek('prev')"
+          (click)="utils.navigateWeek('prev')"
           class="w-full sm:w-auto bg-slate-700 hover:bg-slate-600 active:bg-slate-500 text-xs px-4 py-2 font-medium rounded-lg border border-slate-600"
         >
           Poprzedni tydzień
@@ -67,7 +67,7 @@
         </span>
 
         <button
-          (click)="navigateWeek('next')"
+          (click)="utils.navigateWeek('next')"
           class="w-full sm:w-auto bg-slate-700 hover:bg-slate-600 active:bg-slate-500 text-xs px-4 py-2 font-medium rounded-lg border border-slate-600"
         >
           Następny tydzień
@@ -77,21 +77,24 @@
       <div
         class="grid grid-cols-7 gap-2 bg-slate-800 p-3 rounded-xl border border-slate-700 text-center"
       >
-        @for (day of weekDays(); track day.getTime()) {
+        @for (day of utils.weekDays(); track day.getTime()) {
           <button
-            (click)="selectDay(day)"
+            (click)="utils.selectDay(day)"
             class="flex flex-col items-center p-2 rounded-lg transition-all"
             [ngClass]="{
-              'bg-emerald-600 text-white font-bold shadow': isSameDay(day, daySelectedByUser()),
-              'bg-slate-700/50 text-slate-300 hover:bg-slate-700': !isSameDay(
+              'bg-emerald-600 text-white font-bold shadow': utils.isSameDay(
                 day,
-                daySelectedByUser()
+                utils.daySelectedByUser()
+              ),
+              'bg-slate-700/50 text-slate-300 hover:bg-slate-700': !utils.isSameDay(
+                day,
+                utils.daySelectedByUser()
               ),
             }"
           >
             <span
               class="text-xs text-slate-400 block uppercase"
-              [class.text-emerald-100]="isSameDay(day, daySelectedByUser())"
+              [class.text-emerald-100]="utils.isSameDay(day, utils.daySelectedByUser())"
             >
               {{ utils.weekDayLabels[day.getDay() === 0 ? 6 : day.getDay() - 1] }}
             </span>
@@ -102,7 +105,7 @@
 
       <div class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
         <h2 class="text-xl font-bold text-center text-emerald-200 mb-6">
-          Grafik na dzień {{ daySelectedByUser() | date: 'dd.MM.yyyy' }}
+          Grafik na dzień {{ utils.daySelectedByUser() | date: 'dd.MM.yyyy' }}
         </h2>
 
         <div class="overflow-x-auto">
@@ -117,7 +120,7 @@
             </thead>
 
             <tbody>
-              @for (row of tableRows(); track row.hour) {
+              @for (row of utils.tableRows(); track row.hour) {
                 <tr class="h-14 hover:bg-slate-700/10 transition-colors">
                   <td
                     class="px-4 text-center font-bold text-slate-400 bg-slate-900/20 text-sm w-24 shrink-0 border-b border-slate-700/50 h-14"
@@ -165,7 +168,7 @@
                       } @else {
                         <div class="py-3 inline-block w-24 h-full flex items-center justify-center">
                           <button
-                            (click)="handleReservationClick(row.hour, cell.roomId)"
+                            (click)="utils.handleAdminReservationClick(row.hour, cell.roomId)"
                             class="inline-block px-4 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-white border border-emerald-500/30 transition-all"
                           >
                             Wolne

@@ -11,7 +11,7 @@ import { OrganizationFront } from '../../model/organizationFront';
 import { forkJoin, map } from 'rxjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { ReservationWrapper } from '../../model/reservationWrapper';
-import { Utils } from '../../services/utils/utils';
+import { Utils } from '../../services/utils';
 
 @Component({
   selector: 'app-profile',

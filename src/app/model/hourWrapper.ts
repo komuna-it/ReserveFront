@@ -1,5 +1,4 @@
 export class HourWrapper {
-  public bandName: string = '';
   constructor(
     public hour: number,
     public isReserved: boolean,
@@ -7,5 +6,6 @@ export class HourWrapper {
     public isLastHourOfReservation: boolean,
     public isReservedByMyOrganization: boolean,
     public isDisabled: boolean,
+    public bandName: string,
   ) {}
 }
