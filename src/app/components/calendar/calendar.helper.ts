@@ -48,12 +48,14 @@ export class CalendarHelper {
     const month = String(dateStart.getMonth() + 1).padStart(2, '0');
     const startAt = dateStart.getHours();
     const endAt = startAt + this.parseDurationToHours(duration);
+
     return `${day}.${month}.${year} ${startAt}:00 - ${endAt}:00`;
   }
 
   generateDateLabel(dateString: string): string {
     const date = new Date(dateString);
     const day = date.getDate();
+    console.log('day: ', day);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const startAt = date.getHours();

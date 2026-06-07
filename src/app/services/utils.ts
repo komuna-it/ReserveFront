@@ -254,12 +254,13 @@ export class Utils {
 
   generateDurationLabel(dateStartString: string, duration: string): string {
     const dateStart = new Date(dateStartString);
-    const day = dateStart.getDay();
+    const day = dateStart.getDate();
     const year = dateStart.getFullYear();
     const month = String(dateStart.getMonth() + 1).padStart(2, '0');
     const startAt = dateStart.getHours();
     const durationHours = this.parseDurationToHours(duration);
     const endAt = startAt + durationHours;
+
     return `${day}.${month}.${year} ${startAt}:00 - ${endAt}:00`;
   }
   generateDateLabel(dateString: string): string {

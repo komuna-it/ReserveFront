@@ -10,6 +10,7 @@ import { authGuard } from './auth-guard';
 import { AdminOrganizations } from './pages/admin/components/admin-organizations/admin-organizations';
 import { AdminPricing } from './pages/admin/components/admin-pricing/admin-pricing';
 import { CalendarComponent } from './components/calendar/calendar';
+import { OrganizationList } from './components/organization-list/organization-list';
 
 export const routes: Routes = [
   {
@@ -36,7 +37,7 @@ export const routes: Routes = [
       },
       {
         path: 'organizations',
-        component: CalendarComponent,
+        component: OrganizationList,
       },
       { path: '', redirectTo: 'reservations', pathMatch: 'full' },
     ],

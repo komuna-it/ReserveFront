@@ -121,14 +121,23 @@ export class ReservationFacade {
   connectToReservationStream() {
     this.disconnectStream();
     this.sseController = new AbortController();
-
-    fetchEventSource(`${process.env['VSF_API_URL'] || ''}/reservation/sse`, {
+    const url = `${process.env['VSF_API_URL'] || ''}/reservation/sse`;
+    console.log('Connected to reservation SSE: ', url);
+    fetchEventSource(url, {
       method: 'GET',
       headers: { Authorization: `Bearer ${this.authService.accessToken()}` },
       signal: this.sseController.signal,
       onmessage: (msg) => {
+        const msgData = JSON.parse(msg.data);
+        const reservedBy = msgData.reservationDto.reservedBy;
+        console.log('msgData ', msgData);
+        console.log('msg.event ', msg.event);
+        console.log('reservedBy ', reservedBy);
         if (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_REMOVED') {
           this.fetchRoomsAndReservations();
+        }
+        if (msg.event === 'RESERVATION_CREATED' && reservedBy !== `${this.authService.userId}`) {
+          this.store.displayBookingErrorPopup();
         }
       },
     });
