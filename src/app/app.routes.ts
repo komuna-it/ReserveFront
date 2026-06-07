@@ -6,10 +6,10 @@ import { LoginPage } from './pages/login/login';
 import { RegisterPage } from './pages/register/register';
 import { ProfilePage } from './pages/profile/profile';
 import { AdminPage } from './pages/admin/admin';
-import { AdminCalendar } from './pages/admin/components/calendar/admin-calendar';
 import { authGuard } from './auth-guard';
 import { AdminOrganizations } from './pages/admin/components/admin-organizations/admin-organizations';
 import { AdminPricing } from './pages/admin/components/admin-pricing/admin-pricing';
+import { CalendarComponent } from './components/calendar/calendar';
 
 export const routes: Routes = [
   {
@@ -28,7 +28,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'reservations',
-        component: AdminCalendar,
+        component: CalendarComponent,
       },
       {
         path: 'pricing',
@@ -36,7 +36,7 @@ export const routes: Routes = [
       },
       {
         path: 'organizations',
-        component: AdminOrganizations,
+        component: CalendarComponent,
       },
       { path: '', redirectTo: 'reservations', pathMatch: 'full' },
     ],
