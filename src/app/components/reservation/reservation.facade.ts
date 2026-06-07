@@ -94,6 +94,7 @@ export class ReservationFacade {
     const d = new Date(this.store.currentMonthDate());
     d.setMonth(d.getMonth() + (direction === 'next' ? 1 : -1));
     this.store.currentMonthDate.set(d);
+    this.selectDay(d);
   }
 
   handleBookingClick(hour: number, roomId: number) {

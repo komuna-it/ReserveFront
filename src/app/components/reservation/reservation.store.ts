@@ -32,17 +32,12 @@ export class ReservationStore {
     const reservsForRoom = reservs.filter((res) => res.roomId === booking?.roomId);
     const bookingStartHour = booking?.hour;
     let limitHour = 22;
-    console.log('reservsForRoom length: ', reservsForRoom.length);
 
     for (const res of reservsForRoom) {
       const resStartHour = new Date(res.startAt).getHours();
-      console.log('startHour: ', resStartHour);
-      console.log('resStartHour < limitHour: ', resStartHour < limitHour);
-      console.log('resStartHour > bookingStartHour: ', resStartHour > bookingStartHour);
 
       if (resStartHour < limitHour && resStartHour > bookingStartHour) {
         limitHour = resStartHour;
-        console.log('set limitHour = resStartHour: ', limitHour);
       }
     }
 
