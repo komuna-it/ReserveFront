@@ -24,7 +24,6 @@ import { CalendarHelper } from '../../components/calendar/calendar.helper';
 })
 export class ProfilePage implements OnInit {
   readonly facade = inject(ReservationFacade);
-
   readonly authService = inject(AuthService);
   readonly helper = inject(CalendarHelper);
   readonly store = inject(ReservationStore);
@@ -57,7 +56,7 @@ export class ProfilePage implements OnInit {
   readonly areYouSure = signal<boolean>(false);
 
   ngOnInit() {
-    this.getOrganizationsOfUser();
+    this.facade.getOrganizationsOfUser();
     this.facade.connectToReservationStream();
   }
 
@@ -67,11 +66,7 @@ export class ProfilePage implements OnInit {
     this.areYouSure.set(true);
   }
 
-  getOrganizationsOfUser() {
-    this.facade.getOrganizationsOfUser();
-  }
-
-  fetchReservationsWhereUserBelongs() {
+  getReservationsWhereUserBelongs() {
     const orgsFront = this.organizationFront();
     if (orgsFront.length === 0) {
       this.reservations.set([]);
@@ -117,7 +112,7 @@ export class ProfilePage implements OnInit {
   deleteReservation(reservationId: number) {
     console.log(`Trying to delete reservation with id ${reservationId}`);
     this.facade.deleteReservation(reservationId);
-    this.fetchReservationsWhereUserBelongs();
+    this.getReservationsWhereUserBelongs();
     this.areYouSure.set(false);
   }
 
@@ -136,7 +131,7 @@ export class ProfilePage implements OnInit {
     if (!name.trim()) return;
 
     this.facade.createOrganization(name);
-    this.getOrganizationsOfUser();
+    this.facade.getOrganizationsOfUser();
   }
 
   ngOnDestroy() {
