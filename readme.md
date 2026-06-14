@@ -1,149 +1,55 @@
-| .prettierrc
-| angular.json
-| package-lock.json
-| package.json
-| readme.md
-| tsconfig.app.json
-| tsconfig.json
-| tsconfig.spec.json
-+---.github
-| \---workflows
-| build_deploy_beta.yml
-|  
-+---.vscode
-| extensions.json
-| launch.json
-| mcp.json
-| tasks.json
-|  
-+---public
-| favicon.ico
-|  
-\---src
-| env.d.ts
-| favicon.ico
-| index.html
-| main.ts
-| styles.css
-|  
- +---app
-| | app.config.ts
-| | app.css
-| | app.html
-| | app.routes.ts
-| | app.spec.ts
-| | app.ts
-| | auth-guard.spec.ts
-| | auth-guard.ts
-| | transloco-loader.ts
-| |  
- | +---calendar
-| | \---service
-| +---components
-| | +---calendar
-| | | calendar.helper.ts
-| | | calendar.html
-| | | calendar.ts
-| | |  
- | | +---organization-list
-| | | organization-list.css
-| | | organization-list.html
-| | | organization-list.spec.ts
-| | | organization-list.ts
-| | |  
- | | \---reservation
-| | reservation.api.ts
-| | reservation.facade.ts
-| | reservation.store.ts
-| |  
- | +---layout
-| | \---navbar
-| | navbar.css
-| | navbar.html
-| | navbar.spec.ts
-| | navbar.ts
-| |  
- | +---model
-| | dayWrapper.ts
-| | hourWrapper.ts
-| | organization.ts
-| | organizationFront.ts
-| | organizationUserDto.ts
-| | reservationDto.ts
-| | reservationWrapper.ts
-| | room.ts
-| | sseReservationEvent.ts
-| | tab.ts
-| | user.ts
-| | weekWrapper.ts
-| |  
- | +---pages
-| | +---admin
-| | | | admin.css
-| | | | admin.html
-| | | | admin.spec.ts
-| | | | admin.ts
-| | | |  
- | | | \---components
-| | | +---admin-organizations
-| | | | admin-organizations.css
-| | | | admin-organizations.html
-| | | | admin-organizations.spec.ts
-| | | | admin-organizations.ts
-| | | |  
- | | | \---admin-pricing
-| | | admin-pricing.css
-| | | admin-pricing.html
-| | | admin-pricing.spec.ts
-| | | admin-pricing.ts
-| | |  
- | | +---calendar
-| | | calendar.css
-| | | calendar.html
-| | | calendar.spec.ts
-| | | calendar.ts
-| | |  
- | | +---contact
-| | | contact.css
-| | | contact.html
-| | | contact.spec.ts
-| | | contact.ts
-| | |  
- | | +---home
-| | | home.css
-| | | home.html
-| | | home.spec.ts
-| | | home.ts
-| | |  
- | | +---login
-| | | login.css
-| | | login.html
-| | | login.spec.ts
-| | | login.ts
-| | |  
- | | +---profile
-| | | profile.css
-| | | profile.html
-| | | profile.spec.ts
-| | | profile.ts
-| | |  
- | | \---register
-| | register.css
-| | register.html
-| | register.spec.ts
-| | register.ts
-| |  
- | \---services
-| auth.ts
-|  
- \---assets
-+---i18n
-| en.json
-| pl.json
-| ua.json
-|  
- \---images
-logo_scale.jfif
-tlo1.jfif
-tlo2.png
-tlo3.jpg
+# VipSound FrontEnd
+
+A reservation platform designed for rehearsal studios. Built with **Angular 21** using a reactive architecture and real-time synchronization.
+
+## Overview
+VipSound is a full-stack booking solution that allows bands and organizations to manage rehearsal space reservations in real-time. The front-end leverages Angular's latest reactivity primitives to ensure a fluid, flicker-free user experience, even with high-concurrency data updates.
+
+## Tech Stack & Key Decisions
+* **Core:** Angular 21 (Standalone Components)
+* **State Management:** Built on **Angular Signals** for fine-grained reactivity and minimal change detection overhead.
+* **Architecture:** Implements the **Facade Pattern** (`ReservationFacade`) to abstract API communication and store logic away from the UI components.
+* **Real-time Updates:** Utilizes **Server-Sent Events (SSE)** via `@microsoft/fetch-event-source` to keep the calendar synchronized across all connected users without polling.
+* **Styling:** Tailwind CSS with custom utility-first configurations.
+* **i18n:** JSVerse Transloco for dynamic language support.
+
+## Development Highlights
+- **Reactive Data Flow:** Used `computed` signals for complex calendar grid rendering, deriving state from reservation lists and user metadata automatically.
+- **Robust Auth:** JWT-based authentication with `ngx-cookie-service` and persistent session management.
+- **Scalable API Layer:** Service-oriented architecture with dedicated API classes for clear separation of concerns.
+
+##  Getting Started
+
+### Prerequisites
+- Node.js `20` or higher
+- npm `10` or higher
+
+### Installation
+```bash
+# Clone the repository
+git clone [https://github.com/your-username/VipSoundFront.git](https://github.com/your-username/VipSoundFront.git)
+
+# Navigate to the project folder
+cd VipSoundFront
+
+# Install dependencies
+npm install
+
+# Run development server
+ng serve
+```
+
+## Environment Configuration
+The project relies on environment variables for API communication. Ensure you have the VSF_API_URL variable configured in your environment setup.
+
+## Core Architecture
+* ReservationFacade: Acts as the single source of truth and orchestrator between the API, the Store, and the UI components.
+
+* ReservationStore: Uses signals to provide a reactive view of rooms, bookings, and team organizations.
+
+* AuthService: Handles token lifecycle, JWT decoding, and secure cookie management.
+
+## TODO
+* Secure JWT Cookies
+* Admin panel
+* Notifications
