@@ -13,7 +13,7 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly facade = inject(ReservationFacade);
 
   ngOnInit(): void {
-    this.facade.fetchAllMembersAllOrganizations();
+    this.facade.getAllMembersAllOrganizations();
   }
   ngOnDestroy(): void {
     // this.store.teamsList.set([]);

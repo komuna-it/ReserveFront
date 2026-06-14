@@ -7,6 +7,4 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
-export class AdminPage {
-  readonly utils = inject(Utils);
-}
+export class AdminPage {}

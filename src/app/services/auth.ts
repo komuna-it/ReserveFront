@@ -24,7 +24,6 @@ export class AuthService {
   private http = inject(HttpClient);
   private cookieService = inject(CookieService);
   private router = inject(Router);
-  // private utils = inject(Utils);
 
   private apiUrl = process.env['VSF_API_URL'] || '';
 
@@ -61,18 +60,9 @@ export class AuthService {
         this.handleAuthentication(response, rememberMe, email);
       }),
     );
-
-    // Test
-    // const resp: AuthResponse = {
-    //   accessToken: 'aaaaaaaaaaaaaaaaaaa',
-    //   refreshToken: 'bbbbbbbbbbbbbbbbbbbbbbbb',
-    // };
-    // this.authResponse.set(resp);
-    // this.handleAuthentication(resp);
   }
 
   async register(email: string, password: string, nick: string): Promise<string> {
-    // Prod
     this.accessToken.set('');
     try {
       console.log('Sending registration request to endpoint:', this.registerEndpoint);
@@ -93,14 +83,6 @@ export class AuthService {
       console.error('Register error caught:', err);
       throw err;
     }
-
-    // Test
-    //   const response = JSON.parse(`{ "email" : "mtroja98@gmail.com" }`);
-    //   return response.email;
-    // } catch (err: any) {
-    //   console.error('Register error caught:', err);
-    //   throw err;
-    // }
   }
 
   private handleAuthentication(response: AuthResponse, rememberMe: boolean, email: string) {
@@ -114,7 +96,6 @@ export class AuthService {
       refreshExpiry = new Date();
       refreshExpiry.setDate(refreshExpiry.getDate() + 10); // 10 days
     }
-    // else -- session cookies that expire when the browser is closed
 
     this.accessToken.set(response.accessToken);
     this.refreshToken.set(response.refreshToken);

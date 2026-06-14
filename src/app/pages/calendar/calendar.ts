@@ -21,6 +21,6 @@ export class CalendarPage implements OnInit {
 
   ngOnInit() {
     // this.facade.fetchReservationsForAllOrgsOfUser();
-    this.facade.fetchRoomsAndReservations();
+    this.facade.getRoomsAndReservations();
   }
 }

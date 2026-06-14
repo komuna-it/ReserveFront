@@ -20,7 +20,7 @@ export class ReservationFacade {
 
   initializeCalendar(isAdmin: boolean) {
     this.store.isAdminMode.set(isAdmin);
-    this.fetchRoomsAndReservations();
+    this.getRoomsAndReservations();
 
     if (isAdmin) {
       this.api.getAllOrganizations().subscribe((data) => this.store.allOrganizations.set(data));
@@ -31,20 +31,22 @@ export class ReservationFacade {
     this.connectToReservationStream();
   }
 
-  fetchRoomsAndReservations() {
+  getRoomsAndReservations() {
     this.api.getRooms().subscribe({
       next: (rooms) => {
         this.store.rooms.set(rooms);
-        this.store.reservations.set([]);
-        for (const room of rooms) {
-          this.api.getReservationsByRoom(room.id).subscribe({
-            next: (data) =>
-              this.store.reservations.update((prev) => {
-                const combined = [...prev, ...data];
-                return Array.from(new Map(combined.map((r) => [r.id, r])).values());
-              }),
-          });
-        }
+      },
+      error: (e) => {
+        console.log('Error fetching rooms: ', e);
+      },
+    });
+
+    this.api.getReservations().subscribe({
+      next: (res) => {
+        this.store.reservations.set(res);
+      },
+      error: (e) => {
+        console.log('Error fetching res: ', e);
       },
     });
   }
@@ -71,7 +73,7 @@ export class ReservationFacade {
       next: () => {
         this.store.selectedBooking.set(null);
         this.store.displayBookingSuccesfulPopup.set(true);
-        this.fetchRoomsAndReservations();
+        this.getRoomsAndReservations();
       },
       error: () => {
         this.store.selectedBooking.set(null);
@@ -87,10 +89,9 @@ export class ReservationFacade {
   }
 
   navigateWeek(direction: 'prev' | 'next') {
-    const current = new Date(this.store.currentWeekStart());
+    const current = new Date(this.store.daySelectedByUser());
     current.setDate(current.getDate() + (direction === 'next' ? 7 : -7));
-    this.store.currentWeekStart.set(current);
-    this.store.daySelectedByUser.set(current);
+    this.selectDay(current);
   }
 
   navigateMonth(direction: 'prev' | 'next') {
@@ -137,7 +138,7 @@ export class ReservationFacade {
         console.log('msg.event ', msg.event);
         console.log('reservedBy ', reservedBy);
         if (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_REMOVED') {
-          this.fetchRoomsAndReservations();
+          this.getRoomsAndReservations();
         }
         if (msg.event === 'RESERVATION_CREATED' && reservedBy !== `${this.authService.userId}`) {
           this.store.displayBookingErrorPopup();
@@ -145,7 +146,7 @@ export class ReservationFacade {
       },
     });
   }
-  fetchAllMembersAllOrganizations() {
+  getAllMembersAllOrganizations() {
     this.api.getAllOrganizations().subscribe({
       next: (organizations) => {
         this.store.allOrganizations.set(organizations);
@@ -177,5 +178,50 @@ export class ReservationFacade {
       this.sseController.abort();
       this.sseController = null;
     }
+  }
+  getUserByEmail(email: string) {
+    this.api.getUserByEmail(email).subscribe({
+      next: (u) => {
+        console.log('fetched user by email: ', u);
+      },
+      error: (e) => {
+        console.log('error fetching user by email: ', e);
+      },
+    });
+  }
+  getAllReservationsForUserAndTheirOrganization(userId: number) {
+    this.api.getAllReservationsForUserAndTheirOrganization(userId).subscribe({
+      next: (res) => {
+        this.store.reservations.set(res);
+      },
+      error: (e) => {
+        console.log('Error in getAllReservationsForUserAndTheirOrganization(): ', e);
+      },
+    });
+  }
+  deleteReservation(id: number) {
+    this.api.deleteReservation(id).subscribe({
+      next: () => {
+        console.log(`Successfully deleted reservation with id ${id}`);
+      },
+      error: (e) => console.error(`Failed to delete reservation with id ${id}`, e),
+    });
+  }
+  createOrganization(name: string) {
+    this.api.createOrganization(name).subscribe({
+      next: () => {
+        console.log(`Created organization ${name}`);
+      },
+      error: (e) => console.error(`Failed to create organization ${name}`, e),
+    });
+  }
+
+  getOrganizationsOfUser() {
+    this.api.getOrganizationsOfUser().subscribe({
+      next: (data) => {
+        this.store.userOrganizations.set(data);
+      },
+      error: (e) => console.error('Failed to fetch organizations: ', e),
+    });
   }
 }

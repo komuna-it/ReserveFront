@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { AuthService } from '../../services/auth';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
@@ -34,12 +34,18 @@ export class ReservationApi {
     );
   }
 
-  getFutureReservations(): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation/future`, {
+  getReservations(): Observable<ReservationDto[]> {
+    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, {
       headers: this.authHeader,
     });
   }
-
+  getFutureReservations(): Observable<ReservationDto[]> {
+    let params = new HttpParams().set('future', 'true');
+    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, {
+      headers: this.authHeader,
+      params: params,
+    });
+  }
   getOrganizationsOfUser(): Observable<Organization[]> {
     return this.http.get<Organization[]>(
       `${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`,
@@ -48,7 +54,7 @@ export class ReservationApi {
   }
 
   getAllOrganizations(): Observable<Organization[]> {
-    return this.http.get<Organization[]>(`${this.apiUrl}/organization/`, {
+    return this.http.get<Organization[]>(`${this.apiUrl}/organization`, {
       headers: this.authHeader,
     });
   }
@@ -68,6 +74,28 @@ export class ReservationApi {
       {
         headers: this.authHeader,
       },
+    );
+  }
+  getUserByEmail(email: string) {
+    let params: HttpParams = new HttpParams();
+    params.set('email', email);
+    return this.http.get<User[]>(`${process.env['VSF_API_URL'] || ''}/user`, {
+      headers: this.authHeader,
+      params: params,
+    });
+  }
+  getAllReservationsForUserAndTheirOrganization(userId: number) {
+    let params = new HttpParams().set('userId', userId);
+    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, {
+      headers: this.authHeader,
+      params: params,
+    });
+  }
+  createOrganization(name: string) {
+    return this.http.post(
+      `${this.apiUrl}/organization`,
+      { name: name },
+      { headers: this.authHeader },
     );
   }
 }

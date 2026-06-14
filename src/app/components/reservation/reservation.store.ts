@@ -25,6 +25,7 @@ export class ReservationStore {
   readonly daySelectedByUser = signal<Date>(new Date());
   readonly currentWeekStart = signal<Date>(this.helper.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
+
   readonly durationOptions = computed(() => {
     const booking = this.selectedBooking();
     if (!booking) return [];

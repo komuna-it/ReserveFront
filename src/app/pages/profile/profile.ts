@@ -11,7 +11,9 @@ import { OrganizationFront } from '../../model/organizationFront';
 import { forkJoin, map } from 'rxjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { ReservationWrapper } from '../../model/reservationWrapper';
-import { Utils } from '../../services/utils';
+import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { ReservationStore } from '../../components/reservation/reservation.store';
+import { CalendarHelper } from '../../components/calendar/calendar.helper';
 
 @Component({
   selector: 'app-profile',
@@ -21,17 +23,12 @@ import { Utils } from '../../services/utils';
   styleUrl: './profile.css',
 })
 export class ProfilePage implements OnInit {
-  private http = inject(HttpClient);
+  readonly facade = inject(ReservationFacade);
+
   readonly authService = inject(AuthService);
-  readonly utils = inject(Utils);
-  private apiUrl = process.env['VSF_API_URL'] || '';
-  readonly getReservationsByOrganizationEndpoint = `${this.apiUrl}/reservation/organization/`;
-  readonly getOrganizationsEndpoint = `${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`;
-  readonly getFutureReservationsEndpoint = `${this.apiUrl}/reservation/future`;
-  readonly getOrganizationMembersEndpoint = `${this.apiUrl}/organizationUser/organization/members/`;
-  readonly getOrganizationsOfUserEndpoint = `${this.apiUrl}/organizationUser/user`;
-  readonly createOrganizationEndpoint = `${this.apiUrl}/organization/`;
-  readonly sseReservationEndpoint = `${this.apiUrl}/reservation/sse`;
+  readonly helper = inject(CalendarHelper);
+  readonly store = inject(ReservationStore);
+
   readonly email = this.authService.email();
   readonly reservationToDelete = signal<ReservationDto | null>(null);
 
@@ -56,11 +53,12 @@ export class ProfilePage implements OnInit {
 
   readonly organizations = signal<Organization[]>([]);
   readonly organizationFront = signal<OrganizationFront[]>([]);
-  readonly reservationResponses = signal<ReservationDto[]>([]);
+  readonly reservations = signal<ReservationDto[]>([]);
   readonly areYouSure = signal<boolean>(false);
 
   ngOnInit() {
-    this.fetchOrganizationsOfUser();
+    this.getOrganizationsOfUser();
+    this.facade.connectToReservationStream();
   }
 
   handleDeleteReservationClick(reservation: ReservationDto) {
@@ -69,92 +67,20 @@ export class ProfilePage implements OnInit {
     this.areYouSure.set(true);
   }
 
-  fetchOrganizationsOfUser() {
-    this.organizations.set([]);
-    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
-
-    this.http
-      .get<
-        Organization[]
-      >(`${this.apiUrl}/organizationUser/user/${this.userId}/allOrganizations`, { headers: header })
-      .subscribe({
-        next: (data) => {
-          this.organizations.set([]);
-          this.organizations.set(data);
-          this.buildOrganizationFront();
-        },
-        error: (e) => console.error('Failed to fetch organizations: ', e),
-      });
+  getOrganizationsOfUser() {
+    this.facade.getOrganizationsOfUser();
   }
 
-  buildOrganizationFront() {
-    const orgs = this.organizations();
-    if (orgs.length === 0) {
-      this.organizationFront.set([]);
-      this.buildTabs();
-      this.fetchReservationsWhereUserBelongs();
-      return;
-    }
-
-    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
-
-    const requests = orgs.map((org) =>
-      this.http
-        .get<User[]>(`${this.getOrganizationMembersEndpoint}${org.id}`, { headers: header })
-        .pipe(
-          map((users) => {
-            const owner = users.find((user) => user.id === org.ownerId) || null;
-
-            return {
-              id: org.id,
-              name: org.name,
-              ownerId: org.ownerId,
-              owner: owner,
-              users: users,
-            } as OrganizationFront;
-          }),
-        ),
-    );
-    forkJoin(requests).subscribe({
-      next: (completedOrgsFront) => {
-        this.organizationFront.set(completedOrgsFront);
-
-        this.fetchReservationsWhereUserBelongs();
-        this.buildTabs();
-      },
-      error: (e) => console.error('Failed to fetch members for organizations: ', e),
-    });
-  }
   fetchReservationsWhereUserBelongs() {
     const orgsFront = this.organizationFront();
     if (orgsFront.length === 0) {
-      this.reservationResponses.set([]);
+      this.reservations.set([]);
       return;
     }
 
-    const header = new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
-    const requests = orgsFront.map((org) =>
-      this.http.get<ReservationDto[]>(`${this.getReservationsByOrganizationEndpoint}${org.id}`, {
-        headers: header,
-      }),
+    this.facade.getAllReservationsForUserAndTheirOrganization(
+      parseInt(this.authService.userId() || '0'),
     );
-
-    forkJoin(requests).subscribe({
-      next: (allReservationsArrays) => {
-        let allData = allReservationsArrays.flat();
-
-        allData = Array.from(new Map(allData.map((res) => [res.id, res])).values());
-
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
-
-        allData = allData.filter((res) => res.startAt > now.toISOString());
-        allData.sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
-
-        this.reservationResponses.set(allData);
-      },
-      error: (e) => console.error(`Failed to download reservations`, e),
-    });
   }
   formatDate(dateStr: string): string {
     try {
@@ -190,18 +116,9 @@ export class ProfilePage implements OnInit {
   }
   deleteReservation(reservationId: number) {
     console.log(`Trying to delete reservation with id ${reservationId}`);
-    this.http
-      .delete(`${this.apiUrl}/reservation/${reservationId}`, {
-        headers: new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` }),
-      })
-      .subscribe({
-        next: () => {
-          console.log(`Successfully deleted reservation with id ${reservationId}`);
-          this.fetchReservationsWhereUserBelongs();
-          this.areYouSure.set(false);
-        },
-        error: (e) => console.error(`Failed to delete reservation with id ${reservationId}`, e),
-      });
+    this.facade.deleteReservation(reservationId);
+    this.fetchReservationsWhereUserBelongs();
+    this.areYouSure.set(false);
   }
 
   deleteTeamMember(userId: number) {
@@ -218,47 +135,10 @@ export class ProfilePage implements OnInit {
 
     if (!name.trim()) return;
 
-    this.http
-      .post(
-        this.createOrganizationEndpoint,
-        { name },
-        {
-          headers: new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` }),
-        },
-      )
-      .subscribe({
-        next: () => {
-          console.log(`Successfully created organization with name ${name}`);
-          this.fetchOrganizationsOfUser();
-        },
-        error: (e) => console.error(`Failed to create organization with name ${name}`, e),
-      });
+    this.facade.createOrganization(name);
+    this.getOrganizationsOfUser();
   }
 
-  private connectToReservationStream() {
-    this.sseController = new AbortController();
-    console.log('Connected to SSE for reservations');
-    fetchEventSource(this.sseReservationEndpoint, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${this.authService.accessToken()}`,
-      },
-      signal: this.sseController.signal,
-      onmessage: (msg) => {
-        console.log('Received SSE message: ', msg);
-        if (msg.event === 'RESERVATION_CREATED') {
-          console.log('Wykryto nową rezerwację przez SSE, odświeżam listę...');
-          this.fetchReservationsWhereUserBelongs();
-        } else if (msg.event === 'RESERVATION_REMOVED') {
-          console.log('Wykryto usuniętą rezerwację przez SSE, odświeżam listę...');
-          this.fetchReservationsWhereUserBelongs();
-        }
-      },
-      onerror: (err) => {
-        console.error('SSE error:', err);
-      },
-    });
-  }
   ngOnDestroy() {
     if (this.sseController) {
       this.sseController.abort();

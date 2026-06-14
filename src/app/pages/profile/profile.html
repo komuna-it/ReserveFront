@@ -119,7 +119,7 @@
         </div>
 
         <div class="overflow-x-auto">
-          @if (reservationResponses().length > 0) {
+          @if (store.reservations().length > 0) {
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr
@@ -134,7 +134,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-700 text-sm">
-                @for (res of reservationResponses(); track res.id; let idx = $index) {
+                @for (res of store.reservations(); track res.id; let idx = $index) {
                   <tr class="hover:bg-slate-700/30 transition">
                     <td class="py-4 px-6 text-slate-500 font-mono">{{ idx + 1 }}</td>
                     <td class="py-4 px-6">
@@ -176,7 +176,7 @@
             >
               <h2 class="text-xl font-bold tracking-tight mb-2">Odwołać rezerwację?</h2>
               <p class="text-sm text-emerald-100 mb-4">
-                {{ utils.generateDurationLabel(res.startAt, res.duration) }}
+                {{ helper.generateDurationLabel(res.startAt, res.duration) }}
               </p>
               <button
                 (click)="deleteReservation(res.id!)"

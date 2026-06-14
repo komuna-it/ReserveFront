@@ -16,10 +16,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
 
-  @Input() mode: 'user' | 'admin' = 'user';
-
   ngOnInit() {
-    this.facade.initializeCalendar(this.mode === 'admin');
+    this.facade.initializeCalendar(this.store.isAdminMode());
+    console.log('isAdmin: ', this.store.isAdminMode());
   }
 
   ngOnDestroy() {
