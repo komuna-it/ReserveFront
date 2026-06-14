@@ -59,16 +59,16 @@
           (click)="facade.navigateWeek('prev')"
           class="w-full sm:w-auto bg-slate-700 hover:bg-slate-600 text-xs px-4 py-2 font-medium rounded-lg border border-slate-600"
         >
-          Poprzedni tydzień
+          {{ 'CALENDAR.PREVIOUS_WEEK' | transloco }}
         </button>
         <span class="text-md font-bold tracking-tight text-emerald-200"
-          >Tydzień: {{ store.currentWeekLabel() }}</span
+          >{{ 'CALENDAR.WEEK' | transloco }}: {{ store.currentWeekLabel() }}</span
         >
         <button
           (click)="facade.navigateWeek('next')"
           class="w-full sm:w-auto bg-slate-700 hover:bg-slate-600 text-xs px-4 py-2 font-medium rounded-lg border border-slate-600"
         >
-          Następny tydzień
+          {{ 'CALENDAR.NEXT_WEEK' | transloco }}
         </button>
       </div>
 
@@ -103,14 +103,17 @@
 
       <div class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
         <h2 class="text-xl font-bold text-center text-emerald-200 mb-6">
-          Grafik na dzień {{ store.daySelectedByUser() | date: 'dd.MM.yyyy' }}
+          {{ 'CALENDAR.SCHEDULE_FOR_DAY' | transloco }}
+          {{ store.daySelectedByUser() | date: 'dd.MM.yyyy' }}
         </h2>
 
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse table-fixed">
             <thead>
               <tr class="border-b border-slate-600 text-slate-400 text-sm">
-                <th class="py-3 px-4 font-semibold text-center w-24 shrink-0">Godzina</th>
+                <th class="py-3 px-4 font-semibold text-center w-24 shrink-0">
+                  {{ 'CALENDAR.HOUR' | transloco }}
+                </th>
                 @for (room of store.rooms(); track room.id) {
                   <th class="py-3 px-4 font-semibold text-center">{{ room.name }}</th>
                 }
@@ -182,7 +185,7 @@
                             (click)="facade.handleBookingClick(row.hour, cell.roomId)"
                             class="inline-block px-4 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-white border border-emerald-500/30 transition-all"
                           >
-                            Wolne
+                            {{ 'CALENDAR.FREE_SLOT' | transloco }}
                           </button>
                         </div>
                       }
@@ -204,21 +207,29 @@
       <div
         class="bg-slate-800 border border-slate-700 text-slate-100 px-4 py-4 rounded-2xl w-full max-w-sm shadow-2xl"
       >
-        <h2 class="text-xl font-bold tracking-tight mb-4 text-emerald-400">Potwierdź rezerwację</h2>
+        <h2 class="text-xl font-bold tracking-tight mb-4 text-emerald-400">
+          {{ 'CALENDAR.MODAL_CONFIRM_TITLE' | transloco }}
+        </h2>
 
         <div
           class="space-y-2 text-sm text-slate-300 mb-6 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"
         >
-          <p><strong>Data:</strong> {{ booking.date }}</p>
-          <p><strong>Rozpoczęcie:</strong> {{ booking.hour }}:00</p>
-          <p><strong>Miejsce:</strong> {{ booking.roomName }}</p>
+          <p>
+            <strong>{{ 'CALENDAR.MODAL_DATE' | transloco }}:</strong> {{ booking.date }}
+          </p>
+          <p>
+            <strong>{{ 'CALENDAR.MODAL_START' | transloco }}:</strong> {{ booking.hour }}:00
+          </p>
+          <p>
+            <strong>{{ 'CALENDAR.MODAL_LOCATION' | transloco }}:</strong> {{ booking.roomName }}
+          </p>
         </div>
 
         <div class="mb-6">
           <label
             for="durationSelect"
             class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
-            >Czas trwania (godziny):</label
+            >{{ 'CALENDAR.MODAL_DURATION' | transloco }}:</label
           >
           <select
             id="durationSelect"
@@ -226,7 +237,14 @@
             class="w-full bg-slate-700 text-white font-medium border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
           >
             @for (opt of store.durationOptions(); track opt) {
-              <option [value]="opt">{{ opt }} {{ opt === 1 ? 'godzina' : 'godziny' }}</option>
+              <option [value]="opt">
+                {{ opt }}
+                {{
+                  opt === 1
+                    ? ('CALENDAR.HOUR_SINGULAR' | transloco)
+                    : ('CALENDAR.HOUR_PLURAL' | transloco)
+                }}
+              </option>
             }
           </select>
         </div>
@@ -235,7 +253,7 @@
           <label
             for="bandSelect"
             class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
-            >Zespół:</label
+            >{{ 'CALENDAR.MODAL_BAND' | transloco }}:</label
           >
           <select
             id="bandSelect"
@@ -253,13 +271,13 @@
             (click)="store.selectedBooking.set(null)"
             class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
           >
-            Anuluj
+            {{ 'CALENDAR.CANCEL' | transloco }}
           </button>
           <button
             (click)="facade.confirmBooking()"
             class="px-4 py-2 text-sm font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition-colors"
           >
-            Zarezerwuj
+            {{ 'CALENDAR.BOOK_NOW' | transloco }}
           </button>
         </div>
       </div>
@@ -273,13 +291,15 @@
       <div
         class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
       >
-        <h2 class="text-xl font-bold tracking-tight mb-2">Sukces!</h2>
-        <p class="text-sm text-emerald-100 mb-4">Rezerwacja została utworzona</p>
+        <h2 class="text-xl font-bold tracking-tight mb-2">
+          {{ 'CALENDAR.SUCCESS_TITLE' | transloco }}
+        </h2>
+        <p class="text-sm text-emerald-100 mb-4">{{ 'CALENDAR.SUCCESS_DESC' | transloco }}</p>
         <button
           (click)="store.displayBookingSuccesfulPopup.set(false)"
           class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
         >
-          Zamknij
+          {{ 'CALENDAR.CLOSE' | transloco }}
         </button>
       </div>
     </div>
@@ -292,13 +312,15 @@
       <div
         class="bg-red-600 text-white p-6 rounded-xl shadow-lg border border-red-400 text-center max-w-xs w-full"
       >
-        <h2 class="text-xl font-bold tracking-tight mb-2">Ktoś cię ubiegł!</h2>
-        <p class="text-sm text-red-100 mb-4">Inna osoba właśnie zarezerwowała te godziny.</p>
+        <h2 class="text-xl font-bold tracking-tight mb-2">
+          {{ 'CALENDAR.ERROR_TITLE' | transloco }}
+        </h2>
+        <p class="text-sm text-red-100 mb-4">{{ 'CALENDAR.ERROR_DESC' | transloco }}</p>
         <button
           (click)="store.displayBookingErrorPopup.set(false)"
           class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-red-600 hover:bg-gray-100 transition-colors shadow-md"
         >
-          Wróć do kalendarza
+          {{ 'CALENDAR.BACK_TO_CALENDAR' | transloco }}
         </button>
       </div>
     </div>

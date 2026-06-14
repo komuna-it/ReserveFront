@@ -1,0 +1,12 @@
+{
+  "NAVBAR": {
+    "ADMIN": "Admin",
+    "BOOK": "Book Room",
+    "CONTACT": "Contact",
+    "LOGIN": "Login",
+    "REGISTER": "Register",
+    "PROFILE": "My Profile",
+    "LOGOUT": "Logout",
+    "RESERVATIONS_MOBILE": "Reservations"
+  }
+}

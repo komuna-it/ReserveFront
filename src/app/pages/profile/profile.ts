@@ -14,11 +14,12 @@ import { ReservationWrapper } from '../../model/reservationWrapper';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslocoPipe],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })

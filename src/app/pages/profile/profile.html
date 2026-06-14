@@ -5,10 +5,10 @@
     >
       <div>
         <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          Twój profil
+          {{ 'PROFILE.TITLE' | transloco }}
         </h1>
         <p class="text-sm text-slate-400 mt-1">
-          Zarządzaj rezerwacjami sal i składem swoich zespołów
+          {{ 'PROFILE.SUBTITLE' | transloco }}
         </p>
       </div>
       <div class="flex bg-slate-900 px-4 py-2 rounded-lg border border-slate-700 text-xs font-mono">
@@ -16,18 +16,29 @@
           <thead>
             <tr>
               <span class="text-slate-500 font-bold ml-1"
-                >isAuthenticated: {{ this.authService.isAuthenticated() ? 'tak' : 'nie' }}</span
+                >isAuthenticated:
+                {{
+                  this.authService.isAuthenticated()
+                    ? ('PROFILE.YES' | transloco)
+                    : ('PROFILE.NO' | transloco)
+                }}</span
               >
             </tr>
             <tr>
               <span class="text-slate-500 font-bold ml-1"
-                >Email: {{ this.authService.email() || 'Brak (Niezalogowany)' }}</span
+                >Email:
+                {{ this.authService.email() || ('PROFILE.UNAUTHENTICATED' | transloco) }}</span
               >
             </tr>
 
             <tr>
               <span class="text-slate-500 font-bold ml-1"
-                >Admin: {{ this.authService.isAdmin() ? 'tak' : 'nie' }}</span
+                >Admin:
+                {{
+                  this.authService.isAdmin()
+                    ? ('PROFILE.YES' | transloco)
+                    : ('PROFILE.NO' | transloco)
+                }}</span
               >
             </tr>
           </thead>
@@ -44,7 +55,7 @@
             [class.text-blue-400]="activeTab().id === tab.id"
             class="bg-red-800 px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all rounded-t-lg whitespace-nowrap"
           >
-            Rezerwacje
+            {{ 'PROFILE.TAB_RESERVATIONS' | transloco }}
           </button>
         } @else if (tab.type === 'organization') {
           <button
@@ -72,7 +83,9 @@
     @if (activeTab().type === 'createorganization') {
       <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
         <div class="p-4 bg-slate-800/50 border-b border-slate-700">
-          <h3 class="font-semibold text-slate-200">Utwórz nowy zespół</h3>
+          <h3 class="font-semibold text-slate-200">
+            {{ 'PROFILE.CREATE_TEAM_TITLE' | transloco }}
+          </h3>
         </div>
 
         <div class="p-6">
@@ -81,9 +94,9 @@
             class="flex flex-col gap-4"
           >
             <div>
-              <label for="orgName" class="block text-sm font-medium text-slate-300 mb-1"
-                >Nazwa zespołu</label
-              >
+              <label for="orgName" class="block text-sm font-medium text-slate-300 mb-1">{{
+                'PROFILE.TEAM_NAME_LABEL' | transloco
+              }}</label>
               <input
                 #orgNameInput
                 id="orgName"
@@ -97,7 +110,7 @@
               type="submit"
               class="self-start bg-green-600 hover:bg-green-500 text-white px-5 py-2 rounded-lg transition rounded-full"
             >
-              Utwórz zespół
+              {{ 'PROFILE.CREATE_TEAM_BTN' | transloco }}
             </button>
           </form>
         </div>
@@ -109,12 +122,14 @@
         <div
           class="p-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center"
         >
-          <h3 class="font-semibold text-slate-200">Rezerwacje przypisane do moich zespołów</h3>
+          <h3 class="font-semibold text-slate-200">
+            {{ 'PROFILE.TEAM_RESERVATIONS_HEADING' | transloco }}
+          </h3>
           <button
             (click)="getReservationsWhereUserBelongs()"
             class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded transition"
           >
-            Odśwież dane
+            {{ 'PROFILE.REFRESH_DATA' | transloco }}
           </button>
         </div>
 
@@ -125,12 +140,12 @@
                 <tr
                   class="bg-slate-900/50 border-b border-slate-700 text-slate-400 text-xs font-semibold uppercase tracking-wider"
                 >
-                  <th class="py-3 px-6">Lp</th>
-                  <th class="py-3 px-6">Sala</th>
-                  <th class="py-3 px-6">Data rozpoczęcia</th>
-                  <th class="py-3 px-6">Czas trwania</th>
-                  <th class="py-3 px-6">Zespół</th>
-                  <th class="py-3 px-6">Odwołaj</th>
+                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_INDEX' | transloco }}</th>
+                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_ROOM' | transloco }}</th>
+                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_START_DATE' | transloco }}</th>
+                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_DURATION' | transloco }}</th>
+                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_TEAM' | transloco }}</th>
+                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_CANCEL' | transloco }}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-700 text-sm">
@@ -141,7 +156,7 @@
                       <span
                         class="bg-slate-900 px-2 py-1 rounded text-slate-300 text-xs border border-slate-700"
                       >
-                        Sala {{ res.roomId }}
+                        {{ 'PROFILE.ROOM_PREFIX' | transloco }} {{ res.roomId }}
                       </span>
                     </td>
                     <td class="py-4 px-6 text-slate-300">{{ formatDate(res.startAt) }}</td>
@@ -154,7 +169,7 @@
                         (click)="handleDeleteReservationClick(res)"
                         class="text-white text-xs bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
                       >
-                        Odwołaj
+                        {{ 'PROFILE.CANCEL_BTN' | transloco }}
                       </button>
                     </td>
                   </tr>
@@ -163,7 +178,7 @@
             </table>
           } @else {
             <div class="p-12 text-center text-slate-500">
-              <p class="text-lg">Brak aktywnych rezerwacji dla moich zespołów</p>
+              <p class="text-lg">{{ 'PROFILE.NO_RESERVATIONS' | transloco }}</p>
             </div>
           }
         </div>
@@ -174,7 +189,9 @@
             <div
               class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
             >
-              <h2 class="text-xl font-bold tracking-tight mb-2">Odwołać rezerwację?</h2>
+              <h2 class="text-xl font-bold tracking-tight mb-2">
+                {{ 'PROFILE.CONFIRM_CANCEL_TITLE' | transloco }}
+              </h2>
               <p class="text-sm text-emerald-100 mb-4">
                 {{ helper.generateDurationLabel(res.startAt, res.duration) }}
               </p>
@@ -182,13 +199,13 @@
                 (click)="deleteReservation(res.id!)"
                 class="w-full px-4 py-2 my-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-black transition-colors shadow-md"
               >
-                Tak
+                {{ 'PROFILE.YES' | transloco }}
               </button>
               <button
                 (click)="areYouSure.set(false)"
                 class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
               >
-                Nie
+                {{ 'PROFILE.NO' | transloco }}
               </button>
             </div>
           </div>
@@ -199,7 +216,9 @@
     @if (activeTab().type === 'organization') {
       <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
         <div class="p-4 bg-slate-800/50 border-b border-slate-700">
-          <h3 class="font-semibold text-slate-200">Członkowie zespołu</h3>
+          <h3 class="font-semibold text-slate-200">
+            {{ 'PROFILE.TEAM_MEMBERS_TITLE' | transloco }}
+          </h3>
         </div>
 
         <div class="overflow-x-auto">
@@ -208,10 +227,10 @@
               <tr
                 class="bg-slate-900/50 border-b border-slate-700 text-slate-400 text-xs font-semibold uppercase tracking-wider"
               >
-                <th class="py-3 px-6">Lp</th>
-                <th class="py-3 px-6">Nazwa użytkownika</th>
-                <th class="py-3 px-6">Adres E-mail</th>
-                <th class="py-3 px-6">Usuń</th>
+                <th class="py-3 px-6">{{ 'PROFILE.TABLE_INDEX' | transloco }}</th>
+                <th class="py-3 px-6">{{ 'PROFILE.MEMBER_NICK' | transloco }}</th>
+                <th class="py-3 px-6">{{ 'PROFILE.MEMBER_EMAIL' | transloco }}</th>
+                <th class="py-3 px-6">{{ 'PROFILE.TABLE_REMOVE' | transloco }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-700 text-sm">
@@ -225,7 +244,7 @@
                       (click)="deleteTeamMember(user.id)"
                       class="text-white bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
                     >
-                      Usuń
+                      {{ 'PROFILE.REMOVE_BTN' | transloco }}
                     </button>
                   </td>
                 </tr>

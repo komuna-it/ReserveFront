@@ -1,0 +1,12 @@
+{
+  "NAVBAR": {
+    "ADMIN": "Адмін",
+    "BOOK": "Забронювати",
+    "CONTACT": "Контакти",
+    "LOGIN": "Вхід",
+    "REGISTER": "Реєстрація",
+    "PROFILE": "Мій профіль",
+    "LOGOUT": "Вийти",
+    "RESERVATIONS_MOBILE": "Бронювання"
+  }
+}

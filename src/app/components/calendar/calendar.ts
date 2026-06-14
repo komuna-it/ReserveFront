@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { CalendarHelper } from './calendar.helper';
 import { ReservationStore } from '../reservation/reservation.store';
 import { ReservationFacade } from '../reservation/reservation.facade';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslocoPipe],
   templateUrl: './calendar.html',
 })
 export class CalendarComponent implements OnInit, OnDestroy {
