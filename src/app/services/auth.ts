@@ -4,7 +4,6 @@ import { CookieService } from 'ngx-cookie-service';
 import { Observable, tap, of, map, firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
-import { Utils } from './utils';
 
 export interface AuthResponse {
   accessToken: string;

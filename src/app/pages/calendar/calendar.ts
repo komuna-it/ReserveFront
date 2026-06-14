@@ -2,7 +2,6 @@ import { Component, OnInit, signal, computed, inject, OnDestroy } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth';
-import { Utils } from '../../services/utils';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
