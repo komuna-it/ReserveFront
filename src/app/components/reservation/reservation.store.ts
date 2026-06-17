@@ -15,8 +15,6 @@ export class ReservationStore {
   private helper = inject(CalendarHelper);
   private authService = inject(AuthService);
 
-  readonly isAdminMode = signal<boolean>(false);
-
   readonly rooms = signal<Room[]>([]);
   readonly reservations = signal<ReservationDto[]>([]);
   readonly userOrganizations = signal<Organization[]>([]);
@@ -115,7 +113,7 @@ export class ReservationStore {
   });
 
   readonly tableRows = computed(() => {
-    const isAdmin = this.isAdminMode();
+    const isAdmin = this.authService.isAdmin();
     const selectedDate = this.daySelectedByUser();
     const reservationsToday = this.currentDayReservations();
     const roomsList = this.rooms();

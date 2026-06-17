@@ -19,7 +19,6 @@ export class ReservationFacade {
   private sseController: AbortController | null = null;
 
   initializeCalendar(isAdmin: boolean) {
-    this.store.isAdminMode.set(isAdmin);
     this.getRoomsAndReservations();
 
     if (isAdmin) {

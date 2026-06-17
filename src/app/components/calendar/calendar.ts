@@ -5,11 +5,12 @@ import { CalendarHelper } from './calendar.helper';
 import { ReservationStore } from '../reservation/reservation.store';
 import { ReservationFacade } from '../reservation/reservation.facade';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CalendarComponent, CommonModule, FormsModule, TranslocoPipe],
+  imports: [CommonModule, FormsModule, TranslocoPipe],
   templateUrl: './calendar.html',
 })
 export class CalendarComponent implements OnInit, OnDestroy {
@@ -17,10 +18,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
   readonly helper = inject(CalendarHelper);
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
+  readonly authService = inject(AuthService);
 
   ngOnInit() {
-    this.facade.initializeCalendar(this.store.isAdminMode());
-    console.log('isAdmin: ', this.store.isAdminMode());
+    this.facade.initializeCalendar(this.authService.isAdmin());
+    console.log('isAdmin: ', this.authService.isAdmin());
   }
 
   ngOnDestroy() {
