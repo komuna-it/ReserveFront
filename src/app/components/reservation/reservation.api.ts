@@ -46,10 +46,10 @@ export class ReservationApi {
       params: params,
     });
   }
-  getOrganizationsOfUser(): Observable<Organization[]> {
+  getOrganizationsOfUserWithMembers(): Observable<Organization[]> {
     let params: HttpParams = new HttpParams()
       .set('userId', this.authService.userId() ?? '0')
-      .set('fetchMembers', false);
+      .set('fetchMembers', true);
     return this.http.get<Organization[]>(`${this.apiUrl}/organization`, {
       headers: this.authHeader,
       params: params,

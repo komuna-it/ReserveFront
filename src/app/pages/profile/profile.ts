@@ -42,7 +42,20 @@ export class ProfilePage implements OnInit {
   }
 
   activeTab = signal<Tab>(new Tab(0, 'Moje rezerwacje', 'reservations', undefined));
-  allTabs = signal<Tab[]>([]);
+  allTabs = computed(() => {
+    let id = 0;
+    const newTabs: Tab[] = [];
+
+    newTabs.push(new Tab(id++, 'Moje rezerwacje', 'reservations', undefined));
+
+    for (const org of this.store.userOrganizations()) {
+      newTabs.push(new Tab(id++, org.name, 'organization', org));
+    }
+    newTabs.push(new Tab(id++, 'Utwórz zespół', 'createorganization', undefined));
+
+    return newTabs;
+  });
+
   activeOrgsUsers = computed(() => {
     const activeTab = this.activeTab();
     if (activeTab.type === 'organization' && activeTab.org) {
@@ -56,7 +69,7 @@ export class ProfilePage implements OnInit {
   readonly areYouSure = signal<boolean>(false);
 
   ngOnInit() {
-    this.facade.getOrganizationsOfUser();
+    this.facade.getOrganizationsOfUserWithMembers();
     this.facade.connectToReservationStream();
   }
 
@@ -96,19 +109,6 @@ export class ProfilePage implements OnInit {
     return durationStr.replace('PT', '').replace('H', ' godz ').replace('M', ' min');
   }
 
-  buildTabs() {
-    let id = 0;
-    const newTabs: Tab[] = [];
-
-    newTabs.push(new Tab(id++, 'Moje rezerwacje', 'reservations', undefined));
-
-    for (const org of this.organizations()) {
-      newTabs.push(new Tab(id++, org.name, 'organization', org));
-    }
-    newTabs.push(new Tab(id++, 'Utwórz zespół', 'createorganization', undefined));
-
-    this.allTabs.set(newTabs);
-  }
   deleteReservation(reservationId: number) {
     console.log(`Trying to delete reservation with id ${reservationId}`);
     this.facade.deleteReservation(reservationId);
@@ -131,7 +131,7 @@ export class ProfilePage implements OnInit {
     if (!name.trim()) return;
 
     this.facade.createOrganization(name);
-    this.facade.getOrganizationsOfUser();
+    this.facade.getOrganizationsOfUserWithMembers();
   }
 
   ngOnDestroy() {

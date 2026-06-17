@@ -24,7 +24,9 @@ export class ReservationFacade {
     if (isAdmin) {
       this.getAllMembersAllOrganizations();
     } else {
-      this.api.getOrganizationsOfUser().subscribe((data) => this.store.userOrganizations.set(data));
+      this.api
+        .getOrganizationsOfUserWithMembers()
+        .subscribe((data) => this.store.userOrganizations.set(data));
     }
 
     this.connectToReservationStream();
@@ -198,10 +200,11 @@ export class ReservationFacade {
     });
   }
 
-  getOrganizationsOfUser() {
-    this.api.getOrganizationsOfUser().subscribe({
+  getOrganizationsOfUserWithMembers() {
+    this.api.getOrganizationsOfUserWithMembers().subscribe({
       next: (data) => {
         this.store.userOrganizations.set(data);
+        console.log('getOrganizationsOfUserWithMembers: ', data);
       },
       error: (e) => console.error('Failed to fetch organizations: ', e),
     });
