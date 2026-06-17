@@ -4,15 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { CalendarHelper } from './calendar.helper';
 import { ReservationStore } from '../reservation/reservation.store';
 import { ReservationFacade } from '../reservation/reservation.facade';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslocoPipe],
+  imports: [CalendarComponent, CommonModule, FormsModule, TranslocoPipe],
   templateUrl: './calendar.html',
 })
 export class CalendarComponent implements OnInit, OnDestroy {
+  translocoService = inject(TranslocoService);
   readonly helper = inject(CalendarHelper);
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);

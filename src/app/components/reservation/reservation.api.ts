@@ -18,7 +18,7 @@ export class ReservationApi {
   }
 
   getRooms(): Observable<Room[]> {
-    return this.http.get<Room[]>(`${this.apiUrl}/room/all`, { headers: this.authHeader });
+    return this.http.get<Room[]>(`${this.apiUrl}/room`, { headers: this.authHeader });
   }
 
   getReservationsByRoom(roomId: number): Observable<ReservationDto[]> {
@@ -47,10 +47,13 @@ export class ReservationApi {
     });
   }
   getOrganizationsOfUser(): Observable<Organization[]> {
-    return this.http.get<Organization[]>(
-      `${this.apiUrl}/organizationUser/user/${this.authService.userId()}/allOrganizations`,
-      { headers: this.authHeader },
-    );
+    let params: HttpParams = new HttpParams()
+      .set('userId', this.authService.userId() ?? '0')
+      .set('fetchMembers', false);
+    return this.http.get<Organization[]>(`${this.apiUrl}/organization`, {
+      headers: this.authHeader,
+      params: params,
+    });
   }
 
   getAllOrganizations(): Observable<Organization[]> {
@@ -69,16 +72,25 @@ export class ReservationApi {
     });
   }
   getMembersOfOrganization(organizationId: number) {
-    return this.http.get<User[]>(
-      `${process.env['VSF_API_URL'] || ''}/organizationUser/organization/members/${organizationId}`,
-      {
-        headers: this.authHeader,
-      },
-    );
+    let params: HttpParams = new HttpParams();
+    params.set('organizationId', organizationId);
+    params.set('fetchMembers', true);
+
+    return this.http.get<User[]>(`${process.env['VSF_API_URL'] || ''}/organization`, {
+      headers: this.authHeader,
+      params: params,
+    });
+  }
+  getAllMembersAllOrganizations() {
+    const params = new HttpParams().set('fetchMembers', 'true');
+
+    return this.http.get<Organization[]>(`${process.env['VSF_API_URL'] || ''}/organization`, {
+      headers: this.authHeader,
+      params: params,
+    });
   }
   getUserByEmail(email: string) {
-    let params: HttpParams = new HttpParams();
-    params.set('email', email);
+    const params = new HttpParams().set('email', email);
     return this.http.get<User[]>(`${process.env['VSF_API_URL'] || ''}/user`, {
       headers: this.authHeader,
       params: params,

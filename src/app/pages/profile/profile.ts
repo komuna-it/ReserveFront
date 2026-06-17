@@ -46,13 +46,12 @@ export class ProfilePage implements OnInit {
   activeOrgsUsers = computed(() => {
     const activeTab = this.activeTab();
     if (activeTab.type === 'organization' && activeTab.org) {
-      return activeTab.org.users;
+      return activeTab.org.members;
     }
     return [];
   });
 
   readonly organizations = signal<Organization[]>([]);
-  readonly organizationFront = signal<OrganizationFront[]>([]);
   readonly reservations = signal<ReservationDto[]>([]);
   readonly areYouSure = signal<boolean>(false);
 
@@ -68,8 +67,8 @@ export class ProfilePage implements OnInit {
   }
 
   getReservationsWhereUserBelongs() {
-    const orgsFront = this.organizationFront();
-    if (orgsFront.length === 0) {
+    const orgs = this.organizations();
+    if (orgs.length === 0) {
       this.reservations.set([]);
       return;
     }
@@ -103,7 +102,7 @@ export class ProfilePage implements OnInit {
 
     newTabs.push(new Tab(id++, 'Moje rezerwacje', 'reservations', undefined));
 
-    for (const org of this.organizationFront()) {
+    for (const org of this.organizations()) {
       newTabs.push(new Tab(id++, org.name, 'organization', org));
     }
     newTabs.push(new Tab(id++, 'Utwórz zespół', 'createorganization', undefined));

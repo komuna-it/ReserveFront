@@ -23,7 +23,7 @@ export class ReservationFacade {
     this.getRoomsAndReservations();
 
     if (isAdmin) {
-      this.api.getAllOrganizations().subscribe((data) => this.store.allOrganizations.set(data));
+      this.getAllMembersAllOrganizations();
     } else {
       this.api.getOrganizationsOfUser().subscribe((data) => this.store.userOrganizations.set(data));
     }
@@ -147,30 +147,13 @@ export class ReservationFacade {
     });
   }
   getAllMembersAllOrganizations() {
-    this.api.getAllOrganizations().subscribe({
+    this.api.getAllMembersAllOrganizations().subscribe({
       next: (organizations) => {
         this.store.allOrganizations.set(organizations);
-        console.log('organizations ', organizations);
-        this.store.teamsList.set([]);
-        for (const org of organizations) {
-          this.api.getMembersOfOrganization(org.id).subscribe({
-            next: (users) => {
-              console.log('downloaded users for org: ', org.id, ' : ', users);
-
-              const owner = users.find((user) => user.id === org.ownerId)!;
-              this.store.teamsList.update((old) => {
-                const of = new OrganizationFront(org.id, owner, org.name, users);
-                console.log('of: ', of);
-                console.log('owner: ', owner);
-
-                return [...old, of];
-              });
-            },
-            error: () => console.error('Error fetching members of org: ', org.id),
-          });
-        }
+        console.log('getAllMembersAllOrganizations: ', organizations);
+        console.log('this.store.allOrganizations(): ', this.store.allOrganizations());
       },
-      error: (e) => console.error('error : ', e),
+      error: () => console.error('Error in getAllMembersAllOrganizations'),
     });
   }
   disconnectStream() {

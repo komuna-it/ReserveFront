@@ -8,7 +8,7 @@
       </tr>
     </thead>
     <tbody class="text-slate-300 text-sm">
-      @for (org of store.teamsList(); track org.id) {
+      @for (org of store.allOrganizations(); track org.id) {
         <tr class="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
           <td class="p-3 border-r border-slate-700 font-medium text-center truncate">
             {{ org.name }}
@@ -16,13 +16,13 @@
 
           <td class="p-3 border-r border-slate-700 text-center truncate">
             <span class="px-2 py-1 text-xs font-semibold">
-              {{ org.owner.email || 'no owner found' }}
+              {{ org.owner?.email || 'Brak właściciela' }}
             </span>
           </td>
 
           <td class="p-3 text-center">
             <div class="flex flex-col gap-1 justify-center items-center">
-              @for (user of org.users; track user.id) {
+              @for (user of org.members || []; track user.id) {
                 <span class="text-slate-400 text-xs">{{ user.email }}</span>
               } @empty {
                 <span class="text-slate-500 text-xs italic">Brak członków</span>

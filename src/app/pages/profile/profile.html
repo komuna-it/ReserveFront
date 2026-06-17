@@ -234,7 +234,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-700 text-sm">
-              @for (user of activeTab().org?.users; track user.id; let index = $index) {
+              @for (user of activeTab().org?.members; track user.id; let index = $index) {
                 <tr class="hover:bg-slate-700/30 transition">
                   <td class="py-4 px-6 text-slate-500 font-mono">{{ index + 1 }}</td>
                   <td class="py-4 px-6 font-semibold text-white">{{ user.nick }}</td>

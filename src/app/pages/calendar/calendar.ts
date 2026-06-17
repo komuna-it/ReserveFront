@@ -6,6 +6,7 @@ import { ReservationStore } from '../../components/reservation/reservation.store
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
 import { CalendarComponent } from '../../components/calendar/calendar';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'calendar-page',
@@ -14,12 +15,5 @@ import { CalendarComponent } from '../../components/calendar/calendar';
   templateUrl: './calendar.html',
 })
 export class CalendarPage implements OnInit {
-  readonly helper = inject(CalendarHelper);
-  readonly store = inject(ReservationStore);
-  readonly facade = inject(ReservationFacade);
-
-  ngOnInit() {
-    // this.facade.fetchReservationsForAllOrgsOfUser();
-    this.facade.getRoomsAndReservations();
-  }
+  ngOnInit() {}
 }

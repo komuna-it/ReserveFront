@@ -16,6 +16,6 @@ export class OrganizationList implements OnInit, OnDestroy {
     this.facade.getAllMembersAllOrganizations();
   }
   ngOnDestroy(): void {
-    // this.store.teamsList.set([]);
+    this.store.teamsList.set([]);
   }
 }
