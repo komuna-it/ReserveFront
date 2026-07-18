@@ -48,11 +48,13 @@ export class AuthService {
     this.isLoadingSignal.set(true);
     return this.http.get<UserStatus>(`${this.apiUrl}/auth/me`).pipe(
       map((user) => {
+        console.log('AuthService: Refreshed session user:', user);
         this.currentUserSignal.set(user);
         this.isLoadingSignal.set(false);
         return true;
       }),
-      catchError(() => {
+      catchError((e) => {
+        console.error('Error checking current session:', e);
         this.currentUserSignal.set(null);
         this.isLoadingSignal.set(false);
         return of(false);

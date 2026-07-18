@@ -1,6 +1,6 @@
 import { Component, inject, Input, OnInit, OnDestroy, computed } from '@angular/core';
-import { ReservationStore } from '../reservation/reservation.store';
-import { ReservationFacade } from '../reservation/reservation.facade';
+import { ReservationStore } from '../../../../components/reservation/reservation.store';
+import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
 
 @Component({
   selector: 'app-organization-list',

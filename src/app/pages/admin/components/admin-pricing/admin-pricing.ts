@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
+import { ReservationStore } from '../../../../components/reservation/reservation.store';
 
 @Component({
   selector: 'app-admin-pricing',
@@ -9,6 +10,8 @@ import { ReservationFacade } from '../../../../components/reservation/reservatio
 })
 export class AdminPricing {
   readonly facade = inject(ReservationFacade);
+  readonly store = inject(ReservationStore);
 
-  testText = this.facade.getTestText();
+  test = this.facade.getTestText();
+  testText = this.store.testText.toString();
 }

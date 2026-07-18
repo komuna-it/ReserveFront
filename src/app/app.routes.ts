@@ -6,17 +6,17 @@ import { LoginPage } from './pages/login/login';
 import { RegisterPage } from './pages/register/register';
 import { ProfilePage } from './pages/profile/profile';
 import { AdminPage } from './pages/admin/admin';
-import { authGuard } from './auth-guard';
-import { AdminOrganizations } from './pages/admin/components/admin-organizations/admin-organizations';
 import { AdminPricing } from './pages/admin/components/admin-pricing/admin-pricing';
 import { CalendarComponent } from './components/calendar/calendar';
-import { OrganizationList } from './components/organization-list/organization-list';
+import { OrganizationList } from './pages/admin/components/organization-list/organization-list';
+import { authenticatedGuard } from './auth/authenticatedGuard';
+import { adminGuard } from './auth/adminGuard';
 
 export const routes: Routes = [
   {
     path: 'profile',
     loadComponent: () => import('./pages/profile/profile').then((m) => m.ProfilePage),
-    canActivate: [authGuard],
+    canActivate: [authenticatedGuard],
   },
   {
     path: 'login',
@@ -25,7 +25,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     loadComponent: () => import('./pages/admin/admin').then((m) => m.AdminPage),
-    canActivate: [authGuard],
+    canActivate: [adminGuard],
     children: [
       {
         path: 'reservations',
