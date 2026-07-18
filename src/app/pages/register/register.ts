@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth';
+import { AuthService } from '../../auth/authService';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -12,15 +12,14 @@ import { Router } from '@angular/router';
   styleUrl: './register.css',
 })
 export class RegisterPage {
+  email = '';
+  name = '';
+  password = '';
+  errorMessage = '';
   constructor(
     private authService: AuthService,
     private router: Router,
   ) {}
-
-  email = '';
-  nick = '';
-  password = '';
-  errorMessage = '';
 
   async register() {
     console.log(
@@ -28,12 +27,12 @@ export class RegisterPage {
       this.email,
       'and password:',
       this.password,
-      'and nick:',
-      this.nick,
+      'and name:',
+      this.name,
     );
     this.errorMessage = '';
     try {
-      const token = await this.authService.register(this.email, this.password, this.nick);
+      const token = await this.authService.register(this.email, this.password, this.name);
       if (token) {
         console.log('Registration successful, received token:', token);
         this.router.navigate(['/']);

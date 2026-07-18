@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
 
 @Component({
   selector: 'app-admin-pricing',
@@ -6,4 +7,8 @@ import { Component } from '@angular/core';
   templateUrl: './admin-pricing.html',
   styleUrl: './admin-pricing.css',
 })
-export class AdminPricing {}
+export class AdminPricing {
+  readonly facade = inject(ReservationFacade);
+
+  testText = this.facade.getTestText();
+}

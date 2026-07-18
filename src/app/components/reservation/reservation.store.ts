@@ -3,7 +3,7 @@ import { CalendarHelper } from '../calendar/calendar.helper';
 import { OrganizationFront } from '../../model/organizationFront';
 import { HourWrapper } from '../../model/hourWrapper';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AuthService } from '../../services/auth';
+import { AuthService } from '../../auth/authService';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
@@ -23,6 +23,7 @@ export class ReservationStore {
   readonly daySelectedByUser = signal<Date>(new Date());
   readonly currentWeekStart = signal<Date>(this.helper.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
+  readonly testText = signal<string>('');
 
   readonly durationOptions = computed(() => {
     const booking = this.selectedBooking();

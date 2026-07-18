@@ -5,7 +5,7 @@ import { CalendarHelper } from './calendar.helper';
 import { ReservationStore } from '../reservation/reservation.store';
 import { ReservationFacade } from '../reservation/reservation.facade';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { AuthService } from '../../services/auth';
+import { AuthService } from '../../auth/authService';
 
 @Component({
   selector: 'app-calendar',

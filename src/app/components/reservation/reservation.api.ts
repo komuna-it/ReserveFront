@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { AuthService } from '../../services/auth';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { AuthService } from '../../auth/authService';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
@@ -11,103 +11,77 @@ import { User } from '../../model/user';
 export class ReservationApi {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
-  private apiUrl = process.env['VSF_API_URL'] || '';
-
-  get authHeader(): HttpHeaders {
-    return new HttpHeaders({ Authorization: `Bearer ${this.authService.accessToken()}` });
-  }
+  private apiUrl = process.env['VSF_API_URL'] || '/api';
 
   getRooms(): Observable<Room[]> {
-    return this.http.get<Room[]>(`${this.apiUrl}/room`, { headers: this.authHeader });
+    return this.http.get<Room[]>(`${this.apiUrl}/room`);
   }
 
   getReservationsByRoom(roomId: number): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation/room/${roomId}`, {
-      headers: this.authHeader,
-    });
+    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation/room/${roomId}`);
   }
 
   getReservationsForAllUsersOrganizations(): Observable<ReservationDto[]> {
     return this.http.get<ReservationDto[]>(
       `${this.apiUrl}/reservation/user/${this.authService.userId()}/organizations`,
-      { headers: this.authHeader },
     );
   }
 
   getReservations(): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, {
-      headers: this.authHeader,
-    });
+    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`);
   }
+
   getFutureReservations(): Observable<ReservationDto[]> {
-    let params = new HttpParams().set('future', 'true');
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, {
-      headers: this.authHeader,
-      params: params,
-    });
+    const params = new HttpParams().set('future', 'true');
+    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, { params });
   }
+
   getOrganizationsOfUserWithMembers(): Observable<Organization[]> {
-    let params: HttpParams = new HttpParams()
+    const params = new HttpParams()
       .set('userId', this.authService.userId() ?? '0')
-      .set('fetchMembers', true);
-    return this.http.get<Organization[]>(`${this.apiUrl}/organization`, {
-      headers: this.authHeader,
-      params: params,
-    });
+      .set('fetchMembers', 'true');
+    return this.http.get<Organization[]>(`${this.apiUrl}/organization`, { params });
   }
 
   getAllOrganizations(): Observable<Organization[]> {
-    return this.http.get<Organization[]>(`${this.apiUrl}/organization`, {
-      headers: this.authHeader,
-    });
+    return this.http.get<Organization[]>(`${this.apiUrl}/organization`);
   }
 
   deleteReservation(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/reservation/${id}`, { headers: this.authHeader });
+    return this.http.delete<void>(`${this.apiUrl}/reservation/${id}`);
   }
 
   postReservation(payload: any): Observable<ReservationDto> {
-    return this.http.post<ReservationDto>(`${this.apiUrl}/reservation`, payload, {
-      headers: this.authHeader,
-    });
+    return this.http.post<ReservationDto>(`${this.apiUrl}/reservation`, payload);
   }
-  getMembersOfOrganization(organizationId: number) {
-    let params: HttpParams = new HttpParams();
-    params.set('organizationId', organizationId);
-    params.set('fetchMembers', true);
 
-    return this.http.get<User[]>(`${process.env['VSF_API_URL'] || ''}/organization`, {
-      headers: this.authHeader,
-      params: params,
-    });
+  getMembersOfOrganization(organizationId: number): Observable<User[]> {
+    const params = new HttpParams()
+      .set('organizationId', organizationId)
+      .set('fetchMembers', 'true');
+    return this.http.get<User[]>(`${this.apiUrl}/organization`, { params });
   }
-  getAllMembersAllOrganizations() {
+
+  getAllMembersAllOrganizations(): Observable<Organization[]> {
     const params = new HttpParams().set('fetchMembers', 'true');
+    return this.http.get<Organization[]>(`${this.apiUrl}/organization`, { params });
+  }
 
-    return this.http.get<Organization[]>(`${process.env['VSF_API_URL'] || ''}/organization`, {
-      headers: this.authHeader,
-      params: params,
-    });
-  }
-  getUserByEmail(email: string) {
+  getUserByEmail(email: string): Observable<User[]> {
     const params = new HttpParams().set('email', email);
-    return this.http.get<User[]>(`${process.env['VSF_API_URL'] || ''}/user`, {
-      headers: this.authHeader,
-      params: params,
-    });
+    return this.http.get<User[]>(`${this.apiUrl}/user`, { params });
   }
-  getAllReservationsForUserAndTheirOrganization(userId: number) {
-    let params = new HttpParams().set('userId', userId);
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, {
-      headers: this.authHeader,
-      params: params,
-    });
+
+  getAllReservationsForUserAndTheirOrganization(userId: number): Observable<ReservationDto[]> {
+    const params = new HttpParams().set('userId', userId);
+    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, { params });
   }
-  createOrganization(name: string) {
-    return this.http.post(
-      `${this.apiUrl}/organization`,
-      { name: name },
-      { headers: this.authHeader },
-    );
+
+  getTestText(): Observable<string> {
+    return this.http.get<string>(`${this.apiUrl}/users/test`);
+  }
+
+  createOrganization(name: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/organization`, { name });
   }
 }

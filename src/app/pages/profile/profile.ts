@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AuthService } from '../../services/auth';
+import { AuthService } from '../../auth/authService';
 import { User } from '../../model/user';
 import { Organization } from '../../model/organization';
 import { ReservationDto } from '../../model/reservationDto';

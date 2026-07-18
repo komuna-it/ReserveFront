@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ReservationApi } from './reservation.api';
 import { ReservationStore } from './reservation.store';
 import { CalendarHelper } from '../calendar/calendar.helper';
-import { AuthService } from '../../services/auth';
+import { AuthService } from '../../auth/authService';
 import { Router } from '@angular/router';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { Organization } from '../../model/organization';
@@ -130,7 +130,6 @@ export class ReservationFacade {
     console.log('Connected to reservation SSE: ', url);
     fetchEventSource(url, {
       method: 'GET',
-      headers: { Authorization: `Bearer ${this.authService.accessToken()}` },
       signal: this.sseController.signal,
       onmessage: (msg) => {
         const msgData = JSON.parse(msg.data);
@@ -207,6 +206,15 @@ export class ReservationFacade {
         console.log('getOrganizationsOfUserWithMembers: ', data);
       },
       error: (e) => console.error('Failed to fetch organizations: ', e),
+    });
+  }
+  getTestText() {
+    this.api.getTestText().subscribe({
+      next: (data) => {
+        console.log('getTestText: ', data);
+        this.store.testText.set(data);
+      },
+      error: (e) => console.error('Failed to fetch test text: ', e),
     });
   }
 }
