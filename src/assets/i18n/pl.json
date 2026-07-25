@@ -60,5 +60,14 @@
     "MEMBER_EMAIL": "Adres Email",
     "REMOVE_BTN": "Usuń członka",
     "NO_RESERVATIONS": "Brak zarejestrowanych rezerwacji."
+  },
+  "REGISTER": {
+    "CLOSE": "Zamknij",
+    "SUCCESS_TITLE": "Rejestracja zakończona sukcesem",
+    "SUCCESS_DESC": "Sprawdź swoją skrzynkę email i kliknij link w celu aktywacji konta.",
+    "ERROR_TITLE": "Błąd rejestracji",
+    "ERROR_CONFLICT": "Wystąpił błąd podczas rejestracji. Spróbuj ponownie później.",
+    "INVALID_DATA": "Nieprawidłowe dane rejestracyjne. Sprawdź swoje dane i spróbuj ponownie.",
+    "EMAIL_EXISTS": "Konto z tym adresem email już istnieje."
   }
 }

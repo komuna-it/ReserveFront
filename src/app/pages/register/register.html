@@ -35,14 +35,37 @@
         />
       </div>
 
-      <div *ngIf="errorMessage" class="text-red-500 text-sm mt-1">
-        {{ errorMessage }}
-      </div>
+      @if (errorString()) {
+        <div class="text-red-500 text-sm mt-1">
+          {{ errorString() }}
+        </div>
+      }
 
       <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded font-bold my-3">
         Register
       </button>
     </form>
+
+    @if (registerSuccess()) {
+      <div
+        class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50"
+      >
+        <div
+          class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
+        >
+          <h2 class="text-xl font-bold tracking-tight mb-2">
+            {{ 'REGISTER.SUCCESS_TITLE' | transloco }}
+          </h2>
+          <p class="text-sm text-emerald-100 mb-4">{{ 'REGISTER.SUCCESS_DESC' | transloco }}</p>
+          <button
+            (click)="registerSuccess.set(false)"
+            class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
+          >
+            {{ 'REGISTER.CLOSE' | transloco }}
+          </button>
+        </div>
+      </div>
+    }
 
     <div class="">
       <a class="flex justify-center text-gray-200 underline" href="/login">

@@ -60,5 +60,14 @@
     "MEMBER_EMAIL": "Email address",
     "REMOVE_BTN": "Remove member",
     "NO_RESERVATIONS": "No reservations found."
+  },
+  "REGISTER": {
+    "CLOSE": "Close",
+    "SUCCESS_TITLE": "Registration successful",
+    "SUCCESS_DESC": "Check your email for confirmation link to activate your account.",
+    "ERROR_TITLE": "Registration error",
+    "ERROR_CONFLICT": "An error occurred during registration. Please try again later.",
+    "INVALID_DATA": "Invalid registration data. Please check your input and try again.",
+    "EMAIL_EXISTS": "An account with this email address already exists."
   }
 }

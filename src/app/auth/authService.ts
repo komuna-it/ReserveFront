@@ -15,11 +15,9 @@ export class AuthService {
   private router = inject(Router);
   private apiUrl = process.env['VSF_API_URL'] || '/api';
 
-  // Reaktywne zarządzanie stanem usera
   private currentUserSignal = signal<UserStatus | null>(null);
   private isLoadingSignal = signal<boolean>(true);
 
-  // Selektory dla reszty aplikacji
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly isLoading = this.isLoadingSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.currentUserSignal() !== null);
