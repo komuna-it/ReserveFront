@@ -4,7 +4,7 @@ export class Organization {
   constructor(
     public id: number,
     public name: string,
-    public owner: User,
+    public owners: User[],
     public created: Date,
     public members?: User[],
   ) {}

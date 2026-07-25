@@ -21,6 +21,7 @@ export class OrganizationList implements OnInit, OnDestroy {
 
     return orgs.map((org) => ({
       ...org,
+      owners: Array.isArray(org?.owners) ? org.owners : [],
       members: Array.isArray(org?.members) ? org.members : [],
     }));
   });
@@ -35,13 +36,19 @@ export class OrganizationList implements OnInit, OnDestroy {
     this.store.isAdminOrganizationActive.set(false);
   }
 
-  closeModal(): void {
+  closeModals(): void {
     this.store.isAdminAddOrganizationActive.set(false);
+    this.store.isAdminAddOrganizationSuccess.set(false);
   }
 
   createOrganization(name: string): void {
     if (!name || name.trim() === '') return;
-    this.facade.createOrganization(name.trim());
-    this.store.isAdminOrganizationActive.set(false);
+
+    try {
+      this.facade.createOrganization(name.trim());
+      this.store.isAdminAddOrganizationSuccess.set(true);
+    } catch (error) {
+      console.error('Error creating organization:', error);
+    }
   }
 }

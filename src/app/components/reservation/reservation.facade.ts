@@ -182,6 +182,7 @@ export class ReservationFacade {
     this.api.createOrganization(name).subscribe({
       next: () => {
         console.log(`Created organization ${name}`);
+        this.getAllMembersAllOrganizations(0);
       },
       error: (e) => console.error(`Failed to create organization ${name}`, e),
     });

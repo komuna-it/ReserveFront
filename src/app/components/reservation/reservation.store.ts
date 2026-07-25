@@ -200,4 +200,5 @@ export class ReservationStore {
 
   readonly isAdminAddOrganizationActive = signal<boolean>(false);
   readonly isAdminOrganizationActive = signal<boolean>(false);
+  readonly isAdminAddOrganizationSuccess = signal<boolean>(false);
 }
