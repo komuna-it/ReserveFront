@@ -5,9 +5,6 @@ import { CalendarHelper } from '../calendar/calendar.helper';
 import { AuthService } from '../../auth/authService';
 import { Router } from '@angular/router';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { Organization } from '../../model/organization';
-import { User } from '../../model/user';
-import { OrganizationFront } from '../../model/organizationFront';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -25,8 +22,8 @@ export class ReservationFacade {
       this.getAllMembersAllOrganizations();
     } else {
       this.api
-        .getOrganizationsOfUserWithMembers()
-        .subscribe((data) => this.store.userOrganizations.set(data));
+        .getOrganizationsOfUserWithMembers(0, this.store.orgsSize())
+        .subscribe((pageData) => this.store.userOrganizations.set(pageData.content));
     }
 
     this.connectToReservationStream();
@@ -34,22 +31,16 @@ export class ReservationFacade {
 
   getRoomsAndReservations() {
     this.api.getRooms().subscribe({
-      next: (rooms) => {
-        this.store.rooms.set(rooms);
-      },
-      error: (e) => {
-        console.log('Error fetching rooms: ', e);
-      },
+      next: (rooms) => this.store.rooms.set(rooms),
+      error: (e) => console.log('Error fetching rooms: ', e),
     });
 
-    this.api.getReservations().subscribe({
-      next: (res) => {
-        this.store.reservations.set(res);
-      },
-      error: (e) => {
-        console.log('Error fetching res: ', e);
-      },
-    });
+    this.api
+      .getReservations(this.store.reservationsPage(), this.store.reservationsSize())
+      .subscribe({
+        next: (pageData) => this.store.reservations.set(pageData.content),
+        error: (e) => console.log('Error fetching res: ', e),
+      });
   }
 
   confirmBooking() {
@@ -146,42 +137,39 @@ export class ReservationFacade {
       },
     });
   }
-  getAllMembersAllOrganizations() {
-    this.api.getAllMembersAllOrganizations().subscribe({
-      next: (organizations) => {
-        this.store.allOrganizations.set(organizations);
-        console.log('getAllMembersAllOrganizations: ', organizations);
-        console.log('this.store.allOrganizations(): ', this.store.allOrganizations());
+  getAllMembersAllOrganizations(page: number = 0) {
+    this.api.getAllMembersAllOrganizations(page, this.store.orgsSize()).subscribe({
+      next: (pageData) => {
+        this.store.allOrganizations.set(pageData.content);
+        this.store.orgsPage.set(pageData.number);
+        this.store.orgsTotalPages.set(pageData.totalPages);
+        this.store.orgsTotalElements.set(pageData.totalElements);
+        this.store.orgsIsFirst.set(pageData.first);
+        this.store.orgsIsLast.set(pageData.last);
       },
       error: () => console.error('Error in getAllMembersAllOrganizations'),
     });
   }
-  disconnectStream() {
-    if (this.sseController) {
-      this.sseController.abort();
-      this.sseController = null;
-    }
+
+  changeOrganizationsPage(direction: 'next' | 'prev') {
+    const currentPage = this.store.orgsPage();
+    const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
+    this.getAllMembersAllOrganizations(newPage);
   }
-  getUserByEmail(email: string) {
-    this.api.getUserByEmail(email).subscribe({
-      next: (u) => {
-        console.log('fetched user by email: ', u);
-      },
-      error: (e) => {
-        console.log('error fetching user by email: ', e);
-      },
-    });
-  }
+
   getAllReservationsForUserAndTheirOrganization(userId: number) {
-    this.api.getAllReservationsForUserAndTheirOrganization(userId).subscribe({
-      next: (res) => {
-        this.store.reservations.set(res);
-      },
-      error: (e) => {
-        console.log('Error in getAllReservationsForUserAndTheirOrganization(): ', e);
-      },
-    });
+    this.api
+      .getAllReservationsForUserAndTheirOrganization(
+        userId,
+        this.store.reservationsPage(),
+        this.store.reservationsSize(),
+      )
+      .subscribe({
+        next: (pageData) => this.store.reservations.set(pageData.content),
+        error: (e) => console.log('Error: ', e),
+      });
   }
+
   deleteReservation(id: number) {
     this.api.deleteReservation(id).subscribe({
       next: () => {
@@ -202,7 +190,7 @@ export class ReservationFacade {
   getOrganizationsOfUserWithMembers() {
     this.api.getOrganizationsOfUserWithMembers().subscribe({
       next: (data) => {
-        this.store.userOrganizations.set(data);
+        this.store.userOrganizations.set(data.content);
         console.log('getOrganizationsOfUserWithMembers: ', data);
       },
       error: (e) => console.error('Failed to fetch organizations: ', e),
@@ -225,6 +213,22 @@ export class ReservationFacade {
       },
       error: (e) => {
         console.error('Error fetching rooms: ', e);
+      },
+    });
+  }
+  disconnectStream() {
+    if (this.sseController) {
+      this.sseController.abort();
+      this.sseController = null;
+    }
+  }
+  getUserByEmail(email: string) {
+    this.api.getUserByEmail(email).subscribe({
+      next: (u) => {
+        console.log('fetched user by email: ', u);
+      },
+      error: (e) => {
+        console.log('error fetching user by email: ', e);
       },
     });
   }

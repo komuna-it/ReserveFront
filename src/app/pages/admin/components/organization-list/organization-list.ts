@@ -15,12 +15,10 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
 
-  // Safe wrapper guaranteeing a clean Array for @for iteration
   readonly safeOrganizations = computed(() => {
     const orgs = this.store.allOrganizations();
-    if (!Array.isArray(orgs)) {
-      return [];
-    }
+    if (!Array.isArray(orgs)) return [];
+
     return orgs.map((org) => ({
       ...org,
       members: Array.isArray(org?.members) ? org.members : [],
@@ -28,7 +26,7 @@ export class OrganizationList implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    this.facade.getAllMembersAllOrganizations();
+    this.facade.getAllMembersAllOrganizations(0);
     this.store.isAdminOrganizationActive.set(true);
   }
 
@@ -39,5 +37,11 @@ export class OrganizationList implements OnInit, OnDestroy {
 
   closeModal(): void {
     this.store.isAdminAddOrganizationActive.set(false);
+  }
+
+  createOrganization(name: string): void {
+    if (!name || name.trim() === '') return;
+    this.facade.createOrganization(name.trim());
+    this.store.isAdminOrganizationActive.set(false);
   }
 }

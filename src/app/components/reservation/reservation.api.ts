@@ -6,6 +6,7 @@ import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
 import { Observable } from 'rxjs';
 import { User } from '../../model/user';
+import { Page } from '../../model/page';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationApi {
@@ -17,34 +18,43 @@ export class ReservationApi {
     return this.http.get<Room[]>(`${this.apiUrl}/rooms`);
   }
 
-  getReservationsByRoom(roomId: number): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservations/room/${roomId}`);
+  getReservationsByRoom(roomId: number, page = 0, size = 100): Observable<Page<ReservationDto>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations/room/${roomId}`, {
+      params,
+    });
   }
 
-  getReservationsForAllUsersOrganizations(): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(
+  getReservationsForAllUsersOrganizations(page = 0, size = 100): Observable<Page<ReservationDto>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<Page<ReservationDto>>(
       `${this.apiUrl}/reservation/user/${this.authService.userId()}/organizations`,
+      { params },
     );
   }
 
-  getReservations(): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservations`);
+  getReservations(page = 0, size = 100): Observable<Page<ReservationDto>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
-  getFutureReservations(): Observable<ReservationDto[]> {
-    const params = new HttpParams().set('future', 'true');
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservations`, { params });
+  getFutureReservations(page = 0, size = 100): Observable<Page<ReservationDto>> {
+    const params = new HttpParams().set('future', 'true').set('page', page).set('size', size);
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
-  getOrganizationsOfUserWithMembers(): Observable<Organization[]> {
+  getOrganizationsOfUserWithMembers(page = 0, size = 20): Observable<Page<Organization>> {
     const params = new HttpParams()
       .set('userId', this.authService.userId() ?? '0')
-      .set('fetchMembers', 'true');
-    return this.http.get<Organization[]>(`${this.apiUrl}/organizations`, { params });
+      .set('fetchMembers', 'true')
+      .set('page', page)
+      .set('size', size);
+    return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 
-  getAllOrganizations(): Observable<Organization[]> {
-    return this.http.get<Organization[]>(`${this.apiUrl}/organizations`);
+  getAllOrganizations(page = 0, size = 20): Observable<Page<Organization>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 
   deleteReservation(id: number): Observable<void> {
@@ -62,9 +72,9 @@ export class ReservationApi {
     return this.http.get<User[]>(`${this.apiUrl}/organizations`, { params });
   }
 
-  getAllMembersAllOrganizations(): Observable<Organization[]> {
-    const params = new HttpParams().set('fetchMembers', 'true');
-    return this.http.get<Organization[]>(`${this.apiUrl}/organizations`, { params });
+  getAllMembersAllOrganizations(page = 0, size = 20): Observable<Page<Organization>> {
+    const params = new HttpParams().set('fetchMembers', 'true').set('page', page).set('size', size);
+    return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 
   getUserByEmail(email: string): Observable<User[]> {
@@ -72,9 +82,13 @@ export class ReservationApi {
     return this.http.get<User[]>(`${this.apiUrl}/user`, { params });
   }
 
-  getAllReservationsForUserAndTheirOrganization(userId: number): Observable<ReservationDto[]> {
-    const params = new HttpParams().set('userId', userId);
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservations`, { params });
+  getAllReservationsForUserAndTheirOrganization(
+    userId: number,
+    page = 0,
+    size = 100,
+  ): Observable<Page<ReservationDto>> {
+    const params = new HttpParams().set('userId', userId).set('page', page).set('size', size);
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
   getTestText(): Observable<string> {

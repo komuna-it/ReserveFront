@@ -7,8 +7,8 @@ import { AuthService } from '../../auth/authService';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
-import { max } from 'rxjs';
 import { User } from '../../model/user';
+import { Page } from '../../model/page';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
@@ -17,8 +17,20 @@ export class ReservationStore {
 
   readonly rooms = signal<Room[]>([]);
   readonly reservations = signal<ReservationDto[]>([]);
+
+  readonly reservationsPage = signal<number>(0);
+  readonly reservationsSize = signal<number>(100);
+
   readonly userOrganizations = signal<Organization[]>([]);
   readonly allOrganizations = signal<Organization[]>([]);
+
+  readonly orgsPage = signal<number>(0);
+  readonly orgsSize = signal<number>(10);
+  readonly orgsTotalPages = signal<number>(1);
+  readonly orgsTotalElements = signal<number>(0);
+  readonly orgsIsFirst = signal<boolean>(true);
+  readonly orgsIsLast = signal<boolean>(true);
+
   readonly orgAndMembersMap = signal<Map<Organization, User[]>>(new Map());
   readonly daySelectedByUser = signal<Date>(new Date());
   readonly currentWeekStart = signal<Date>(this.helper.getStartOfWeek(new Date()));
