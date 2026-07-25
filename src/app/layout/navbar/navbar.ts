@@ -34,5 +34,6 @@ export class Navbar {
   logout() {
     this.authService.logout();
     this.closeMobileMenu();
+    console.log('navbar: User logged out');
   }
 }

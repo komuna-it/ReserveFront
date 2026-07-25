@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AuthService } from '../../../../auth/authService';
 
 @Component({
   selector: 'app-admin-organizations',
@@ -6,4 +7,10 @@ import { Component } from '@angular/core';
   templateUrl: './admin-organizations.html',
   styleUrl: './admin-organizations.css',
 })
-export class AdminOrganizations {}
+export class AdminOrganizations {
+  readonly authService = inject(AuthService);
+
+  constructor() {
+    this.authService.checkCurrentSession().subscribe();
+  }
+}

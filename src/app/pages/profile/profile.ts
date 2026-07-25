@@ -28,13 +28,16 @@ export class ProfilePage implements OnInit {
   readonly authService = inject(AuthService);
   readonly helper = inject(CalendarHelper);
   readonly store = inject(ReservationStore);
-
   readonly email = this.authService.email();
   readonly reservationToDelete = signal<ReservationDto | null>(null);
 
   private sseController: AbortController | null = null;
 
   readonly userId = parseInt(this.authService.userId() || '-1');
+
+  constructor() {
+    this.authService.checkCurrentSession().subscribe();
+  }
 
   reservedByLabel(reservation: ReservationDto): string {
     const org = this.organizations().find((o) => o.id === reservation.behalfOf);

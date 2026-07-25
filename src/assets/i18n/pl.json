@@ -69,5 +69,14 @@
     "ERROR_CONFLICT": "Wystąpił błąd podczas rejestracji. Spróbuj ponownie później.",
     "INVALID_DATA": "Nieprawidłowe dane rejestracyjne. Sprawdź swoje dane i spróbuj ponownie.",
     "EMAIL_EXISTS": "Konto z tym adresem email już istnieje."
+  },
+  "ORGANIZATION_LIST.ADD_ORGANIZATION": {
+    "TITLE": "Dodaj Zespół",
+    "BAND_NAME": "Nazwa zespołu",
+    "CANCEL": "Anuluj",
+    "ACCEPT": "Dodaj zespół",
+    "SUCCESS_TITLE": "Zespół dodany",
+    "SUCCESS_DESC": "Zespół został pomyślnie dodany.",
+    "CLOSE": "Zamknij"
   }
 }

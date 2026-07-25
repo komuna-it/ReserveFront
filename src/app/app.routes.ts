@@ -11,6 +11,7 @@ import { CalendarComponent } from './components/calendar/calendar';
 import { OrganizationList } from './pages/admin/components/organization-list/organization-list';
 import { authenticatedGuard } from './auth/authenticatedGuard';
 import { adminGuard } from './auth/adminGuard';
+import { Rooms } from './pages/admin/components/rooms/rooms';
 
 export const routes: Routes = [
   {
@@ -38,6 +39,10 @@ export const routes: Routes = [
       {
         path: 'organizations',
         component: OrganizationList,
+      },
+      {
+        path: 'rooms',
+        component: Rooms,
       },
       { path: '', redirectTo: 'reservations', pathMatch: 'full' },
     ],

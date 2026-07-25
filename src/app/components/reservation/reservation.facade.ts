@@ -217,4 +217,15 @@ export class ReservationFacade {
       error: (e) => console.error('Failed to fetch test text: ', e),
     });
   }
+
+  getAllRooms() {
+    this.api.getRooms().subscribe({
+      next: (rooms) => {
+        this.store.rooms.set(rooms);
+      },
+      error: (e) => {
+        console.error('Error fetching rooms: ', e);
+      },
+    });
+  }
 }

@@ -185,4 +185,7 @@ export class ReservationStore {
       return { hour, cells };
     });
   });
+
+  readonly isAdminAddOrganizationActive = signal<boolean>(false);
+  readonly isAdminOrganizationActive = signal<boolean>(false);
 }

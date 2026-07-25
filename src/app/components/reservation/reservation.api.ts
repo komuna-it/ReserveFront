@@ -14,11 +14,11 @@ export class ReservationApi {
   private apiUrl = process.env['VSF_API_URL'] || '/api';
 
   getRooms(): Observable<Room[]> {
-    return this.http.get<Room[]>(`${this.apiUrl}/room`);
+    return this.http.get<Room[]>(`${this.apiUrl}/rooms`);
   }
 
   getReservationsByRoom(roomId: number): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation/room/${roomId}`);
+    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservations/room/${roomId}`);
   }
 
   getReservationsForAllUsersOrganizations(): Observable<ReservationDto[]> {
@@ -28,43 +28,43 @@ export class ReservationApi {
   }
 
   getReservations(): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`);
+    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservations`);
   }
 
   getFutureReservations(): Observable<ReservationDto[]> {
     const params = new HttpParams().set('future', 'true');
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, { params });
+    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservations`, { params });
   }
 
   getOrganizationsOfUserWithMembers(): Observable<Organization[]> {
     const params = new HttpParams()
       .set('userId', this.authService.userId() ?? '0')
       .set('fetchMembers', 'true');
-    return this.http.get<Organization[]>(`${this.apiUrl}/organization`, { params });
+    return this.http.get<Organization[]>(`${this.apiUrl}/organizations`, { params });
   }
 
   getAllOrganizations(): Observable<Organization[]> {
-    return this.http.get<Organization[]>(`${this.apiUrl}/organization`);
+    return this.http.get<Organization[]>(`${this.apiUrl}/organizations`);
   }
 
   deleteReservation(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/reservation/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/reservations/${id}`);
   }
 
   postReservation(payload: any): Observable<ReservationDto> {
-    return this.http.post<ReservationDto>(`${this.apiUrl}/reservation`, payload);
+    return this.http.post<ReservationDto>(`${this.apiUrl}/reservations`, payload);
   }
 
   getMembersOfOrganization(organizationId: number): Observable<User[]> {
     const params = new HttpParams()
       .set('organizationId', organizationId)
       .set('fetchMembers', 'true');
-    return this.http.get<User[]>(`${this.apiUrl}/organization`, { params });
+    return this.http.get<User[]>(`${this.apiUrl}/organizations`, { params });
   }
 
   getAllMembersAllOrganizations(): Observable<Organization[]> {
     const params = new HttpParams().set('fetchMembers', 'true');
-    return this.http.get<Organization[]>(`${this.apiUrl}/organization`, { params });
+    return this.http.get<Organization[]>(`${this.apiUrl}/organizations`, { params });
   }
 
   getUserByEmail(email: string): Observable<User[]> {
@@ -74,7 +74,7 @@ export class ReservationApi {
 
   getAllReservationsForUserAndTheirOrganization(userId: number): Observable<ReservationDto[]> {
     const params = new HttpParams().set('userId', userId);
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, { params });
+    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservations`, { params });
   }
 
   getTestText(): Observable<string> {
@@ -82,6 +82,6 @@ export class ReservationApi {
   }
 
   createOrganization(name: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/organization`, { name });
+    return this.http.post(`${this.apiUrl}/organizations`, { name });
   }
 }

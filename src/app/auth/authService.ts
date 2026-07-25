@@ -6,7 +6,9 @@ import { Router } from '@angular/router';
 export interface UserStatus {
   id: number;
   email: string;
-  roles: string[];
+  role: string;
+  trusted: false;
+  name: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -26,7 +28,7 @@ export class AuthService {
   );
   readonly email = computed(() => this.currentUserSignal()?.email || null);
 
-  readonly isAdmin = computed(() => this.currentUserSignal()?.roles?.includes('ADMIN') ?? false);
+  readonly isAdmin = computed(() => this.currentUserSignal()?.role === 'ADMIN');
 
   constructor() {
     this.checkCurrentSession().subscribe();
@@ -69,6 +71,6 @@ export class AuthService {
 
   private executeLocalLogout() {
     this.currentUserSignal.set(null);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 }

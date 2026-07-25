@@ -28,6 +28,22 @@
       >
         Zespoły
       </a>
+
+      @if (store.isAdminOrganizationActive()) {
+        <button
+          class="block px-8 py-2 rounded-lg hover:bg-slate-700 transition-all"
+          (click)="handleAddOrganization()"
+        >
+          Dodaj zespół
+        </button>
+      }
+      <a
+        routerLink="/admin/rooms"
+        routerLinkActive="bg-emerald-600 text-white"
+        class="block px-4 py-2 rounded-lg hover:bg-slate-700 transition-all"
+      >
+        Salki
+      </a>
     </nav>
   </aside>
   <main class="flex-1 p-6">

@@ -8,7 +8,7 @@
       </tr>
     </thead>
     <tbody class="text-slate-300 text-sm">
-      @for (org of store.allOrganizations(); track org.id) {
+      @for (org of safeOrganizations(); track org.id) {
         <tr class="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
           <td class="p-3 border-r border-slate-700 font-medium text-center truncate">
             {{ org.name }}
@@ -16,13 +16,13 @@
 
           <td class="p-3 border-r border-slate-700 text-center truncate">
             <span class="px-2 py-1 text-xs font-semibold">
-              {{ org.owner.email || 'Brak właściciela' }}
+              {{ org.owner.email }}
             </span>
           </td>
 
           <td class="p-3 text-center">
             <div class="flex flex-col gap-1 justify-center items-center">
-              @for (user of org.members || []; track user.id) {
+              @for (user of org.members; track user.id) {
                 <span class="text-slate-400 text-xs">{{ user.email }}</span>
               } @empty {
                 <span class="text-slate-500 text-xs italic">Brak członków</span>
@@ -30,7 +30,78 @@
             </div>
           </td>
         </tr>
+      } @empty {
+        <tr>
+          <td colspan="3" class="p-4 text-center text-slate-500 italic">
+            Brak zespołów do wyświetlenia
+          </td>
+        </tr>
       }
     </tbody>
   </table>
 </div>
+
+<!-- Modal Section -->
+@if (store.isAdminAddOrganizationActive()) {
+  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+    <div
+      class="bg-slate-800 border border-slate-700 text-slate-100 px-6 py-6 rounded-2xl w-full max-w-sm shadow-2xl flex flex-col"
+    >
+      <h2 class="text-xl font-bold tracking-tight mb-4 text-emerald-400">
+        {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.TITLE' | transloco }}
+      </h2>
+
+      <div class="mb-6">
+        <label
+          for="bandNameInput"
+          class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
+        >
+          {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.BAND_NAME' | transloco }}:
+        </label>
+        <input
+          #bandInput
+          id="bandNameInput"
+          type="text"
+          class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
+        />
+      </div>
+
+      <div class="flex gap-3 justify-end">
+        <button
+          (click)="closeModal()"
+          class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
+        >
+          {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.CANCEL' | transloco }}
+        </button>
+        <button
+          (click)="facade.createOrganization(bandInput.value)"
+          class="px-4 py-2 text-sm font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition-colors"
+        >
+          {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.ACCEPT' | transloco }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Success Popup -->
+@if (store.displayBookingSuccesfulPopup()) {
+  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+    <div
+      class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
+    >
+      <h2 class="text-xl font-bold tracking-tight mb-2">
+        {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.SUCCESS_TITLE' | transloco }}
+      </h2>
+      <p class="text-sm text-emerald-100 mb-4">
+        {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.SUCCESS_DESC' | transloco }}
+      </p>
+      <button
+        (click)="store.displayBookingSuccesfulPopup.set(false)"
+        class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
+      >
+        {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.CLOSE' | transloco }}
+      </button>
+    </div>
+  </div>
+}
