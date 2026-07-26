@@ -21,24 +21,22 @@ export class ReservationFacade {
     this.getRoomsAndReservations();
 
     const userId = this.authService.userId();
-
     if (!userId) {
       console.error('User id not loaded yet');
       return;
     }
 
-    console.log('initializing calendar...');
-    if (isAdmin) {
-      this.getAllMembersAllOrganizations();
-    }
-    this.api.getOrganizationsOfUserWithMembers(0, this.store.orgsSize()).subscribe((pageData) => {
-      console.log('initializeCalendar getOrganizationsOfUserWithMembers: ' + pageData.content);
-      this.store.userOrganizations.set(pageData.content);
-      console.log('this.store.userOrganizations(): ');
-      console.table(this.store.userOrganizations());
-    });
-
+    console.log('Initializing calendar...');
+    this.refreshOrganizations();
     this.connectToReservationStream();
+  }
+
+  refreshOrganizations() {
+    if (this.authService.isAdmin()) {
+      this.getAllMembersAllOrganizations(0);
+    } else {
+      this.getOrganizationsOfUserWithMembers(0);
+    }
   }
 
   getRoomsAndReservations() {
@@ -59,10 +57,10 @@ export class ReservationFacade {
     const booking = this.store.selectedBooking();
     if (!booking) return;
 
-    const startAtDate = new Date(booking.date);
-    startAtDate.setHours(booking.hour, 0, 0, 0);
+    const [year, month, day] = booking.date.split('-').map(Number);
 
-    console.log('Booking: ', booking);
+    const utcTimestamp = Date.UTC(year, month - 1, day, booking.hour, 0, 0, 0);
+    const startAtDate = new Date(utcTimestamp);
 
     let req: CreateReservationRequest = {
       roomId: booking.roomId,
@@ -71,7 +69,8 @@ export class ReservationFacade {
       type: ReservationType.REHERSEAL,
       organizationId: booking.organizationId,
     };
-    console.log('req: ', req);
+
+    console.log('req sent to backend (Standard UTC): ', req);
 
     this.api.postReservation(req).subscribe({
       next: () => {
@@ -79,7 +78,8 @@ export class ReservationFacade {
         this.store.displayBookingSuccesfulPopup.set(true);
         this.getRoomsAndReservations();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Booking error response:', err);
         this.store.selectedBooking.set(null);
         this.store.displayBookingErrorPopup.set(true);
       },
@@ -113,7 +113,15 @@ export class ReservationFacade {
     const day = this.store.daySelectedByUser();
     const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
 
-    const defaultOrg = this.store.userOrganizations()[0]?.id || 0;
+    const userOrgs = this.store.userOrganizations();
+    const allOrgs = this.store.allOrganizations();
+    let defaultOrg = userOrgs[0]?.id;
+
+    if (!defaultOrg && this.authService.isAdmin()) {
+      defaultOrg = allOrgs[0]?.id;
+    }
+
+    const rawUserId = (this.authService.userId() || '0').toString().replace(/['"]/g, '');
 
     this.store.selectedBooking.set({
       date: dateStr,
@@ -121,8 +129,8 @@ export class ReservationFacade {
       roomId,
       duration: 1,
       roomName: this.store.rooms().find((r) => r.id === roomId)?.name,
-      organizationId: defaultOrg,
-      reservedByUserId: parseInt(this.authService.userId() || '0', 10),
+      organizationId: defaultOrg || 0,
+      reservedByUserId: parseInt(rawUserId, 10),
     });
   }
 
@@ -130,21 +138,20 @@ export class ReservationFacade {
     this.disconnectStream();
     this.sseController = new AbortController();
     const url = `${process.env['VSF_API_URL'] || ''}/reservation/sse`;
-    console.log('Connected to reservation SSE: ', url);
     fetchEventSource(url, {
       method: 'GET',
       signal: this.sseController.signal,
       onmessage: (msg) => {
         const msgData = JSON.parse(msg.data);
-        const reservedBy = msgData.reservationDto.reservedBy;
-        console.log('msgData ', msgData);
-        console.log('msg.event ', msg.event);
-        console.log('reservedBy ', reservedBy);
+        const reservedBy = msgData.reservationDto?.reservedBy;
+
         if (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_REMOVED') {
           this.getRoomsAndReservations();
         }
-        if (msg.event === 'RESERVATION_CREATED' && reservedBy !== `${this.authService.userId}`) {
-          this.store.displayBookingErrorPopup();
+
+        const safeUserId = (this.authService.userId() || '').toString().replace(/['"]/g, '');
+        if (msg.event === 'RESERVATION_CREATED' && reservedBy !== safeUserId) {
+          this.store.displayBookingErrorPopup.set(true);
         }
       },
     });
@@ -165,47 +172,36 @@ export class ReservationFacade {
 
   deleteReservation(id: number) {
     this.api.deleteReservation(id).subscribe({
-      next: () => {
-        console.log(`Successfully deleted reservation with id ${id}`);
-      },
+      next: () => console.log(`Successfully deleted reservation with id ${id}`),
       error: (e) => console.error(`Failed to delete reservation with id ${id}`, e),
     });
   }
 
   getTestText() {
     this.api.getTestText().subscribe({
-      next: (data) => {
-        console.log('getTestText: ', data);
-        this.store.testText.set(data);
-      },
+      next: (data) => this.store.testText.set(data),
       error: (e) => console.error('Failed to fetch test text: ', e),
     });
   }
 
   getAllRooms() {
     this.api.getRooms().subscribe({
-      next: (rooms) => {
-        this.store.rooms.set(rooms);
-      },
-      error: (e) => {
-        console.error('Error fetching rooms: ', e);
-      },
+      next: (rooms) => this.store.rooms.set(rooms),
+      error: (e) => console.error('Error fetching rooms: ', e),
     });
   }
+
   disconnectStream() {
     if (this.sseController) {
       this.sseController.abort();
       this.sseController = null;
     }
   }
+
   getUserByEmail(email: string) {
     this.api.getUserByEmail(email).subscribe({
-      next: (u) => {
-        console.log('fetched user by email: ', u);
-      },
-      error: (e) => {
-        console.log('error fetching user by email: ', e);
-      },
+      next: (u) => console.log('fetched user by email: ', u),
+      error: (e) => console.log('error fetching user by email: ', e),
     });
   }
 
@@ -215,13 +211,16 @@ export class ReservationFacade {
     this.api.getAllMembersAllOrganizations(page, this.store.orgsSize()).subscribe({
       next: (pageData) => {
         this.store.allOrganizations.set(pageData.content);
+
+        if (this.authService.isAdmin()) {
+          this.store.userOrganizations.set(pageData.content);
+        }
+
         this.store.orgsPage.set(pageData.number);
         this.store.orgsTotalPages.set(pageData.totalPages);
         this.store.orgsTotalElements.set(pageData.totalElements);
         this.store.orgsIsFirst.set(pageData.first);
         this.store.orgsIsLast.set(pageData.last);
-        console.log("user's orgs:");
-        console.table(pageData.content);
       },
       error: () => console.error('Error in getAllMembersAllOrganizations'),
     });
@@ -230,14 +229,18 @@ export class ReservationFacade {
   changeOrganizationsPage(direction: 'next' | 'prev') {
     const currentPage = this.store.orgsPage();
     const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
-    this.getAllMembersAllOrganizations(newPage);
+    if (this.authService.isAdmin()) {
+      this.getAllMembersAllOrganizations(newPage);
+    } else {
+      this.getOrganizationsOfUserWithMembers(newPage);
+    }
   }
 
   createOrganization(name: string) {
     this.api.createOrganization(name).subscribe({
       next: () => {
         console.log(`Created organization ${name}`);
-        this.getAllMembersAllOrganizations(0);
+        this.refreshOrganizations();
       },
       error: (e) => console.error(`Failed to create organization ${name}`, e),
     });
@@ -252,9 +255,6 @@ export class ReservationFacade {
         this.store.orgsTotalElements.set(pageData.totalElements);
         this.store.orgsIsFirst.set(pageData.first);
         this.store.orgsIsLast.set(pageData.last);
-
-        console.log('getOrganizationsOfUserWithMembers: ', pageData.content);
-        console.log('this.store.userOrganizations(): ', this.store.userOrganizations());
       },
       error: (e) => console.error('Error in getOrganizationsOfUserWithMembers: ', e),
     });
@@ -262,122 +262,71 @@ export class ReservationFacade {
 
   removeOwnerFromOrganization(ownerId: number, organizationId: number): void {
     this.api.removeUserFromOrganization(ownerId, organizationId).subscribe({
-      next: () => {
-        console.log(
-          `Successfully deleted user from organization with userId ${ownerId} and organizationId ${organizationId}`,
-        );
-      },
+      next: () => this.refreshOrganizations(),
       error: (e) => {
         this.store.globalErrorKey.set('ORGANIZATION_LIST.ERRORS.REMOVE_OWNER_FAILED');
-        console.error(
-          `Failed to remove owner from organization with userId ${ownerId} and organizationId ${organizationId}`,
-          e,
-        );
+        console.error(e);
       },
     });
   }
+
   removeUserFromOrganization(userId: number, organizationId: number): void {
     this.api.removeUserFromOrganization(userId, organizationId).subscribe({
-      next: () => {
-        console.log(
-          `Successfully deleted user from organization with userId ${userId} and organizationId ${organizationId}`,
-        );
-      },
+      next: () => this.refreshOrganizations(),
       error: (e) => {
         this.store.globalErrorKey.set('ORGANIZATION_LIST.ERRORS.REMOVE_USER_FAILED');
-        console.error(
-          `Failed to remove user from organization with userId ${userId} and organizationId ${organizationId}`,
-          e,
-        );
+        console.error(e);
       },
     });
   }
+
   removeOrg(organizationId: number): void {
     this.api.removeOrg(organizationId).subscribe({
-      next: () => {
-        console.log(`Successfully deleted organization with id ${organizationId}`);
-        this.getAllMembersAllOrganizations(0);
-      },
+      next: () => this.refreshOrganizations(),
       error: (e) => {
-        console.error(`Failed to delete organization with id ${organizationId}`, e);
+        console.error(`Failed to delete organization`, e);
         this.store.globalErrorKey.set('ORGANIZATION_LIST.ERRORS.DELETE_ORG_FAILED');
-        console.log('Current state of store:', {
-          organizationListSelectedUserId: this.store.organizationListSelectedUser(),
-          organizationListSelectedOrganizationId: this.store.organizationListSelectedOrganization(),
-        });
       },
     });
   }
 
   addOwnerIntoOrganization(ownerId: number, organizationId: number): void {
     this.api.addOwnerIntoOrganization(ownerId, organizationId).subscribe({
-      next: () => {
-        console.log(
-          `Successfully added owner with id ${ownerId} into organization with id ${organizationId}`,
-        );
-        this.getAllMembersAllOrganizations(0);
-      },
-      error: (e) =>
-        console.error(
-          `Failed to add owner with id ${ownerId} into organization with id ${organizationId}`,
-          e,
-        ),
+      next: () => this.refreshOrganizations(),
+      error: (e) => console.error(`Failed to add owner`, e),
     });
   }
+
   addUserIntoOrganization(userId: number, organizationId: number): void {
     this.api.addUserIntoOrganization(userId, organizationId).subscribe({
-      next: () => {
-        console.log(
-          `Successfully added user with id ${userId} into organization with id ${organizationId}`,
-        );
-        this.getAllMembersAllOrganizations(0);
-      },
-      error: (e) =>
-        console.error(
-          `Failed to add user with id ${userId} into organization with id ${organizationId}`,
-          e,
-        ),
+      next: () => this.refreshOrganizations(),
+      error: (e) => console.error(`Failed to add user`, e),
     });
   }
+
   markOrganizationAsTrusted(organizationId: number): void {
     const trusted = !this.store.allOrganizations().find((org) => org.id === organizationId)
       ?.trusted;
-
     this.api.markOrganizationAsTrusted(organizationId, trusted).subscribe({
-      next: () => {
-        console.log(
-          `Successfully marked organization with id ${organizationId} as ${trusted ? 'trusted' : 'not trusted'}`,
-        );
-        this.getAllMembersAllOrganizations(0);
-      },
-      error: (e) =>
-        console.error(
-          `Failed to mark organization with id ${organizationId} as ${trusted ? 'trusted' : 'not trusted'}`,
-          e,
-        ),
+      next: () => this.refreshOrganizations(),
+      error: (e) => console.error(`Failed to mark organization`, e),
     });
   }
 
   getAllUsers() {
     return this.api.getAllUsers().subscribe({
       next: (users) => {
-        console.log('Fetched all users: ', users);
         this.store.allUsers.set(users);
+        this.refreshOrganizations();
       },
-      error: (e) => {
-        console.error('Error fetching all users: ', e);
-      },
+      error: (e) => console.error('Error fetching all users: ', e),
     });
   }
 
   markUserTrusted(isTrusted: boolean, userId: number) {
-    console.log('User ' + userId + ' is now ' + isTrusted + ', marking them to ' + !isTrusted);
     this.api.markUserTrusted(!isTrusted, userId).subscribe({
-      next: (user) => {
-        console.log('Fetched user: ', user);
+      next: () => {
         this.getAllUsers();
-        this.getAllMembersAllOrganizations();
-        this.getOrganizationsOfUserWithMembers(0);
       },
       error: (e) => {
         console.error('Error marking user as trusted: ', e);

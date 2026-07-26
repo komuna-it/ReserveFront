@@ -36,7 +36,10 @@ export class CalendarHelper {
     );
   }
 
-  parseDurationToHours(isoDuration: string): number {
+  parseDurationToHours(isoDuration: string | null | undefined): number {
+    if (!isoDuration || typeof isoDuration !== 'string') {
+      return 1;
+    }
     const hoursMatch = isoDuration.match(/(\d+)H/);
     return hoursMatch ? parseInt(hoursMatch[1], 10) : 1;
   }

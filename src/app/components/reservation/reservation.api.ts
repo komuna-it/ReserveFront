@@ -7,7 +7,6 @@ import { Organization } from '../../model/organization';
 import { Observable } from 'rxjs';
 import { User } from '../../model/user';
 import { Page } from '../../model/page';
-import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationApi {
@@ -27,9 +26,11 @@ export class ReservationApi {
   }
 
   getReservationsForAllUsersOrganizations(page = 0, size = 100): Observable<Page<ReservationDto>> {
+    const rawUserId = (this.authService.userId() || '').toString().replace(/['"]/g, '');
     const params = new HttpParams().set('page', page).set('size', size);
+
     return this.http.get<Page<ReservationDto>>(
-      `${this.apiUrl}/reservation/user/${this.authService.userId()}/organizations`,
+      `${this.apiUrl}/reservation/user/${rawUserId}/organizations`,
       { params },
     );
   }
@@ -45,14 +46,16 @@ export class ReservationApi {
   }
 
   getOrganizationsOfUserWithMembers(page = 0, size = 20): Observable<Page<Organization>> {
+    let userId = this.authService.userId();
+    if (userId) {
+      userId = userId.toString().replace(/['"]/g, '');
+    }
+
     const params = new HttpParams()
-      .set('userId', this.authService.userId() ?? '0')
+      .set('userId', userId ?? '')
       .set('fetchMembers', 'true')
       .set('page', page)
       .set('size', size);
-    const id = this.authService.userId();
-
-    console.log('Loading organizations for user:', id);
 
     return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
@@ -104,14 +107,13 @@ export class ReservationApi {
     return this.http.post(`${this.apiUrl}/organizations`, { name });
   }
 
-  // ======================= ORGS ========================
-
   removeOwnerFromOrganization(userId: number, organizationId: number): Observable<void> {
     return this.http.patch<void>(
       `${this.apiUrl}/organizations/assigneUser/${userId}/role/MEMBER/toOrganization/${organizationId}`,
       {},
     );
   }
+
   addOwnerIntoOrganization(userId: number, organizationId: number): Observable<void> {
     return this.http.post<void>(
       `${this.apiUrl}/organizations/assigneUser/${userId}/role/OWNER/toOrganization/${organizationId}`,
