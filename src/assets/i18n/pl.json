@@ -78,5 +78,49 @@
     "SUCCESS_TITLE": "Zespół dodany",
     "SUCCESS_DESC": "Zespół został pomyślnie dodany.",
     "CLOSE": "Zamknij"
+  },
+  "ORGANIZATION_LIST.DELETE_ORGANIZATION": {
+    "TITLE": "Usuń zespół",
+    "CONFIRMATION": "Czy na pewno chcesz usunąć zespół?",
+    "CANCEL": "Anuluj",
+    "ACCEPT": "Usuń zespół",
+    "SUCCESS_TITLE": "Zespół usunięty",
+    "SUCCESS_DESC": "Zespół został pomyślnie usunięty.",
+    "CLOSE": "Zamknij"
+  },
+  "ORGANIZATION_LIST.DELETE_MEMBER": {
+    "TITLE": "Usuń członka zespołu",
+    "CONFIRMATION": "Czy na pewno chcesz usunąć członka zespołu?",
+    "CANCEL": "Anuluj",
+    "ACCEPT": "Usuń członka",
+    "SUCCESS_TITLE": "Członek usunięty",
+    "SUCCESS_DESC": "Członek został pomyślnie usunięty.",
+    "CLOSE": "Zamknij"
+  },
+  "ORGANIZATION_LIST.DELETE_OWNER": {
+    "TITLE": "Usuń właściciela zespołu",
+    "CONFIRMATION": "Czy na pewno chcesz usunąć właściciela zespołu?",
+    "CANCEL": "Anuluj",
+    "ACCEPT": "Usuń właściciela",
+    "SUCCESS_TITLE": "Właściciel usunięty",
+    "SUCCESS_DESC": "Właściciel został pomyślnie usunięty.",
+    "CLOSE": "Zamknij"
+  },
+  "ORGANIZATION_LIST.ERRORS": {
+    "DELETE_ORG_FAILED": "Nie udało się usunąć zespołu. Spróbuj ponownie później.",
+    "REMOVE_USER_FAILED": "Nie udało się usunąć użytkownika. Spróbuj ponownie później.",
+    "REMOVE_OWNER_FAILED": "Nie udało się usunąć właściciela. Spróbuj ponownie później."
+  },
+  "ERROR": {
+    "CLOSE": "Zamknij",
+    "TITLE": "Wystąpił błąd",
+    "DESC": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później."
+  },
+  "ADD_USER_INTO_ORGANIZATION": {
+    "MODAL_CONFIRM_TITLE": "Dodaj użytkownika",
+    "ORG_NAME": "Nazwa organizacji",
+    "SELECT_USER": "Wybierz użytkownika",
+    "CANCEL": "Anuluj",
+    "CONFIRM": "Potwierdź"
   }
 }

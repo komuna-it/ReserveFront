@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ReservationStore } from '../../../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { AddUserIntoOrganizationModal } from '../../../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
+import { User } from '../../../../model/user';
 
 @Component({
   selector: 'app-organization-list',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe],
+  imports: [CommonModule, TranslocoPipe, AddUserIntoOrganizationModal],
   templateUrl: './organization-list.html',
   styleUrl: './organization-list.css',
 })
@@ -25,8 +27,8 @@ export class OrganizationList implements OnInit, OnDestroy {
       members: Array.isArray(org?.members) ? org.members : [],
     }));
   });
-
   ngOnInit(): void {
+    this.facade.getAllUsers();
     this.facade.getAllMembersAllOrganizations(0);
     this.store.isAdminOrganizationActive.set(true);
   }
@@ -39,6 +41,16 @@ export class OrganizationList implements OnInit, OnDestroy {
   closeModals(): void {
     this.store.isAdminAddOrganizationActive.set(false);
     this.store.isAdminAddOrganizationSuccess.set(false);
+
+    this.store.modalDeleteOwnerActive.set(false);
+    this.store.modalDeleteMemberActive.set(false);
+    this.store.modalDeleteOrganizationActive.set(false);
+
+    this.store.modalDeleteOrganizationSuccess.set(false);
+    this.store.modalDeleteMemberSuccess.set(false);
+    this.store.modalDeleteOwnerSuccess.set(false);
+
+    this.store.globalErrorKey.set(null);
   }
 
   createOrganization(name: string): void {
@@ -50,5 +62,112 @@ export class OrganizationList implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error creating organization:', error);
     }
+  }
+
+  handleDeleteOrganization(orgId: number): void {
+    console.log('handleDeleteOrganization called with orgId:', orgId);
+    if (!orgId) return;
+
+    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    if (!org) {
+      console.error(`Organization with ID ${orgId} not found in allOrganizations.`);
+      return;
+    }
+    this.store.organizationListSelectedOrganization.set(org);
+    this.store.modalDeleteOrganizationActive.set(true);
+    console.log(
+      'Selected organization ID set to:',
+      this.store.organizationListSelectedOrganization(),
+    );
+    console.log('Modal delete organization active:', this.store.modalDeleteOrganizationActive());
+    console.log('Current state of store:', {
+      organizationListSelectedOrganizationId: this.store.organizationListSelectedOrganization(),
+      modalDeleteOrganizationActive: this.store.modalDeleteOrganizationActive(),
+    });
+  }
+
+  handleDeleteMember(userId: number, orgId: number): void {
+    if (!userId || !orgId) return;
+    const user = this.store.allUsers().find((u) => u.id === userId);
+    if (!user) {
+      console.error(`User with ID ${userId} not found in allUsers.`);
+      return;
+    }
+    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    if (!org) {
+      console.error(`Organization with ID ${orgId} not found in allOrganizations.`);
+      return;
+    }
+    this.store.organizationListSelectedUser.set(user);
+    this.store.organizationListSelectedOrganization.set(org);
+    this.store.modalDeleteMemberActive.set(true);
+  }
+
+  handleDeleteOwner(ownerId: number, orgId: number): void {
+    if (!ownerId || !orgId) return;
+    const user = this.store.allUsers().find((u) => u.id === ownerId);
+    if (!user) {
+      console.error(`User with ID ${ownerId} not found in allUsers.`);
+      return;
+    }
+    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    if (!org) {
+      console.error(`Organization with ID ${orgId} not found in allOrganizations.`);
+      return;
+    }
+    this.store.organizationListSelectedUser.set(user);
+    this.store.organizationListSelectedOrganization.set(org);
+    this.store.modalDeleteOwnerActive.set(true);
+  }
+
+  confirmDeleteOrganization(): void {
+    const org = this.store.organizationListSelectedOrganization();
+    if (org) {
+      this.facade.removeOrg(org.id);
+      this.store.modalDeleteOrganizationActive.set(false);
+      this.store.organizationListSelectedOrganization.set(null);
+      this.store.modalDeleteOrganizationSuccess.set(true);
+    }
+  }
+
+  confirmDeleteMember(): void {
+    const user = this.store.organizationListSelectedUser();
+    const org = this.store.organizationListSelectedOrganization();
+    if (user && org) {
+      this.facade.removeUserFromOrganization(user.id, org.id);
+      this.store.modalDeleteMemberActive.set(false);
+      this.store.organizationListSelectedUser.set(null);
+      this.store.organizationListSelectedOrganization.set(null);
+      this.store.modalDeleteMemberSuccess.set(true);
+    }
+  }
+
+  confirmDeleteOwner(): void {
+    const user = this.store.organizationListSelectedUser();
+    const org = this.store.organizationListSelectedOrganization();
+    if (!user || !org) {
+      return;
+    }
+    const ownerId = user.id ?? 0;
+    const orgId = org.id ?? 0;
+
+    if (ownerId && orgId) {
+      this.facade.removeOwnerFromOrganization(ownerId, orgId);
+      this.store.modalDeleteOwnerActive.set(false);
+      this.store.organizationListSelectedUser.set(null);
+      this.store.organizationListSelectedOrganization.set(null);
+      this.store.modalDeleteOwnerSuccess.set(true);
+    }
+  }
+
+  handleAddMember(orgId: number): void {
+    if (!orgId) return;
+    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    if (!org) {
+      console.error(`Organization with ID ${orgId} not found in allOrganizations.`);
+      return;
+    }
+    this.store.organizationListSelectedOrganization.set(org);
+    this.store.modalAddMemberActive.set(true);
   }
 }

@@ -7,6 +7,7 @@ import { Organization } from '../../model/organization';
 import { Observable } from 'rxjs';
 import { User } from '../../model/user';
 import { Page } from '../../model/page';
+import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationApi {
@@ -97,5 +98,49 @@ export class ReservationApi {
 
   createOrganization(name: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/organizations`, { name });
+  }
+
+  // ======================= ORGS ========================
+
+  removeOwnerFromOrganization(userId: number, organizationId: number): Observable<void> {
+    return this.http.patch<void>(
+      `${this.apiUrl}/organizations/assigneUser/${userId}/role/MEMBER/toOrganization/${organizationId}`,
+      {},
+    );
+  }
+  addOwnerIntoOrganization(userId: number, organizationId: number): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiUrl}/organizations/assigneUser/${userId}/role/OWNER/toOrganization/${organizationId}`,
+      {},
+    );
+  }
+
+  removeUserFromOrganization(id: number, organizationId: number): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiUrl}/organizations/removeMember/${id}/fromOrganization/${organizationId}`,
+      {},
+    );
+  }
+
+  addUserIntoOrganization(id: number, organizationId: number): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiUrl}/organizations/addMember/${id}/toOrganization/${organizationId}`,
+      {},
+    );
+  }
+
+  removeOrg(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/organizations/decommission/${id}`);
+  }
+
+  markOrganizationAsTrusted(organizationId: number, trusted: boolean): Observable<Organization> {
+    return this.http.patch<Organization>(
+      `${this.apiUrl}/organizations/${organizationId}/isTrusted/${trusted}`,
+      {},
+    );
+  }
+
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/users/all`);
   }
 }

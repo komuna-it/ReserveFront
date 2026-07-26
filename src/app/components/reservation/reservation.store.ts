@@ -15,6 +15,8 @@ export class ReservationStore {
   private helper = inject(CalendarHelper);
   private authService = inject(AuthService);
 
+  readonly allUsers = signal<User[]>([]);
+
   readonly rooms = signal<Room[]>([]);
   readonly reservations = signal<ReservationDto[]>([]);
 
@@ -201,4 +203,16 @@ export class ReservationStore {
   readonly isAdminAddOrganizationActive = signal<boolean>(false);
   readonly isAdminOrganizationActive = signal<boolean>(false);
   readonly isAdminAddOrganizationSuccess = signal<boolean>(false);
+  readonly modalDeleteOrganizationActive = signal<boolean>(false);
+  readonly modalDeleteMemberActive = signal<boolean>(false);
+  readonly modalDeleteOwnerActive = signal<boolean>(false);
+  readonly modalDeleteOrganizationSuccess = signal<boolean>(false);
+  readonly modalDeleteMemberSuccess = signal<boolean>(false);
+  readonly modalDeleteOwnerSuccess = signal<boolean>(false);
+  readonly modalAddMemberActive = signal<boolean>(false);
+
+  readonly organizationListSelectedUser = signal<User | null>(null);
+  readonly organizationListSelectedOrganization = signal<Organization | null>(null);
+
+  readonly globalErrorKey = signal<string | null>(null);
 }

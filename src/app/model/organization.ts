@@ -7,5 +7,6 @@ export class Organization {
     public owners: User[],
     public created: Date,
     public members?: User[],
+    public trusted?: boolean,
   ) {}
 }
