@@ -147,4 +147,8 @@ export class ReservationApi {
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users/all`);
   }
+
+  markUserTrusted(isTrusted: boolean, userId: number) {
+    return this.http.patch<User>(`${this.apiUrl}/users/${userId}/isTrusted/${isTrusted}`, {});
+  }
 }

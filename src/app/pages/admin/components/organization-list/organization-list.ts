@@ -6,11 +6,12 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AddUserIntoOrganizationModal } from '../../../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
 import { User } from '../../../../model/user';
 import { Organization } from '../../../../model/organization';
+import { AddOrganizationModal } from '../../../../components/modals/add-organization-modal/add-organization-modal';
 
 @Component({
   selector: 'app-organization-list',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe, AddUserIntoOrganizationModal],
+  imports: [CommonModule, TranslocoPipe, AddUserIntoOrganizationModal, AddOrganizationModal],
   templateUrl: './organization-list.html',
   styleUrl: './organization-list.css',
 })
@@ -52,17 +53,6 @@ export class OrganizationList implements OnInit, OnDestroy {
     this.store.modalDeleteOwnerSuccess.set(false);
 
     this.store.globalErrorKey.set(null);
-  }
-
-  createOrganization(name: string): void {
-    if (!name || name.trim() === '') return;
-
-    try {
-      this.facade.createOrganization(name.trim());
-      this.store.isAdminAddOrganizationSuccess.set(true);
-    } catch (error) {
-      console.error('Error creating organization:', error);
-    }
   }
 
   handleDeleteOrganization(orgId: number): void {
@@ -174,7 +164,25 @@ export class OrganizationList implements OnInit, OnDestroy {
 
   orgTrustedText(org: Organization) {
     return org.trusted
-      ? this.loco.translate('ORGANIZATION_LIST.MARK_AS_TRUSTED')
-      : this.loco.translate('ORGANIZATION_LIST.MARK_AS_NOT_TRUSTED');
+      ? this.loco.translate('ORGANIZATION_LIST.NOT_TRUSTED')
+      : this.loco.translate('ORGANIZATION_LIST.TRUSTED');
+  }
+
+  orgTrustedButtonText(org: Organization) {
+    return org.trusted
+      ? this.loco.translate('ORGANIZATION_LIST.MARK_AS_NOT_TRUSTED')
+      : this.loco.translate('ORGANIZATION_LIST.MARK_AS_TRUSTED');
+  }
+
+  userTrustedButtonText(user: User) {
+    return user.trusted
+      ? this.loco.translate('ORGANIZATION_LIST.MARK_AS_NOT_TRUSTED')
+      : this.loco.translate('ORGANIZATION_LIST.MARK_AS_TRUSTED');
+  }
+
+  userTrustedText(user: User) {
+    return user.trusted
+      ? this.loco.translate('ORGANIZATION_LIST.NOT_TRUSTED')
+      : this.loco.translate('ORGANIZATION_LIST.TRUSTED');
   }
 }

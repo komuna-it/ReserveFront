@@ -11,7 +11,7 @@ import {
   provideTranslocoTranspiler,
   DefaultTranspiler,
 } from '@jsverse/transloco';
-import { routes } from './app.routes';
+import { routes } from './routes/app.routes';
 import { TranslocoHttpLoader } from './transloco-loader';
 import { authInterceptor } from './auth/authInterceptor';
 

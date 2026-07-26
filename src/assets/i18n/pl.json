@@ -108,7 +108,9 @@
   },
   "ORGANIZATION_LIST": {
     "MARK_AS_TRUSTED": "Oznacz jako zaufany",
-    "MARK_AS_NOT_TRUSTED": "Oznacz jako niezaufany"
+    "MARK_AS_NOT_TRUSTED": "Oznacz jako niezaufany",
+    "TRUSTED": "Zaufany",
+    "NOT_TRUSTED": "Nie zaufany"
   },
   "ORGANIZATION_LIST.ERRORS": {
     "DELETE_ORG_FAILED": "Nie udało się usunąć zespołu. Spróbuj ponownie później.",

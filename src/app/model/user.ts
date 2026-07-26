@@ -5,5 +5,6 @@ export class User {
     public nick: string,
     public role: string,
     public created: Date,
+    public trusted: boolean,
   ) {}
 }

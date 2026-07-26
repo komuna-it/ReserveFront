@@ -369,4 +369,20 @@ export class ReservationFacade {
       },
     });
   }
+
+  markUserTrusted(isTrusted: boolean, userId: number) {
+    console.log('User ' + userId + ' is now ' + isTrusted + ', marking them to ' + !isTrusted);
+    this.api.markUserTrusted(!isTrusted, userId).subscribe({
+      next: (user) => {
+        console.log('Fetched user: ', user);
+        this.getAllUsers();
+        this.getAllMembersAllOrganizations();
+        this.getOrganizationsOfUserWithMembers(0);
+      },
+      error: (e) => {
+        console.error('Error marking user as trusted: ', e);
+        this.store.globalErrorKey.set('Error marking user as trusted');
+      },
+    });
+  }
 }
