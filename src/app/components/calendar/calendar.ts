@@ -6,11 +6,12 @@ import { ReservationStore } from '../reservation/reservation.store';
 import { ReservationFacade } from '../reservation/reservation.facade';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../auth/authService';
+import { CalendarBookingModal } from '../modals/calendar-booking-modal/calendar-booking-modal';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslocoPipe],
+  imports: [CommonModule, FormsModule, TranslocoPipe, CalendarBookingModal],
   templateUrl: './calendar.html',
 })
 export class CalendarComponent implements OnInit, OnDestroy {

@@ -1,0 +1,81 @@
+@if (store.selectedBooking(); as booking) {
+  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+    <div
+      class="bg-slate-800 border border-slate-700 text-slate-100 px-4 py-4 rounded-2xl w-full max-w-sm shadow-2xl"
+    >
+      <h2 class="text-xl font-bold tracking-tight mb-4 text-emerald-400">
+        {{ 'CALENDAR.MODAL_CONFIRM_TITLE' | transloco }}
+      </h2>
+
+      <div
+        class="space-y-2 text-sm text-slate-300 mb-6 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"
+      >
+        <p>
+          <strong>{{ 'CALENDAR.MODAL_DATE' | transloco }}:</strong> {{ booking.date }}
+        </p>
+        <p>
+          <strong>{{ 'CALENDAR.MODAL_START' | transloco }}:</strong> {{ booking.hour }}:00
+        </p>
+        <p>
+          <strong>{{ 'CALENDAR.MODAL_LOCATION' | transloco }}:</strong> {{ booking.roomName }}
+        </p>
+      </div>
+
+      <div class="mb-6">
+        <label
+          for="durationSelect"
+          class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
+          >{{ 'CALENDAR.MODAL_DURATION' | transloco }}:</label
+        >
+        <select
+          id="durationSelect"
+          [(ngModel)]="booking.duration"
+          class="w-full bg-slate-700 text-white font-medium border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+        >
+          @for (opt of store.durationOptions(); track opt) {
+            <option [value]="opt">
+              {{ opt }}
+              {{
+                opt === 1
+                  ? ('CALENDAR.HOUR_SINGULAR' | transloco)
+                  : ('CALENDAR.HOUR_PLURAL' | transloco)
+              }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="mb-6">
+        <label
+          for="bandSelect"
+          class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
+          >{{ 'CALENDAR.MODAL_BAND' | transloco }}:</label
+        >
+        <select
+          id="bandSelect"
+          [(ngModel)]="booking.organizationId"
+          class="w-full bg-slate-700 text-white font-medium border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+        >
+          @for (org of store.userOrganizations(); track org.id) {
+            <option [value]="org.id">{{ org.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="my-2 flex gap-3 justify-end">
+        <button
+          (click)="store.selectedBooking.set(null)"
+          class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
+        >
+          {{ 'CALENDAR.CANCEL' | transloco }}
+        </button>
+        <button
+          (click)="facade.confirmBooking()"
+          class="px-4 py-2 text-sm font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition-colors"
+        >
+          {{ 'CALENDAR.BOOK_NOW' | transloco }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -40,7 +40,7 @@ export class ProfilePage implements OnInit {
   }
 
   reservedByLabel(reservation: ReservationDto): string {
-    const org = this.organizations().find((o) => o.id === reservation.behalfOf);
+    const org = this.organizations().find((o) => o.id === reservation.organization);
     return org ? `${org.name}` : `Nieznany`;
   }
 

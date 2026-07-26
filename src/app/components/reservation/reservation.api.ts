@@ -50,6 +50,10 @@ export class ReservationApi {
       .set('fetchMembers', 'true')
       .set('page', page)
       .set('size', size);
+    const id = this.authService.userId();
+
+    console.log('Loading organizations for user:', id);
+
     return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 

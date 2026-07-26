@@ -44,7 +44,7 @@ export class ReservationStore {
     if (!booking) return [];
 
     const reservs = this.currentDayReservations();
-    const reservsForRoom = reservs.filter((res) => res.roomId === booking?.roomId);
+    const reservsForRoom = reservs.filter((res) => res.room === booking?.roomId);
     const bookingStartHour = booking?.hour;
     let limitHour = 22;
 
@@ -148,7 +148,7 @@ export class ReservationStore {
 
       const cells = roomsList.map((room) => {
         const matched = reservationsToday.find((res) => {
-          if (res.roomId !== room.id) return false;
+          if (res.room !== room.id) return false;
           const startHour = new Date(res.startAt).getHours();
           const duration = this.helper.parseDurationToHours(res.duration);
           return hour >= startHour && hour < startHour + duration;
@@ -166,14 +166,15 @@ export class ReservationStore {
           isFirst = hour === startHour;
           isLast = hour === startHour + duration - 1;
 
-          if (matched.behalfOf) {
+          if (matched.organization) {
             if (isAdmin) {
-              bandName = allOrgs.get(matched.behalfOf) || `Organizacja #${matched.behalfOf}`;
+              bandName =
+                allOrgs.get(matched.organization) || `Organizacja #${matched.organization}`;
               isMyOrg = false;
             } else {
-              if (userOrgs.has(matched.behalfOf)) {
+              if (userOrgs.has(matched.organization)) {
                 isMyOrg = true;
-                bandName = userOrgs.get(matched.behalfOf) || '';
+                bandName = userOrgs.get(matched.organization) || '';
               } else {
                 isMyOrg = false;
                 bandName = '';

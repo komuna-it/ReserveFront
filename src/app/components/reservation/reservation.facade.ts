@@ -5,6 +5,8 @@ import { CalendarHelper } from '../calendar/calendar.helper';
 import { AuthService } from '../../auth/authService';
 import { Router } from '@angular/router';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { ReservationType } from '../../model/reservationType';
+import { CreateReservationRequest } from '../../model/CreateReservationRequest';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -18,13 +20,23 @@ export class ReservationFacade {
   initializeCalendar(isAdmin: boolean) {
     this.getRoomsAndReservations();
 
+    const userId = this.authService.userId();
+
+    if (!userId) {
+      console.error('User id not loaded yet');
+      return;
+    }
+
+    console.log('initializing calendar...');
     if (isAdmin) {
       this.getAllMembersAllOrganizations();
-    } else {
-      this.api
-        .getOrganizationsOfUserWithMembers(0, this.store.orgsSize())
-        .subscribe((pageData) => this.store.userOrganizations.set(pageData.content));
     }
+    this.api.getOrganizationsOfUserWithMembers(0, this.store.orgsSize()).subscribe((pageData) => {
+      console.log('initializeCalendar getOrganizationsOfUserWithMembers: ' + pageData.content);
+      this.store.userOrganizations.set(pageData.content);
+      console.log('this.store.userOrganizations(): ');
+      console.table(this.store.userOrganizations());
+    });
 
     this.connectToReservationStream();
   }
@@ -52,16 +64,16 @@ export class ReservationFacade {
 
     console.log('Booking: ', booking);
 
-    const payload = {
-      reservedBy: booking.reservedByUserId,
+    let req: CreateReservationRequest = {
+      roomId: booking.roomId,
       startAt: startAtDate.toISOString(),
       duration: `PT${booking.duration}H`,
-      roomId: booking.roomId,
-      behalfOf: booking.organizationId,
+      type: ReservationType.REHERSEAL,
+      organizationId: booking.organizationId,
     };
-    console.log('payload: ', payload);
+    console.log('req: ', req);
 
-    this.api.postReservation(payload).subscribe({
+    this.api.postReservation(req).subscribe({
       next: () => {
         this.store.selectedBooking.set(null);
         this.store.displayBookingSuccesfulPopup.set(true);
@@ -208,6 +220,8 @@ export class ReservationFacade {
         this.store.orgsTotalElements.set(pageData.totalElements);
         this.store.orgsIsFirst.set(pageData.first);
         this.store.orgsIsLast.set(pageData.last);
+        console.log("user's orgs:");
+        console.table(pageData.content);
       },
       error: () => console.error('Error in getAllMembersAllOrganizations'),
     });
@@ -229,13 +243,20 @@ export class ReservationFacade {
     });
   }
 
-  getOrganizationsOfUserWithMembers() {
-    this.api.getOrganizationsOfUserWithMembers().subscribe({
-      next: (data) => {
-        this.store.userOrganizations.set(data.content);
-        console.log('getOrganizationsOfUserWithMembers: ', data);
+  getOrganizationsOfUserWithMembers(page: number = 0) {
+    this.api.getOrganizationsOfUserWithMembers(page, this.store.orgsSize()).subscribe({
+      next: (pageData) => {
+        this.store.userOrganizations.set(pageData.content);
+        this.store.orgsPage.set(pageData.number);
+        this.store.orgsTotalPages.set(pageData.totalPages);
+        this.store.orgsTotalElements.set(pageData.totalElements);
+        this.store.orgsIsFirst.set(pageData.first);
+        this.store.orgsIsLast.set(pageData.last);
+
+        console.log('getOrganizationsOfUserWithMembers: ', pageData.content);
+        console.log('this.store.userOrganizations(): ', this.store.userOrganizations());
       },
-      error: (e) => console.error('Failed to fetch organizations: ', e),
+      error: (e) => console.error('Error in getOrganizationsOfUserWithMembers: ', e),
     });
   }
 

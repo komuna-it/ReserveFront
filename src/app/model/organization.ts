@@ -4,9 +4,9 @@ export class Organization {
   constructor(
     public id: number,
     public name: string,
-    public owners: User[],
     public created: Date,
+    public trusted: boolean,
+    public owners?: User[],
     public members?: User[],
-    public trusted?: boolean,
   ) {}
 }
