@@ -2,9 +2,10 @@ import { Component, inject, OnInit, OnDestroy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservationStore } from '../../../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AddUserIntoOrganizationModal } from '../../../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
 import { User } from '../../../../model/user';
+import { Organization } from '../../../../model/organization';
 
 @Component({
   selector: 'app-organization-list',
@@ -16,7 +17,7 @@ import { User } from '../../../../model/user';
 export class OrganizationList implements OnInit, OnDestroy {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
-
+  readonly loco = inject(TranslocoService);
   readonly safeOrganizations = computed(() => {
     const orgs = this.store.allOrganizations();
     if (!Array.isArray(orgs)) return [];
@@ -169,5 +170,11 @@ export class OrganizationList implements OnInit, OnDestroy {
     }
     this.store.organizationListSelectedOrganization.set(org);
     this.store.modalAddMemberActive.set(true);
+  }
+
+  orgTrustedText(org: Organization) {
+    return org.trusted
+      ? this.loco.translate('ORGANIZATION_LIST.MARK_AS_TRUSTED')
+      : this.loco.translate('ORGANIZATION_LIST.MARK_AS_NOT_TRUSTED');
   }
 }

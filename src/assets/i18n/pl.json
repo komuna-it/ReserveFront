@@ -106,6 +106,10 @@
     "SUCCESS_DESC": "Właściciel został pomyślnie usunięty.",
     "CLOSE": "Zamknij"
   },
+  "ORGANIZATION_LIST": {
+    "MARK_AS_TRUSTED": "Oznacz jako zaufany",
+    "MARK_AS_NOT_TRUSTED": "Oznacz jako niezaufany"
+  },
   "ORGANIZATION_LIST.ERRORS": {
     "DELETE_ORG_FAILED": "Nie udało się usunąć zespołu. Spróbuj ponownie później.",
     "REMOVE_USER_FAILED": "Nie udało się usunąć użytkownika. Spróbuj ponownie później.",

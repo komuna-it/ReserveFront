@@ -1,109 +1,127 @@
-<div class="w-full overflow-x-auto bg-slate-800 rounded-lg shadow">
-  <table class="w-full text-left border-collapse border border-slate-600 table-fixed">
+<div
+  class="w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
+>
+  <table class="w-full min-w-[768px] text-left border-collapse text-sm">
     <thead>
-      <tr class="bg-slate-800 text-slate-400 text-sm border-b border-slate-600">
-        <th class="py-3 px-4 font-semibold text-center border-r border-slate-600 w-112">Zespół</th>
-        <th class="py-3 px-4 font-semibold text-center border-r border-slate-600 w-112">Owner</th>
-        <th class="py-3 px-4 font-semibold text-center w-112">Członkowie</th>
-        <th class="py-3 px-4 font-semibold text-center w-32">Zaufany</th>
+      <tr
+        class="bg-slate-900/80 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700"
+      >
+        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
+          Zespół
+        </th>
+        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
+          Owner
+        </th>
+        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
+          Członkowie
+        </th>
+        <th class="py-3.5 px-4 font-semibold text-center w-[16%]">Zaufany</th>
       </tr>
     </thead>
-    <tbody class="text-slate-300 text-sm">
-      <!-- org column -->
-
+    <tbody class="divide-y divide-slate-700/70 text-slate-300">
       @for (org of safeOrganizations(); track org.id) {
-        <tr class="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
-          <td class="p-3 border-r border-slate-700 font-medium text-center truncate">
-            <div class="grid grid-cols-2 gap-2 items-center justify-center">
-              <div>
+        <tr class="hover:bg-slate-700/30 transition-colors">
+          <!-- org column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            <div
+              class="flex items-center justify-between gap-3 bg-slate-900/40 p-2 rounded-lg border border-slate-700/40"
+            >
+              <span class="font-semibold text-slate-100 truncate text-sm" [title]="org.name">
                 {{ org.name }}
-              </div>
-              <div>
-                <button
-                  (click)="handleDeleteOrganization(org.id)"
-                  class="px-2 py-1 bg-red-600 hover:bg-red-500 text-white text-sm rounded transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
+              </span>
+              <button
+                (click)="handleDeleteOrganization(org.id)"
+                class="shrink-0 px-2.5 py-1 bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-medium rounded-md transition-all shadow-sm active:scale-95"
+              >
+                Usuń
+              </button>
             </div>
           </td>
 
           <!-- owners column -->
-
-          <td class="p-3 border-r border-slate-700 text-center truncate">
-            <div class="flex flex-col gap-1 items-center justify-center">
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            <div class="flex flex-col gap-1.5 justify-center">
               @for (owner of org.owners; track owner.id) {
-                <div class="grid grid-cols-2 gap-2 items-center justify-center">
-                  <span class="text-slate-300 text-xs font-semibold">
+                <div
+                  class="flex items-center justify-between gap-2 bg-slate-900/40 px-2.5 py-1.5 rounded-lg border border-slate-700/30"
+                >
+                  <span class="text-slate-300 text-xs font-mono truncate" [title]="owner.email">
                     {{ owner.email }}
                   </span>
-                  <div class="px-8">
-                    <button
-                      (click)="handleDeleteOwner(owner.id, org.id)"
-                      class="px-2 py-1 bg-red-600 hover:bg-red-500 text-white text-sm rounded transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  <button
+                    (click)="handleDeleteOwner(owner.id, org.id)"
+                    class="shrink-0 px-2 py-0.5 bg-rose-600/80 hover:bg-rose-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
+                  >
+                    Usuń
+                  </button>
                 </div>
               } @empty {
-                <span class="text-slate-500 text-xs italic">Brak właściciela</span>
+                <span class="text-slate-500 text-xs italic text-center py-1">Brak właściciela</span>
               }
             </div>
           </td>
 
           <!-- users column -->
-
-          <td class="p-3 text-center">
-            <div class="flex flex-col gap-1 justify-center items-center">
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            <div class="flex flex-col gap-1.5 justify-center">
               @for (user of org.members; track user.id) {
-                <div class="grid grid-cols-4 gap-2 items-center justify-center">
+                <div
+                  class="flex items-center justify-between gap-2 bg-slate-900/40 px-2.5 py-1.5 rounded-lg border border-slate-700/30"
+                >
+                  <span class="text-slate-300 text-xs font-mono truncate" [title]="user.email">
+                    {{ user.email }}
+                  </span>
+                  <button
+                    (click)="handleDeleteMember(user.id, org.id)"
+                    class="shrink-0 px-2 py-0.5 bg-rose-600/80 hover:bg-rose-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
                   >
-                  <span class="text-slate-400 text-xs">{{ user.email }}</span>
-                  <div class="px-8">
-                    <button
-                      (click)="handleDeleteMember(user.id, org.id)"
-                      class="px-2 py-1 bg-red-600 hover:bg-red-500 text-white text-sm rounded transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                    Usuń
+                  </button>
                 </div>
               } @empty {
-                <span class="text-slate-500 text-xs italic">Brak członków</span>
+                <span class="text-slate-500 text-xs italic text-center py-1">Brak członków</span>
               }
-              <!-- add member-->
+
+              <!-- add member button -->
               <button
                 (click)="handleAddMember(org.id)"
-                class="px-2 py-1 bg-green-600 hover:bg-green-500 text-white text-sm rounded transition-colors"
+                class="mt-1 w-full py-1 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5"
               >
-                Dodaj
+                <span>+</span> Dodaj członka
               </button>
             </div>
           </td>
 
           <!-- trusted column -->
+          <td class="p-3.5 align-middle text-center">
+            <div class="flex flex-col gap-2 items-center justify-center">
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                [ngClass]="
+                  org.trusted
+                    ? 'bg-green-700 text-green-200 border border-emerald-500/30'
+                    : 'bg-slate-700/50 text-slate-400 border border-slate-600/30'
+                "
+              >
+                {{ org.trusted ? 'Tak' : 'Nie' }}
+              </span>
 
-          <td>
-            <div class="flex flex-col gap-1 justify-center items-center">
-              {{ org.trusted ? 'Tak' : 'Nie' }}
               <button
                 (click)="facade.markOrganizationAsTrusted(org.id)"
-                class="px-2 py-1 bg-green-600 hover:bg-green-500 text-white text-sm rounded transition-colors"
+                class="px-2.5 py-1 text-xs font-medium rounded-md text-white transition-all shadow-sm active:scale-95"
                 [ngClass]="{
-                  'bg-green-600 hover:bg-green-500': !org.trusted,
-                  'bg-red-600 hover:bg-red-500': org.trusted,
+                  'bg-emerald-600 hover:bg-emerald-500': !org.trusted,
+                  'bg-amber-600/80 hover:bg-amber-600': org.trusted,
                 }"
               >
-                {{ org.trusted ? 'Ustaw jako niezaufany' : 'Ustaw jako zaufany' }}
+                {{ orgTrustedText(org) }}
               </button>
             </div>
           </td>
         </tr>
       } @empty {
         <tr>
-          <td colspan="3" class="p-4 text-center text-slate-500 italic">
+          <td colspan="4" class="p-8 text-center text-slate-400 italic">
             Brak zespołów do wyświetlenia
           </td>
         </tr>
@@ -111,26 +129,29 @@
     </tbody>
   </table>
 
-  <!-- pages -->
+  <!-- Pagination -->
   <div
-    class="flex justify-between items-center p-4 bg-slate-900 border-t border-slate-600 text-sm text-slate-300"
+    class="flex flex-wrap gap-3 justify-between items-center p-4 bg-slate-900/90 border-t border-slate-700 text-sm text-slate-300"
   >
-    <div>
-      Razem: <span class="font-semibold">{{ store.orgsTotalElements() }}</span>
+    <div class="text-xs text-slate-400">
+      Razem zespołów: <span class="font-bold text-slate-200">{{ store.orgsTotalElements() }}</span>
     </div>
-    <div class="flex gap-4 items-center">
+    <div class="flex gap-3 items-center">
       <button
         [disabled]="store.orgsIsFirst()"
         (click)="facade.changeOrganizationsPage('prev')"
-        class="px-3 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+        class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg border border-slate-700 text-xs font-medium transition-all"
       >
         Poprzednia
       </button>
-      <span> Strona {{ store.orgsPage() + 1 }} z {{ store.orgsTotalPages() }} </span>
+      <span class="text-xs font-medium text-slate-400">
+        Strona <strong class="text-slate-200">{{ store.orgsPage() + 1 }}</strong> z
+        <strong class="text-slate-200">{{ store.orgsTotalPages() }}</strong>
+      </span>
       <button
         [disabled]="store.orgsIsLast()"
         (click)="facade.changeOrganizationsPage('next')"
-        class="px-3 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+        class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg border border-slate-700 text-xs font-medium transition-all"
       >
         Następna
       </button>
@@ -140,11 +161,13 @@
 
 <!-- Modal - Add Organization -->
 @if (store.isAdminAddOrganizationActive() && !store.isAdminAddOrganizationSuccess()) {
-  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+  <div
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+  >
     <div
-      class="bg-slate-800 border border-slate-700 text-slate-100 px-6 py-6 rounded-2xl w-full max-w-sm shadow-2xl flex flex-col"
+      class="bg-slate-800 border border-slate-700 text-slate-100 p-6 rounded-2xl w-full max-w-sm shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-150"
     >
-      <h2 class="text-xl font-bold tracking-tight mb-4 text-emerald-400">
+      <h2 class="text-lg font-bold tracking-tight mb-4 text-emerald-400 flex items-center gap-2">
         {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.TITLE' | transloco }}
       </h2>
 
@@ -159,20 +182,20 @@
           #bandInput
           id="bandNameInput"
           type="text"
-          class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
+          class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
         />
       </div>
 
       <div class="flex gap-3 justify-end">
         <button
           (click)="closeModals()"
-          class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
+          class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
         >
           {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.CANCEL' | transloco }}
         </button>
         <button
           (click)="createOrganization(bandInput.value)"
-          class="px-4 py-2 text-sm font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition-colors"
+          class="px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition-all active:scale-95"
         >
           {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.ACCEPT' | transloco }}
         </button>
@@ -183,49 +206,64 @@
 
 <!-- Popup org added successfully -->
 @if (store.isAdminAddOrganizationSuccess()) {
-  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+  <div
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+  >
     <div
-      class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
+      class="bg-slate-800 text-slate-100 p-6 rounded-2xl shadow-2xl border border-emerald-500/50 text-center max-w-xs w-full flex flex-col items-center"
     >
-      <h2 class="text-xl font-bold tracking-tight mb-2">
+      <div
+        class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-3 border border-emerald-500/30"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          ></path>
+        </svg>
+      </div>
+      <h2 class="text-lg font-bold tracking-tight mb-1 text-slate-100">
         {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.SUCCESS_TITLE' | transloco }}
       </h2>
-      <p class="text-sm text-emerald-100 mb-4">
+      <p class="text-xs text-slate-400 mb-5">
         {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.SUCCESS_DESC' | transloco }}
       </p>
       <button
         (click)="closeModals()"
-        class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
+        class="w-full px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md"
       >
         {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.CLOSE' | transloco }}
       </button>
     </div>
   </div>
 }
-<!-- ZAMKNIĘCIE BLOKU SUKCESU BYŁO W ZŁYM MIEJSCU -->
 
 <!-- Modal - delete org -->
 @if (store.modalDeleteOrganizationActive()) {
-  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+  <div
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+  >
     <div
-      class="bg-slate-800 border border-slate-700 text-slate-100 px-6 py-6 rounded-2xl w-full max-w-sm shadow-2xl flex flex-col"
+      class="bg-slate-800 border border-slate-700 text-slate-100 p-6 rounded-2xl w-full max-w-sm shadow-2xl flex flex-col"
     >
-      <h2 class="text-xl font-bold tracking-tight mb-4 text-red-400">
+      <h2 class="text-lg font-bold tracking-tight mb-2 text-rose-400">
         {{ 'ORGANIZATION_LIST.DELETE_ORGANIZATION.TITLE' | transloco }}
       </h2>
-      <p class="text-sm text-slate-300 mb-6">
+      <p class="text-xs text-slate-300 mb-6">
         {{ 'ORGANIZATION_LIST.DELETE_ORGANIZATION.CONFIRMATION' | transloco }}
       </p>
       <div class="flex gap-3 justify-end">
         <button
           (click)="closeModals()"
-          class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
+          class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
         >
           {{ 'ORGANIZATION_LIST.DELETE_ORGANIZATION.CANCEL' | transloco }}
         </button>
         <button
           (click)="confirmDeleteOrganization()"
-          class="px-4 py-2 text-sm font-bold rounded-lg bg-red-600 hover:bg-red-500 text-white shadow-md transition-colors"
+          class="px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-md transition-all active:scale-95"
         >
           {{ 'ORGANIZATION_LIST.DELETE_ORGANIZATION.ACCEPT' | transloco }}
         </button>
@@ -236,16 +274,18 @@
 
 <!-- Modal - confirm deleting owner from org -->
 @if (store.modalDeleteOwnerActive()) {
-  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+  <div
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+  >
     <div
-      class="bg-slate-800 border border-slate-700 text-slate-100 px-6 py-6 rounded-2xl w-full max-w-sm shadow-2xl flex flex-col"
+      class="bg-slate-800 border border-slate-700 text-slate-100 p-6 rounded-2xl w-full max-w-sm shadow-2xl flex flex-col"
     >
-      <h2 class="text-xl font-bold tracking-tight mb-4 text-red-400">
+      <h2 class="text-lg font-bold tracking-tight mb-2 text-rose-400">
         {{
           'ORGANIZATION_LIST.DELETE_OWNER.TITLE' | transloco: { defaultValue: 'Usuń właściciela' }
         }}
       </h2>
-      <p class="text-sm text-slate-300 mb-6">
+      <p class="text-xs text-slate-300 mb-6">
         {{
           'ORGANIZATION_LIST.DELETE_OWNER.CONFIRMATION'
             | transloco
@@ -255,13 +295,13 @@
       <div class="flex gap-3 justify-end">
         <button
           (click)="closeModals()"
-          class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
+          class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
         >
           {{ 'ORGANIZATION_LIST.DELETE_OWNER.CANCEL' | transloco: { defaultValue: 'Anuluj' } }}
         </button>
         <button
           (click)="confirmDeleteOwner()"
-          class="px-4 py-2 text-sm font-bold rounded-lg bg-red-600 hover:bg-red-500 text-white shadow-md transition-colors"
+          class="px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-md transition-all active:scale-95"
         >
           {{ 'ORGANIZATION_LIST.DELETE_OWNER.ACCEPT' | transloco: { defaultValue: 'Usuń' } }}
         </button>
@@ -272,14 +312,16 @@
 
 <!-- Modal - confirm deleting user from org -->
 @if (store.modalDeleteMemberActive()) {
-  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+  <div
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+  >
     <div
-      class="bg-slate-800 border border-slate-700 text-slate-100 px-6 py-6 rounded-2xl w-full max-w-sm shadow-2xl flex flex-col"
+      class="bg-slate-800 border border-slate-700 text-slate-100 p-6 rounded-2xl w-full max-w-sm shadow-2xl flex flex-col"
     >
-      <h2 class="text-xl font-bold tracking-tight mb-4 text-red-400">
+      <h2 class="text-lg font-bold tracking-tight mb-2 text-rose-400">
         {{ 'ORGANIZATION_LIST.DELETE_MEMBER.TITLE' | transloco: { defaultValue: 'Usuń członka' } }}
       </h2>
-      <p class="text-sm text-slate-300 mb-6">
+      <p class="text-xs text-slate-300 mb-6">
         {{
           'ORGANIZATION_LIST.DELETE_MEMBER.CONFIRMATION'
             | transloco: { defaultValue: 'Czy na pewno chcesz usunąć tego użytkownika z zespołu?' }
@@ -288,13 +330,13 @@
       <div class="flex gap-3 justify-end">
         <button
           (click)="closeModals()"
-          class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
+          class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
         >
           {{ 'ORGANIZATION_LIST.DELETE_MEMBER.CANCEL' | transloco: { defaultValue: 'Anuluj' } }}
         </button>
         <button
           (click)="confirmDeleteMember()"
-          class="px-4 py-2 text-sm font-bold rounded-lg bg-red-600 hover:bg-red-500 text-white shadow-md transition-colors"
+          class="px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-md transition-all active:scale-95"
         >
           {{ 'ORGANIZATION_LIST.DELETE_MEMBER.ACCEPT' | transloco: { defaultValue: 'Usuń' } }}
         </button>
@@ -305,17 +347,31 @@
 
 <!-- Popup - delete organization success -->
 @if (store.modalDeleteOrganizationSuccess()) {
-  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+  <div
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+  >
     <div
-      class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
+      class="bg-slate-800 text-slate-100 p-6 rounded-2xl shadow-2xl border border-emerald-500/50 text-center max-w-xs w-full flex flex-col items-center"
     >
-      <h2 class="text-xl font-bold tracking-tight mb-2">
+      <div
+        class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-3 border border-emerald-500/30"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          ></path>
+        </svg>
+      </div>
+      <h2 class="text-lg font-bold tracking-tight mb-1">
         {{
           'ORGANIZATION_LIST.DELETE_ORGANIZATION.SUCCESS_TITLE'
             | transloco: { defaultValue: 'Sukces' }
         }}
       </h2>
-      <p class="text-sm text-emerald-100 mb-4">
+      <p class="text-xs text-slate-400 mb-5">
         {{
           'ORGANIZATION_LIST.DELETE_ORGANIZATION.SUCCESS_DESC'
             | transloco: { defaultValue: 'Zespół został pomyślnie usunięty.' }
@@ -323,7 +379,7 @@
       </p>
       <button
         (click)="closeModals()"
-        class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
+        class="w-full px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md"
       >
         {{ 'ORGANIZATION_LIST.DELETE_ORGANIZATION.CLOSE' | transloco: { defaultValue: 'Zamknij' } }}
       </button>
@@ -333,16 +389,30 @@
 
 <!-- Popup - delete member success -->
 @if (store.modalDeleteMemberSuccess()) {
-  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+  <div
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+  >
     <div
-      class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
+      class="bg-slate-800 text-slate-100 p-6 rounded-2xl shadow-2xl border border-emerald-500/50 text-center max-w-xs w-full flex flex-col items-center"
     >
-      <h2 class="text-xl font-bold tracking-tight mb-2">
+      <div
+        class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-3 border border-emerald-500/30"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          ></path>
+        </svg>
+      </div>
+      <h2 class="text-lg font-bold tracking-tight mb-1">
         {{
           'ORGANIZATION_LIST.DELETE_MEMBER.SUCCESS_TITLE' | transloco: { defaultValue: 'Sukces' }
         }}
       </h2>
-      <p class="text-sm text-emerald-100 mb-4">
+      <p class="text-xs text-slate-400 mb-5">
         {{
           'ORGANIZATION_LIST.DELETE_MEMBER.SUCCESS_DESC'
             | transloco: { defaultValue: 'Członek został pomyślnie usunięty z zespołu.' }
@@ -350,7 +420,7 @@
       </p>
       <button
         (click)="closeModals()"
-        class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
+        class="w-full px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md"
       >
         {{ 'ORGANIZATION_LIST.DELETE_MEMBER.CLOSE' | transloco: { defaultValue: 'Zamknij' } }}
       </button>
@@ -360,14 +430,28 @@
 
 <!-- Popup - delete owner success -->
 @if (store.modalDeleteOwnerSuccess()) {
-  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+  <div
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+  >
     <div
-      class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
+      class="bg-slate-800 text-slate-100 p-6 rounded-2xl shadow-2xl border border-emerald-500/50 text-center max-w-xs w-full flex flex-col items-center"
     >
-      <h2 class="text-xl font-bold tracking-tight mb-2">
+      <div
+        class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-3 border border-emerald-500/30"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          ></path>
+        </svg>
+      </div>
+      <h2 class="text-lg font-bold tracking-tight mb-1">
         {{ 'ORGANIZATION_LIST.DELETE_OWNER.SUCCESS_TITLE' | transloco: { defaultValue: 'Sukces' } }}
       </h2>
-      <p class="text-sm text-emerald-100 mb-4">
+      <p class="text-xs text-slate-400 mb-5">
         {{
           'ORGANIZATION_LIST.DELETE_OWNER.SUCCESS_DESC'
             | transloco: { defaultValue: 'Właściciel został pomyślnie usunięty z zespołu.' }
@@ -375,7 +459,7 @@
       </p>
       <button
         (click)="closeModals()"
-        class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
+        class="w-full px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md"
       >
         {{ 'ORGANIZATION_LIST.DELETE_OWNER.CLOSE' | transloco: { defaultValue: 'Zamknij' } }}
       </button>
@@ -383,16 +467,19 @@
   </div>
 }
 
-<!--  Popup - error -->
+<!-- Popup - error -->
 @if (store.globalErrorKey()) {
-  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+  <div
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+  >
     <div
-      class="bg-red-600 text-white p-6 rounded-xl shadow-lg border border-red-400 text-center max-w-xs w-full"
+      class="bg-slate-800 text-slate-100 p-6 rounded-2xl shadow-2xl border border-rose-500/50 text-center max-w-xs w-full flex flex-col items-center"
     >
-      <!-- icon -->
-      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+      <div
+        class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-rose-500/20 border border-rose-500/30 mb-3 text-rose-400"
+      >
         <svg
-          class="h-6 w-6 text-red-600"
+          class="h-6 w-6"
           fill="none"
           viewBox="0 0 24 24"
           stroke-width="1.5"
@@ -406,10 +493,10 @@
         </svg>
       </div>
 
-      <h2 class="text-xl font-bold tracking-tight mb-2">
+      <h2 class="text-lg font-bold tracking-tight mb-1 text-slate-100">
         {{ 'ERROR.TITLE' | transloco: { defaultValue: 'Wystąpił błąd' } }}
       </h2>
-      <p class="text-sm text-red-100 mb-6">
+      <p class="text-xs text-slate-400 mb-5">
         {{
           store.globalErrorKey()!
             | transloco: { defaultValue: 'Operacja nie powiodła się. Spróbuj ponownie.' }
@@ -417,7 +504,7 @@
       </p>
       <button
         (click)="closeModals()"
-        class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-red-600 hover:bg-gray-100 transition-colors shadow-md"
+        class="w-full px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-md"
       >
         {{ 'ERROR.CLOSE' | transloco: { defaultValue: 'Zamknij' } }}
       </button>
