@@ -347,7 +347,7 @@ export class ReservationFacade {
       .getReservationsByStatus(this.store.reservationsPage(), this.store.reservationsSize(), status)
       .subscribe({
         next: (pageData) => {
-          this.store.allCreatedReservations.set(pageData.content);
+          this.store.reservationsByStatus.set(pageData.content);
           this.store.totalNumberOfCreatedReservations.set(pageData.totalElements);
           console.log('getReservationsByStatus data:');
           console.table(pageData.content);
@@ -376,6 +376,8 @@ export class ReservationFacade {
             this.authService.currentUser()?.id ?? 0,
           );
         }
+        this.store.popupMarkedReservationAsAccepted.set(true);
+        this.getReservationsByStatus(ReservationStatus.CREATED);
       },
       error: (e) => {
         console.error('Error markReservationAsAccepted: ', e);
@@ -394,6 +396,8 @@ export class ReservationFacade {
             this.authService.currentUser()?.id ?? 0,
           );
         }
+        this.store.popupMarkedReservationAsRequestCancel.set(true);
+        this.getReservationsByStatus(ReservationStatus.CREATED);
       },
       error: (e) => {
         console.error('Error markReservationAsAccepted: ', e);
@@ -412,6 +416,8 @@ export class ReservationFacade {
             this.authService.currentUser()?.id ?? 0,
           );
         }
+        this.store.popupMarkedReservationAsCanceled.set(true);
+        this.getReservationsByStatus(ReservationStatus.CREATED);
       },
       error: (e) => {
         console.error('Error markReservationAsAccepted: ', e);

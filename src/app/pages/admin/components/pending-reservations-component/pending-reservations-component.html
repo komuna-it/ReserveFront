@@ -30,7 +30,7 @@
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-700/70 text-slate-300">
-      @for (res of store.allCreatedReservations(); track res.id) {
+      @for (res of store.reservationsByStatus(); track res.id) {
         <tr class="hover:bg-slate-700/30 transition-colors">
           <!-- org column -->
           <td class="p-3.5 border-r border-slate-700/60 align-middle">
@@ -65,13 +65,13 @@
           <td class="p-3.5 align-middle">
             <div class="flex flex-col gap-1.5 justify-center">
               <button
-                (click)="handleAcceptReservation(res)"
+                (click)="handleClickAcceptReservation(res)"
                 class="shrink-0 px-2 py-0.5 bg-green-600/80 hover:bg-green-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
               >
                 {{ 'ADMIN_PENDING_RESERVATIONS.ACCEPT' | transloco }}
               </button>
               <button
-                (click)="handleCancelReservation(res)"
+                (click)="handleClickCancelReservation(res)"
                 class="shrink-0 px-2 py-0.5 bg-rose-600/80 hover:bg-rose-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
               >
                 {{ 'ADMIN_PENDING_RESERVATIONS.REJECT' | transloco }}

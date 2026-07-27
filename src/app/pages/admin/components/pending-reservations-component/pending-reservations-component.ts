@@ -61,6 +61,7 @@ export class PendingReservationsComponent implements OnInit {
 
   handleClickAcceptReservation(res: ReservationDto) {
     this.store.confirmMarkReservationAsAccepted.set(true);
+    this.store.selectedReservation.set(res);
   }
 
   handleAcceptReservation(res: ReservationDto) {
@@ -71,6 +72,7 @@ export class PendingReservationsComponent implements OnInit {
 
   handleClickCancelReservation(res: ReservationDto) {
     this.store.confirmMarkReservationAsCanceled.set(true);
+    this.store.selectedReservation.set(res);
   }
 
   handleCancelReservation(res: ReservationDto) {

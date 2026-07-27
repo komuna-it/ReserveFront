@@ -49,5 +49,6 @@ export class ConfirmAction {
       this.facade.markReservationAsCanceled(this.store.selectedReservation()?.id ?? 0);
     }
     this.facade.getReservationsByStatus(ReservationStatus.CREATED);
+    this.closeModals();
   }
 }
