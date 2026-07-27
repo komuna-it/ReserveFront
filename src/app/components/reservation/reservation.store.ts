@@ -149,9 +149,14 @@ export class ReservationStore {
       const cells = roomsList.map((room) => {
         const matched = reservationsToday.find((res) => {
           if (res.room !== room.id) return false;
-          const startHour = new Date(res.startAt).getHours();
-          const duration = this.helper.parseDurationToHours(res.duration);
-          return hour >= startHour && hour < startHour + duration;
+          const startHour = new Date(res.startAt).getUTCHours();
+          const endHour = new Date(res.endAt).getUTCHours();
+          console.log('Start hour: ' + startHour);
+          console.log('endHour: ' + endHour);
+          console.log(
+            ' hour >= startHour && hour < endHour: ' + (hour >= startHour && hour < endHour),
+          );
+          return hour >= startHour && hour < endHour;
         });
 
         const isReserved = !!matched;
@@ -161,10 +166,9 @@ export class ReservationStore {
         let bandName = '';
 
         if (matched) {
-          const startHour = new Date(matched.startAt).getHours();
-          const duration = this.helper.parseDurationToHours(matched.duration);
+          const startHour = new Date(matched.startAt).getUTCHours();
           isFirst = hour === startHour;
-          isLast = hour === startHour + duration - 1;
+          isLast = hour === new Date(matched.endAt).getUTCHours() - 1;
 
           if (matched.organization) {
             if (isAdmin) {

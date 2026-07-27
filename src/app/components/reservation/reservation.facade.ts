@@ -48,7 +48,11 @@ export class ReservationFacade {
     this.api
       .getReservations(this.store.reservationsPage(), this.store.reservationsSize())
       .subscribe({
-        next: (pageData) => this.store.reservations.set(pageData.content),
+        next: (pageData) => {
+          this.store.reservations.set(pageData.content);
+          console.log('Get reservations data:');
+          console.table(pageData.content);
+        },
         error: (e) => console.log('Error fetching res: ', e),
       });
   }
