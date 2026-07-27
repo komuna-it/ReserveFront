@@ -5,5 +5,5 @@ export interface CreateReservationRequest {
   startAt: string;
   duration: string;
   type: ReservationType;
-  organizationId: number;
+  organizationId?: number | null;
 }

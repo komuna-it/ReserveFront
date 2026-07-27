@@ -65,16 +65,18 @@ export class ReservationFacade {
 
     const utcTimestamp = Date.UTC(year, month - 1, day, booking.hour, 0, 0, 0);
     const startAtDate = new Date(utcTimestamp);
+    const isPrivate = this.store.privateReservationCheckbox();
 
     let req: CreateReservationRequest = {
       roomId: booking.roomId,
       startAt: startAtDate.toISOString(),
       duration: `PT${booking.duration}H`,
       type: ReservationType.REHERSEAL,
-      organizationId: booking.organizationId,
+      organizationId: isPrivate ? null : booking.organizationId,
     };
 
-    console.log('req sent to backend (Standard UTC): ', req);
+    console.log('req sent to backend (Standard UTC): ');
+    console.table(req);
 
     this.api.postReservation(req).subscribe({
       next: () => {
