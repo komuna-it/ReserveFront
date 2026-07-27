@@ -147,38 +147,34 @@ export class ReservationStore {
       const isPastHour = isPastDay || (isToday && hour <= currentHour);
 
       const cells = roomsList.map((room) => {
-        const matched = reservationsToday.find((res) => {
+        const matchedReservation = reservationsToday.find((res) => {
           if (res.room !== room.id) return false;
           const startHour = new Date(res.startAt).getUTCHours();
           const endHour = new Date(res.endAt).getUTCHours();
-          console.log('Start hour: ' + startHour);
-          console.log('endHour: ' + endHour);
-          console.log(
-            ' hour >= startHour && hour < endHour: ' + (hour >= startHour && hour < endHour),
-          );
           return hour >= startHour && hour < endHour;
         });
 
-        const isReserved = !!matched;
+        const isReserved = !!matchedReservation;
         let isFirst = false;
         let isLast = false;
         let isMyOrg = false;
         let bandName = '';
 
-        if (matched) {
-          const startHour = new Date(matched.startAt).getUTCHours();
+        if (matchedReservation) {
+          const startHour = new Date(matchedReservation.startAt).getUTCHours();
           isFirst = hour === startHour;
-          isLast = hour === new Date(matched.endAt).getUTCHours() - 1;
+          isLast = hour === new Date(matchedReservation.endAt).getUTCHours() - 1;
 
-          if (matched.organization) {
+          if (matchedReservation.organization) {
             if (isAdmin) {
               bandName =
-                allOrgs.get(matched.organization) || `Organizacja #${matched.organization}`;
+                allOrgs.get(matchedReservation.organization) ||
+                `Organizacja #${matchedReservation.organization}`;
               isMyOrg = false;
             } else {
-              if (userOrgs.has(matched.organization)) {
+              if (userOrgs.has(matchedReservation.organization)) {
                 isMyOrg = true;
-                bandName = userOrgs.get(matched.organization) || '';
+                bandName = userOrgs.get(matchedReservation.organization) || '';
               } else {
                 isMyOrg = false;
                 bandName = '';
@@ -220,4 +216,6 @@ export class ReservationStore {
   readonly organizationListSelectedOrganization = signal<Organization | null>(null);
 
   readonly globalErrorKey = signal<string | null>(null);
+
+  readonly privateReservationCheckbox = signal<boolean>(false);
 }

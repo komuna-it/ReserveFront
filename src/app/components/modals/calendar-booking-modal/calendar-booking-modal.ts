@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { CalendarHelper } from '../../calendar/calendar.helper';
 import { AuthService } from '../../../auth/authService';

@@ -31,7 +31,8 @@
     "CLOSE": "Zamknij",
     "ERROR_TITLE": "Błąd rezerwacji",
     "ERROR_DESC": "Wybrany termin jest już niedostępny lub wystąpił błąd sieci.",
-    "BACK_TO_CALENDAR": "Wróć do kalendarza"
+    "BACK_TO_CALENDAR": "Wróć do kalendarza",
+    "PRIVATE_RESERVATION": "Zarezerwuj prywatnie (bez zespołu)"
   },
   "PROFILE": {
     "TITLE": "Twój Profil",
