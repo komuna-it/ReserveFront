@@ -218,4 +218,25 @@ export class ReservationStore {
   readonly globalErrorKey = signal<string | null>(null);
 
   readonly privateReservationCheckbox = signal<boolean>(false);
+
+  // confirm reservation management pagination
+
+  readonly allCreatedReservations = signal<ReservationDto[]>([]);
+  readonly totalNumberOfCreatedReservations = signal<number>(0);
+  readonly totalPagesOfCreatedReservations = signal<number>(0);
+  readonly pageOfCreatedReservations = signal<number>(0);
+  readonly allCreatedReservationsIsFirst = signal<boolean>(false);
+  readonly allCreatedReservationsIsLast = signal<boolean>(false);
+
+  // confirm reservation management
+
+  readonly selectedReservation = signal<ReservationDto | null>(null);
+
+  readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
+  readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
+  readonly confirmMarkReservationAsCanceled = signal<boolean>(false);
+
+  readonly popupMarkedReservationAsAccepted = signal<boolean>(false);
+  readonly popupMarkedReservationAsRequestCancel = signal<boolean>(false);
+  readonly popupMarkedReservationAsCanceled = signal<boolean>(false);
 }

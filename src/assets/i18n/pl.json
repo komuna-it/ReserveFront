@@ -129,5 +129,29 @@
     "SELECT_USER": "Wybierz użytkownika",
     "CANCEL": "Anuluj",
     "CONFIRM": "Potwierdź"
+  },
+  "ADMIN_PENDING_RESERVATIONS": {
+    "ORG": "Zespół",
+    "RESERVED_BY": "Rezerwujący",
+    "DATE": "Data",
+    "START_HOUR": "Godzina rozpoczęcia",
+    "END_HOUR": "Godzina zakończenia",
+    "PRIVATE": "Prywatna?",
+    "ACTION_COLUMN": "Akceptuj/Odrzuć",
+    "IS_PRIVATE": "Tak",
+    "IS_NOT_PRIVATE": "Nie",
+    "ACCEPT": "Akceptuj",
+    "REJECT": "Odrzuć",
+    "NO_RESERVATIONS": "Brak oczekujących rezerwacji",
+    "PAGE": "Strona",
+    "NEXT": "Następna",
+    "PREVIOUS": "Poprzednia",
+    "TOTAL_RESERVATIONS": "Łącznie rezerwacji",
+    "ACCEPTED": "Rezerwacja zaakceptowana",
+    "REJECTED": "Rezerwacja odrzucona",
+    "CONFIRM_ACCEPT": "Potwierdź akceptację rezerwacji",
+    "CONFIRM_CANCEL": "Potwierdź odrzucenie rezerwacji",
+    "SEND_ACCEPT": "Akceptuj",
+    "SEND_CANCEL": "Odrzuć"
   }
 }

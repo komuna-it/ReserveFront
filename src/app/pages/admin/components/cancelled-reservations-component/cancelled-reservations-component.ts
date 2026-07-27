@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-cancelled-reservations-component',

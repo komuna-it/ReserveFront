@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { ReservationType } from '../../model/reservationType';
 import { CreateReservationRequest } from '../../model/CreateReservationRequest';
+import { ReservationStatus } from '../../model/reservationStatus';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -337,6 +338,84 @@ export class ReservationFacade {
       error: (e) => {
         console.error('Error marking user as trusted: ', e);
         this.store.globalErrorKey.set('Error marking user as trusted');
+      },
+    });
+  }
+
+  getReservationsByStatus(status: ReservationStatus) {
+    this.api
+      .getReservationsByStatus(this.store.reservationsPage(), this.store.reservationsSize(), status)
+      .subscribe({
+        next: (pageData) => {
+          this.store.allCreatedReservations.set(pageData.content);
+          this.store.totalNumberOfCreatedReservations.set(pageData.totalElements);
+          console.log('getReservationsByStatus data:');
+          console.table(pageData.content);
+        },
+        error: (e) => console.log('Error fetching res: ', e),
+      });
+  }
+
+  changeReservationsByStatusPage(direction: 'next' | 'prev') {
+    const currentPage = this.store.pageOfCreatedReservations();
+    const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
+    if (this.authService.isAdmin()) {
+      this.getAllMembersAllOrganizations(newPage);
+    } else {
+      this.getOrganizationsOfUserWithMembers(newPage);
+    }
+  }
+
+  markReservationAsAccepted(reservationId: number) {
+    this.api.markReservationAsAccepted(reservationId).subscribe({
+      next: () => {
+        if (this.authService.isAdmin()) {
+          this.getRoomsAndReservations();
+        } else if (this.authService.currentUser()?.id != 0) {
+          this.getAllReservationsForUserAndTheirOrganization(
+            this.authService.currentUser()?.id ?? 0,
+          );
+        }
+      },
+      error: (e) => {
+        console.error('Error markReservationAsAccepted: ', e);
+        this.store.globalErrorKey.set('Error markReservationAsAccepted');
+      },
+    });
+  }
+
+  markReservationAsRequestCancel(reservationId: number) {
+    this.api.markReservationAsRequestCancel(reservationId).subscribe({
+      next: () => {
+        if (this.authService.isAdmin()) {
+          this.getRoomsAndReservations();
+        } else if (this.authService.currentUser()?.id != 0) {
+          this.getAllReservationsForUserAndTheirOrganization(
+            this.authService.currentUser()?.id ?? 0,
+          );
+        }
+      },
+      error: (e) => {
+        console.error('Error markReservationAsAccepted: ', e);
+        this.store.globalErrorKey.set('Error markReservationAsAccepted');
+      },
+    });
+  }
+
+  markReservationAsCanceled(reservationId: number) {
+    this.api.markReservationAsCanceled(reservationId).subscribe({
+      next: () => {
+        if (this.authService.isAdmin()) {
+          this.getRoomsAndReservations();
+        } else if (this.authService.currentUser()?.id != 0) {
+          this.getAllReservationsForUserAndTheirOrganization(
+            this.authService.currentUser()?.id ?? 0,
+          );
+        }
+      },
+      error: (e) => {
+        console.error('Error markReservationAsAccepted: ', e);
+        this.store.globalErrorKey.set('Error markReservationAsAccepted');
       },
     });
   }

@@ -49,7 +49,7 @@ export class CalendarHelper {
     const day = dateStart.getDate();
     const year = dateStart.getFullYear();
     const month = String(dateStart.getMonth() + 1).padStart(2, '0');
-    const startAt = dateStart.getHours();
+    const startAt = dateStart.getUTCHours();
     const endAt = startAt + this.parseDurationToHours(duration);
 
     return `${day}.${month}.${year} ${startAt}:00 - ${endAt}:00`;
@@ -61,7 +61,29 @@ export class CalendarHelper {
     console.log('day: ', day);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
-    const startAt = date.getHours();
+    const startAt = date.getUTCHours();
     return `${day}.${month}.${year} ${startAt}:00`;
+  }
+
+  generateDayLabel(dateString: string): string {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+
+    return `${day}.${month}.${year}`;
+  }
+
+  generateHourLabel(dateString: string): string {
+    const date = new Date(dateString);
+    const hour = date.getUTCHours();
+    let minute = date.getMinutes();
+    let minuteString = '';
+    if (minute === 0) {
+      minuteString = '00';
+    } else {
+      minuteString = minute.toString();
+    }
+    return `${hour}:${minuteString}`;
   }
 }

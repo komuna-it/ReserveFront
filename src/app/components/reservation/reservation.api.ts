@@ -7,6 +7,7 @@ import { Organization } from '../../model/organization';
 import { Observable } from 'rxjs';
 import { User } from '../../model/user';
 import { Page } from '../../model/page';
+import { ReservationStatus } from '../../model/reservationStatus';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationApi {
@@ -152,5 +153,22 @@ export class ReservationApi {
 
   markUserTrusted(isTrusted: boolean, userId: number) {
     return this.http.patch<User>(`${this.apiUrl}/users/${userId}/isTrusted/${isTrusted}`, {});
+  }
+
+  getReservationsByStatus(page = 0, size = 100, status: ReservationStatus) {
+    const params = new HttpParams().set('page', page).set('size', size).set('status', status);
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
+  }
+
+  markReservationAsAccepted(reservationId: number) {
+    return this.http.post(`${this.apiUrl}/reservations/confirm/${reservationId}`, {});
+  }
+
+  markReservationAsRequestCancel(reservationId: number) {
+    return this.http.post(`${this.apiUrl}/reservations/requestCancel/${reservationId}`, {});
+  }
+
+  markReservationAsCanceled(reservationId: number) {
+    return this.http.post(`${this.apiUrl}/reservations/confirmCancel/${reservationId}`, {});
   }
 }

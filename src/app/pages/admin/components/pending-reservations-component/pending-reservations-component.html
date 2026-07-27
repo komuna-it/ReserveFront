@@ -1,1 +1,180 @@
-<p>pending-reservations-component works!</p>
+<div
+  class="w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
+>
+  <table class="w-full min-w-[768px] text-left border-collapse text-sm">
+    <thead>
+      <tr
+        class="bg-slate-900/80 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700"
+      >
+        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
+          {{ 'ADMIN_PENDING_RESERVATIONS.ORG' | transloco }}
+        </th>
+        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
+          {{ 'ADMIN_PENDING_RESERVATIONS.RESERVED_BY' | transloco }}
+        </th>
+        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
+          {{ 'ADMIN_PENDING_RESERVATIONS.DATE' | transloco }}
+        </th>
+        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
+          {{ 'ADMIN_PENDING_RESERVATIONS.START_HOUR' | transloco }}
+        </th>
+        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
+          {{ 'ADMIN_PENDING_RESERVATIONS.END_HOUR' | transloco }}
+        </th>
+        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
+          {{ 'ADMIN_PENDING_RESERVATIONS.PRIVATE' | transloco }}
+        </th>
+        <th class="py-3.5 px-4 font-semibold text-center w-[16%]">
+          {{ 'ADMIN_PENDING_RESERVATIONS.ACTION_COLUMN' | transloco }}
+        </th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-700/70 text-slate-300">
+      @for (res of store.allCreatedReservations(); track res.id) {
+        <tr class="hover:bg-slate-700/30 transition-colors">
+          <!-- org column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            {{ bandText(res) }}
+          </td>
+
+          <!-- reserved by column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            {{ reservedByText(res) }}
+          </td>
+
+          <!-- DATE column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            {{ dateColumnText(res) }}
+          </td>
+
+          <!-- startAt column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            {{ startAtText(res) }}
+          </td>
+
+          <!-- endAt column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            {{ endAtText(res) }}
+          </td>
+
+          <!-- private column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            {{ privateReservationText(res) }}
+          </td>
+
+          <td class="p-3.5 align-middle">
+            <div class="flex flex-col gap-1.5 justify-center">
+              <button
+                (click)="handleAcceptReservation(res)"
+                class="shrink-0 px-2 py-0.5 bg-green-600/80 hover:bg-green-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
+              >
+                {{ 'ADMIN_PENDING_RESERVATIONS.ACCEPT' | transloco }}
+              </button>
+              <button
+                (click)="handleCancelReservation(res)"
+                class="shrink-0 px-2 py-0.5 bg-rose-600/80 hover:bg-rose-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
+              >
+                {{ 'ADMIN_PENDING_RESERVATIONS.REJECT' | transloco }}
+              </button>
+            </div>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <!-- Updated colspan to match the total number of columns (7) -->
+          <td colspan="7" class="p-8 text-center text-slate-400 italic">
+            {{ 'ADMIN_PENDING_RESERVATIONS.NO_RESERVATIONS' | transloco }}
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <div
+    class="flex flex-wrap gap-3 justify-between items-center p-4 bg-slate-900/90 border-t border-slate-700 text-sm text-slate-300"
+  >
+    <div class="text-xs text-slate-400">
+      {{ 'ADMIN_PENDING_RESERVATIONS.TOTAL_RESERVATIONS' | transloco }}:
+      <span class="font-bold text-slate-200">{{ store.totalNumberOfCreatedReservations() }}</span>
+    </div>
+    <div class="flex gap-3 items-center">
+      <button
+        [disabled]="store.allCreatedReservationsIsFirst()"
+        (click)="facade.changeReservationsByStatusPage('prev')"
+        class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg border border-slate-700 text-xs font-medium transition-all"
+      >
+        {{ 'ADMIN_PENDING_RESERVATIONS.PREVIOUS' | transloco }}
+      </button>
+      <span class="text-xs font-medium text-slate-400">
+        {{ 'ADMIN_PENDING_RESERVATIONS.PAGE' | transloco }}
+        <strong class="text-slate-200">{{ store.pageOfCreatedReservations() + 1 }}</strong> z
+        <strong class="text-slate-200">{{ store.totalPagesOfCreatedReservations() }}</strong>
+      </span>
+      <button
+        [disabled]="store.allCreatedReservationsIsLast()"
+        (click)="facade.changeReservationsByStatusPage('next')"
+        class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg border border-slate-700 text-xs font-medium transition-all"
+      >
+        {{ 'ADMIN_PENDING_RESERVATIONS.NEXT' | transloco }}
+      </button>
+    </div>
+  </div>
+</div>
+
+@if (store.confirmMarkReservationAsAccepted() || store.confirmMarkReservationAsCanceled()) {
+  <app-confirm-action [reservation]="store.selectedReservation()"></app-confirm-action>
+}
+
+@if (store.popupMarkedReservationAsAccepted()) {
+  <app-reservation-accepted [reservation]="store.selectedReservation()"></app-reservation-accepted>
+}
+
+@if (store.popupMarkedReservationAsCanceled()) {
+  <app-reservation-canceled [reservation]="store.selectedReservation()"></app-reservation-canceled>
+}
+
+<!-- Popup - error -->
+@if (store.globalErrorKey()) {
+  <div
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+  >
+    <div
+      class="bg-slate-800 text-slate-100 p-6 rounded-2xl shadow-2xl border border-rose-500/50 text-center max-w-xs w-full flex flex-col items-center"
+    >
+      <div
+        class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-rose-500/20 border border-rose-500/30 mb-3 text-rose-400"
+      >
+        <svg
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+      </div>
+
+      <h2 class="text-lg font-bold tracking-tight mb-1 text-slate-100">
+        {{ 'ERROR.TITLE' | transloco: { defaultValue: 'Wystąpił błąd' } }}
+      </h2>
+      <p class="text-xs text-slate-400 mb-5">
+        {{
+          store.globalErrorKey()!
+            | transloco: { defaultValue: 'Operacja nie powiodła się. Spróbuj ponownie.' }
+        }}
+      </p>
+      <button
+        (click)="closeModals()"
+        class="w-full px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-md"
+      >
+        {{ 'ERROR.CLOSE' | transloco: { defaultValue: 'Zamknij' } }}
+      </button>
+    </div>
+  </div>
+}
