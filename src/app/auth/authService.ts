@@ -73,4 +73,12 @@ export class AuthService {
     this.currentUserSignal.set(null);
     this.router.navigate(['/']);
   }
+
+  refreshToken(): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/refresh`, {});
+  }
+
+  handleSessionExpired() {
+    this.executeLocalLogout();
+  }
 }
