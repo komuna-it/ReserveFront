@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { RequestCancellationReservationsComponent } from '../pages/admin/components/request-cancellation-reservations-component/request-cancellation-reservations-component';
 
 export const RESERVATIONS_ROUTES: Routes = [
   {
@@ -29,6 +30,13 @@ export const RESERVATIONS_ROUTES: Routes = [
     loadComponent: () =>
       import('../pages/admin/components/cancelled-reservations-component/cancelled-reservations-component').then(
         (m) => m.CancelledReservationsComponent,
+      ),
+  },
+  {
+    path: 'request-cancellation',
+    loadComponent: () =>
+      import('../pages/admin/components/request-cancellation-reservations-component/request-cancellation-reservations-component').then(
+        (m) => m.RequestCancellationReservationsComponent,
       ),
   },
 ];

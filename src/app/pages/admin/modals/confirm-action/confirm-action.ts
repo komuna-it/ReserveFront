@@ -5,6 +5,7 @@ import { AuthService } from '../../../../auth/authService';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { PendingReservationsComponent } from '../../components/pending-reservations-component/pending-reservations-component';
 import { ReservationStatus } from '../../../../model/reservationStatus';
+import { AdminPage } from '../../admin';
 
 @Component({
   selector: 'app-confirm-action',
@@ -18,7 +19,7 @@ export class ConfirmAction {
   readonly facade = inject(ReservationFacade);
   readonly authService = inject(AuthService);
   readonly translocoService = inject(TranslocoService);
-  readonly parent = inject(PendingReservationsComponent);
+  readonly parent = inject(AdminPage);
   readonly text: string = '';
 
   closeModals() {

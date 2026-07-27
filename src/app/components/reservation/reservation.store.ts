@@ -9,6 +9,7 @@ import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
 import { User } from '../../model/user';
 import { Page } from '../../model/page';
+import { ReservationStatus } from '../../model/reservationStatus';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
@@ -239,4 +240,6 @@ export class ReservationStore {
   readonly popupMarkedReservationAsAccepted = signal<boolean>(false);
   readonly popupMarkedReservationAsRequestCancel = signal<boolean>(false);
   readonly popupMarkedReservationAsCanceled = signal<boolean>(false);
+
+  readonly statusForAdminPage = signal<ReservationStatus | null>(null);
 }

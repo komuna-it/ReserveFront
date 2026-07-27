@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ReservationCanceled } from './reservation-canceled';
+import { TableByStatus } from './table-by-status';
 
-describe('ReservationCanceled', () => {
-  let component: ReservationCanceled;
-  let fixture: ComponentFixture<ReservationCanceled>;
+describe('TableByStatus', () => {
+  let component: TableByStatus;
+  let fixture: ComponentFixture<TableByStatus>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ReservationCanceled],
+      imports: [TableByStatus],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ReservationCanceled);
+    fixture = TestBed.createComponent(TableByStatus);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

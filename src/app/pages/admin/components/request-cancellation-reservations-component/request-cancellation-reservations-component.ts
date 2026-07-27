@@ -4,9 +4,6 @@ import { ReservationFacade } from '../../../../components/reservation/reservatio
 import { AuthService } from '../../../../auth/authService';
 import { ReservationStatus } from '../../../../model/reservationStatus';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { Organization } from '../../../../model/organization';
-import { filter } from 'rxjs';
-import { ReservationDto } from '../../../../model/reservationDto';
 import { CalendarHelper } from '../../../../components/calendar/calendar.helper';
 import { ReservationPopup } from '../../popups/reservationPopup/reservationPopup';
 import { ConfirmAction } from '../../modals/confirm-action/confirm-action';
@@ -14,12 +11,12 @@ import { AdminPage } from '../../admin';
 import { TableByStatus } from '../table-by-status/table-by-status';
 
 @Component({
-  selector: 'app-pending-reservations-component',
+  selector: 'app-request-cancellation-reservations-component',
   imports: [ReservationPopup, ConfirmAction, TranslocoPipe, TableByStatus],
-  templateUrl: './pending-reservations-component.html',
-  styleUrl: './pending-reservations-component.css',
+  templateUrl: './request-cancellation-reservations-component.html',
+  styleUrl: './request-cancellation-reservations-component.css',
 })
-export class PendingReservationsComponent implements OnInit {
+export class RequestCancellationReservationsComponent {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
   readonly authService = inject(AuthService);
@@ -28,7 +25,7 @@ export class PendingReservationsComponent implements OnInit {
   readonly parent = inject(AdminPage);
 
   ngOnInit(): void {
-    this.store.statusForAdminPage.set(ReservationStatus.CREATED);
-    this.facade.getReservationsByStatus(ReservationStatus.CREATED);
+    this.store.statusForAdminPage.set(ReservationStatus.REQUESTED_CANCELLATION);
+    this.facade.getReservationsByStatus(ReservationStatus.REQUESTED_CANCELLATION);
   }
 }
