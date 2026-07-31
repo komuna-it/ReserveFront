@@ -8,6 +8,7 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { ReservationType } from '../../model/reservationType';
 import { CreateReservationRequest } from '../../model/CreateReservationRequest';
 import { ReservationStatus } from '../../model/reservationStatus';
+import { ReservationDto } from '../../model/reservationDto';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -60,6 +61,7 @@ export class ReservationFacade {
 
   confirmBooking() {
     const booking = this.store.selectedBooking();
+    console.log('confirmBooking()...');
     if (!booking) return;
 
     const [year, month, day] = booking.date.split('-').map(Number);
@@ -84,6 +86,7 @@ export class ReservationFacade {
         this.store.selectedBooking.set(null);
         this.store.displayBookingSuccesfulPopup.set(true);
         this.getRoomsAndReservations();
+        console.log('success from this.api.postReservation!');
       },
       error: (err) => {
         console.error('Booking error response:', err);
@@ -144,20 +147,23 @@ export class ReservationFacade {
   connectToReservationStream() {
     this.disconnectStream();
     this.sseController = new AbortController();
-    const url = `${process.env['VSF_API_URL'] || ''}/reservation/sse`;
+    const url = `${process.env['VSF_API_URL'] || ''}/sse`;
     fetchEventSource(url, {
       method: 'GET',
       signal: this.sseController.signal,
       onmessage: (msg) => {
         const msgData = JSON.parse(msg.data);
-        const reservedBy = msgData.reservationDto?.reservedBy;
+        const reservedBy: ReservationDto = JSON.parse(msg.data);
+        const reservedById = reservedBy.reservedBy;
 
         if (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_REMOVED') {
           this.getRoomsAndReservations();
         }
 
-        const safeUserId = (this.authService.userId() || '').toString().replace(/['"]/g, '');
-        if (msg.event === 'RESERVATION_CREATED' && reservedBy !== safeUserId) {
+        const safeUserId = parseInt(
+          (this.authService.userId() || '').toString().replace(/['"]/g, ''),
+        );
+        if (msg.event === 'RESERVATION_CREATED' && reservedById !== safeUserId) {
           this.store.displayBookingErrorPopup.set(true);
         }
       },

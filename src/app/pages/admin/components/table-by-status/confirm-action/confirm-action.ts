@@ -1,11 +1,11 @@
 import { Component, inject, input } from '@angular/core';
-import { ReservationStore } from '../../../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
-import { AuthService } from '../../../../auth/authService';
+import { ReservationStore } from '../../../../../components/reservation/reservation.store';
+import { ReservationFacade } from '../../../../../components/reservation/reservation.facade';
+import { AuthService } from '../../../../../auth/authService';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { PendingReservationsComponent } from '../../components/pending-reservations-component/pending-reservations-component';
-import { ReservationStatus } from '../../../../model/reservationStatus';
-import { AdminPage } from '../../admin';
+import { PendingReservationsComponent } from '../../pending-reservations-component/pending-reservations-component';
+import { ReservationStatus } from '../../../../../model/reservationStatus';
+import { AdminPage } from '../../../admin';
 
 @Component({
   selector: 'app-confirm-action',

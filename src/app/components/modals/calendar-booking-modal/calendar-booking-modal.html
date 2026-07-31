@@ -54,7 +54,7 @@
         <select
           id="bandSelect"
           [(ngModel)]="booking.organizationId"
-          [disabled]="store.privateReservationCheckbox()"
+          [disabled]="store.privateReservationCheckbox() || store.userOrganizations().length === 0"
           class="w-full bg-slate-700 text-white font-medium border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           @for (org of store.userOrganizations(); track org.id) {
@@ -63,16 +63,27 @@
         </select>
       </div>
 
+      @if (store.userOrganizations().length === 0) {
+        <div class="text-sm text-red-400 mb-4">
+          You're not member of any band!
+          <button
+            (click)="handleAddOrganizationModal()"
+            class="underline text-emerald-400 cursor-pointer"
+          >
+            Click here to create one.
+          </button>
+        </div>
+      }
       <!--  checkbox for private reservation -->
       <div class="mb-6 flex items-center gap-3">
         <input
-          id="privateReservationCheckbox"
           type="checkbox"
-          [(ngModel)]="store.privateReservationCheckbox"
+          (change)="store.privateReservationCheckbox.set($event.target.checked)"
+          [disabled]="isPrivateCheckboxDisabled()"
           class="w-4 h-4 text-emerald-600 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2 cursor-pointer"
         />
         <label
-          for="privateReservationCheckbox"
+          for="store.privateReservationCheckbox()"
           class="text-sm font-medium text-slate-300 cursor-pointer select-none"
         >
           {{ 'CALENDAR.PRIVATE_RESERVATION' | transloco }}
@@ -95,4 +106,8 @@
       </div>
     </div>
   </div>
+
+  @if (this.store.modalAddOrganizationActive()) {
+    <app-add-organization-modal></app-add-organization-modal>
+  }
 }

@@ -164,8 +164,8 @@ export class OrganizationList implements OnInit, OnDestroy {
 
   orgTrustedText(org: Organization) {
     return org.trusted
-      ? this.loco.translate('ORGANIZATION_LIST.NOT_TRUSTED')
-      : this.loco.translate('ORGANIZATION_LIST.TRUSTED');
+      ? this.loco.translate('ORGANIZATION_LIST.TRUSTED')
+      : this.loco.translate('ORGANIZATION_LIST.NOT_TRUSTED');
   }
 
   orgTrustedButtonText(org: Organization) {

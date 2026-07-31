@@ -9,7 +9,7 @@ import { filter } from 'rxjs';
 import { ReservationDto } from '../../../../model/reservationDto';
 import { CalendarHelper } from '../../../../components/calendar/calendar.helper';
 import { ReservationPopup } from '../../popups/reservationPopup/reservationPopup';
-import { ConfirmAction } from '../../modals/confirm-action/confirm-action';
+import { ConfirmAction } from '../table-by-status/confirm-action/confirm-action';
 import { AdminPage } from '../../admin';
 import { TableByStatus } from '../table-by-status/table-by-status';
 

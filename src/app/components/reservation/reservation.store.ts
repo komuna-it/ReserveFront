@@ -35,6 +35,7 @@ export class ReservationStore {
   readonly orgsIsLast = signal<boolean>(true);
 
   readonly orgAndMembersMap = signal<Map<Organization, User[]>>(new Map());
+
   readonly daySelectedByUser = signal<Date>(new Date());
   readonly currentWeekStart = signal<Date>(this.helper.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
@@ -242,4 +243,6 @@ export class ReservationStore {
   readonly popupMarkedReservationAsCanceled = signal<boolean>(false);
 
   readonly statusForAdminPage = signal<ReservationStatus | null>(null);
+
+  readonly modalAddOrganizationActive = signal<boolean | null>(null);
 }
