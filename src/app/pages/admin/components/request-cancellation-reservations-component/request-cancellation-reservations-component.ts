@@ -7,10 +7,11 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { CalendarHelper } from '../../../../components/calendar/calendar.helper';
 import { AdminPage } from '../../admin';
 import { TableByStatus } from '../table-by-status/table-by-status';
+import { Pagination } from '../../../../layout/pagination/pagination';
 
 @Component({
   selector: 'app-request-cancellation-reservations-component',
-  imports: [TranslocoPipe, TableByStatus],
+  imports: [TableByStatus, Pagination],
   templateUrl: './request-cancellation-reservations-component.html',
   styleUrl: './request-cancellation-reservations-component.css',
 })

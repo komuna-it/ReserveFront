@@ -267,11 +267,11 @@ export class ReservationStore {
   // confirm reservation management pagination
 
   readonly reservationsByStatus = signal<ReservationDto[]>([]);
-  readonly totalNumberOfCreatedReservations = signal<number>(0);
-  readonly totalPagesOfCreatedReservations = signal<number>(0);
-  readonly pageOfCreatedReservations = signal<number>(0);
-  readonly allCreatedReservationsIsFirst = signal<boolean>(false);
-  readonly allCreatedReservationsIsLast = signal<boolean>(false);
+  readonly paginationTotalNumber = signal<number>(0);
+  readonly paginationTotalPages = signal<number>(0);
+  readonly paginationPage = signal<number>(0);
+  readonly paginationIsFirst = signal<boolean>(false);
+  readonly paginationIsLast = signal<boolean>(false);
 
   // confirm reservation management
 

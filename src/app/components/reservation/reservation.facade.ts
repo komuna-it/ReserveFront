@@ -362,22 +362,12 @@ export class ReservationFacade {
       .subscribe({
         next: (pageData) => {
           this.store.reservationsByStatus.set(pageData.content);
-          this.store.totalNumberOfCreatedReservations.set(pageData.totalElements);
+          this.store.paginationTotalNumber.set(pageData.totalElements);
           console.log('getReservationsByStatus data:');
           console.table(pageData.content);
         },
         error: (e) => console.log('Error fetching res: ', e),
       });
-  }
-
-  changeReservationsByStatusPage(direction: 'next' | 'prev') {
-    const currentPage = this.store.pageOfCreatedReservations();
-    const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
-    if (this.authService.isAdmin()) {
-      this.getAllMembersAllOrganizations(newPage);
-    } else {
-      this.getOrganizationsOfUserWithMembers(newPage);
-    }
   }
 
   markReservationAsAccepted(reservationId: number) {
@@ -439,6 +429,20 @@ export class ReservationFacade {
       },
     });
   }
+
+  // pagination
+
+  changeReservationsByStatusPage(direction: 'next' | 'prev') {
+    const currentPage = this.store.paginationPage();
+    const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
+    if (this.authService.isAdmin()) {
+      this.getAllMembersAllOrganizations(newPage);
+    } else {
+      this.getOrganizationsOfUserWithMembers(newPage);
+    }
+  }
+
+  // modals
 
   closeModals(): void {
     this.store.isAdminAddOrganizationActive.set(false);

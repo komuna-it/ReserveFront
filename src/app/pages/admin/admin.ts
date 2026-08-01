@@ -21,10 +21,11 @@ import { CalendarHelper } from '../../components/calendar/calendar.helper';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-popup';
 import { TextFormatingTool } from '../../tools/textFormatingTool';
+import { AdminSidebar } from '../../layout/admin-sidebar/admin-sidebar';
 
 @Component({
   selector: 'app-admin',
-  imports: [ConfirmationPopup, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [ConfirmationPopup, RouterOutlet, AdminSidebar],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
@@ -39,32 +40,6 @@ export class AdminPage {
   readonly calendarHelper = inject(CalendarHelper);
   readonly textFormatingTool = inject(TextFormatingTool);
   readonly reservation = input<any | null>;
-
-  constructor() {
-    this.router.events
-      .pipe(
-        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => {
-        this.closeMobileMenu();
-      });
-  }
-
-  toggleMobileMenu(): void {
-    this.isMobileMenuOpen.update((isOpen) => !isOpen);
-  }
-
-  closeMobileMenu(): void {
-    this.isMobileMenuOpen.set(false);
-  }
-
-  @HostListener('window:resize')
-  onWindowResize(): void {
-    if (window.innerWidth >= 768 && this.isMobileMenuOpen()) {
-      this.closeMobileMenu();
-    }
-  }
 
   ngOnInit() {
     this.facade.getReservationsByStatus(ReservationStatus.CREATED);

@@ -8,10 +8,11 @@ import { CalendarHelper } from '../../../../components/calendar/calendar.helper'
 import { AdminPage } from '../../admin';
 import { TableByStatus } from '../table-by-status/table-by-status';
 import { ConfirmationPopup } from '../../../../modals/confirmation-popup/confirmation-popup';
+import { Pagination } from '../../../../layout/pagination/pagination';
 
 @Component({
   selector: 'app-confirmed-reservations-component',
-  imports: [TranslocoPipe, TableByStatus],
+  imports: [Pagination, TableByStatus],
   templateUrl: './confirmed-reservations-component.html',
   styleUrl: './confirmed-reservations-component.css',
 })

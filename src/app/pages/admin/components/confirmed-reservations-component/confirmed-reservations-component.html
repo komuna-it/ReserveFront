@@ -3,34 +3,5 @@
 >
   <app-table-by-status [status]="store.statusForAdminPage()"></app-table-by-status>
 
-  <!-- Pagination -->
-  <div
-    class="flex flex-wrap gap-3 justify-between items-center p-4 bg-slate-900/90 border-t border-slate-700 text-sm text-slate-300"
-  >
-    <div class="text-xs text-slate-400">
-      {{ 'ADMIN_PENDING_RESERVATIONS.TOTAL_RESERVATIONS' | transloco }}:
-      <span class="font-bold text-slate-200">{{ store.totalNumberOfCreatedReservations() }}</span>
-    </div>
-    <div class="flex gap-3 items-center">
-      <button
-        [disabled]="store.allCreatedReservationsIsFirst()"
-        (click)="facade.changeReservationsByStatusPage('prev')"
-        class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg border border-slate-700 text-xs font-medium transition-all"
-      >
-        {{ 'ADMIN_PENDING_RESERVATIONS.PREVIOUS' | transloco }}
-      </button>
-      <span class="text-xs font-medium text-slate-400">
-        {{ 'ADMIN_PENDING_RESERVATIONS.PAGE' | transloco }}
-        <strong class="text-slate-200">{{ store.pageOfCreatedReservations() + 1 }}</strong> z
-        <strong class="text-slate-200">{{ store.totalPagesOfCreatedReservations() }}</strong>
-      </span>
-      <button
-        [disabled]="store.allCreatedReservationsIsLast()"
-        (click)="facade.changeReservationsByStatusPage('next')"
-        class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg border border-slate-700 text-xs font-medium transition-all"
-      >
-        {{ 'ADMIN_PENDING_RESERVATIONS.NEXT' | transloco }}
-      </button>
-    </div>
-  </div>
+  <app-pagination></app-pagination>
 </div>

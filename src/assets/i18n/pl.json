@@ -247,5 +247,11 @@
     "DATE": "Data",
     "START_HOUR": "Godzina rozpoczęcia",
     "END_HOUR": "Godzina zakończenia"
+  },
+  "PAGINATION": {
+    "PREVIOUS": "Poprzednia",
+    "NEXT": "Następna",
+    "PAGE": "Strona",
+    "TOTAL_RESERVATIONS": "Łącznie rezerwacji"
   }
 }
