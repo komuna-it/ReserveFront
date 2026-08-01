@@ -229,5 +229,22 @@
     "SEND_ACCEPT": "Akceptuj",
     "SEND_CANCEL": "Odrzuć",
     "OK": "OK"
+  },
+  "ADMIN_RESERVATIONS": {
+    "PENDING": "Oczekujące",
+    "CONFIRMED": "Potwierdzone",
+    "CANCELLED": "Anulowane",
+    "REQUESTED_CANCELLATION": "Prośby o anulowanie",
+    "CONFIRM_ACCEPT_BODY": "Czy na pewno chcesz zaakceptować rezerwację zespołu {organization}, {date} {startHour} - {endHour}?",
+    "CONFIRM_ACCEPT_TITLE": "Potwierdź akceptację rezerwacji",
+    "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz zaakceptować prośbę o anulowanie rezerwacji zespołu {organization}, {date} {startHour} - {endHour}?",
+    "CONFIRM_REQUEST_CANCEL_TITLE": "Potwierdź akceptację prośby o anulowanie rezerwacji",
+    "CONFIRM_CANCEL_BODY": "Czy na pewno chcesz odrzucić rezerwację zespołu {organization}, {date} {startHour} - {endHour}?",
+    "CONFIRM_CANCEL_TITLE": "Potwierdź odrzucenie rezerwacji",
+    "ORGANIZATION": "Zespół",
+    "RESERVED_BY": "Rezerwujący",
+    "DATE": "Data",
+    "START_HOUR": "Godzina rozpoczęcia",
+    "END_HOUR": "Godzina zakończenia"
   }
 }

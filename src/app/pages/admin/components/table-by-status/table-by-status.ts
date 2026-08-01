@@ -6,6 +6,7 @@ import { AdminPage } from '../../admin';
 import { PendingReservationsComponent } from '../pending-reservations-component/pending-reservations-component';
 import { ReservationStatus } from '../../../../model/reservationStatus';
 import { ReservationDto } from '../../../../model/reservationDto';
+import { TextFormatingTool } from '../../../../tools/textFormatingTool';
 
 @Component({
   selector: 'app-table-by-status',
@@ -19,6 +20,7 @@ export class TableByStatus {
   readonly parent = inject(AdminPage);
   readonly status = input<any | null>();
   readonly translocoService = inject(TranslocoService);
+  readonly textFormatingTool = inject(TextFormatingTool);
 
   getAcceptText(): string {
     switch (this.store.statusForAdminPage()) {
@@ -79,7 +81,7 @@ export class TableByStatus {
   handleAcceptClick(res: ReservationDto) {
     switch (this.store.statusForAdminPage()) {
       case ReservationStatus.CREATED: {
-        this.parent.handleAcceptReservation(res);
+        this.facade.handleAcceptReservation(res);
         break;
       }
       case ReservationStatus.CANCELLED: {
@@ -112,23 +114,23 @@ export class TableByStatus {
   handleCancelClick(res: ReservationDto) {
     switch (this.store.statusForAdminPage()) {
       case ReservationStatus.CREATED: {
-        this.parent.handleCancelReservation(res);
+        this.facade.handleCancelReservation(res);
         break;
       }
       case ReservationStatus.CANCELLED: {
-        this.parent.handleCancelReservation(res);
+        this.facade.handleCancelReservation(res);
         break;
       }
       case ReservationStatus.CONFIRMED: {
-        this.parent.handleCancelReservation(res);
+        this.facade.handleCancelReservation(res);
         break;
       }
       case ReservationStatus.REJECTED_CANCELLATION: {
-        this.parent.handleCancelReservation(res);
+        this.facade.handleCancelReservation(res);
         break;
       }
       case ReservationStatus.REQUESTED_CANCELLATION: {
-        this.parent.handleCancelReservation(res);
+        this.facade.handleCancelReservation(res);
         break;
       }
       default: {

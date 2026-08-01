@@ -42,3 +42,7 @@
     </div>
   </div>
 </div>
+
+@if (this.store.popupConfirmationActive()) {
+  <app-confirmation-popup [titleText]="titleText" , [bodyText]="bodyText"></app-confirmation-popup>
+}

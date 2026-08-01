@@ -2,10 +2,11 @@ import { Component, HostListener, inject } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ReservationStore } from '../../reservation/reservation.store';
 import { ReservationFacade } from '../../reservation/reservation.facade';
+import { ConfirmationPopup } from '../../../modals/confirmation-popup/confirmation-popup';
 
 @Component({
   selector: 'app-add-organization-modal',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, ConfirmationPopup],
   templateUrl: './add-organization-modal.html',
   styleUrl: './add-organization-modal.css',
 })
@@ -13,6 +14,9 @@ export class AddOrganizationModal {
   readonly loco = inject(TranslocoService);
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
+
+  readonly titleText = 'test title';
+  readonly bodyText = 'test body';
 
   @HostListener('document:keydown.escape')
   onKeydownHandler(): void {
@@ -24,7 +28,7 @@ export class AddOrganizationModal {
 
     try {
       this.facade.createOrganization(name.trim());
-      this.store.isAdminAddOrganizationSuccess.set(true);
+      this.store.popupConfirmationActive.set(true);
     } catch (error) {
       console.error('Error creating organization:', error);
     }
@@ -44,5 +48,6 @@ export class AddOrganizationModal {
 
     this.store.globalErrorKey.set(null);
     this.store.modalAddOrganizationActive.set(false);
+    this.store.popupConfirmationActive.set(false);
   }
 }

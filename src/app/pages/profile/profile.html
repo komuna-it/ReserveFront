@@ -256,3 +256,12 @@
     }
   </div>
 </div>
+
+@if (store.confirmMarkReservationAsRequestCancel() && store.selectedReservation(); as res) {
+  <app-confirmation-popup
+    [titleText]="getTitleText()"
+    [bodyText]="getBodyText()"
+    (ok)="facade.handleConfirmRequestCancelReservation(res)"
+    (cancel)="facade.closeModals()"
+  ></app-confirmation-popup>
+}

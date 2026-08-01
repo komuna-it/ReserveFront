@@ -19,10 +19,12 @@ import { ReservationFacade } from '../../components/reservation/reservation.faca
 import { TranslocoService } from '@jsverse/transloco';
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
 import { ReservationStatus } from '../../model/reservationStatus';
+import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-popup';
+import { TextFormatingTool } from '../../tools/textFormatingTool';
 
 @Component({
   selector: 'app-admin',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [ConfirmationPopup, RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
@@ -35,6 +37,7 @@ export class AdminPage {
   readonly authService = inject(AuthService);
   readonly translocoService = inject(TranslocoService);
   readonly calendarHelper = inject(CalendarHelper);
+  readonly textFormatingTool = inject(TextFormatingTool);
   readonly reservation = input<any | null>;
 
   constructor() {
@@ -63,74 +66,48 @@ export class AdminPage {
     }
   }
 
-  handleAddOrganization() {
-    this.store.isAdminAddOrganizationActive.set(true);
-    this.router.navigate(['/admin/organizations']);
-  }
-
   ngOnInit() {
     this.facade.getReservationsByStatus(ReservationStatus.CREATED);
     this.facade.getAllUsers();
   }
 
-  bandText(res: ReservationDto): string {
-    return (
-      this.store.allOrganizations().find((o) => o.id === res.organization)?.name ?? 'brak nazwy'
-    );
+  // buttons
+
+  getTitleText(): string {
+    if (this.store.confirmMarkReservationAsAccepted()) {
+      return this.translocoService.translate('ADMIN_PENDING_RESERVATIONS.CONFIRM_ACCEPT_TITLE');
+    } else if (this.store.confirmMarkReservationAsRequestCancel()) {
+      return this.translocoService.translate(
+        'ADMIN_PENDING_RESERVATIONS.CONFIRM_REQUEST_CANCEL_TITLE',
+      );
+    } else if (this.store.confirmMarkReservationAsCanceled()) {
+      return this.translocoService.translate('ADMIN_PENDING_RESERVATIONS.CONFIRM_CANCEL_TITLE');
+    }
+    return '';
   }
 
-  reservedByText(res: ReservationDto): string {
-    return this.store.allUsers().find((u) => u.id === res.reservedBy)?.nick ?? 'brak nicku';
-  }
+  getBodyText(): string {
+    const res = this.store.selectedReservation();
+    if (!res) return '';
 
-  dateColumnText(res: ReservationDto): string {
-    return this.calendarHelper.generateDayLabel(res.startAt);
-  }
+    const params = {
+      organization: this.textFormatingTool.bandText(res),
+      date: this.textFormatingTool.dateColumnText(res),
+      startHour: this.textFormatingTool.startAtText(res),
+      endHour: this.textFormatingTool.endAtText(res),
+    };
 
-  startAtText(res: ReservationDto) {
-    return this.calendarHelper.generateHourLabel(res.startAt);
-  }
+    if (this.store.confirmMarkReservationAsAccepted()) {
+      return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_ACCEPT_BODY', params);
+    } else if (this.store.confirmMarkReservationAsRequestCancel()) {
+      return this.translocoService.translate(
+        'ADMIN_RESERVATIONS.CONFIRM_REQUEST_CANCEL_BODY',
+        params,
+      );
+    } else if (this.store.confirmMarkReservationAsCanceled()) {
+      return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BODY', params);
+    }
 
-  endAtText(res: ReservationDto) {
-    return this.calendarHelper.generateHourLabel(res.endAt);
-  }
-
-  privateReservationText(res: ReservationDto) {
-    return res.organization === null
-      ? this.translocoService.translate('ADMIN_PENDING_RESERVATIONS.IS_PRIVATE')
-      : this.translocoService.translate('ADMIN_PENDING_RESERVATIONS.IS_NOT_PRIVATE');
-  }
-
-  handleClickAcceptReservation(res: ReservationDto) {
-    this.store.confirmMarkReservationAsAccepted.set(true);
-    this.store.selectedReservation.set(res);
-  }
-
-  handleAcceptReservation(res: ReservationDto) {
-    this.facade.markReservationAsAccepted(res.id);
-    this.store.confirmMarkReservationAsAccepted.set(false);
-    this.store.popupMarkedReservationAsAccepted.set(true);
-  }
-
-  handleClickCancelReservation(res: ReservationDto) {
-    this.store.confirmMarkReservationAsCanceled.set(true);
-    this.store.selectedReservation.set(res);
-  }
-
-  handleCancelReservation(res: ReservationDto) {
-    this.facade.markReservationAsCanceled(res.id);
-    this.store.confirmMarkReservationAsCanceled.set(false);
-    this.store.popupMarkedReservationAsCanceled.set(true);
-  }
-
-  closeModals() {
-    this.store.globalErrorKey.set(null);
-    this.store.confirmMarkReservationAsAccepted.set(false);
-    this.store.confirmMarkReservationAsRequestCancel.set(false);
-    this.store.confirmMarkReservationAsCanceled.set(false);
-
-    this.store.popupMarkedReservationAsAccepted.set(false);
-    this.store.popupMarkedReservationAsRequestCancel.set(false);
-    this.store.popupMarkedReservationAsCanceled.set(false);
+    return '';
   }
 }

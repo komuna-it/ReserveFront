@@ -74,7 +74,7 @@ export class ReservationApi {
     return this.http.post<ReservationDto>(`${this.apiUrl}/reservations`, payload);
   }
 
-  getMembersOfOrganization(organizationId: number): Observable<User[]> {
+  getMembersAndOwnersOfOrganization(organizationId: number): Observable<User[]> {
     const params = new HttpParams()
       .set('organizationId', organizationId)
       .set('fetchMembers', 'true');

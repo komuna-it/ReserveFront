@@ -219,7 +219,7 @@ export class ReservationStore {
 
   readonly globalErrorKey = signal<string | null>(null);
 
-  readonly privateReservationCheckbox = signal<boolean>(false);
+  readonly isPrivateReservationCheckboxActivated = signal<boolean>(false);
 
   // confirm reservation management pagination
 
@@ -245,4 +245,6 @@ export class ReservationStore {
   readonly statusForAdminPage = signal<ReservationStatus | null>(null);
 
   readonly modalAddOrganizationActive = signal<boolean | null>(null);
+
+  readonly popupConfirmationActive = signal<boolean | null>(null);
 }

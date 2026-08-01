@@ -5,14 +5,13 @@ import { AuthService } from '../../../../auth/authService';
 import { ReservationStatus } from '../../../../model/reservationStatus';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { CalendarHelper } from '../../../../components/calendar/calendar.helper';
-import { ReservationPopup } from '../../popups/reservationPopup/reservationPopup';
-import { ConfirmAction } from '../table-by-status/confirm-action/confirm-action';
 import { AdminPage } from '../../admin';
 import { TableByStatus } from '../table-by-status/table-by-status';
+import { ConfirmationPopup } from '../../../../modals/confirmation-popup/confirmation-popup';
 
 @Component({
   selector: 'app-confirmed-reservations-component',
-  imports: [ReservationPopup, ConfirmAction, TranslocoPipe, TableByStatus],
+  imports: [TranslocoPipe, TableByStatus],
   templateUrl: './confirmed-reservations-component.html',
   styleUrl: './confirmed-reservations-component.css',
 })

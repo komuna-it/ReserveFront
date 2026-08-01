@@ -17,22 +17,17 @@
       </svg>
     </div>
     <h2 class="text-lg font-bold tracking-tight mb-1 text-slate-100">
-      Org: {{ 'ADMIN_PENDING_RESERVATIONS.ACCEPTED' | transloco }}
+      {{ titleText() }}
     </h2>
-    @if (store.selectedReservation(); as res) {
-      <p class="text-xs text-slate-400 mb-5">
-        {{ 'ADMIN_PENDING_RESERVATIONS.ORG' | transloco }}: {{ parent.bandText(res) }}
-      </p>
-      <span class="text-xs text-slate-400 mb-5">
-        {{ 'ADMIN_PENDING_RESERVATIONS.DATE' | transloco }}: {{ parent.dateColumnText(res) }}
-        {{ parent.startAtText(res) }} - {{ parent.endAtText(res) }}
-      </span>
-    }
+    <span class="text-xs text-slate-400 mb-5">
+      {{ bodyText() }}
+    </span>
+
     <button
-      (click)="closeModals()"
+      (click)="handleOk()"
       class="w-full px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md"
     >
-      {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.CLOSE' | transloco }}
+      OK
     </button>
   </div>
 </div>

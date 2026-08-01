@@ -168,7 +168,7 @@
         <!-- Sub-actions Tree  -->
         <div class="ml-4 pl-3 border-l-2 border-slate-700/80 space-y-1 pt-1">
           <button
-            (click)="handleAddOrganization()"
+            (click)="facade.handleAddOrganization()"
             class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-emerald-400 hover:text-white hover:bg-emerald-600/20 border border-emerald-500/20 transition-all active:scale-95"
             [class.bg-emerald-600/20]="store.isAdminOrganizationActive()"
           >
@@ -206,3 +206,21 @@
     <router-outlet></router-outlet>
   </main>
 </div>
+
+@if (store.confirmMarkReservationAsAccepted() && store.selectedReservation(); as res) {
+  <app-confirmation-popup
+    [titleText]="'ADMIN_PENDING_RESERVATIONS.CONFIRM_ACCEPT_TITLE'"
+    [bodyText]="'ADMIN_PENDING_RESERVATIONS.CONFIRM_ACCEPT_BODY'"
+    (ok)="facade.handleConfirmAcceptReservation(res)"
+    (cancel)="facade.closeModals()"
+  ></app-confirmation-popup>
+}
+
+@if (store.confirmMarkReservationAsRequestCancel() && store.selectedReservation(); as res) {
+  <app-confirmation-popup
+    [titleText]="'ADMIN_PENDING_RESERVATIONS.CONFIRM_REQUEST_CANCEL_TITLE'"
+    [bodyText]="'ADMIN_PENDING_RESERVATIONS.CONFIRM_REQUEST_CANCEL_BODY'"
+    (ok)="facade.handleConfirmRequestCancelReservation(res)"
+    (cancel)="facade.closeModals()"
+  ></app-confirmation-popup>
+}

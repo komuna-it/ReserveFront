@@ -14,22 +14,26 @@ import { ReservationWrapper } from '../../model/reservationWrapper';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TextFormatingTool } from '../../tools/textFormatingTool';
+import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-popup';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe],
+  imports: [CommonModule, TranslocoPipe, ConfirmationPopup],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
 export class ProfilePage implements OnInit {
+  readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
   readonly authService = inject(AuthService);
+  readonly translocoService = inject(TranslocoService);
   readonly helper = inject(CalendarHelper);
-  readonly store = inject(ReservationStore);
   readonly email = this.authService.email();
   readonly reservationToDelete = signal<ReservationDto | null>(null);
+  readonly textFormatingTool = inject(TextFormatingTool);
 
   private sseController: AbortController | null = null;
 
@@ -141,5 +145,35 @@ export class ProfilePage implements OnInit {
     if (this.sseController) {
       this.sseController.abort();
     }
+  }
+
+  getTitleText(): string {
+    if (this.store.confirmMarkReservationAsRequestCancel()) {
+      return this.translocoService.translate(
+        'ADMIN_PENDING_RESERVATIONS.CONFIRM_REQUEST_CANCEL_TITLE',
+      );
+    }
+    return '';
+  }
+
+  getBodyText(): string {
+    const res = this.store.selectedReservation();
+    if (!res) return '';
+
+    const params = {
+      organization: this.textFormatingTool.bandText(res),
+      date: this.textFormatingTool.dateColumnText(res),
+      startHour: this.textFormatingTool.startAtText(res),
+      endHour: this.textFormatingTool.endAtText(res),
+    };
+
+    if (this.store.confirmMarkReservationAsRequestCancel()) {
+      return this.translocoService.translate(
+        'ADMIN_RESERVATIONS.CONFIRM_REQUEST_CANCEL_BODY',
+        params,
+      );
+    }
+
+    return '';
   }
 }

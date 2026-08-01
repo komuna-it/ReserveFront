@@ -36,8 +36,14 @@ export class ReservationFacade {
   refreshOrganizations() {
     if (this.authService.isAdmin()) {
       this.getAllMembersAllOrganizations(0);
+      console.log('refreshed admin organizations:');
     } else {
       this.getOrganizationsOfUserWithMembers(0);
+      console.log(
+        "refreshed user's organizations (count): ",
+        this.store.userOrganizations().length,
+      );
+      console.table(this.store.userOrganizations());
     }
   }
 
@@ -68,7 +74,7 @@ export class ReservationFacade {
 
     const utcTimestamp = Date.UTC(year, month - 1, day, booking.hour, 0, 0, 0);
     const startAtDate = new Date(utcTimestamp);
-    const isPrivate = this.store.privateReservationCheckbox();
+    const isPrivate = this.store.isPrivateReservationCheckboxActivated();
 
     let req: CreateReservationRequest = {
       roomId: booking.roomId,
@@ -268,6 +274,8 @@ export class ReservationFacade {
         this.store.orgsTotalElements.set(pageData.totalElements);
         this.store.orgsIsFirst.set(pageData.first);
         this.store.orgsIsLast.set(pageData.last);
+        console.log('fetched getOrganizationsOfUserWithMembers(): ');
+        console.table(pageData.content);
       },
       error: (e) => console.error('Error in getOrganizationsOfUserWithMembers: ', e),
     });
@@ -430,5 +438,55 @@ export class ReservationFacade {
         this.store.globalErrorKey.set('Error markReservationAsAccepted');
       },
     });
+  }
+
+  closeModals(): void {
+    this.store.isAdminAddOrganizationActive.set(false);
+    this.store.isAdminAddOrganizationSuccess.set(false);
+
+    this.store.modalDeleteOwnerActive.set(false);
+    this.store.modalDeleteMemberActive.set(false);
+    this.store.modalDeleteOrganizationActive.set(false);
+
+    this.store.modalDeleteOrganizationSuccess.set(false);
+    this.store.modalDeleteMemberSuccess.set(false);
+    this.store.modalDeleteOwnerSuccess.set(false);
+
+    this.store.globalErrorKey.set(null);
+    this.store.modalAddOrganizationActive.set(false);
+    this.store.popupConfirmationActive.set(false);
+  }
+
+  handleAddOrganization() {
+    this.store.isAdminAddOrganizationActive.set(true);
+    this.router.navigate(['/admin/organizations']);
+  }
+
+  handleConfirmAcceptReservation(res: ReservationDto) {
+    this.store.confirmMarkReservationAsAccepted.set(true);
+    this.store.selectedReservation.set(res);
+  }
+
+  handleAcceptReservation(res: ReservationDto) {
+    this.markReservationAsAccepted(res.id);
+    this.store.confirmMarkReservationAsAccepted.set(false);
+    this.store.popupMarkedReservationAsAccepted.set(true);
+  }
+
+  handleClickCancelReservation(res: ReservationDto) {
+    this.store.confirmMarkReservationAsCanceled.set(true);
+    this.store.selectedReservation.set(res);
+  }
+
+  handleCancelReservation(res: ReservationDto) {
+    this.markReservationAsCanceled(res.id);
+    this.store.confirmMarkReservationAsCanceled.set(false);
+    this.store.popupMarkedReservationAsCanceled.set(true);
+  }
+
+  handleConfirmRequestCancelReservation(res: ReservationDto) {
+    this.markReservationAsCanceled(res.id);
+    this.store.confirmMarkReservationAsCanceled.set(false);
+    this.store.popupMarkedReservationAsCanceled.set(true);
   }
 }
