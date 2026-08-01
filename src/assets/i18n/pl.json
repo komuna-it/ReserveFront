@@ -67,7 +67,11 @@
     "PRICE": "Cena",
     "TABLE_WHO": "KTO",
     "STATUS": "STATUS",
-    "REQUESTED_CANCELLATION_BUTTON": "Wysłano prośbę o odwołanie"
+    "REQUESTED_CANCELLATION_BUTTON": "Wysłano prośbę o odwołanie",
+    "ROLE": "Rola",
+    "ROLE_MEMBER": "Członek",
+    "ROLE_OWNER": "Właściciel",
+    "NO_ROLE": "Brak"
   },
   "STATUS": {
     "CREATED": "Oczekuje na potwierdzenie",
@@ -149,7 +153,8 @@
     "CONFIRM": "Potwierdź",
     "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz poprosić o odwołanmie rezerwacji {{organization}}, {{date}} {{startHour}} - {{endHour}}? Prośba trafi do pracownika.",
     "CONFIRM_REQUEST_CANCEL_TITLE": "Odwołanie rezerwacji",
-    "PRIVATE": "Prywatna"
+    "PRIVATE": "Prywatna",
+    "ORGANIZATION_ADDED": "Zespół utworzony"
   },
 
   "ADMIN_RESERVATIONS": {

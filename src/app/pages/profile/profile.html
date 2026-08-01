@@ -49,31 +49,31 @@
     <!-- select tab-->
 
     <div class="flex border-b border-slate-700 gap-2 overflow-x-auto">
-      @for (tab of allTabs(); track tab.id) {
+      @for (tab of store.allTabs(); track tab.id) {
         @if (tab.type === 'reservations') {
           <button
-            (click)="activeTab.set(tab)"
-            [class.border-blue-500]="activeTab().id === tab.id"
-            [class.text-blue-400]="activeTab().id === tab.id"
+            (click)="store.activeTab.set(tab)"
+            [class.border-blue-500]="store.activeTab().id === tab.id"
+            [class.text-blue-400]="store.activeTab().id === tab.id"
             class="bg-red-800 px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all rounded-t-lg whitespace-nowrap"
           >
             {{ 'PROFILE.TAB_RESERVATIONS' | transloco }}
           </button>
         } @else if (tab.type === 'organization') {
           <button
-            (click)="activeTab.set(tab)"
-            [class.border-blue-500]="activeTab().id === tab.id"
-            [class.text-blue-400]="activeTab().id === tab.id"
-            [class.bg-slate-800]="activeTab().id === tab.id"
+            (click)="store.activeTab.set(tab)"
+            [class.border-blue-500]="store.activeTab().id === tab.id"
+            [class.text-blue-400]="store.activeTab().id === tab.id"
+            [class.bg-slate-800]="store.activeTab().id === tab.id"
             class="px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all rounded-t-lg whitespace-nowrap"
           >
             {{ tab.org?.name }}
           </button>
         } @else if (tab.type === 'createorganization') {
           <button
-            (click)="activeTab.set(tab)"
-            [class.border-blue-500]="activeTab().id === tab.id"
-            [class.text-blue-400]="activeTab().id === tab.id"
+            (click)="store.isAddOrganizationModalActive.set(true)"
+            [class.border-blue-500]="store.activeTab().id === tab.id"
+            [class.text-blue-400]="store.activeTab().id === tab.id"
             class="bg-cyan-800 px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all rounded-t-lg whitespace-nowrap"
           >
             {{ tab.name }}
@@ -82,113 +82,12 @@
       }
     </div>
 
-    @if (activeTab().type === 'reservations') {
-      <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
-        <div
-          class="p-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center"
-        >
-          <h3 class="font-semibold text-slate-200">
-            {{ 'PROFILE.TEAM_RESERVATIONS_HEADING' | transloco }}
-          </h3>
-        </div>
-
-        <div class="overflow-x-auto">
-          @if (store.reservations().length > 0) {
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr
-                  class="bg-slate-900/50 border-b border-slate-700 text-slate-400 text-xs font-semibold uppercase tracking-wider"
-                >
-                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_INDEX' | transloco }}</th>
-                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_ROOM' | transloco }}</th>
-                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_DATE' | transloco }}</th>
-                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_WHO' | transloco }}</th>
-                  <th class="py-3 px-6">{{ 'PROFILE.PRICE' | transloco }}</th>
-                  <th class="py-3 px-6">{{ 'PROFILE.STATUS' | transloco }}</th>
-                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_CANCEL' | transloco }}</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-700 text-sm">
-                @for (res of store.reservations(); track res.id; let idx = $index) {
-                  <tr class="hover:bg-slate-700/30 transition">
-                    <td class="py-4 px-6 text-slate-500 font-mono">{{ idx + 1 }}</td>
-                    <td class="py-4 px-6">
-                      <span class="px-2 py-1 rounded text-slate-300 text-s border border-slate-700">
-                        {{ getRoomName(res) }}
-                      </span>
-                    </td>
-                    <td class="py-4 px-6 font-mono text-slate-300 text-s">
-                      {{ formatDuration(res) }}
-                    </td>
-                    <td class="py-4 px-6 text-slate-400">{{ reservedByLabel(res) }}</td>
-                    <td class="py-4 px-6 text-slate-400">*cena*</td>
-                    <td class="py-4 px-6 text-slate-400">{{ getStatusText(res) }}</td>
-
-                    <td class="py-4 px-6">
-                      <button
-                        (click)="facade.handleClickRequestCancelReservation(res)"
-                        [disabled]="!isCancellationPossible(res)"
-                        class="text-white text-s bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
-                        [ngClass]="{
-                          'opacity-50 cursor-not-allowed': !isCancellationPossible(res),
-                        }"
-                      >
-                        {{ getCancelButtonLabel(res) }}
-                      </button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          } @else {
-            <div class="p-12 text-center text-slate-500">
-              <p class="text-lg">{{ 'PROFILE.NO_RESERVATIONS' | transloco }}</p>
-            </div>
-          }
-        </div>
-      </div>
+    @if (store.activeTab().type === 'reservations') {
+      <app-table-reservations-user></app-table-reservations-user>
     }
 
-    @if (activeTab().type === 'organization') {
-      <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
-        <div class="p-4 bg-slate-800/50 border-b border-slate-700">
-          <h3 class="font-semibold text-slate-200">
-            {{ 'PROFILE.TEAM_MEMBERS_TITLE' | transloco }}
-          </h3>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr
-                class="bg-slate-900/50 border-b border-slate-700 text-slate-400 text-xs font-semibold uppercase tracking-wider"
-              >
-                <th class="py-3 px-6">{{ 'PROFILE.TABLE_INDEX' | transloco }}</th>
-                <th class="py-3 px-6">{{ 'PROFILE.MEMBER_NICK' | transloco }}</th>
-                <th class="py-3 px-6">{{ 'PROFILE.MEMBER_EMAIL' | transloco }}</th>
-                <th class="py-3 px-6">{{ 'PROFILE.TABLE_REMOVE' | transloco }}</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-700 text-sm">
-              @for (user of activeTab().org?.members; track user.id; let index = $index) {
-                <tr class="hover:bg-slate-700/30 transition">
-                  <td class="py-4 px-6 text-slate-500 font-mono">{{ index + 1 }}</td>
-                  <td class="py-4 px-6 font-semibold text-white">{{ user.nick }}</td>
-                  <td class="py-4 px-6 text-slate-300">{{ user.email }}</td>
-                  <td class="py-4 px-6">
-                    <button
-                      (click)="deleteTeamMember(user.id)"
-                      class="text-white bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
-                    >
-                      {{ 'PROFILE.REMOVE_BTN' | transloco }}
-                    </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
+    @if (store.activeTab().type === 'organization') {
+      <app-organization-members></app-organization-members>
     }
   </div>
 </div>
@@ -204,4 +103,8 @@
 
 @if (store.isAddOrganizationModalActive()) {
   <app-add-organization-modal></app-add-organization-modal>
+}
+
+@if (this.store.popupConfirmationActive() && store.isAddOrganizationModalActive()) {
+  <app-success-popup [titleText]="getTitleText()"></app-success-popup>
 }

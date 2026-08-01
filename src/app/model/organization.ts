@@ -1,3 +1,4 @@
+import { OrganizationMemberDto } from './organizationMemberDto';
 import { User } from './user';
 
 export class Organization {
@@ -6,7 +7,7 @@ export class Organization {
     public name: string,
     public created: Date,
     public trusted: boolean,
-    public owners?: User[],
-    public members?: User[],
+    public owners?: OrganizationMemberDto[],
+    public members?: OrganizationMemberDto[],
   ) {}
 }

@@ -6,7 +6,7 @@ import { ConfirmationPopup } from '../../../modals/confirmation-popup/confirmati
 
 @Component({
   selector: 'app-add-organization-modal',
-  imports: [TranslocoPipe, ConfirmationPopup],
+  imports: [TranslocoPipe],
   templateUrl: './add-organization-modal.html',
   styleUrl: './add-organization-modal.css',
 })
@@ -15,8 +15,8 @@ export class AddOrganizationModal {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
 
-  readonly titleText = 'test title';
-  readonly bodyText = 'test body';
+  readonly titleText = this.loco.translate('ORGANIZATION_LIST.TITLE');
+  readonly bodyText = this.loco.translate('ORGANIZATION_LIST.BAND_NAME');
 
   @HostListener('document:keydown.escape')
   onKeydownHandler(): void {

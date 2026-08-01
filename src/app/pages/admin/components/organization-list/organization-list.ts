@@ -7,6 +7,7 @@ import { AddUserIntoOrganizationModal } from '../../../../components/modals/add-
 import { User } from '../../../../model/user';
 import { Organization } from '../../../../model/organization';
 import { AddOrganizationModal } from '../../../../components/modals/add-organization-modal/add-organization-modal';
+import { OrganizationMemberDto } from '../../../../model/organizationMemberDto';
 
 @Component({
   selector: 'app-organization-list',
@@ -174,13 +175,13 @@ export class OrganizationList implements OnInit, OnDestroy {
       : this.loco.translate('ORGANIZATION_LIST.MARK_AS_TRUSTED');
   }
 
-  userTrustedButtonText(user: User) {
+  userTrustedButtonText(user: OrganizationMemberDto) {
     return user.trusted
       ? this.loco.translate('ORGANIZATION_LIST.MARK_AS_NOT_TRUSTED')
       : this.loco.translate('ORGANIZATION_LIST.MARK_AS_TRUSTED');
   }
 
-  userTrustedText(user: User) {
+  userTrustedText(user: OrganizationMemberDto) {
     return user.trusted
       ? this.loco.translate('ORGANIZATION_LIST.NOT_TRUSTED')
       : this.loco.translate('ORGANIZATION_LIST.TRUSTED');

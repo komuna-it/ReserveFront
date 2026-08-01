@@ -11,6 +11,8 @@ import { User } from '../../model/user';
 import { Page } from '../../model/page';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { TranslocoService } from '@jsverse/transloco';
+import { Tab } from '../../model/tab';
+import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
@@ -287,4 +289,30 @@ export class ReservationStore {
   readonly isAddOrganizationModalActive = signal<boolean | null>(null);
 
   readonly popupConfirmationActive = signal<boolean | null>(null);
+
+  // profile
+
+  activeTab = signal<Tab>(new Tab(0, 'Moje rezerwacje', 'reservations', undefined));
+  allTabs = computed(() => {
+    let id = 0;
+    const newTabs: Tab[] = [];
+
+    newTabs.push(new Tab(id++, 'Moje rezerwacje', 'reservations', undefined));
+
+    for (const org of this.userOrganizations()) {
+      newTabs.push(new Tab(id++, org.name, 'organization', org));
+    }
+    newTabs.push(new Tab(id++, 'Utwórz zespół', 'createorganization', undefined));
+
+    return newTabs;
+  });
+
+  readonly allMembersOfOrganization = computed(() => {
+    const org = this.activeTab().org;
+    const members = org?.members ?? [];
+    const owners = org?.owners ?? [];
+    const membersAndOwners: OrganizationMemberDto[] = [...members, ...owners];
+
+    return membersAndOwners;
+  });
 }
