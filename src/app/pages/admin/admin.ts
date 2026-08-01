@@ -50,13 +50,11 @@ export class AdminPage {
 
   getTitleText(): string {
     if (this.store.confirmMarkReservationAsAccepted()) {
-      return this.translocoService.translate('ADMIN_PENDING_RESERVATIONS.CONFIRM_ACCEPT_TITLE');
+      return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_ACCEPT_TITLE');
     } else if (this.store.confirmMarkReservationAsRequestCancel()) {
-      return this.translocoService.translate(
-        'ADMIN_PENDING_RESERVATIONS.CONFIRM_REQUEST_CANCEL_TITLE',
-      );
+      return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_REQUEST_CANCEL_TITLE');
     } else if (this.store.confirmMarkReservationAsCanceled()) {
-      return this.translocoService.translate('ADMIN_PENDING_RESERVATIONS.CONFIRM_CANCEL_TITLE');
+      return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_TITLE');
     }
     return '';
   }

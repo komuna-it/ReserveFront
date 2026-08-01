@@ -13,9 +13,12 @@ export class TextFormatingTool {
   // reservation modals & popups texts
 
   bandText(res: ReservationDto): string {
-    return (
-      this.store.allOrganizations().find((o) => o.id === res.organization)?.name ?? 'brak nazwy'
-    );
+    {
+      return (
+        this.store.allOrganizations().find((o) => o.id === res.organization)?.name ??
+        this.translocoService.translate('USER_MODALS.PRIVATE')
+      );
+    }
   }
 
   reservedByText(res: ReservationDto): string {
@@ -36,7 +39,7 @@ export class TextFormatingTool {
 
   privateReservationText(res: ReservationDto) {
     return res.organization === null
-      ? this.translocoService.translate('ADMIN_PENDING_RESERVATIONS.IS_PRIVATE')
-      : this.translocoService.translate('ADMIN_PENDING_RESERVATIONS.IS_NOT_PRIVATE');
+      ? this.translocoService.translate('ADMIN_RESERVATIONS.IS_PRIVATE')
+      : this.translocoService.translate('ADMIN_RESERVATIONS.IS_NOT_PRIVATE');
   }
 }

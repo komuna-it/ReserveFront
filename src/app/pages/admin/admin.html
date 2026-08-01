@@ -12,8 +12,8 @@
 
 @if (store.confirmMarkReservationAsAccepted() && store.selectedReservation(); as res) {
   <app-confirmation-popup
-    [titleText]="'ADMIN_PENDING_RESERVATIONS.CONFIRM_ACCEPT_TITLE'"
-    [bodyText]="'ADMIN_PENDING_RESERVATIONS.CONFIRM_ACCEPT_BODY'"
+    [titleText]="'ADMIN_RESERVATIONS.CONFIRM_ACCEPT_TITLE'"
+    [bodyText]="'ADMIN_RESERVATIONS.CONFIRM_ACCEPT_BODY'"
     (ok)="facade.handleConfirmAcceptReservation(res)"
     (cancel)="facade.closeModals()"
   ></app-confirmation-popup>
@@ -21,8 +21,8 @@
 
 @if (store.confirmMarkReservationAsRequestCancel() && store.selectedReservation(); as res) {
   <app-confirmation-popup
-    [titleText]="'ADMIN_PENDING_RESERVATIONS.CONFIRM_REQUEST_CANCEL_TITLE'"
-    [bodyText]="'ADMIN_PENDING_RESERVATIONS.CONFIRM_REQUEST_CANCEL_BODY'"
+    [titleText]="'ADMIN_RESERVATIONS.CONFIRM_REQUEST_CANCEL_TITLE'"
+    [bodyText]="'ADMIN_RESERVATIONS.CONFIRM_REQUEST_CANCEL_BODY'"
     (ok)="facade.handleConfirmRequestCancelReservation(res)"
     (cancel)="facade.closeModals()"
   ></app-confirmation-popup>

@@ -146,7 +146,7 @@ export class ReservationStore {
     const userOrgs = this.userOrgsMap();
     const allOrgs = this.allOrgsMap();
     const hoursRange = this.helper.hoursRange;
-
+    const privateReservationText = this.loco.translate('ADMIN_RESERVATIONS.IS_PRIVATE');
     const now = new Date();
     const isPastDay =
       new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate()) <
@@ -211,14 +211,11 @@ export class ReservationStore {
                 (u) => u.id === matchedReservation.reservedBy,
               )?.nick;
               reservationText = `${userText} (prywatna)`;
-              console.log('Admin view - private reservation text: ', reservationText);
             } else if (matchedReservation.reservedBy === userId) {
-              reservationText = 'CALENDAR.MY_PRIVATE_RESERVATION';
+              reservationText = privateReservationText;
               isMyPrivateReservation = true;
-              console.log('User view - my private reservation text: ', reservationText);
             } else {
               reservationText = '';
-              console.log('User view - other private reservation text: ', reservationText);
             }
           }
         }
@@ -287,7 +284,7 @@ export class ReservationStore {
 
   readonly statusForAdminPage = signal<ReservationStatus | null>(null);
 
-  readonly modalAddOrganizationActive = signal<boolean | null>(null);
+  readonly isAddOrganizationModalActive = signal<boolean | null>(null);
 
   readonly popupConfirmationActive = signal<boolean | null>(null);
 }

@@ -41,6 +41,15 @@ export class ReservationApi {
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
+  getAllReservationsForUserAndTheirOrganization(
+    userId: number,
+    page = 0,
+    size = 100,
+  ): Observable<Page<ReservationDto>> {
+    const params = new HttpParams().set('userId', userId).set('page', page).set('size', size);
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
+  }
+
   getFutureReservations(page = 0, size = 100): Observable<Page<ReservationDto>> {
     const params = new HttpParams().set('future', 'true').set('page', page).set('size', size);
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
@@ -89,15 +98,6 @@ export class ReservationApi {
   getUserByEmail(email: string): Observable<User[]> {
     const params = new HttpParams().set('email', email);
     return this.http.get<User[]>(`${this.apiUrl}/user`, { params });
-  }
-
-  getAllReservationsForUserAndTheirOrganization(
-    userId: number,
-    page = 0,
-    size = 100,
-  ): Observable<Page<ReservationDto>> {
-    const params = new HttpParams().set('userId', userId).set('page', page).set('size', size);
-    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
   getTestText(): Observable<string> {

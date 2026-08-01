@@ -4,25 +4,25 @@
       class="bg-slate-900/80 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700"
     >
       <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
-        {{ 'ADMIN_PENDING_RESERVATIONS.ORG' | transloco }}
+        {{ 'ADMIN_RESERVATIONS.ORG' | transloco }}
       </th>
       <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
-        {{ 'ADMIN_PENDING_RESERVATIONS.RESERVED_BY' | transloco }}
+        {{ 'ADMIN_RESERVATIONS.RESERVED_BY' | transloco }}
       </th>
       <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
-        {{ 'ADMIN_PENDING_RESERVATIONS.DATE' | transloco }}
+        {{ 'ADMIN_RESERVATIONS.DATE' | transloco }}
       </th>
       <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
-        {{ 'ADMIN_PENDING_RESERVATIONS.START_HOUR' | transloco }}
+        {{ 'ADMIN_RESERVATIONS.START_HOUR' | transloco }}
       </th>
       <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
-        {{ 'ADMIN_PENDING_RESERVATIONS.END_HOUR' | transloco }}
+        {{ 'ADMIN_RESERVATIONS.END_HOUR' | transloco }}
       </th>
       <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
-        {{ 'ADMIN_PENDING_RESERVATIONS.PRIVATE' | transloco }}
+        {{ 'ADMIN_RESERVATIONS.PRIVATE' | transloco }}
       </th>
       <th class="py-3.5 px-4 font-semibold text-center w-[16%]">
-        {{ 'ADMIN_PENDING_RESERVATIONS.ACTION_COLUMN' | transloco }}
+        {{ 'ADMIN_RESERVATIONS.ACTION_COLUMN' | transloco }}
       </th>
     </tr>
   </thead>
@@ -60,16 +60,18 @@
         </td>
 
         <td class="p-3.5 align-middle">
-          <div class="flex flex-col gap-1.5 justify-center">
-            <button
-              (click)="handleAcceptClick(res)"
-              class="shrink-0 px-2 py-0.5 bg-green-600/80 hover:bg-green-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
-            >
-              {{ getAcceptText() }}
-            </button>
+          <div class="flex flex-row gap-1.5 justify-center">
+            @if (isAcceptButtonVisible()) {
+              <button
+                (click)="handleAcceptClick(res)"
+                class="shrink-0 px-4 py-2 bg-green-600/80 hover:bg-green-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
+              >
+                {{ getAcceptText() }}
+              </button>
+            }
             <button
               (click)="handleCancelClick(res)"
-              class="shrink-0 px-2 py-0.5 bg-rose-600/80 hover:bg-rose-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
+              class="shrink-0 px-4 py-2 bg-rose-600/80 hover:bg-rose-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
             >
               {{ getCancelText() }}
             </button>
@@ -80,7 +82,7 @@
       <tr>
         <!-- Updated colspan to match the total number of columns (7) -->
         <td colspan="7" class="p-8 text-center text-slate-400 italic">
-          {{ 'ADMIN_PENDING_RESERVATIONS.NO_RESERVATIONS' | transloco }}
+          {{ 'ADMIN_RESERVATIONS.NO_RESERVATIONS' | transloco }}
         </td>
       </tr>
     }

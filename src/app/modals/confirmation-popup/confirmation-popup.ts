@@ -1,24 +1,24 @@
-import { Component, inject, input } from '@angular/core';
-import { ReservationStore } from '../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { Component, input, output } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-confirmation-popup',
-  imports: [],
+  imports: [TranslocoPipe],
   templateUrl: './confirmation-popup.html',
   styleUrl: './confirmation-popup.css',
 })
 export class ConfirmationPopup {
-  readonly store = inject(ReservationStore);
-  readonly facade = inject(ReservationFacade);
-  readonly loco = inject(TranslocoService);
+  readonly titleText = input.required<string>();
+  readonly bodyText = input<string>('');
 
-  readonly titleText = input<any | null>();
-  readonly bodyText = input<any | null>();
+  readonly ok = output<void>();
+  readonly cancel = output<void | null>();
 
   handleOk() {
-    this.facade.closeModals();
+    this.ok.emit();
   }
-  handleCancel() {}
+
+  handleCancel() {
+    this.cancel.emit();
+  }
 }

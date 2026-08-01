@@ -44,7 +44,7 @@ export class CalendarBookingModal implements OnInit {
   }
 
   handleAddOrganizationModal() {
-    this.store.modalAddOrganizationActive.set(true);
+    this.store.isAddOrganizationModalActive.set(true);
   }
 
   isPrivateCheckboxDisabled() {

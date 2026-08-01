@@ -47,7 +47,7 @@ export class AddOrganizationModal {
     this.store.modalDeleteOwnerSuccess.set(false);
 
     this.store.globalErrorKey.set(null);
-    this.store.modalAddOrganizationActive.set(false);
+    this.store.isAddOrganizationModalActive.set(false);
     this.store.popupConfirmationActive.set(false);
   }
 }

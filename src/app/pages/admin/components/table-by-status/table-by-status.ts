@@ -25,13 +25,13 @@ export class TableByStatus {
   getAcceptText(): string {
     switch (this.store.statusForAdminPage()) {
       case ReservationStatus.CREATED: {
-        return this.translocoService.translate('ADMIN_PENDING_RESERVATIONS.CONFIRM_ACCEPT');
+        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_ACCEPT');
       }
       case ReservationStatus.CANCELLED: {
         return this.translocoService.translate('ADMIN_CANCELLED_RESERVATIONS.CONFIRM_ACCEPT');
       }
       case ReservationStatus.CONFIRMED: {
-        return this.translocoService.translate('ADMIN_CONFIRMED_RESERVATIONS.CONFIRM_ACCEPT');
+        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_ACCEPT');
       }
       case ReservationStatus.REJECTED_CANCELLATION: {
         return this.translocoService.translate(
@@ -44,7 +44,7 @@ export class TableByStatus {
         );
       }
       default: {
-        ('Accept');
+        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_ACCEPT_BUTTON');
       }
     }
     return 'OK';
@@ -53,26 +53,22 @@ export class TableByStatus {
   getCancelText(): string {
     switch (this.store.statusForAdminPage()) {
       case ReservationStatus.CREATED: {
-        return this.translocoService.translate('ADMIN_PENDING_RESERVATIONS.CONFIRM_CANCEL');
+        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_REJECT_BUTTON');
       }
       case ReservationStatus.CANCELLED: {
-        return this.translocoService.translate('ADMIN_CANCELLED_RESERVATIONS.CONFIRM_CANCEL');
+        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
       }
       case ReservationStatus.CONFIRMED: {
-        return this.translocoService.translate('ADMIN_CONFIRMED_RESERVATIONS.CONFIRM_CANCEL');
+        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
       }
       case ReservationStatus.REJECTED_CANCELLATION: {
-        return this.translocoService.translate(
-          'ADMIN_REJECTED_CANCELLATION_RESERVATIONS.CONFIRM_CANCEL',
-        );
+        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
       }
       case ReservationStatus.REQUESTED_CANCELLATION: {
-        return this.translocoService.translate(
-          'ADMIN_REQUESTED_CANCELLATION_RESERVATIONS.CONFIRM_CANCEL',
-        );
+        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
       }
       default: {
-        ('Cancel');
+        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
       }
     }
     return 'Cancel';
@@ -85,30 +81,30 @@ export class TableByStatus {
         break;
       }
       case ReservationStatus.CANCELLED: {
-        return this.translocoService.translate('ADMIN_CANCELLED_RESERVATIONS.CONFIRM_CANCEL');
+        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
         break;
       }
       case ReservationStatus.CONFIRMED: {
-        return this.translocoService.translate('ADMIN_CONFIRMED_RESERVATIONS.CONFIRM_CANCEL');
+        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
         break;
       }
       case ReservationStatus.REJECTED_CANCELLATION: {
         return this.translocoService.translate(
-          'ADMIN_REJECTED_CANCELLATION_RESERVATIONS.CONFIRM_CANCEL',
+          'ADMIN_REJECTED_CANCELLATION_RESERVATIONS.CONFIRM_CANCEL_BUTTON',
         );
         break;
       }
       case ReservationStatus.REQUESTED_CANCELLATION: {
         return this.translocoService.translate(
-          'ADMIN_REQUESTED_CANCELLATION_RESERVATIONS.CONFIRM_CANCEL',
+          'ADMIN_REQUESTED_CANCELLATION_RESERVATIONS.CONFIRM_CANCEL_BUTTON',
         );
         break;
       }
       default: {
-        ('Cancel');
+        ('Accept');
       }
     }
-    return 'Cancel';
+    return 'Accept';
   }
 
   handleCancelClick(res: ReservationDto) {
@@ -138,5 +134,25 @@ export class TableByStatus {
       }
     }
     return 'Cancel';
+  }
+
+  isAcceptButtonVisible(): boolean {
+    switch (this.store.statusForAdminPage()) {
+      case ReservationStatus.CREATED: {
+        return true;
+      }
+      case ReservationStatus.CANCELLED: {
+        return false;
+      }
+      case ReservationStatus.CONFIRMED: {
+        return false;
+      }
+      case ReservationStatus.REQUESTED_CANCELLATION: {
+        return false;
+      }
+      default: {
+        return false;
+      }
+    }
   }
 }

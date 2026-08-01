@@ -47,9 +47,24 @@ export class ReservationFacade {
     }
   }
 
+  getRooms() {
+    this.api.getRooms().subscribe({
+      next: (rooms) => {
+        this.store.rooms.set(rooms);
+        console.log('Get rooms data:');
+        console.table(rooms);
+      },
+      error: (e) => console.log('Error fetching rooms: ', e),
+    });
+  }
+
   getRoomsAndReservations() {
     this.api.getRooms().subscribe({
-      next: (rooms) => this.store.rooms.set(rooms),
+      next: (rooms) => {
+        this.store.rooms.set(rooms);
+        console.log('Get rooms data:');
+        console.table(rooms);
+      },
       error: (e) => console.log('Error fetching rooms: ', e),
     });
 
@@ -62,6 +77,32 @@ export class ReservationFacade {
           console.table(pageData.content);
         },
         error: (e) => console.log('Error fetching res: ', e),
+      });
+  }
+
+  getAllReservationsForUserAndTheirOrganization() {
+    const userId = (this.authService.userId() || '').toString().replace(/['"]/g, '');
+    const userIdNumber = parseInt(userId, 10);
+
+    this.api
+      .getAllReservationsForUserAndTheirOrganization(
+        userIdNumber,
+        this.store.reservationsPage(),
+        this.store.reservationsSize(),
+      )
+      .subscribe({
+        next: (pageData) => {
+          this.store.reservations.set([]);
+
+          console.log(
+            'getAllReservationsForUserAndTheirOrganization: Fetched reservations for user and their organization:',
+          );
+          console.table(pageData.content);
+
+          this.store.reservations.set(pageData.content);
+        },
+
+        error: (e) => console.log('Error: ', e),
       });
   }
 
@@ -174,19 +215,6 @@ export class ReservationFacade {
         }
       },
     });
-  }
-
-  getAllReservationsForUserAndTheirOrganization(userId: number) {
-    this.api
-      .getAllReservationsForUserAndTheirOrganization(
-        userId,
-        this.store.reservationsPage(),
-        this.store.reservationsSize(),
-      )
-      .subscribe({
-        next: (pageData) => this.store.reservations.set(pageData.content),
-        error: (e) => console.log('Error: ', e),
-      });
   }
 
   deleteReservation(id: number) {
@@ -376,9 +404,7 @@ export class ReservationFacade {
         if (this.authService.isAdmin()) {
           this.getRoomsAndReservations();
         } else if (this.authService.currentUser()?.id != 0) {
-          this.getAllReservationsForUserAndTheirOrganization(
-            this.authService.currentUser()?.id ?? 0,
-          );
+          this.getAllReservationsForUserAndTheirOrganization();
         }
         this.store.popupMarkedReservationAsAccepted.set(true);
         this.getReservationsByStatus(ReservationStatus.CREATED);
@@ -396,9 +422,7 @@ export class ReservationFacade {
         if (this.authService.isAdmin()) {
           this.getRoomsAndReservations();
         } else if (this.authService.currentUser()?.id != 0) {
-          this.getAllReservationsForUserAndTheirOrganization(
-            this.authService.currentUser()?.id ?? 0,
-          );
+          this.getAllReservationsForUserAndTheirOrganization();
         }
         this.store.popupMarkedReservationAsRequestCancel.set(true);
         this.getReservationsByStatus(ReservationStatus.CREATED);
@@ -416,9 +440,7 @@ export class ReservationFacade {
         if (this.authService.isAdmin()) {
           this.getRoomsAndReservations();
         } else if (this.authService.currentUser()?.id != 0) {
-          this.getAllReservationsForUserAndTheirOrganization(
-            this.authService.currentUser()?.id ?? 0,
-          );
+          this.getAllReservationsForUserAndTheirOrganization();
         }
         this.store.popupMarkedReservationAsCanceled.set(true);
         this.getReservationsByStatus(ReservationStatus.CREATED);
@@ -457,8 +479,10 @@ export class ReservationFacade {
     this.store.modalDeleteOwnerSuccess.set(false);
 
     this.store.globalErrorKey.set(null);
-    this.store.modalAddOrganizationActive.set(false);
+    this.store.isAddOrganizationModalActive.set(false);
     this.store.popupConfirmationActive.set(false);
+
+    this.store.confirmMarkReservationAsRequestCancel.set(false);
   }
 
   handleAddOrganization() {
@@ -480,6 +504,11 @@ export class ReservationFacade {
   handleClickCancelReservation(res: ReservationDto) {
     this.store.confirmMarkReservationAsCanceled.set(true);
     this.store.selectedReservation.set(res);
+  }
+
+  handleClickRequestCancelReservation(res: ReservationDto) {
+    this.store.selectedReservation.set(res);
+    this.store.confirmMarkReservationAsRequestCancel.set(true);
   }
 
   handleCancelReservation(res: ReservationDto) {

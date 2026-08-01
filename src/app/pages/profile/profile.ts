@@ -17,11 +17,13 @@ import { CalendarHelper } from '../../components/calendar/calendar.helper';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TextFormatingTool } from '../../tools/textFormatingTool';
 import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-popup';
+import { AddOrganizationModal } from '../../components/modals/add-organization-modal/add-organization-modal';
+import { ReservationStatus } from '../../model/reservationStatus';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe, ConfirmationPopup],
+  imports: [CommonModule, TranslocoPipe, ConfirmationPopup, AddOrganizationModal],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -34,6 +36,7 @@ export class ProfilePage implements OnInit {
   readonly email = this.authService.email();
   readonly reservationToDelete = signal<ReservationDto | null>(null);
   readonly textFormatingTool = inject(TextFormatingTool);
+  readonly calendarHelper = inject(CalendarHelper);
 
   private sseController: AbortController | null = null;
 
@@ -44,8 +47,9 @@ export class ProfilePage implements OnInit {
   }
 
   reservedByLabel(reservation: ReservationDto): string {
-    const org = this.organizations().find((o) => o.id === reservation.organization);
-    return org ? `${org.name}` : `Nieznany`;
+    const org = this.store.userOrganizations().find((o) => o.id === reservation.organization);
+
+    return org ? `${org.name}` : this.translocoService.translate('USER_MODALS.PRIVATE');
   }
 
   activeTab = signal<Tab>(new Tab(0, 'Moje rezerwacje', 'reservations', undefined));
@@ -76,69 +80,30 @@ export class ProfilePage implements OnInit {
   readonly areYouSure = signal<boolean>(false);
 
   ngOnInit() {
+    this.facade.getRooms();
     this.facade.getOrganizationsOfUserWithMembers();
+    this.facade.getAllReservationsForUserAndTheirOrganization();
     this.facade.connectToReservationStream();
   }
 
-  handleDeleteReservationClick(reservation: ReservationDto) {
-    console.log('clicked remove reservationId: ' + reservation);
-    this.reservationToDelete.set(reservation);
-    this.areYouSure.set(true);
-  }
-
-  getReservationsWhereUserBelongs() {
-    const orgs = this.organizations();
-    if (orgs.length === 0) {
-      this.reservations.set([]);
-      return;
-    }
-
-    this.facade.getAllReservationsForUserAndTheirOrganization(
-      parseInt(this.authService.userId() || '0'),
-    );
-  }
-  formatDate(dateStr: string): string {
-    try {
-      const d = new Date(dateStr);
-      return d.toLocaleString('pl-PL', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return dateStr;
-    }
-  }
-
-  formatDuration(durationStr: string): string {
-    return durationStr.replace('PT', '').replace('H', ' godz ').replace('M', ' min');
+  formatDuration(res: ReservationDto): string {
+    return this.calendarHelper.generateDurationLabel(res.startAt, res.duration);
   }
 
   deleteReservation(reservationId: number) {
     console.log(`Trying to delete reservation with id ${reservationId}`);
     this.facade.deleteReservation(reservationId);
-    this.getReservationsWhereUserBelongs();
+    this.facade.getAllReservationsForUserAndTheirOrganization();
     this.areYouSure.set(false);
   }
 
   deleteTeamMember(userId: number) {
     console.log(`Trying to delete team member with id ${userId}`);
+    this.facade.removeUserFromOrganization(userId, this.activeTab().org!.id);
   }
 
-  readonly clickedCreateTeam = signal(false);
   handleClickCreateTeam() {
-    this.clickedCreateTeam.set(true);
-  }
-
-  createOrganization(event: Event, name: string) {
-    event.preventDefault();
-
-    if (!name.trim()) return;
-
-    this.facade.createOrganization(name);
-    this.facade.getOrganizationsOfUserWithMembers();
+    this.store.isAddOrganizationModalActive.set(true);
   }
 
   ngOnDestroy() {
@@ -148,15 +113,20 @@ export class ProfilePage implements OnInit {
   }
 
   getTitleText(): string {
+    console.log('Confirming cancellation for reservation:', this.store.selectedReservation());
     if (this.store.confirmMarkReservationAsRequestCancel()) {
-      return this.translocoService.translate(
-        'ADMIN_PENDING_RESERVATIONS.CONFIRM_REQUEST_CANCEL_TITLE',
-      );
+      return this.translocoService.translate('USER_MODALS.CONFIRM_REQUEST_CANCEL_TITLE');
     }
     return '';
   }
 
   getBodyText(): string {
+    console.log('Confirming getBodyText for reservation:', this.store.selectedReservation());
+    console.log(
+      'this.store.confirmMarkReservationAsRequestCancel(): ',
+      this.store.confirmMarkReservationAsRequestCancel(),
+    );
+
     const res = this.store.selectedReservation();
     if (!res) return '';
 
@@ -167,13 +137,65 @@ export class ProfilePage implements OnInit {
       endHour: this.textFormatingTool.endAtText(res),
     };
 
+    console.log('params: ', params);
     if (this.store.confirmMarkReservationAsRequestCancel()) {
-      return this.translocoService.translate(
-        'ADMIN_RESERVATIONS.CONFIRM_REQUEST_CANCEL_BODY',
-        params,
-      );
+      return this.translocoService.translate('USER_MODALS.CONFIRM_REQUEST_CANCEL_BODY', params);
     }
 
     return '';
+  }
+
+  getRoomName(res: ReservationDto): string {
+    const room = this.store.rooms().find((r) => r.id === res.room);
+    return room ? room.name : '';
+  }
+
+  isCancellationPossible(res: ReservationDto): boolean {
+    if (
+      res.status === ReservationStatus.CANCELLED ||
+      res.status === ReservationStatus.REQUESTED_CANCELLATION
+    ) {
+      return false;
+    }
+
+    const startDate = new Date(res.startAt);
+    const now = new Date();
+    const timeDifference = startDate.getTime() - now.getTime();
+    const hoursDifference = timeDifference / (1000 * 60 * 60);
+    return hoursDifference >= 24 || res.status === ReservationStatus.CREATED;
+  }
+
+  getCancelButtonLabel(res: ReservationDto): string {
+    if (!this.isCancellationPossible(res)) {
+      return this.translocoService.translate('PROFILE.CANCEL_BTN_DISABLED');
+    }
+
+    switch (res.status) {
+      case ReservationStatus.CREATED:
+        return this.translocoService.translate('PROFILE.CANCEL_BTN');
+      case ReservationStatus.CONFIRMED:
+        return this.translocoService.translate('PROFILE.CANCEL_BTN');
+      case ReservationStatus.CANCELLED:
+        return this.translocoService.translate('PROFILE.CANCEL_BTN');
+      case ReservationStatus.REQUESTED_CANCELLATION:
+        return this.translocoService.translate('PROFILE.REQUESTED_CANCELLATION_BUTTON');
+      default:
+        return '';
+    }
+  }
+
+  getStatusText(res: ReservationDto): string {
+    switch (res.status) {
+      case ReservationStatus.CREATED:
+        return this.translocoService.translate('STATUS.CREATED');
+      case ReservationStatus.CONFIRMED:
+        return this.translocoService.translate('STATUS.CONFIRMED');
+      case ReservationStatus.CANCELLED:
+        return this.translocoService.translate('STATUS.CANCELLED');
+      case ReservationStatus.REQUESTED_CANCELLATION:
+        return this.translocoService.translate('STATUS.REQUESTED_CANCELLATION');
+      default:
+        return '';
+    }
   }
 }

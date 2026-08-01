@@ -1,3 +1,4 @@
+import { ReservationStatus } from './reservationStatus';
 import { ReservationType } from './reservationType';
 
 export interface ReservationDto {
@@ -9,4 +10,5 @@ export interface ReservationDto {
   startAt: string;
   endAt: string;
   duration: string;
+  status: ReservationStatus;
 }
