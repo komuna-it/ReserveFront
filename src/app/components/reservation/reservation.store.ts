@@ -10,11 +10,13 @@ import { Organization } from '../../model/organization';
 import { User } from '../../model/user';
 import { Page } from '../../model/page';
 import { ReservationStatus } from '../../model/reservationStatus';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
   private helper = inject(CalendarHelper);
   private authService = inject(AuthService);
+  readonly loco = inject(TranslocoService);
 
   readonly allUsers = signal<User[]>([]);
 
@@ -46,12 +48,17 @@ export class ReservationStore {
     if (!booking) return [];
 
     const reservs = this.currentDayReservations();
+
     const reservsForRoom = reservs.filter((res) => res.room === booking?.roomId);
+    console.log('reservsForRoom: ', reservsForRoom);
+    console.table(
+      reservsForRoom.map((res) => ({ id: res.id, startAt: res.startAt, endAt: res.endAt })),
+    );
     const bookingStartHour = booking?.hour;
     let limitHour = 22;
 
     for (const res of reservsForRoom) {
-      const resStartHour = new Date(res.startAt).getHours();
+      const resStartHour = new Date(res.startAt).getUTCHours();
 
       if (resStartHour < limitHour && resStartHour > bookingStartHour) {
         limitHour = resStartHour;
@@ -59,6 +66,8 @@ export class ReservationStore {
     }
 
     const maxDuration = limitHour - bookingStartHour;
+    console.log('booking start hour: ', bookingStartHour);
+    console.log('limit hour: ', limitHour);
     console.log('max duration: ', maxDuration);
     return Array.from({ length: Math.max(0, maxDuration) }, (_, i) => i + 1);
   });
@@ -161,32 +170,61 @@ export class ReservationStore {
         let isLast = false;
         let isMyOrg = false;
         let bandName = '';
+        let isPrivateReservation = false;
+        let privateReservationText = '';
+        let reservedByUserId: number | null = null;
+        let reservationText = '';
+        let isMyPrivateReservation = false;
 
         if (matchedReservation) {
           const startHour = new Date(matchedReservation.startAt).getUTCHours();
           isFirst = hour === startHour;
           isLast = hour === new Date(matchedReservation.endAt).getUTCHours() - 1;
+          reservedByUserId = matchedReservation.reservedBy;
 
           if (matchedReservation.organization) {
             if (isAdmin) {
               bandName =
                 allOrgs.get(matchedReservation.organization) ||
-                `Organizacja #${matchedReservation.organization}`;
+                `${matchedReservation.organization}`;
               isMyOrg = false;
+              reservationText = bandName;
             } else {
               if (userOrgs.has(matchedReservation.organization)) {
                 isMyOrg = true;
                 bandName = userOrgs.get(matchedReservation.organization) || '';
+                reservationText = bandName;
               } else {
                 isMyOrg = false;
                 bandName = '';
+                reservationText = bandName;
               }
+            }
+          }
+
+          if (matchedReservation.organization === null) {
+            isPrivateReservation = true;
+            const userId = parseInt(this.authService.userId()!, 10);
+
+            if (this.authService.isAdmin()) {
+              const userText = this.allUsers().find(
+                (u) => u.id === matchedReservation.reservedBy,
+              )?.nick;
+              reservationText = `${userText} (prywatna)`;
+              console.log('Admin view - private reservation text: ', reservationText);
+            } else if (matchedReservation.reservedBy === userId) {
+              reservationText = 'CALENDAR.MY_PRIVATE_RESERVATION';
+              isMyPrivateReservation = true;
+              console.log('User view - my private reservation text: ', reservationText);
+            } else {
+              reservationText = '';
+              console.log('User view - other private reservation text: ', reservationText);
             }
           }
         }
 
         return {
-          roomId: room.id,
+          roomId: room.id ?? 0,
           hourWrapper: new HourWrapper(
             hour,
             isReserved,
@@ -195,6 +233,11 @@ export class ReservationStore {
             isMyOrg,
             isPastHour,
             bandName,
+            isPrivateReservation,
+            privateReservationText,
+            reservedByUserId,
+            reservationText,
+            isMyPrivateReservation,
           ),
         };
       });

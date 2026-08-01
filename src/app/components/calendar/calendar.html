@@ -170,7 +170,9 @@
                           }"
                         >
                           @if (
-                            authService.isAdmin() || cell.hourWrapper.isReservedByMyOrganization
+                            authService.isAdmin() ||
+                            cell.hourWrapper.isReservedByMyOrganization ||
+                            cell.hourWrapper.isMyPrivateReservation
                           ) {
                             <span
                               class="font-bold text-[10px] tracking-wide uppercase block truncate w-full px-1"
@@ -178,7 +180,7 @@
                                 authService.isAdmin() ? 'text-emerald-300' : 'text-blue-300'
                               "
                             >
-                              {{ cell.hourWrapper.bandName }}
+                              {{ cell.hourWrapper.reservationText }}
                             </span>
                           }
                         </div>
