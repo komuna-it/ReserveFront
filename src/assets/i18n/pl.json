@@ -154,7 +154,9 @@
     "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz poprosić o odwołanmie rezerwacji {{organization}}, {{date}} {{startHour}} - {{endHour}}? Prośba trafi do pracownika.",
     "CONFIRM_REQUEST_CANCEL_TITLE": "Odwołanie rezerwacji",
     "PRIVATE": "Prywatna",
-    "ORGANIZATION_ADDED": "Zespół utworzony"
+    "ORGANIZATION_ADDED": "Zespół utworzony",
+    "CONFIRM_DELETE_OWNER": "Potwierdź usunięcie właściciela",
+    "CONFIRM_DELETE_MEMBER": "Potwierdź usunięcie członka zespołu"
   },
 
   "ADMIN_RESERVATIONS": {
@@ -195,6 +197,6 @@
     "PREVIOUS": "Poprzednia",
     "NEXT": "Następna",
     "PAGE": "Strona",
-    "TOTAL_RESERVATIONS": "Łącznie rezerwacji"
+    "TOTAL": "Suma"
   }
 }

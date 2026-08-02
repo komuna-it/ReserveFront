@@ -8,11 +8,24 @@ import { User } from '../../../../model/user';
 import { Organization } from '../../../../model/organization';
 import { AddOrganizationModal } from '../../../../components/modals/add-organization-modal/add-organization-modal';
 import { OrganizationMemberDto } from '../../../../model/organizationMemberDto';
+import { Pagination } from '../../../../layout/pagination/pagination';
+import { SuccessPopup } from '../../../../modals/success-popup/success-popup';
+import { ErrorPopup } from '../../../../modals/error-popup/error-popup';
+import { ConfirmationPopup } from '../../../../modals/confirmation-popup/confirmation-popup';
 
 @Component({
   selector: 'app-organization-list',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe, AddUserIntoOrganizationModal, AddOrganizationModal],
+  imports: [
+    CommonModule,
+    TranslocoPipe,
+    AddUserIntoOrganizationModal,
+    AddOrganizationModal,
+    Pagination,
+    SuccessPopup,
+    ErrorPopup,
+    ConfirmationPopup,
+  ],
   templateUrl: './organization-list.html',
   styleUrl: './organization-list.css',
 })
@@ -185,5 +198,21 @@ export class OrganizationList implements OnInit, OnDestroy {
     return user.trusted
       ? this.loco.translate('ORGANIZATION_LIST.NOT_TRUSTED')
       : this.loco.translate('ORGANIZATION_LIST.TRUSTED');
+  }
+
+  getOrganizationAddedTitleText() {
+    return this.loco.translate('ORGANIZATION_LIST.SUCCESS_TITLE');
+  }
+
+  getDeleteOrganizationSuccessTitleText() {
+    return this.loco.translate('ORGANIZATION_LIST.DELETE_ORGANIZATION.SUCCESS_TITLE');
+  }
+
+  getDeleteOwnerSuccessTitleText() {
+    return this.loco.translate('ORGANIZATION_LIST.DELETE_OWNER.SUCCESS_TITLE');
+  }
+
+  getDeleteMemberSuccessTitleText() {
+    return this.loco.translate('ORGANIZATION_LIST.DELETE_MEMBER.SUCCESS_TITLE');
   }
 }

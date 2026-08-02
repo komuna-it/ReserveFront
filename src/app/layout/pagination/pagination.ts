@@ -1,7 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { ReservationFacade } from '../../components/reservation/reservation.facade';
-import { ReservationStore } from '../../components/reservation/reservation.store';
 
 @Component({
   selector: 'app-pagination',
@@ -11,6 +9,13 @@ import { ReservationStore } from '../../components/reservation/reservation.store
 })
 export class Pagination {
   readonly transloco = inject(TranslocoService);
-  readonly store = inject(ReservationStore);
-  readonly facade = inject(ReservationFacade);
+
+  readonly totalElements = input.required<number>();
+  readonly totalPages = input.required<number>();
+  readonly currentPage = input.required<number>();
+  readonly isFirst = input.required<boolean>();
+  readonly isLast = input.required<boolean>();
+
+  readonly previous = output<void>();
+  readonly next = output<void>();
 }

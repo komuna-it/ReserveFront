@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { UsersTable } from '../pages/admin/components/users-table/users-table';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -31,6 +32,11 @@ export const ADMIN_ROUTES: Routes = [
       {
         path: 'rooms',
         loadComponent: () => import('../pages/admin/components/rooms/rooms').then((m) => m.Rooms),
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('../pages/admin/components/users-table/users-table').then((m) => m.UsersTable),
       },
     ],
   },

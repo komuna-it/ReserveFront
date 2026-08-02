@@ -385,6 +385,7 @@ export class ReservationFacade {
   }
 
   getReservationsByStatus(status: ReservationStatus) {
+    console.log('inside getReservationsByStatus: ', status);
     this.api
       .getReservationsByStatus(this.store.reservationsPage(), this.store.reservationsSize(), status)
       .subscribe({

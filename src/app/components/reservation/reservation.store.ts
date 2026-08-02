@@ -31,13 +31,6 @@ export class ReservationStore {
   readonly userOrganizations = signal<Organization[]>([]);
   readonly allOrganizations = signal<Organization[]>([]);
 
-  readonly orgsPage = signal<number>(0);
-  readonly orgsSize = signal<number>(10);
-  readonly orgsTotalPages = signal<number>(1);
-  readonly orgsTotalElements = signal<number>(0);
-  readonly orgsIsFirst = signal<boolean>(true);
-  readonly orgsIsLast = signal<boolean>(true);
-
   readonly orgAndMembersMap = signal<Map<Organization, User[]>>(new Map());
 
   readonly daySelectedByUser = signal<Date>(new Date());
@@ -263,7 +256,7 @@ export class ReservationStore {
 
   readonly isPrivateReservationCheckboxActivated = signal<boolean>(false);
 
-  // confirm reservation management pagination
+  // reservation pagination
 
   readonly reservationsByStatus = signal<ReservationDto[]>([]);
   readonly paginationTotalNumber = signal<number>(0);
@@ -271,6 +264,15 @@ export class ReservationStore {
   readonly paginationPage = signal<number>(0);
   readonly paginationIsFirst = signal<boolean>(false);
   readonly paginationIsLast = signal<boolean>(false);
+
+  // org pagination
+
+  readonly orgsTotalElements = signal<number>(0);
+  readonly orgsTotalPages = signal<number>(0);
+  readonly orgsPage = signal<number>(0);
+  readonly orgsIsFirst = signal<boolean>(false);
+  readonly orgsIsLast = signal<boolean>(false);
+  readonly orgsSize = signal<number>(10);
 
   // confirm reservation management
 
