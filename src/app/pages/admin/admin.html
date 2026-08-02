@@ -41,3 +41,14 @@
     (cancel)="facade.closeModals()"
   ></app-error-popup>
 }
+
+@if (store.isBanUsersModalActive()) {
+  <app-ban-modal></app-ban-modal>
+}
+
+@if (store.isBanUsersSuccessActive()) {
+  <app-confirmation-popup
+    [titleText]="'USER_MODALS.SUCCESS' | transloco"
+    (ok)="facade.closeModals()"
+  ></app-confirmation-popup>
+}

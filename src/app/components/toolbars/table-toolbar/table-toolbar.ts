@@ -7,7 +7,7 @@ import { ToolbarType } from '../toolbarType';
 
 @Component({
   selector: 'app-table-toolbar',
-  imports: [TranslocoPipe, BanModal],
+  imports: [],
   templateUrl: './table-toolbar.html',
   styleUrl: './table-toolbar.css',
 })

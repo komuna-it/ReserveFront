@@ -13,15 +13,7 @@ import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 
 @Component({
   selector: 'app-users-table',
-  imports: [
-    TableToolbar,
-    CommonModule,
-    TranslocoPipe,
-    Pagination,
-    SuccessPopup,
-    ErrorPopup,
-    ConfirmationPopup,
-  ],
+  imports: [TableToolbar, CommonModule, TranslocoPipe, Pagination, ErrorPopup],
   templateUrl: './users-table.html',
   styleUrl: './users-table.css',
 })

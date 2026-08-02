@@ -94,6 +94,7 @@
     "REQUESTED_CANCELLATION": "Oczekuje na potwierdzenie odwołania",
     "REJECTED": "Odrzucona"
   },
+
   "REGISTER": {
     "CLOSE": "Zamknij",
     "SUCCESS_TITLE": "Rejestracja zakończona sukcesem",
@@ -130,6 +131,7 @@
     "SUCCESS_DESC": "Członek został pomyślnie usunięty.",
     "CLOSE": "Zamknij"
   },
+
   "ORGANIZATION_LIST.DELETE_OWNER": {
     "TITLE": "Usuń właściciela zespołu",
     "CONFIRMATION": "Czy na pewno chcesz usunąć właściciela zespołu?",
@@ -174,7 +176,8 @@
     "CONFIRM_DELETE_OWNER": "Potwierdź usunięcie właściciela",
     "CONFIRM_DELETE_MEMBER": "Potwierdź usunięcie członka zespołu",
     "CONFIRM_BAN_TITLE": "Banowanie",
-    "CONFIRM_BAN_BODY": "Potwierdź ban"
+    "CONFIRM_BAN_BODY": "Potwierdź ban",
+    "SUCCESS": "Sukces"
   },
 
   "ADMIN_RESERVATIONS": {

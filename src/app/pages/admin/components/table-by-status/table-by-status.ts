@@ -13,7 +13,7 @@ import { ErrorPopup } from '../../../../modals/error-popup/error-popup';
 
 @Component({
   selector: 'app-table-by-status',
-  imports: [TranslocoPipe, ConfirmationPopup, SuccessPopup, ErrorPopup],
+  imports: [TranslocoPipe],
   templateUrl: './table-by-status.html',
   styleUrl: './table-by-status.css',
 })

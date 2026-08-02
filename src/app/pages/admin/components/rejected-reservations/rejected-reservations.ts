@@ -8,7 +8,7 @@ import { Pagination } from '../../../../layout/pagination/pagination';
 
 @Component({
   selector: 'app-rejected-reservations',
-  imports: [Pagination, TableByStatus, TableToolbar],
+  imports: [Pagination, TableByStatus],
   templateUrl: './rejected-reservations.html',
   styleUrl: './rejected-reservations.css',
 })

@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
+
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-ban-modal',
@@ -16,11 +16,16 @@ export class BanModal {
   readonly facade = inject(ReservationFacade);
 
   readonly userIds = this.store.toolbarSelectedIds();
+
   readonly qtyOfUsersToBan = this.userIds.size;
   readonly users = this.store.allUsers().filter((u) => this.userIds.has(u.id));
+
   durationInput = '';
   reason = '';
-  handleBan() {
+
+  handleBan(): void {
+    if (!this.reason || !this.durationInput) return;
+
     const duration = `P${this.durationInput}D`;
     this.store.banDuration.set(duration);
     this.store.banReason.set(this.reason);

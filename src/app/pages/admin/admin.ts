@@ -10,10 +10,11 @@ import { TextFormatingTool } from '../../tools/textFormatingTool';
 import { AdminSidebar } from '../../layout/admin-sidebar/admin-sidebar';
 import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-popup';
 import { ErrorPopup } from '../../modals/error-popup/error-popup';
+import { BanModal } from '../../modals/ban-modal/ban-modal';
 
 @Component({
   selector: 'app-admin',
-  imports: [ConfirmationPopup, RouterOutlet, AdminSidebar, TranslocoPipe, ErrorPopup],
+  imports: [ConfirmationPopup, RouterOutlet, AdminSidebar, TranslocoPipe, ErrorPopup, BanModal],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })

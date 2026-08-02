@@ -173,6 +173,6 @@ export class ReservationApi {
   }
 
   banUser(userId: number, reason: string, duration: string) {
-    return this.http.post(`${this.apiUrl}/users/ban`, {});
+    return this.http.put(`${this.apiUrl}/users/ban`, { userId, reason, duration });
   }
 }

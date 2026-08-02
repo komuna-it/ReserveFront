@@ -14,7 +14,10 @@
     </div>
     @if (type() === ToolbarType.USERS) {
       <div class="grid grid-rows-2 mx-4">
-        <button (click)="facade.banUsers()" class="p-2 bg-green-500 text-white text-xs rounded">
+        <button
+          (click)="facade.handleClickBanUsers()"
+          class="p-2 bg-green-500 text-white text-xs rounded"
+        >
           Ban
         </button>
         <button (click)="facade.unbanUsers()" class="p-2 bg-red-500 text-white text-xs rounded">
@@ -38,7 +41,3 @@
     }
   </div>
 </div>
-
-@if (store.isBanModalActive()) {
-  <app-ban-modal></app-ban-modal>
-}

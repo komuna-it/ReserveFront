@@ -88,7 +88,6 @@
     </tbody>
   </table>
 
-  <!-- Pagination -->
   <app-pagination
     [totalElements]="store.usersTotalElements()"
     [totalPages]="store.userTotalPages()"
@@ -98,24 +97,7 @@
     (previous)="facade.changeUsersPage('prev')"
   ></app-pagination>
 
-  <!-- Modal - confirm ban user 
-  @if (store.modalDeleteMemberActive()) {
-    <app-confirmation-popup
-      [titleText]="'USER_MODALS.CONFIRM_DELETE_MEMBER' | transloco"
-      (ok)="confirmDeleteMember()"
-      (cancel)="facade.closeModals()"
-    ></app-confirmation-popup>
-  }
--->
-
-  <!-- Popup - ban user success 
-  @if (store.modalDeleteOrganizationSuccess()) {
-    <app-success-popup [titleText]="getOrganizationAddedTitleText()"></app-success-popup>
-  }
--->
-
-  <!-- Popup - error -->
   @if (store.globalErrorKey()) {
-    <app-error-popup></app-error-popup>
+    <app-error-popup [titleText]="store.globalErrorKey() ?? ''"></app-error-popup>
   }
 </div>

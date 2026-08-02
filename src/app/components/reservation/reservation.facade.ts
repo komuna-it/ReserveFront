@@ -485,7 +485,11 @@ export class ReservationFacade {
 
     this.store.confirmMarkReservationAsRequestCancel.set(false);
     this.store.globalErrorKey.set(null);
-    this.store.isBanModalActive.set(false);
+    this.store.isBanUsersModalActive.set(false);
+  }
+
+  handleClickBanUsers() {
+    this.store.isBanUsersModalActive.set(true);
   }
 
   handleAddOrganization() {
@@ -604,6 +608,8 @@ export class ReservationFacade {
         next: () => {
           console.log('Banned userId ', userId);
           this.getAllUsers();
+          this.store.isBanUsersModalActive.set(false);
+          this.store.isBanUsersSuccessActive.set(true);
         },
         error: (e) => {
           console.error('Error banning userId ', userId, ': ', e);
