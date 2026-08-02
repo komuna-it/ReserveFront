@@ -1,4 +1,5 @@
-<p>users-table works!</p>
+<app-table-toolbar [type]="toolbarType"></app-table-toolbar>
+
 <div
   class="w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
 >
@@ -7,6 +8,19 @@
       <tr
         class="bg-slate-900/80 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700"
       >
+        <th class="py-3.5 px-2 font-semibold text-center border-r border-slate-700/60 w-[5%]">
+          <label
+            class="inline-flex items-center justify-center p-2.5 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
+          >
+            <input
+              type="checkbox"
+              (change)="facade.toolbarToggleMasterCheckbox()"
+              [checked]="store.toolbarAreAllSelected()"
+              [indeterminate]="store.toolbarIsIndeterminated()"
+            />
+          </label>
+        </th>
+
         <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
           {{ 'USERS_TABLE.NICK' | transloco }}
         </th>
@@ -22,6 +36,18 @@
       @for (user of store.usersFiltered(); track user.id) {
         <tr class="hover:bg-slate-700/30 transition-colors">
           <!-- NICK column -->
+          <td class="p-1.5 border-r border-slate-700/60 align-middle">
+            <label
+              class="inline-flex items-center justify-center p-2.5 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
+            >
+              <input
+                type="checkbox"
+                [checked]="store.toolbarSelectedIds().has(user.id)"
+                (change)="facade.toolbarToggleSelection(user.id)"
+                class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+              />
+            </label>
+          </td>
           <td class="p-3.5 border-r border-slate-700/60 align-middle">
             <div
               class="flex items-center justify-between gap-3 bg-slate-900/40 p-2 rounded-lg border border-slate-700/40"

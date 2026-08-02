@@ -250,6 +250,7 @@ export class ReservationStore {
   readonly isModalDeleteMemberSuccessActive = signal<boolean>(false);
   readonly isModalDeleteOwnerSuccessActive = signal<boolean>(false);
   readonly isModalAddMemberActive = signal<boolean>(false);
+  readonly isBanModalActive = signal<boolean>(false);
 
   readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
   readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
@@ -317,13 +318,30 @@ export class ReservationStore {
     if (currentItems.length === 0) return false;
     return currentItems.every((r) => this.toolbarSelectedIds().has(r.id));
   });
+
   readonly toolbarIsNoneSelected = computed(() => {
     return this.toolbarSelectedIds().size === 0;
   });
   readonly toolbarIsIndeterminated = computed(() => {
     return this.toolbarSelectedIds().size > 0 && !this.toolbarAreAllSelected();
   });
-  // profile
+
+  // Users Toolbar
+
+  readonly toolbarUserSelectedIds = signal<Set<number>>(new Set());
+  readonly toolbarAreAllUsersSelected = computed(() => {
+    const currentItems = this.allUsers();
+    if (currentItems.length === 0) return false;
+    return currentItems.every((r) => this.toolbarSelectedIds().has(r.id));
+  });
+  readonly toolbarUserIsNoneSelected = computed(() => {
+    return this.toolbarSelectedIds().size === 0;
+  });
+  readonly toolbarUserIsIndeterminated = computed(() => {
+    return this.toolbarSelectedIds().size > 0 && !this.toolbarAreAllUsersSelected();
+  });
+
+  /// profile
 
   activeTab = signal<Tab>(new Tab(0, 'Moje rezerwacje', 'reservations', undefined));
   allTabs = computed(() => {
@@ -348,4 +366,9 @@ export class ReservationStore {
 
     return membersAndOwners;
   });
+
+  // ban
+
+  readonly banReason = signal<string>('');
+  readonly banDuration = signal<string>('');
 }

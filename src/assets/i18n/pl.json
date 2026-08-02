@@ -39,7 +39,9 @@
     "NICK": "Nick",
     "EMAIL": "Email",
     "TRUSTED": "Zaufany",
-    "NOT_TRUSTED": "Niezaufany"
+    "NOT_TRUSTED": "Niezaufany",
+    "REASON": "Powód",
+    "DURATION": "Długość"
   },
   "PROFILE": {
     "TITLE": "Twój Profil",
@@ -169,7 +171,9 @@
     "PRIVATE": "Prywatna",
     "ORGANIZATION_ADDED": "Zespół utworzony",
     "CONFIRM_DELETE_OWNER": "Potwierdź usunięcie właściciela",
-    "CONFIRM_DELETE_MEMBER": "Potwierdź usunięcie członka zespołu"
+    "CONFIRM_DELETE_MEMBER": "Potwierdź usunięcie członka zespołu",
+    "CONFIRM_BAN_TITLE": "Banowanie",
+    "CONFIRM_BAN_BODY": "Potwierdź ban"
   },
 
   "ADMIN_RESERVATIONS": {

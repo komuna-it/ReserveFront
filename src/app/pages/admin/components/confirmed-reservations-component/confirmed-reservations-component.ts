@@ -10,6 +10,7 @@ import { TableByStatus } from '../table-by-status/table-by-status';
 import { ConfirmationPopup } from '../../../../modals/confirmation-popup/confirmation-popup';
 import { Pagination } from '../../../../layout/pagination/pagination';
 import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
+import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 
 @Component({
   selector: 'app-confirmed-reservations-component',
@@ -25,4 +26,6 @@ export class ConfirmedReservationsComponent {
     this.store.statusForAdminPage.set(ReservationStatus.CONFIRMED);
     this.facade.getReservationsByStatus(ReservationStatus.CONFIRMED);
   }
+
+  readonly toolbarType = ToolbarType.RESERVATION_BY_STATUS;
 }

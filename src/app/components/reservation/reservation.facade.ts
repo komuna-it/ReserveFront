@@ -382,18 +382,6 @@ export class ReservationFacade {
     });
   }
 
-  markUserTrusted(isTrusted: boolean, userId: number) {
-    this.api.markUserTrusted(!isTrusted, userId).subscribe({
-      next: () => {
-        this.getAllUsers();
-      },
-      error: (e) => {
-        console.error('Error marking user as trusted: ', e);
-        this.store.globalErrorKey.set('Error marking user as trusted');
-      },
-    });
-  }
-
   getReservationsByStatus(status: ReservationStatus) {
     console.log('inside getReservationsByStatus: ', status);
     this.api
@@ -423,19 +411,6 @@ export class ReservationFacade {
       error: (e) => {
         console.error('Error markReservationAsAccepted: ', e);
         this.store.globalErrorKey.set('Error markReservationAsAccepted');
-      },
-    });
-  }
-
-  banUser(userId: number, reason: string, duration: string) {
-    this.api.banUser(userId, reason, duration).subscribe({
-      next: () => {
-        console.log('Banned userId ', userId);
-        this.getAllUsers();
-      },
-      error: (e) => {
-        console.error('Error banning userId ', userId, ': ', e);
-        this.store.globalErrorKey.set(e);
       },
     });
   }
@@ -510,6 +485,7 @@ export class ReservationFacade {
 
     this.store.confirmMarkReservationAsRequestCancel.set(false);
     this.store.globalErrorKey.set(null);
+    this.store.isBanModalActive.set(false);
   }
 
   handleAddOrganization() {
@@ -578,6 +554,8 @@ export class ReservationFacade {
     }
   }
 
+  // ==================================
+
   handleClickCancelReservations() {
     this.store.confirmMarkReservationAsCanceled.set(true);
     const reservs = this.store
@@ -602,4 +580,102 @@ export class ReservationFacade {
   }
 
   // ==================================
+
+  banUser(userId: number, reason: string, duration: string) {
+    this.api.banUser(userId, reason, duration).subscribe({
+      next: () => {
+        console.log('Banned userId ', userId);
+        this.getAllUsers();
+      },
+      error: (e) => {
+        console.error('Error banning userId ', userId, ': ', e);
+        this.store.globalErrorKey.set(e);
+      },
+    });
+  }
+
+  banUsers() {
+    const userIds = this.store.toolbarSelectedIds();
+    const reason = this.store.banReason();
+    const duration = this.store.banDuration();
+
+    userIds.forEach((userId) => {
+      this.api.banUser(userId, reason, duration).subscribe({
+        next: () => {
+          console.log('Banned userId ', userId);
+          this.getAllUsers();
+        },
+        error: (e) => {
+          console.error('Error banning userId ', userId, ': ', e);
+          this.store.globalErrorKey.set(e);
+        },
+      });
+    });
+  }
+
+  unbanUsers() {
+    const userIds = this.store.toolbarSelectedIds();
+    const reason = this.store.banReason();
+    const duration = this.store.banDuration();
+
+    userIds.forEach((userId) => {
+      this.api.banUser(userId, reason, duration).subscribe({
+        next: () => {
+          console.log('Banned userId ', userId);
+          this.getAllUsers();
+        },
+        error: (e) => {
+          console.error('Error banning userId ', userId, ': ', e);
+          this.store.globalErrorKey.set(e);
+        },
+      });
+    });
+  }
+
+  // ==================================
+
+  markUserTrusted(isTrusted: boolean, userId: number) {
+    this.api.markUserTrusted(!isTrusted, userId).subscribe({
+      next: () => {
+        this.getAllUsers();
+      },
+      error: (e) => {
+        console.error('Error marking user as trusted: ', e);
+        this.store.globalErrorKey.set('Error marking user as trusted');
+      },
+    });
+  }
+
+  markUsersTrusted() {
+    const userIds = this.store.toolbarSelectedIds();
+    const trusted = true;
+
+    userIds.forEach((userId) => {
+      this.api.markUserTrusted(trusted, userId).subscribe({
+        next: () => {
+          this.getAllUsers();
+        },
+        error: (e) => {
+          console.error('Error marking user as trusted: ', e);
+          this.store.globalErrorKey.set('Error marking user as trusted');
+        },
+      });
+    });
+  }
+
+  markUsersUntrusted() {
+    const userIds = this.store.toolbarSelectedIds();
+    const trusted = false;
+    userIds.forEach((userId) => {
+      this.api.markUserTrusted(trusted, userId).subscribe({
+        next: () => {
+          this.getAllUsers();
+        },
+        error: (e) => {
+          console.error('Error marking user as trusted: ', e);
+          this.store.globalErrorKey.set('Error marking user as trusted');
+        },
+      });
+    });
+  }
 }
