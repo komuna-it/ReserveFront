@@ -46,25 +46,25 @@ export class OrganizationList implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.facade.getAllUsers();
     this.facade.getAllMembersAllOrganizations(0);
-    this.store.isAdminOrganizationActive.set(true);
+    this.store.isAdminOrganizationModalActive.set(true);
   }
 
   ngOnDestroy(): void {
     this.store.teamsList.set([]);
-    this.store.isAdminOrganizationActive.set(false);
+    this.store.isAdminOrganizationModalActive.set(false);
   }
 
   closeModals(): void {
-    this.store.isAdminAddOrganizationActive.set(false);
-    this.store.isAdminAddOrganizationSuccess.set(false);
+    this.store.isAdminAddOrganizationModalActive.set(false);
+    this.store.isAdminAddOrganizationSuccessPopupActive.set(false);
 
-    this.store.modalDeleteOwnerActive.set(false);
-    this.store.modalDeleteMemberActive.set(false);
-    this.store.modalDeleteOrganizationActive.set(false);
+    this.store.isModalDeleteOwnerActive.set(false);
+    this.store.isModalDeleteMemberActive.set(false);
+    this.store.isModalDeleteOrganizationActive.set(false);
 
-    this.store.modalDeleteOrganizationSuccess.set(false);
-    this.store.modalDeleteMemberSuccess.set(false);
-    this.store.modalDeleteOwnerSuccess.set(false);
+    this.store.isModalDeleteOrganizationSuccessActive.set(false);
+    this.store.isModalDeleteMemberSuccessActive.set(false);
+    this.store.isModalDeleteOwnerSuccessActive.set(false);
 
     this.store.globalErrorKey.set(null);
   }
@@ -79,15 +79,15 @@ export class OrganizationList implements OnInit, OnDestroy {
       return;
     }
     this.store.organizationListSelectedOrganization.set(org);
-    this.store.modalDeleteOrganizationActive.set(true);
+    this.store.isModalDeleteOrganizationActive.set(true);
     console.log(
       'Selected organization ID set to:',
       this.store.organizationListSelectedOrganization(),
     );
-    console.log('Modal delete organization active:', this.store.modalDeleteOrganizationActive());
+    console.log('Modal delete organization active:', this.store.isModalDeleteOrganizationActive());
     console.log('Current state of store:', {
       organizationListSelectedOrganizationId: this.store.organizationListSelectedOrganization(),
-      modalDeleteOrganizationActive: this.store.modalDeleteOrganizationActive(),
+      modalDeleteOrganizationActive: this.store.isModalDeleteOrganizationActive(),
     });
   }
 
@@ -105,7 +105,7 @@ export class OrganizationList implements OnInit, OnDestroy {
     }
     this.store.organizationListSelectedUser.set(user);
     this.store.organizationListSelectedOrganization.set(org);
-    this.store.modalDeleteMemberActive.set(true);
+    this.store.isModalDeleteMemberActive.set(true);
   }
 
   handleDeleteOwner(ownerId: number, orgId: number): void {
@@ -122,16 +122,16 @@ export class OrganizationList implements OnInit, OnDestroy {
     }
     this.store.organizationListSelectedUser.set(user);
     this.store.organizationListSelectedOrganization.set(org);
-    this.store.modalDeleteOwnerActive.set(true);
+    this.store.isModalDeleteOwnerActive.set(true);
   }
 
   confirmDeleteOrganization(): void {
     const org = this.store.organizationListSelectedOrganization();
     if (org) {
       this.facade.removeOrg(org.id);
-      this.store.modalDeleteOrganizationActive.set(false);
+      this.store.isModalDeleteOrganizationActive.set(false);
       this.store.organizationListSelectedOrganization.set(null);
-      this.store.modalDeleteOrganizationSuccess.set(true);
+      this.store.isModalDeleteOrganizationSuccessActive.set(true);
     }
   }
 
@@ -140,10 +140,10 @@ export class OrganizationList implements OnInit, OnDestroy {
     const org = this.store.organizationListSelectedOrganization();
     if (user && org) {
       this.facade.removeUserFromOrganization(user.id, org.id);
-      this.store.modalDeleteMemberActive.set(false);
+      this.store.isModalDeleteMemberActive.set(false);
       this.store.organizationListSelectedUser.set(null);
       this.store.organizationListSelectedOrganization.set(null);
-      this.store.modalDeleteMemberSuccess.set(true);
+      this.store.isModalDeleteMemberSuccessActive.set(true);
     }
   }
 
@@ -158,10 +158,10 @@ export class OrganizationList implements OnInit, OnDestroy {
 
     if (ownerId && orgId) {
       this.facade.removeOwnerFromOrganization(ownerId, orgId);
-      this.store.modalDeleteOwnerActive.set(false);
+      this.store.isModalDeleteOwnerActive.set(false);
       this.store.organizationListSelectedUser.set(null);
       this.store.organizationListSelectedOrganization.set(null);
-      this.store.modalDeleteOwnerSuccess.set(true);
+      this.store.isModalDeleteOwnerSuccessActive.set(true);
     }
   }
 
@@ -173,7 +173,7 @@ export class OrganizationList implements OnInit, OnDestroy {
       return;
     }
     this.store.organizationListSelectedOrganization.set(org);
-    this.store.modalAddMemberActive.set(true);
+    this.store.isModalAddMemberActive.set(true);
   }
 
   orgTrustedText(org: Organization) {

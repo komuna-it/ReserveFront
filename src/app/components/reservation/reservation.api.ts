@@ -147,7 +147,7 @@ export class ReservationApi {
     );
   }
 
-  getAllUsers(): Observable<User[]> {
+  getAllUsers(page: number, size: number): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users/all`);
   }
 
@@ -167,7 +167,6 @@ export class ReservationApi {
   markReservationAsRequestCancel(reservationId: number) {
     return this.http.post(`${this.apiUrl}/reservations/requestCancel/${reservationId}`, {});
   }
-
   markReservationAsCanceled(reservationId: number) {
     return this.http.post(`${this.apiUrl}/reservations/confirmCancel/${reservationId}`, {});
   }

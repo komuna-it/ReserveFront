@@ -283,6 +283,13 @@ export class ReservationFacade {
     }
   }
 
+  changeUsersPage(direction: 'next' | 'prev') {
+    const currentPage = this.store.orgsPage();
+    const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
+    this.store.orgsPage.set(newPage);
+    this.getAllUsers();
+  }
+
   createOrganization(name: string) {
     this.api.createOrganization(name).subscribe({
       next: () => {
@@ -363,7 +370,10 @@ export class ReservationFacade {
   }
 
   getAllUsers() {
-    return this.api.getAllUsers().subscribe({
+    const page = this.store.userPage();
+    let size = this.store.userSize();
+    if (size === 0) size = 20;
+    return this.api.getAllUsers(page, size).subscribe({
       next: (users) => {
         this.store.allUsers.set(users);
         this.refreshOrganizations();
@@ -468,16 +478,16 @@ export class ReservationFacade {
   // modals
 
   closeModals(): void {
-    this.store.isAdminAddOrganizationActive.set(false);
-    this.store.isAdminAddOrganizationSuccess.set(false);
+    this.store.isAdminAddOrganizationModalActive.set(false);
+    this.store.isAdminAddOrganizationSuccessPopupActive.set(false);
 
-    this.store.modalDeleteOwnerActive.set(false);
-    this.store.modalDeleteMemberActive.set(false);
-    this.store.modalDeleteOrganizationActive.set(false);
+    this.store.isModalDeleteOwnerActive.set(false);
+    this.store.isModalDeleteMemberActive.set(false);
+    this.store.isModalDeleteOrganizationActive.set(false);
 
-    this.store.modalDeleteOrganizationSuccess.set(false);
-    this.store.modalDeleteMemberSuccess.set(false);
-    this.store.modalDeleteOwnerSuccess.set(false);
+    this.store.isModalDeleteOrganizationSuccessActive.set(false);
+    this.store.isModalDeleteMemberSuccessActive.set(false);
+    this.store.isModalDeleteOwnerSuccessActive.set(false);
 
     this.store.globalErrorKey.set(null);
     this.store.isAddOrganizationModalActive.set(false);
@@ -487,7 +497,7 @@ export class ReservationFacade {
   }
 
   handleAddOrganization() {
-    this.store.isAdminAddOrganizationActive.set(true);
+    this.store.isAdminAddOrganizationModalActive.set(true);
     this.router.navigate(['/admin/organizations']);
   }
 

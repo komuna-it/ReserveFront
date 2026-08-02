@@ -35,16 +35,16 @@ export class AddOrganizationModal {
   }
 
   closeModals(): void {
-    this.store.isAdminAddOrganizationActive.set(false);
-    this.store.isAdminAddOrganizationSuccess.set(false);
+    this.store.isAdminAddOrganizationModalActive.set(false);
+    this.store.isAdminAddOrganizationSuccessPopupActive.set(false);
 
-    this.store.modalDeleteOwnerActive.set(false);
-    this.store.modalDeleteMemberActive.set(false);
-    this.store.modalDeleteOrganizationActive.set(false);
+    this.store.isModalDeleteOwnerActive.set(false);
+    this.store.isModalDeleteMemberActive.set(false);
+    this.store.isModalDeleteOrganizationActive.set(false);
 
-    this.store.modalDeleteOrganizationSuccess.set(false);
-    this.store.modalDeleteMemberSuccess.set(false);
-    this.store.modalDeleteOwnerSuccess.set(false);
+    this.store.isModalDeleteOrganizationSuccessActive.set(false);
+    this.store.isModalDeleteMemberSuccessActive.set(false);
+    this.store.isModalDeleteOwnerSuccessActive.set(false);
 
     this.store.globalErrorKey.set(null);
     this.store.isAddOrganizationModalActive.set(false);

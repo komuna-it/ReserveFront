@@ -1,1 +1,95 @@
 <p>users-table works!</p>
+<div
+  class="w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
+>
+  <table class="w-full min-w-[768px] text-left border-collapse text-sm">
+    <thead>
+      <tr
+        class="bg-slate-900/80 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700"
+      >
+        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
+          {{ 'USERS_TABLE.NICK' | transloco }}
+        </th>
+        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
+          {{ 'USERS_TABLE.EMAIL' | transloco }}
+        </th>
+        <th class="py-3.5 px-4 font-semibold text-center w-[16%]">
+          {{ 'USERS_TABLE.TRUSTED' | transloco }}
+        </th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-700/70 text-slate-300">
+      @for (user of store.usersFiltered(); track user.id) {
+        <tr class="hover:bg-slate-700/30 transition-colors">
+          <!-- NICK column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            <div
+              class="flex items-center justify-between gap-3 bg-slate-900/40 p-2 rounded-lg border border-slate-700/40"
+            >
+              {{ user.nick }}
+            </div>
+          </td>
+
+          <!-- email column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            <div
+              class="flex items-center justify-between gap-3 bg-slate-900/40 p-2 rounded-lg border border-slate-700/40"
+            >
+              {{ user.email }}
+            </div>
+          </td>
+
+          <!-- trusted column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            <div
+              class="flex items-center justify-between gap-3 bg-slate-900/40 p-2 rounded-lg border border-slate-700/40"
+            >
+              @if (user.trusted) {
+                {{ 'USERS_TABLE.TRUSTED' | transloco }}
+              } @else {
+                {{ 'USERS_TABLE.NOT_TRUSTED' | transloco }}
+              }
+            </div>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="4" class="p-8 text-center text-slate-400 italic">
+            Brak zespołów do wyświetlenia
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <app-pagination
+    [totalElements]="store.usersTotalElements()"
+    [totalPages]="store.userTotalPages()"
+    [currentPage]="store.userPage()"
+    [isFirst]="store.userIsFirst()"
+    [isLast]="store.userIsLast()"
+    (previous)="facade.changeUsersPage('prev')"
+  ></app-pagination>
+
+  <!-- Modal - confirm ban user 
+  @if (store.modalDeleteMemberActive()) {
+    <app-confirmation-popup
+      [titleText]="'USER_MODALS.CONFIRM_DELETE_MEMBER' | transloco"
+      (ok)="confirmDeleteMember()"
+      (cancel)="facade.closeModals()"
+    ></app-confirmation-popup>
+  }
+-->
+
+  <!-- Popup - ban user success 
+  @if (store.modalDeleteOrganizationSuccess()) {
+    <app-success-popup [titleText]="getOrganizationAddedTitleText()"></app-success-popup>
+  }
+-->
+
+  <!-- Popup - error -->
+  @if (store.globalErrorKey()) {
+    <app-error-popup></app-error-popup>
+  }
+</div>

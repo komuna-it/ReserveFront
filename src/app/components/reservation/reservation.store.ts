@@ -238,23 +238,41 @@ export class ReservationStore {
     });
   });
 
-  readonly isAdminAddOrganizationActive = signal<boolean>(false);
-  readonly isAdminOrganizationActive = signal<boolean>(false);
-  readonly isAdminAddOrganizationSuccess = signal<boolean>(false);
-  readonly modalDeleteOrganizationActive = signal<boolean>(false);
-  readonly modalDeleteMemberActive = signal<boolean>(false);
-  readonly modalDeleteOwnerActive = signal<boolean>(false);
-  readonly modalDeleteOrganizationSuccess = signal<boolean>(false);
-  readonly modalDeleteMemberSuccess = signal<boolean>(false);
-  readonly modalDeleteOwnerSuccess = signal<boolean>(false);
-  readonly modalAddMemberActive = signal<boolean>(false);
+  // ================= modals control =================
+
+  readonly isAdminAddOrganizationModalActive = signal<boolean>(false);
+  readonly isAdminOrganizationModalActive = signal<boolean>(false);
+  readonly isAdminAddOrganizationSuccessPopupActive = signal<boolean>(false);
+  readonly isModalDeleteOrganizationActive = signal<boolean>(false);
+  readonly isModalDeleteMemberActive = signal<boolean>(false);
+  readonly isModalDeleteOwnerActive = signal<boolean>(false);
+  readonly isModalDeleteOrganizationSuccessActive = signal<boolean>(false);
+  readonly isModalDeleteMemberSuccessActive = signal<boolean>(false);
+  readonly isModalDeleteOwnerSuccessActive = signal<boolean>(false);
+  readonly isModalAddMemberActive = signal<boolean>(false);
+
+  readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
+  readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
+  readonly confirmMarkReservationAsCanceled = signal<boolean>(false);
+
+  readonly popupMarkedReservationAsAccepted = signal<boolean>(false);
+  readonly popupMarkedReservationAsRequestCancel = signal<boolean>(false);
+  readonly popupMarkedReservationAsCanceled = signal<boolean>(false);
+  readonly isPrivateReservationCheckboxActivated = signal<boolean>(false);
+
+  readonly statusForAdminPage = signal<ReservationStatus | null>(null);
+
+  readonly isAddOrganizationModalActive = signal<boolean | null>(null);
+
+  readonly popupConfirmationActive = signal<boolean | null>(null);
 
   readonly organizationListSelectedUser = signal<User | null>(null);
   readonly organizationListSelectedOrganization = signal<Organization | null>(null);
+  readonly selectedReservation = signal<ReservationDto | null>(null);
 
   readonly globalErrorKey = signal<string | null>(null);
 
-  readonly isPrivateReservationCheckboxActivated = signal<boolean>(false);
+  // =================
 
   // reservation pagination
 
@@ -274,23 +292,23 @@ export class ReservationStore {
   readonly orgsIsLast = signal<boolean>(false);
   readonly orgsSize = signal<number>(10);
 
+  // users pagination
+
+  readonly usersFiltered = computed(() => {
+    return this.allUsers().filter((u) => u.nick != 'SYSTEM');
+  });
+
+  readonly usersTotalElements = computed(() => {
+    return this.usersFiltered().length;
+  });
+
+  readonly userTotalPages = signal<number>(0);
+  readonly userPage = signal<number>(0);
+  readonly userIsFirst = signal<boolean>(false);
+  readonly userIsLast = signal<boolean>(false);
+  readonly userSize = signal<number>(10);
+
   // confirm reservation management
-
-  readonly selectedReservation = signal<ReservationDto | null>(null);
-
-  readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
-  readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
-  readonly confirmMarkReservationAsCanceled = signal<boolean>(false);
-
-  readonly popupMarkedReservationAsAccepted = signal<boolean>(false);
-  readonly popupMarkedReservationAsRequestCancel = signal<boolean>(false);
-  readonly popupMarkedReservationAsCanceled = signal<boolean>(false);
-
-  readonly statusForAdminPage = signal<ReservationStatus | null>(null);
-
-  readonly isAddOrganizationModalActive = signal<boolean | null>(null);
-
-  readonly popupConfirmationActive = signal<boolean | null>(null);
 
   // profile
 

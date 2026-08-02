@@ -37,7 +37,7 @@ export class AddUserIntoOrganizationModal implements OnInit, OnDestroy {
   });
 
   cancel() {
-    this.store.modalAddMemberActive.set(false);
+    this.store.isModalAddMemberActive.set(false);
   }
 
   confirm() {
@@ -59,7 +59,7 @@ export class AddUserIntoOrganizationModal implements OnInit, OnDestroy {
         this.store.organizationListSelectedUser()?.id ?? 0,
         this.store.organizationListSelectedOrganization()?.id ?? 0,
       );
-      this.store.modalAddMemberActive.set(false);
+      this.store.isModalAddMemberActive.set(false);
     }
   }
 }

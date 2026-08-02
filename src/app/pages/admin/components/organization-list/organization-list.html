@@ -154,17 +154,19 @@
   ></app-pagination>
 
   <!-- Modal - Add Organization -->
-  @if (store.isAdminAddOrganizationActive() && !store.isAdminAddOrganizationSuccess()) {
+  @if (
+    store.isAdminAddOrganizationModalActive() && !store.isAdminAddOrganizationSuccessPopupActive()
+  ) {
     <app-add-organization-modal></app-add-organization-modal>
   }
 
   <!-- Popup org added successfully -->
-  @if (store.isAdminAddOrganizationSuccess()) {
+  @if (store.isAdminAddOrganizationSuccessPopupActive()) {
     <app-success-popup [titleText]="getOrganizationAddedTitleText()"></app-success-popup>
   }
 
   <!-- Modal - delete org -->
-  @if (store.modalDeleteOrganizationActive()) {
+  @if (store.isModalDeleteOrganizationActive()) {
     <div
       class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
     >
@@ -196,7 +198,7 @@
   }
 
   <!-- Modal - confirm deleting owner from org -->
-  @if (store.modalDeleteOwnerActive()) {
+  @if (store.isModalDeleteOwnerActive()) {
     <app-confirmation-popup
       [titleText]="'USER_MODALS.CONFIRM_DELETE_OWNER' | transloco"
       (ok)="confirmDeleteOwner()"
@@ -205,7 +207,7 @@
   }
 
   <!-- Modal - confirm deleting owner from org -->
-  @if (store.modalDeleteMemberActive()) {
+  @if (store.isModalDeleteMemberActive()) {
     <app-confirmation-popup
       [titleText]="'USER_MODALS.CONFIRM_DELETE_MEMBER' | transloco"
       (ok)="confirmDeleteMember()"
@@ -214,17 +216,17 @@
   }
 
   <!-- Popup - delete organization success -->
-  @if (store.modalDeleteOrganizationSuccess()) {
+  @if (store.isModalDeleteOrganizationSuccessActive()) {
     <app-success-popup [titleText]="getOrganizationAddedTitleText()"></app-success-popup>
   }
 
   <!-- Popup - delete member success -->
-  @if (store.modalDeleteMemberSuccess()) {
+  @if (store.isModalDeleteMemberSuccessActive()) {
     <app-success-popup [titleText]="getDeleteMemberSuccessTitleText()"></app-success-popup>
   }
 
   <!-- Popup - delete owner success -->
-  @if (store.modalDeleteOwnerSuccess()) {
+  @if (store.isModalDeleteOwnerSuccessActive()) {
     <app-success-popup [titleText]="getDeleteOwnerSuccessTitleText()"></app-success-popup>
   }
 
@@ -233,7 +235,7 @@
     <app-error-popup></app-error-popup>
   }
 
-  @if (store.modalAddMemberActive()) {
+  @if (store.isModalAddMemberActive()) {
     <app-add-user-into-organization-modal></app-add-user-into-organization-modal>
   }
 </div>

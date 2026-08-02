@@ -35,6 +35,12 @@
     "PRIVATE_RESERVATION": "Zarezerwuj prywatnie (bez zespołu)",
     "MY_PRIVATE_RESERVATION": "Moja prywatna rezerwacja"
   },
+  "USERS_TABLE": {
+    "NICK": "Nick",
+    "EMAIL": "Email",
+    "TRUSTED": "Zaufany",
+    "NOT_TRUSTED": "Niezaufany"
+  },
   "PROFILE": {
     "TITLE": "Twój Profil",
     "SUBTITLE": "Zarządzaj swoimi rezerwacjami, zespołami oraz danymi konta",
