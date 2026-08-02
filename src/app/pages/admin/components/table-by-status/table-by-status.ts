@@ -7,10 +7,13 @@ import { PendingReservationsComponent } from '../pending-reservations-component/
 import { ReservationStatus } from '../../../../model/reservationStatus';
 import { ReservationDto } from '../../../../model/reservationDto';
 import { TextFormatingTool } from '../../../../tools/textFormatingTool';
+import { ConfirmationPopup } from '../../../../modals/confirmation-popup/confirmation-popup';
+import { SuccessPopup } from '../../../../modals/success-popup/success-popup';
+import { ErrorPopup } from '../../../../modals/error-popup/error-popup';
 
 @Component({
   selector: 'app-table-by-status',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, ConfirmationPopup, SuccessPopup, ErrorPopup],
   templateUrl: './table-by-status.html',
   styleUrl: './table-by-status.css',
 })

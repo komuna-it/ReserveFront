@@ -269,6 +269,7 @@ export class ReservationStore {
   readonly organizationListSelectedUser = signal<User | null>(null);
   readonly organizationListSelectedOrganization = signal<Organization | null>(null);
   readonly selectedReservation = signal<ReservationDto | null>(null);
+  readonly selectedReservations = signal<ReservationDto[] | null>(null);
 
   readonly globalErrorKey = signal<string | null>(null);
 
@@ -308,8 +309,20 @@ export class ReservationStore {
   readonly userIsLast = signal<boolean>(false);
   readonly userSize = signal<number>(10);
 
-  // confirm reservation management
+  // Reservation Toolbar
 
+  readonly toolbarSelectedIds = signal<Set<number>>(new Set());
+  readonly toolbarAreAllSelected = computed(() => {
+    const currentItems = this.reservationsByStatus();
+    if (currentItems.length === 0) return false;
+    return currentItems.every((r) => this.toolbarSelectedIds().has(r.id));
+  });
+  readonly toolbarIsNoneSelected = computed(() => {
+    return this.toolbarSelectedIds().size === 0;
+  });
+  readonly toolbarIsIndeterminated = computed(() => {
+    return this.toolbarSelectedIds().size > 0 && !this.toolbarAreAllSelected();
+  });
   // profile
 
   activeTab = signal<Tab>(new Tab(0, 'Moje rezerwacje', 'reservations', undefined));

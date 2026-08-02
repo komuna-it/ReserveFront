@@ -167,7 +167,12 @@ export class ReservationApi {
   markReservationAsRequestCancel(reservationId: number) {
     return this.http.post(`${this.apiUrl}/reservations/requestCancel/${reservationId}`, {});
   }
+
   markReservationAsCanceled(reservationId: number) {
-    return this.http.post(`${this.apiUrl}/reservations/confirmCancel/${reservationId}`, {});
+    return this.http.post(`${this.apiUrl}/reservations/reject/${reservationId}`, {});
+  }
+
+  banUser(userId: number, reason: string, duration: string) {
+    return this.http.post(`${this.apiUrl}/users/ban`, {});
   }
 }

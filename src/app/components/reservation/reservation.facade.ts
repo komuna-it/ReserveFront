@@ -427,6 +427,19 @@ export class ReservationFacade {
     });
   }
 
+  banUser(userId: number, reason: string, duration: string) {
+    this.api.banUser(userId, reason, duration).subscribe({
+      next: () => {
+        console.log('Banned userId ', userId);
+        this.getAllUsers();
+      },
+      error: (e) => {
+        console.error('Error banning userId ', userId, ': ', e);
+        this.store.globalErrorKey.set(e);
+      },
+    });
+  }
+
   markReservationAsRequestCancel(reservationId: number) {
     this.api.markReservationAsRequestCancel(reservationId).subscribe({
       next: () => {
@@ -446,6 +459,8 @@ export class ReservationFacade {
   }
 
   markReservationAsCanceled(reservationId: number) {
+    console.log('markReservationAsCanceled: resId:', reservationId);
+
     this.api.markReservationAsCanceled(reservationId).subscribe({
       next: () => {
         if (this.authService.isAdmin()) {
@@ -494,6 +509,7 @@ export class ReservationFacade {
     this.store.popupConfirmationActive.set(false);
 
     this.store.confirmMarkReservationAsRequestCancel.set(false);
+    this.store.globalErrorKey.set(null);
   }
 
   handleAddOrganization() {
@@ -533,4 +549,57 @@ export class ReservationFacade {
     this.store.confirmMarkReservationAsCanceled.set(false);
     this.store.popupMarkedReservationAsCanceled.set(true);
   }
+
+  // ================= Toolbar =================
+
+  toolbarToggleSelection(resId: number) {
+    this.store.toolbarSelectedIds.update((oldSet) => {
+      const newSet = new Set(oldSet);
+
+      if (newSet.has(resId)) {
+        newSet.delete(resId);
+      } else {
+        newSet.add(resId);
+      }
+      return newSet;
+    });
+  }
+
+  toolbarToggleMasterCheckbox() {
+    if (this.store.toolbarAreAllSelected() || this.store.toolbarIsIndeterminated()) {
+      this.store.toolbarSelectedIds.update(() => {
+        return new Set();
+      });
+    } else {
+      this.store.toolbarSelectedIds.update(() => {
+        const ids = this.store.reservationsByStatus().map((r) => r.id);
+        return new Set(ids);
+      });
+    }
+  }
+
+  handleClickCancelReservations() {
+    this.store.confirmMarkReservationAsCanceled.set(true);
+    const reservs = this.store
+      .reservationsByStatus()
+      .filter((r) => this.store.toolbarSelectedIds().has(r.id));
+    console.log('handleClickCancelReservations: ');
+    console.table(reservs);
+    this.store.selectedReservations.set(reservs);
+  }
+
+  handleCancelReservations() {
+    const res = this.store.selectedReservations();
+    console.log('handleCancelReservations: ');
+    console.table(res);
+
+    if (!res) {
+      return;
+    }
+    res.forEach((r) => this.markReservationAsCanceled(r.id));
+    this.store.confirmMarkReservationAsCanceled.set(false);
+    this.store.popupMarkedReservationAsCanceled.set(true);
+  }
+
+  // ==================================
 }
