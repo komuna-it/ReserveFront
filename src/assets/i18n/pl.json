@@ -79,11 +79,18 @@
     "ROLE_OWNER": "Właściciel",
     "NO_ROLE": "Brak"
   },
+  "BUTTONS": {
+    "CANCELLATION_NOT_POSSIBLE": "Odwołanie niemożliwe",
+    "CANCEL": "Odwołaj",
+    "REQUEST_CANCEL": "Poproś o odwołanie",
+    "TOO_LATE_TO_CANCEL": "Za późno na odwołanie"
+  },
   "STATUS": {
     "CREATED": "Oczekuje na potwierdzenie",
     "CONFIRMED": "Potwierdzona",
     "CANCELLED": "Odwołana",
-    "REQUESTED_CANCELLATION": "Oczekuje na potwierdzenie odwołania"
+    "REQUESTED_CANCELLATION": "Oczekuje na potwierdzenie odwołania",
+    "REJECTED": "Odrzucona"
   },
   "REGISTER": {
     "CLOSE": "Zamknij",
