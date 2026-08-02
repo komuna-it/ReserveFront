@@ -153,7 +153,8 @@
   "ERROR": {
     "CLOSE": "Zamknij",
     "TITLE": "Wystąpił błąd",
-    "DESC": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później."
+    "DESC": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.",
+    "ERROR_CANCELING_RESERVATION": "Błąd podczas odwoływania rezerwacji. Spróbuj ponownie później."
   },
   "ADD_USER_INTO_ORGANIZATION": {
     "MODAL_CONFIRM_TITLE": "Dodaj użytkownika",

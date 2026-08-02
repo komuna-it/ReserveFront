@@ -448,7 +448,7 @@ export class ReservationFacade {
       },
       error: (e) => {
         console.error('Error markReservationAsAccepted: ', e);
-        this.store.globalErrorKey.set('Error markReservationAsAccepted');
+        this.store.globalErrorKey.set('ERROR.ERROR_CANCELING_RESERVATION');
       },
     });
   }
@@ -470,7 +470,7 @@ export class ReservationFacade {
   closeModals(): void {
     this.store.isAdminAddOrganizationModalActive.set(false);
     this.store.isAdminAddOrganizationSuccessPopupActive.set(false);
-
+    this.store.confirmMarkReservationAsCanceled.set(false);
     this.store.isModalDeleteOwnerActive.set(false);
     this.store.isModalDeleteMemberActive.set(false);
     this.store.isModalDeleteOrganizationActive.set(false);

@@ -114,11 +114,3 @@
     }
   </tbody>
 </table>
-
-@if (store.confirmMarkReservationAsCanceled()) {
-  <app-confirmation-popup
-    [titleText]="'ADMIN_RESERVATIONS.CONFIRM_CANCEL_BODY'"
-    (ok)="facade.handleCancelReservations()"
-    (cancel)="facade.closeModals()"
-  ></app-confirmation-popup>
-}

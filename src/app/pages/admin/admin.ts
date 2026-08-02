@@ -1,52 +1,34 @@
-import {
-  Component,
-  inject,
-  signal,
-  computed,
-  OnInit,
-  DestroyRef,
-  HostListener,
-  input,
-} from '@angular/core';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from '../../auth/authService';
-import { OrganizationList } from './components/organization-list/organization-list';
+import { Component, inject, input, OnInit } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+
 import { ReservationStore } from '../../components/reservation/reservation.store';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { filter } from 'rxjs';
-import { ReservationDto } from '../../model/reservationDto';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
-import { TranslocoService } from '@jsverse/transloco';
-import { CalendarHelper } from '../../components/calendar/calendar.helper';
 import { ReservationStatus } from '../../model/reservationStatus';
-import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-popup';
 import { TextFormatingTool } from '../../tools/textFormatingTool';
+
 import { AdminSidebar } from '../../layout/admin-sidebar/admin-sidebar';
+import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-popup';
+import { ErrorPopup } from '../../modals/error-popup/error-popup';
 
 @Component({
   selector: 'app-admin',
-  imports: [ConfirmationPopup, RouterOutlet, AdminSidebar],
+  imports: [ConfirmationPopup, RouterOutlet, AdminSidebar, TranslocoPipe, ErrorPopup],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
-export class AdminPage {
+export class AdminPage implements OnInit {
   readonly store = inject(ReservationStore);
-  readonly isMobileMenuOpen = signal<boolean>(false);
-  private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
   readonly facade = inject(ReservationFacade);
-  readonly authService = inject(AuthService);
   readonly translocoService = inject(TranslocoService);
-  readonly calendarHelper = inject(CalendarHelper);
   readonly textFormatingTool = inject(TextFormatingTool);
-  readonly reservation = input<any | null>;
 
-  ngOnInit() {
+  readonly reservation = input<any | null>(null);
+
+  ngOnInit(): void {
     this.facade.getReservationsByStatus(ReservationStatus.CREATED);
     this.facade.getAllUsers();
   }
-
-  // buttons
 
   getTitleText(): string {
     if (this.store.confirmMarkReservationAsAccepted()) {
