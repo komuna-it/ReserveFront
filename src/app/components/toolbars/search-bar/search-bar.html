@@ -1,0 +1,8 @@
+<div>
+  <input
+    type="text"
+    placeholder="Wyszukaj..."
+    (ngModelChange)="onQueryChange($event)"
+    [ngModel]="store.searchBarQuery()"
+  />
+</div>

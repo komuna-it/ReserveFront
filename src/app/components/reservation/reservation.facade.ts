@@ -5,9 +5,10 @@ import { CalendarHelper } from '../calendar/calendar.helper';
 import { AuthService } from '../../auth/authService';
 import { Router } from '@angular/router';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { Organization } from '../../model/organization';
-import { User } from '../../model/user';
-import { OrganizationFront } from '../../model/organizationFront';
+import { ReservationType } from '../../model/reservationType';
+import { CreateReservationRequest } from '../../model/CreateReservationRequest';
+import { ReservationStatus } from '../../model/reservationStatus';
+import { ReservationDto } from '../../model/reservationDto';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -20,63 +21,123 @@ export class ReservationFacade {
 
   initializeCalendar(isAdmin: boolean) {
     this.getRoomsAndReservations();
+    this.getAllUsers();
 
-    if (isAdmin) {
-      this.getAllMembersAllOrganizations();
-    } else {
-      this.api
-        .getOrganizationsOfUserWithMembers()
-        .subscribe((data) => this.store.userOrganizations.set(data));
+    const userId = this.authService.userId();
+    if (!userId) {
+      console.error('User id not loaded yet');
+      return;
     }
 
+    console.log('Initializing calendar...');
+    this.refreshOrganizations();
     this.connectToReservationStream();
+  }
+
+  refreshOrganizations() {
+    if (this.authService.isAdmin()) {
+      this.getAllMembersAllOrganizations(0);
+      console.log('refreshed admin organizations:');
+    } else {
+      this.getOrganizationsOfUserWithMembers(0);
+      console.log(
+        "refreshed user's organizations (count): ",
+        this.store.userOrganizations().length,
+      );
+      console.table(this.store.userOrganizations());
+    }
+  }
+
+  getRooms() {
+    this.api.getRooms().subscribe({
+      next: (rooms) => {
+        this.store.rooms.set(rooms);
+        console.log('Get rooms data:');
+        console.table(rooms);
+      },
+      error: (e) => console.log('Error fetching rooms: ', e),
+    });
   }
 
   getRoomsAndReservations() {
     this.api.getRooms().subscribe({
       next: (rooms) => {
         this.store.rooms.set(rooms);
+        console.log('Get rooms data:');
+        console.table(rooms);
       },
-      error: (e) => {
-        console.log('Error fetching rooms: ', e);
-      },
+      error: (e) => console.log('Error fetching rooms: ', e),
     });
 
-    this.api.getReservations().subscribe({
-      next: (res) => {
-        this.store.reservations.set(res);
-      },
-      error: (e) => {
-        console.log('Error fetching res: ', e);
-      },
-    });
+    this.api
+      .getReservations(this.store.reservationsPage(), this.store.reservationsSize())
+      .subscribe({
+        next: (pageData) => {
+          this.store.reservations.set(pageData.content);
+          console.log('Get reservations data:');
+          console.table(pageData.content);
+        },
+        error: (e) => console.log('Error fetching res: ', e),
+      });
+  }
+
+  getAllReservationsForUserAndTheirOrganization() {
+    const userId = (this.authService.userId() || '').toString().replace(/['"]/g, '');
+    const userIdNumber = parseInt(userId, 10);
+
+    this.api
+      .getAllReservationsForUserAndTheirOrganization(
+        userIdNumber,
+        this.store.reservationsPage(),
+        this.store.reservationsSize(),
+      )
+      .subscribe({
+        next: (pageData) => {
+          this.store.reservations.set([]);
+
+          console.log(
+            'getAllReservationsForUserAndTheirOrganization: Fetched reservations for user and their organization:',
+          );
+          console.table(pageData.content);
+
+          this.store.reservations.set(pageData.content);
+        },
+
+        error: (e) => console.log('Error: ', e),
+      });
   }
 
   confirmBooking() {
     const booking = this.store.selectedBooking();
+    console.log('confirmBooking()...');
     if (!booking) return;
 
-    const startAtDate = new Date(booking.date);
-    startAtDate.setHours(booking.hour, 0, 0, 0);
+    const [year, month, day] = booking.date.split('-').map(Number);
 
-    console.log('Booking: ', booking);
+    const utcTimestamp = Date.UTC(year, month - 1, day, booking.hour, 0, 0, 0);
+    const startAtDate = new Date(utcTimestamp);
+    const isPrivate = this.store.isPrivateReservationCheckboxActivated();
 
-    const payload = {
-      reservedBy: booking.reservedByUserId,
+    let req: CreateReservationRequest = {
+      roomId: booking.roomId,
       startAt: startAtDate.toISOString(),
       duration: `PT${booking.duration}H`,
-      roomId: booking.roomId,
-      behalfOf: booking.organizationId,
+      type: ReservationType.REHERSEAL,
+      organizationId: isPrivate ? null : booking.organizationId,
     };
-    console.log('payload: ', payload);
 
-    this.api.postReservation(payload).subscribe({
+    console.log('req sent to backend (Standard UTC): ');
+    console.table(req);
+
+    this.api.postReservation(req).subscribe({
       next: () => {
         this.store.selectedBooking.set(null);
         this.store.displayBookingSuccesfulPopup.set(true);
         this.getRoomsAndReservations();
+        console.log('success from this.api.postReservation!');
       },
-      error: () => {
+      error: (err) => {
+        console.error('Booking error response:', err);
         this.store.selectedBooking.set(null);
         this.store.displayBookingErrorPopup.set(true);
       },
@@ -110,7 +171,15 @@ export class ReservationFacade {
     const day = this.store.daySelectedByUser();
     const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
 
-    const defaultOrg = this.store.userOrganizations()[0]?.id || 0;
+    const userOrgs = this.store.userOrganizations();
+    const allOrgs = this.store.allOrganizations();
+    let defaultOrg = userOrgs[0]?.id;
+
+    if (!defaultOrg && this.authService.isAdmin()) {
+      defaultOrg = allOrgs[0]?.id;
+    }
+
+    const rawUserId = (this.authService.userId() || '0').toString().replace(/['"]/g, '');
 
     this.store.selectedBooking.set({
       date: dateStr,
@@ -118,103 +187,545 @@ export class ReservationFacade {
       roomId,
       duration: 1,
       roomName: this.store.rooms().find((r) => r.id === roomId)?.name,
-      organizationId: defaultOrg,
-      reservedByUserId: parseInt(this.authService.userId() || '0', 10),
+      organizationId: defaultOrg || 0,
+      reservedByUserId: parseInt(rawUserId, 10),
     });
   }
 
   connectToReservationStream() {
     this.disconnectStream();
     this.sseController = new AbortController();
-    const url = `${process.env['VSF_API_URL'] || ''}/reservation/sse`;
-    console.log('Connected to reservation SSE: ', url);
+    const url = `${process.env['VSF_API_URL'] || ''}/sse`;
     fetchEventSource(url, {
       method: 'GET',
       signal: this.sseController.signal,
       onmessage: (msg) => {
         const msgData = JSON.parse(msg.data);
-        const reservedBy = msgData.reservationDto.reservedBy;
-        console.log('msgData ', msgData);
-        console.log('msg.event ', msg.event);
-        console.log('reservedBy ', reservedBy);
+        const reservedBy: ReservationDto = JSON.parse(msg.data);
+        const reservedById = reservedBy.reservedBy;
+
         if (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_REMOVED') {
           this.getRoomsAndReservations();
         }
-        if (msg.event === 'RESERVATION_CREATED' && reservedBy !== `${this.authService.userId}`) {
-          this.store.displayBookingErrorPopup();
+
+        const safeUserId = parseInt(
+          (this.authService.userId() || '').toString().replace(/['"]/g, ''),
+        );
+        if (msg.event === 'RESERVATION_CREATED' && reservedById !== safeUserId) {
+          this.store.displayBookingErrorPopup.set(true);
         }
       },
     });
   }
-  getAllMembersAllOrganizations() {
-    this.api.getAllMembersAllOrganizations().subscribe({
-      next: (organizations) => {
-        this.store.allOrganizations.set(organizations);
-        console.log('getAllMembersAllOrganizations: ', organizations);
-        console.log('this.store.allOrganizations(): ', this.store.allOrganizations());
-      },
-      error: () => console.error('Error in getAllMembersAllOrganizations'),
+
+  deleteReservation(id: number) {
+    this.api.deleteReservation(id).subscribe({
+      next: () => console.log(`Successfully deleted reservation with id ${id}`),
+      error: (e) => console.error(`Failed to delete reservation with id ${id}`, e),
     });
   }
+
+  getTestText() {
+    this.api.getTestText().subscribe({
+      next: (data) => this.store.testText.set(data),
+      error: (e) => console.error('Failed to fetch test text: ', e),
+    });
+  }
+
+  getAllRooms() {
+    this.api.getRooms().subscribe({
+      next: (rooms) => this.store.rooms.set(rooms),
+      error: (e) => console.error('Error fetching rooms: ', e),
+    });
+  }
+
   disconnectStream() {
     if (this.sseController) {
       this.sseController.abort();
       this.sseController = null;
     }
   }
+
   getUserByEmail(email: string) {
     this.api.getUserByEmail(email).subscribe({
-      next: (u) => {
-        console.log('fetched user by email: ', u);
-      },
-      error: (e) => {
-        console.log('error fetching user by email: ', e);
-      },
+      next: (u) => console.log('fetched user by email: ', u),
+      error: (e) => console.log('error fetching user by email: ', e),
     });
   }
-  getAllReservationsForUserAndTheirOrganization(userId: number) {
-    this.api.getAllReservationsForUserAndTheirOrganization(userId).subscribe({
-      next: (res) => {
-        this.store.reservations.set(res);
+
+  // ======================= ORGS ========================
+
+  getAllMembersAllOrganizations(page: number = 0) {
+    this.api.getAllMembersAllOrganizations(page, this.store.orgsSize()).subscribe({
+      next: (pageData) => {
+        this.store.allOrganizations.set(pageData.content);
+
+        if (this.authService.isAdmin()) {
+          this.store.userOrganizations.set(pageData.content);
+        }
+
+        this.store.orgsPage.set(pageData.number);
+        this.store.orgsTotalPages.set(pageData.totalPages);
+        this.store.orgsTotalElements.set(pageData.totalElements);
+        this.store.orgsIsFirst.set(pageData.first);
+        this.store.orgsIsLast.set(pageData.last);
       },
-      error: (e) => {
-        console.log('Error in getAllReservationsForUserAndTheirOrganization(): ', e);
-      },
+      error: () => console.error('Error in getAllMembersAllOrganizations'),
     });
   }
-  deleteReservation(id: number) {
-    this.api.deleteReservation(id).subscribe({
-      next: () => {
-        console.log(`Successfully deleted reservation with id ${id}`);
-      },
-      error: (e) => console.error(`Failed to delete reservation with id ${id}`, e),
-    });
+
+  changeOrganizationsPage(direction: 'next' | 'prev') {
+    const currentPage = this.store.orgsPage();
+    const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
+    if (this.authService.isAdmin()) {
+      this.getAllMembersAllOrganizations(newPage);
+    } else {
+      this.getOrganizationsOfUserWithMembers(newPage);
+    }
   }
+
+  changeUsersPage(direction: 'next' | 'prev') {
+    const currentPage = this.store.orgsPage();
+    const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
+    this.store.orgsPage.set(newPage);
+    this.getAllUsers();
+  }
+
   createOrganization(name: string) {
     this.api.createOrganization(name).subscribe({
       next: () => {
         console.log(`Created organization ${name}`);
+        this.refreshOrganizations();
       },
       error: (e) => console.error(`Failed to create organization ${name}`, e),
     });
   }
 
-  getOrganizationsOfUserWithMembers() {
-    this.api.getOrganizationsOfUserWithMembers().subscribe({
-      next: (data) => {
-        this.store.userOrganizations.set(data);
-        console.log('getOrganizationsOfUserWithMembers: ', data);
+  getOrganizationsOfUserWithMembers(page: number = 0) {
+    this.api.getOrganizationsOfUserWithMembers(page, this.store.orgsSize()).subscribe({
+      next: (pageData) => {
+        this.store.userOrganizations.set(pageData.content);
+        this.store.orgsPage.set(pageData.number);
+        this.store.orgsTotalPages.set(pageData.totalPages);
+        this.store.orgsTotalElements.set(pageData.totalElements);
+        this.store.orgsIsFirst.set(pageData.first);
+        this.store.orgsIsLast.set(pageData.last);
+        console.log('fetched getOrganizationsOfUserWithMembers(): ');
+        console.table(pageData.content);
       },
-      error: (e) => console.error('Failed to fetch organizations: ', e),
+      error: (e) => console.error('Error in getOrganizationsOfUserWithMembers: ', e),
     });
   }
-  getTestText() {
-    this.api.getTestText().subscribe({
-      next: (data) => {
-        console.log('getTestText: ', data);
-        this.store.testText.set(data);
+
+  removeOwnerFromOrganization(ownerId: number, organizationId: number): void {
+    this.api.removeUserFromOrganization(ownerId, organizationId).subscribe({
+      next: () => this.refreshOrganizations(),
+      error: (e) => {
+        this.store.globalErrorKey.set('ORGANIZATION_LIST.ERRORS.REMOVE_OWNER_FAILED');
+        console.error(e);
       },
-      error: (e) => console.error('Failed to fetch test text: ', e),
+    });
+  }
+
+  removeUserFromOrganization(userId: number, organizationId: number): void {
+    this.api.removeUserFromOrganization(userId, organizationId).subscribe({
+      next: () => this.refreshOrganizations(),
+      error: (e) => {
+        this.store.globalErrorKey.set('ORGANIZATION_LIST.ERRORS.REMOVE_USER_FAILED');
+        console.error(e);
+      },
+    });
+  }
+
+  removeOrg(organizationId: number): void {
+    this.api.removeOrg(organizationId).subscribe({
+      next: () => this.refreshOrganizations(),
+      error: (e) => {
+        console.error(`Failed to delete organization`, e);
+        this.store.globalErrorKey.set('ORGANIZATION_LIST.ERRORS.DELETE_ORG_FAILED');
+      },
+    });
+  }
+
+  addOwnerIntoOrganization(ownerId: number, organizationId: number): void {
+    this.api.addOwnerIntoOrganization(ownerId, organizationId).subscribe({
+      next: () => this.refreshOrganizations(),
+      error: (e) => console.error(`Failed to add owner`, e),
+    });
+  }
+
+  addUserIntoOrganization(userId: number, organizationId: number): void {
+    this.api.addUserIntoOrganization(userId, organizationId).subscribe({
+      next: () => this.refreshOrganizations(),
+      error: (e) => console.error(`Failed to add user`, e),
+    });
+  }
+
+  markOrganizationAsTrusted(organizationId: number): void {
+    const trusted = !this.store.allOrganizations().find((org) => org.id === organizationId)
+      ?.trusted;
+    this.api.markOrganizationAsTrusted(organizationId, trusted).subscribe({
+      next: () => this.refreshOrganizations(),
+      error: (e) => console.error(`Failed to mark organization`, e),
+    });
+  }
+
+  getAllUsers() {
+    const page = this.store.userPage();
+    let size = this.store.userSize();
+    if (size === 0) size = 20;
+    return this.api.getAllUsers(page, size).subscribe({
+      next: (users) => {
+        this.store.allUsers.set(users);
+        this.refreshOrganizations();
+      },
+      error: (e) => console.error('Error fetching all users: ', e),
+    });
+  }
+
+  getReservationsByStatus(status: ReservationStatus) {
+    console.log('inside getReservationsByStatus: ', status);
+    this.api
+      .getReservationsByStatus(this.store.reservationsPage(), this.store.reservationsSize(), status)
+      .subscribe({
+        next: (pageData) => {
+          this.store.reservationsByStatus.set(pageData.content);
+          this.store.paginationTotalNumber.set(pageData.totalElements);
+          console.log('getReservationsByStatus data:');
+          console.table(pageData.content);
+        },
+        error: (e) => console.log('Error fetching res: ', e),
+      });
+  }
+
+  markReservationAsAccepted(reservationId: number) {
+    this.api.markReservationAsAccepted(reservationId).subscribe({
+      next: () => {
+        if (this.authService.isAdmin()) {
+          this.getRoomsAndReservations();
+        } else if (this.authService.currentUser()?.id != 0) {
+          this.getAllReservationsForUserAndTheirOrganization();
+        }
+        this.store.popupMarkedReservationAsAccepted.set(true);
+        this.getReservationsByStatus(ReservationStatus.CREATED);
+      },
+      error: (e) => {
+        console.error('Error markReservationAsAccepted: ', e);
+        this.store.globalErrorKey.set('Error markReservationAsAccepted');
+      },
+    });
+  }
+
+  markReservationAsRequestCancel(reservationId: number) {
+    this.api.markReservationAsRequestCancel(reservationId).subscribe({
+      next: () => {
+        if (this.authService.isAdmin()) {
+          this.getRoomsAndReservations();
+        } else if (this.authService.currentUser()?.id != 0) {
+          this.getAllReservationsForUserAndTheirOrganization();
+        }
+        this.store.popupMarkedReservationAsRequestCancel.set(true);
+        this.getReservationsByStatus(ReservationStatus.CREATED);
+      },
+      error: (e) => {
+        console.error('Error markReservationAsAccepted: ', e);
+        this.store.globalErrorKey.set('Error markReservationAsAccepted');
+      },
+    });
+  }
+
+  markReservationAsCanceled(reservationId: number) {
+    console.log('markReservationAsCanceled: resId:', reservationId);
+
+    this.api.markReservationAsCanceled(reservationId).subscribe({
+      next: () => {
+        if (this.authService.isAdmin()) {
+          this.getRoomsAndReservations();
+        } else if (this.authService.currentUser()?.id != 0) {
+          this.getAllReservationsForUserAndTheirOrganization();
+        }
+        this.store.popupMarkedReservationAsCanceled.set(true);
+        this.getReservationsByStatus(ReservationStatus.CREATED);
+      },
+      error: (e) => {
+        console.error('Error markReservationAsAccepted: ', e);
+        this.store.globalErrorKey.set('ERROR.ERROR_CANCELING_RESERVATION');
+      },
+    });
+  }
+
+  // pagination
+
+  changeReservationsByStatusPage(direction: 'next' | 'prev') {
+    const currentPage = this.store.paginationPage();
+    const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
+    if (this.authService.isAdmin()) {
+      this.getAllMembersAllOrganizations(newPage);
+    } else {
+      this.getOrganizationsOfUserWithMembers(newPage);
+    }
+  }
+
+  // modals
+
+  closeModals(): void {
+    this.store.isAdminAddOrganizationModalActive.set(false);
+    this.store.isAdminAddOrganizationSuccessPopupActive.set(false);
+    this.store.confirmMarkReservationAsCanceled.set(false);
+    this.store.isModalDeleteOwnerActive.set(false);
+    this.store.isModalDeleteMemberActive.set(false);
+    this.store.isModalDeleteOrganizationActive.set(false);
+
+    this.store.isModalDeleteOrganizationSuccessActive.set(false);
+    this.store.isModalDeleteMemberSuccessActive.set(false);
+    this.store.isModalDeleteOwnerSuccessActive.set(false);
+
+    this.store.globalErrorKey.set(null);
+    this.store.isAddOrganizationModalActive.set(false);
+    this.store.popupConfirmationActive.set(false);
+
+    this.store.confirmMarkReservationAsRequestCancel.set(false);
+    this.store.globalErrorKey.set(null);
+    this.store.isBanUsersModalActive.set(false);
+  }
+
+  handleClickBanUsers() {
+    this.store.isBanUsersModalActive.set(true);
+  }
+
+  handleAddOrganization() {
+    this.store.isAdminAddOrganizationModalActive.set(true);
+    this.router.navigate(['/admin/organizations']);
+  }
+
+  handleConfirmAcceptReservation(res: ReservationDto) {
+    this.store.confirmMarkReservationAsAccepted.set(true);
+    this.store.selectedReservation.set(res);
+  }
+
+  handleAcceptReservation(res: ReservationDto) {
+    this.markReservationAsAccepted(res.id);
+    this.store.confirmMarkReservationAsAccepted.set(false);
+    this.store.popupMarkedReservationAsAccepted.set(true);
+  }
+
+  handleClickCancelReservation(res: ReservationDto) {
+    this.store.confirmMarkReservationAsCanceled.set(true);
+    this.store.selectedReservation.set(res);
+  }
+
+  handleClickRequestCancelReservation(res: ReservationDto) {
+    this.store.selectedReservation.set(res);
+    this.store.confirmMarkReservationAsRequestCancel.set(true);
+  }
+
+  handleCancelReservation(res: ReservationDto) {
+    this.markReservationAsCanceled(res.id);
+    this.store.confirmMarkReservationAsCanceled.set(false);
+    this.store.popupMarkedReservationAsCanceled.set(true);
+  }
+
+  handleConfirmRequestCancelReservation(res: ReservationDto) {
+    this.markReservationAsCanceled(res.id);
+    this.store.confirmMarkReservationAsCanceled.set(false);
+    this.store.popupMarkedReservationAsCanceled.set(true);
+  }
+
+  // ================= Toolbar =================
+
+  toolbarToggleSelection(resId: number) {
+    this.store.toolbarSelectedIds.update((oldSet) => {
+      const newSet = new Set(oldSet);
+
+      if (newSet.has(resId)) {
+        newSet.delete(resId);
+      } else {
+        newSet.add(resId);
+      }
+      return newSet;
+    });
+  }
+
+  toolbarToggleMasterCheckbox() {
+    if (this.store.toolbarAreAllSelected() || this.store.toolbarIsIndeterminated()) {
+      this.store.toolbarSelectedIds.update(() => {
+        return new Set();
+      });
+    } else {
+      this.store.toolbarSelectedIds.update(() => {
+        const ids = this.store.reservationsByStatus().map((r) => r.id);
+        return new Set(ids);
+      });
+    }
+  }
+
+  // ==================================
+
+  handleClickCancelReservations() {
+    this.store.confirmMarkReservationAsCanceled.set(true);
+    const reservs = this.store
+      .reservationsByStatus()
+      .filter((r) => this.store.toolbarSelectedIds().has(r.id));
+    console.log('handleClickCancelReservations: ');
+    console.table(reservs);
+    this.store.selectedReservations.set(reservs);
+  }
+
+  handleCancelReservations() {
+    const res = this.store.selectedReservations();
+    console.log('handleCancelReservations: ');
+    console.table(res);
+
+    if (!res) {
+      return;
+    }
+    res.forEach((r) => this.markReservationAsCanceled(r.id));
+    this.store.confirmMarkReservationAsCanceled.set(false);
+    this.store.popupMarkedReservationAsCanceled.set(true);
+  }
+
+  // ==================================
+
+  banUser(userId: number, reason: string, duration: string) {
+    this.api.banUser(userId, reason, duration).subscribe({
+      next: () => {
+        console.log('Banned userId ', userId);
+        this.getAllUsers();
+      },
+      error: (e) => {
+        console.error('Error banning userId ', userId, ': ', e);
+        this.store.globalErrorKey.set(e);
+      },
+    });
+  }
+
+  banUsers() {
+    const userIds = this.store.toolbarSelectedIds();
+    const reason = this.store.banReason();
+    const duration = this.store.banDuration();
+
+    userIds.forEach((userId) => {
+      this.api.banUser(userId, reason, duration).subscribe({
+        next: () => {
+          console.log('Banned userId ', userId);
+          this.getAllUsers();
+          this.store.isBanUsersModalActive.set(false);
+          this.store.isBanUsersSuccessActive.set(true);
+        },
+        error: (e) => {
+          console.error('Error banning userId ', userId, ': ', e);
+          this.store.globalErrorKey.set(e);
+        },
+      });
+    });
+  }
+
+  unbanUsers() {
+    const userIds = this.store.toolbarSelectedIds();
+    const reason = this.store.banReason();
+    const duration = this.store.banDuration();
+
+    userIds.forEach((userId) => {
+      this.api.banUser(userId, reason, duration).subscribe({
+        next: () => {
+          console.log('Banned userId ', userId);
+          this.getAllUsers();
+        },
+        error: (e) => {
+          console.error('Error banning userId ', userId, ': ', e);
+          this.store.globalErrorKey.set(e);
+        },
+      });
+    });
+  }
+
+  // ==================================
+
+  markUserTrusted(isTrusted: boolean, userId: number) {
+    this.api.markUserTrusted(!isTrusted, userId).subscribe({
+      next: () => {
+        this.getAllUsers();
+      },
+      error: (e) => {
+        console.error('Error marking user as trusted: ', e);
+        this.store.globalErrorKey.set('Error marking user as trusted');
+      },
+    });
+  }
+
+  markUsersTrusted() {
+    const userIds = this.store.toolbarSelectedIds();
+    const trusted = true;
+
+    userIds.forEach((userId) => {
+      this.api.markUserTrusted(trusted, userId).subscribe({
+        next: () => {
+          this.getAllUsers();
+        },
+        error: (e) => {
+          console.error('Error marking user as trusted: ', e);
+          this.store.globalErrorKey.set('Error marking user as trusted');
+        },
+      });
+    });
+  }
+
+  markUsersUntrusted() {
+    const userIds = this.store.toolbarSelectedIds();
+    const trusted = false;
+    userIds.forEach((userId) => {
+      this.api.markUserTrusted(trusted, userId).subscribe({
+        next: () => {
+          this.getAllUsers();
+        },
+        error: (e) => {
+          console.error('Error marking user as trusted: ', e);
+          this.store.globalErrorKey.set('Error marking user as trusted');
+        },
+      });
+    });
+  }
+
+  searchReservations(): ReservationDto[] {
+    const query = (this.store.searchBarQuery() ?? '').trim().toLowerCase();
+    const reservations = this.store.reservations();
+
+    if (!query) return reservations;
+
+    const matchingUserIds = new Set(
+      this.store
+        .allUsers()
+        .filter(
+          (u) => u.nick?.toLowerCase().includes(query) || u.email?.toLowerCase().includes(query),
+        )
+        .map((u) => u.id),
+    );
+
+    const matchingRoomIds = new Set(
+      this.store
+        .rooms()
+        .filter((r) => r.name?.toLowerCase().includes(query))
+        .map((r) => r.id),
+    );
+
+    const matchingOrgIds = new Set(
+      this.store
+        .allOrganizations()
+        .filter((o) => o.name?.toLowerCase().includes(query))
+        .map((o) => o.id),
+    );
+
+    return reservations.filter((reservation: ReservationDto) => {
+      const matchesRoom = matchingRoomIds.has(reservation.room);
+
+      const isOrgReservation =
+        reservation.organization !== null && reservation.organization !== undefined;
+
+      const matchesReservedBy = isOrgReservation
+        ? matchingOrgIds.has(reservation.organization)
+        : matchingUserIds.has(reservation.reservedBy);
+
+      return matchesRoom || matchesReservedBy;
     });
   }
 }

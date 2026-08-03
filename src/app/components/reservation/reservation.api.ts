@@ -6,6 +6,8 @@ import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
 import { Observable } from 'rxjs';
 import { User } from '../../model/user';
+import { Page } from '../../model/page';
+import { ReservationStatus } from '../../model/reservationStatus';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationApi {
@@ -14,57 +16,83 @@ export class ReservationApi {
   private apiUrl = process.env['VSF_API_URL'] || '/api';
 
   getRooms(): Observable<Room[]> {
-    return this.http.get<Room[]>(`${this.apiUrl}/room`);
+    return this.http.get<Room[]>(`${this.apiUrl}/rooms`);
   }
 
-  getReservationsByRoom(roomId: number): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation/room/${roomId}`);
+  getReservationsByRoom(roomId: number, page = 0, size = 100): Observable<Page<ReservationDto>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations/room/${roomId}`, {
+      params,
+    });
   }
 
-  getReservationsForAllUsersOrganizations(): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(
-      `${this.apiUrl}/reservation/user/${this.authService.userId()}/organizations`,
+  getReservationsForAllUsersOrganizations(page = 0, size = 100): Observable<Page<ReservationDto>> {
+    const rawUserId = (this.authService.userId() || '').toString().replace(/['"]/g, '');
+    const params = new HttpParams().set('page', page).set('size', size);
+
+    return this.http.get<Page<ReservationDto>>(
+      `${this.apiUrl}/reservation/user/${rawUserId}/organizations`,
+      { params },
     );
   }
 
-  getReservations(): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`);
+  getReservations(page = 0, size = 100): Observable<Page<ReservationDto>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
-  getFutureReservations(): Observable<ReservationDto[]> {
-    const params = new HttpParams().set('future', 'true');
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, { params });
+  getAllReservationsForUserAndTheirOrganization(
+    userId: number,
+    page = 0,
+    size = 100,
+  ): Observable<Page<ReservationDto>> {
+    const params = new HttpParams().set('userId', userId).set('page', page).set('size', size);
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
-  getOrganizationsOfUserWithMembers(): Observable<Organization[]> {
+  getFutureReservations(page = 0, size = 100): Observable<Page<ReservationDto>> {
+    const params = new HttpParams().set('future', 'true').set('page', page).set('size', size);
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
+  }
+
+  getOrganizationsOfUserWithMembers(page = 0, size = 20): Observable<Page<Organization>> {
+    let userId = this.authService.userId();
+    if (userId) {
+      userId = userId.toString().replace(/['"]/g, '');
+    }
+
     const params = new HttpParams()
-      .set('userId', this.authService.userId() ?? '0')
-      .set('fetchMembers', 'true');
-    return this.http.get<Organization[]>(`${this.apiUrl}/organization`, { params });
+      .set('userId', userId ?? '')
+      .set('fetchMembers', 'true')
+      .set('page', page)
+      .set('size', size);
+
+    return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 
-  getAllOrganizations(): Observable<Organization[]> {
-    return this.http.get<Organization[]>(`${this.apiUrl}/organization`);
+  getAllOrganizations(page = 0, size = 20): Observable<Page<Organization>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 
   deleteReservation(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/reservation/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/reservations/${id}`);
   }
 
   postReservation(payload: any): Observable<ReservationDto> {
-    return this.http.post<ReservationDto>(`${this.apiUrl}/reservation`, payload);
+    return this.http.post<ReservationDto>(`${this.apiUrl}/reservations`, payload);
   }
 
-  getMembersOfOrganization(organizationId: number): Observable<User[]> {
+  getMembersAndOwnersOfOrganization(organizationId: number): Observable<User[]> {
     const params = new HttpParams()
       .set('organizationId', organizationId)
       .set('fetchMembers', 'true');
-    return this.http.get<User[]>(`${this.apiUrl}/organization`, { params });
+    return this.http.get<User[]>(`${this.apiUrl}/organizations`, { params });
   }
 
-  getAllMembersAllOrganizations(): Observable<Organization[]> {
-    const params = new HttpParams().set('fetchMembers', 'true');
-    return this.http.get<Organization[]>(`${this.apiUrl}/organization`, { params });
+  getAllMembersAllOrganizations(page = 0, size = 20): Observable<Page<Organization>> {
+    const params = new HttpParams().set('fetchMembers', 'true').set('page', page).set('size', size);
+    return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 
   getUserByEmail(email: string): Observable<User[]> {
@@ -72,16 +100,79 @@ export class ReservationApi {
     return this.http.get<User[]>(`${this.apiUrl}/user`, { params });
   }
 
-  getAllReservationsForUserAndTheirOrganization(userId: number): Observable<ReservationDto[]> {
-    const params = new HttpParams().set('userId', userId);
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/reservation`, { params });
-  }
-
   getTestText(): Observable<string> {
     return this.http.get<string>(`${this.apiUrl}/users/test`);
   }
 
   createOrganization(name: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/organization`, { name });
+    return this.http.post(`${this.apiUrl}/organizations`, { name });
+  }
+
+  removeOwnerFromOrganization(userId: number, organizationId: number): Observable<void> {
+    return this.http.patch<void>(
+      `${this.apiUrl}/organizations/assigneUser/${userId}/role/MEMBER/toOrganization/${organizationId}`,
+      {},
+    );
+  }
+
+  addOwnerIntoOrganization(userId: number, organizationId: number): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiUrl}/organizations/assigneUser/${userId}/role/OWNER/toOrganization/${organizationId}`,
+      {},
+    );
+  }
+
+  removeUserFromOrganization(id: number, organizationId: number): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiUrl}/organizations/removeMember/${id}/fromOrganization/${organizationId}`,
+      {},
+    );
+  }
+
+  addUserIntoOrganization(id: number, organizationId: number): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiUrl}/organizations/addMember/${id}/toOrganization/${organizationId}`,
+      {},
+    );
+  }
+
+  removeOrg(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/organizations/decommission/${id}`);
+  }
+
+  markOrganizationAsTrusted(organizationId: number, trusted: boolean): Observable<Organization> {
+    return this.http.patch<Organization>(
+      `${this.apiUrl}/organizations/${organizationId}/isTrusted/${trusted}`,
+      {},
+    );
+  }
+
+  getAllUsers(page: number, size: number): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/users/all`);
+  }
+
+  markUserTrusted(isTrusted: boolean, userId: number) {
+    return this.http.patch<User>(`${this.apiUrl}/users/${userId}/isTrusted/${isTrusted}`, {});
+  }
+
+  getReservationsByStatus(page = 0, size = 100, status: ReservationStatus) {
+    const params = new HttpParams().set('page', page).set('size', size).set('status', status);
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
+  }
+
+  markReservationAsAccepted(reservationId: number) {
+    return this.http.post(`${this.apiUrl}/reservations/confirm/${reservationId}`, {});
+  }
+
+  markReservationAsRequestCancel(reservationId: number) {
+    return this.http.post(`${this.apiUrl}/reservations/requestCancel/${reservationId}`, {});
+  }
+
+  markReservationAsCanceled(reservationId: number) {
+    return this.http.post(`${this.apiUrl}/reservations/reject/${reservationId}`, {});
+  }
+
+  banUser(userId: number, reason: string, duration: string) {
+    return this.http.put(`${this.apiUrl}/users/ban`, { userId, reason, duration });
   }
 }

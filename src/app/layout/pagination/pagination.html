@@ -1,0 +1,29 @@
+<div
+  class="flex flex-wrap gap-3 justify-between items-center p-4 bg-slate-900/90 border-t border-slate-700 text-sm text-slate-300"
+>
+  <div class="text-xs text-slate-400">
+    {{ 'PAGINATION.TOTAL' | transloco }}:
+    <span class="font-bold text-slate-200">{{ totalElements() }}</span>
+  </div>
+  <div class="flex gap-3 items-center">
+    <button
+      [disabled]="isFirst()"
+      (click)="previous.emit()"
+      class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg border border-slate-700 text-xs font-medium transition-all"
+    >
+      {{ 'PAGINATION.PREVIOUS' | transloco }}
+    </button>
+    <span class="text-xs font-medium text-slate-400">
+      {{ 'PAGINATION.PAGE' | transloco }}
+      <strong class="text-slate-200">{{ currentPage() + 1 }}</strong> z
+      <strong class="text-slate-200">{{ totalPages() + 1 }}</strong>
+    </span>
+    <button
+      [disabled]="isLast()"
+      (click)="next.emit()"
+      class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg border border-slate-700 text-xs font-medium transition-all"
+    >
+      {{ 'PAGINATION.NEXT' | transloco }}
+    </button>
+  </div>
+</div>

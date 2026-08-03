@@ -1,36 +1,54 @@
-<div class="min-h-screen flex bg-slate-900 text-slate-100">
-  <aside class="w-64 bg-slate-800 border-r border-slate-700 p-6 flex flex-col">
-    <h1
-      class="text-xl font-bold mb-10 text-uppercase text-center text-white border-b-2 border py-2"
-    >
-      Panel Admina
-    </h1>
+<div class="min-h-screen flex flex-col md:flex-row bg-slate-900 text-slate-100">
+  <!-- Sidebar Navigation -->
+  <app-admin-sidebar></app-admin-sidebar>
 
-    <nav class="space-y-4">
-      <a
-        routerLink="/admin/reservations"
-        routerLinkActive="bg-emerald-600 text-white"
-        class="block px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white transition-all"
-      >
-        Rezerwacje
-      </a>
-      <a
-        routerLink="/admin/pricing"
-        routerLinkActive="bg-emerald-600 text-white"
-        class="block px-4 py-2 rounded-lg hover:bg-slate-700 transition-all"
-      >
-        Cennik
-      </a>
-      <a
-        routerLink="/admin/organizations"
-        routerLinkActive="bg-emerald-600 text-white"
-        class="block px-4 py-2 rounded-lg hover:bg-slate-700 transition-all"
-      >
-        Zespoły
-      </a>
-    </nav>
-  </aside>
-  <main class="flex-1 p-6">
+  <!-- Main Content Viewport -->
+  <main class="flex-1 p-4 md:p-8 overflow-y-auto">
     <router-outlet></router-outlet>
   </main>
 </div>
+
+@if (store.confirmMarkReservationAsAccepted() && store.selectedReservation(); as res) {
+  <app-confirmation-popup
+    [titleText]="'ADMIN_RESERVATIONS.CONFIRM_ACCEPT_TITLE' | transloco"
+    [bodyText]="getBodyText()"
+    (ok)="facade.handleConfirmAcceptReservation(res)"
+    (cancel)="facade.closeModals()"
+  ></app-confirmation-popup>
+}
+
+@if (store.confirmMarkReservationAsRequestCancel() && store.selectedReservation(); as res) {
+  <app-confirmation-popup
+    [titleText]="'ADMIN_RESERVATIONS.CONFIRM_REQUEST_CANCEL_TITLE' | transloco"
+    [bodyText]="getBodyText()"
+    (ok)="facade.handleConfirmRequestCancelReservation(res)"
+    (cancel)="facade.closeModals()"
+  ></app-confirmation-popup>
+}
+
+@if (store.confirmMarkReservationAsCanceled()) {
+  <app-confirmation-popup
+    [titleText]="'ADMIN_RESERVATIONS.CONFIRM_CANCEL_TITLE' | transloco"
+    [bodyText]="'ADMIN_RESERVATIONS.CONFIRM_CANCEL_BODY' | transloco"
+    (ok)="facade.handleCancelReservations()"
+    (cancel)="facade.closeModals()"
+  ></app-confirmation-popup>
+}
+
+@if (store.globalErrorKey()) {
+  <app-error-popup
+    [titleText]="store.globalErrorKey() | transloco"
+    (cancel)="facade.closeModals()"
+  ></app-error-popup>
+}
+
+@if (store.isBanUsersModalActive()) {
+  <app-ban-modal></app-ban-modal>
+}
+
+@if (store.isBanUsersSuccessActive()) {
+  <app-confirmation-popup
+    [titleText]="'USER_MODALS.SUCCESS' | transloco"
+    (ok)="facade.closeModals()"
+  ></app-confirmation-popup>
+}

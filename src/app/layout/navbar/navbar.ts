@@ -11,17 +11,16 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
   styleUrls: ['./navbar.css'],
 })
 export class Navbar {
-  translocoService = inject(TranslocoService);
-  isLangMenuOpen = signal(false);
+  readonly authService = inject(AuthService);
+  readonly translocoService = inject(TranslocoService);
+  readonly isLangMenuOpen = signal(false);
+  readonly isMobileMenuOpen = signal(false);
+  readonly availableLangs = ['en', 'pl', 'ua'];
 
-  availableLangs = ['en', 'pl', 'ua'];
   changeLang(lang: string) {
     this.translocoService.setActiveLang(lang);
     this.isLangMenuOpen.set(false);
   }
-  authService = inject(AuthService);
-
-  isMobileMenuOpen = signal(false);
 
   toggleMobileMenu() {
     this.isMobileMenuOpen.update((v) => !v);
@@ -34,5 +33,6 @@ export class Navbar {
   logout() {
     this.authService.logout();
     this.closeMobileMenu();
+    console.log('navbar: User logged out');
   }
 }

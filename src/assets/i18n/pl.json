@@ -31,7 +31,17 @@
     "CLOSE": "Zamknij",
     "ERROR_TITLE": "Błąd rezerwacji",
     "ERROR_DESC": "Wybrany termin jest już niedostępny lub wystąpił błąd sieci.",
-    "BACK_TO_CALENDAR": "Wróć do kalendarza"
+    "BACK_TO_CALENDAR": "Wróć do kalendarza",
+    "PRIVATE_RESERVATION": "Zarezerwuj prywatnie (bez zespołu)",
+    "MY_PRIVATE_RESERVATION": "Moja prywatna rezerwacja"
+  },
+  "USERS_TABLE": {
+    "NICK": "Nick",
+    "EMAIL": "Email",
+    "TRUSTED": "Zaufany",
+    "NOT_TRUSTED": "Niezaufany",
+    "REASON": "Powód",
+    "DURATION": "Długość"
   },
   "PROFILE": {
     "TITLE": "Twój Profil",
@@ -49,16 +59,165 @@
     "TABLE_ROOM": "Sala",
     "TABLE_START_DATE": "Data rozpoczęcia",
     "TABLE_DURATION": "Czas trwania",
+    "TABLE_DATE": "Data",
     "TABLE_TEAM": "Zespół",
-    "TABLE_CANCEL": "Anuluj",
+    "TABLE_CANCEL": "Odwołaj",
     "TABLE_REMOVE": "Usuń",
     "ROOM_PREFIX": "Sala",
-    "CANCEL_BTN": "Anuluj rezerwację",
+    "CANCEL_BTN": "Poproś o odwołanie",
+    "CANCEL_BTN_DISABLED": "Zbyt późno na odwołanie",
     "CONFIRM_CANCEL_TITLE": "Czy na pewno chcesz anulować?",
     "TEAM_MEMBERS_TITLE": "Członkowie zespołu",
     "MEMBER_NICK": "Pseudonim",
     "MEMBER_EMAIL": "Adres Email",
     "REMOVE_BTN": "Usuń członka",
-    "NO_RESERVATIONS": "Brak zarejestrowanych rezerwacji."
+    "NO_RESERVATIONS": "Brak zarejestrowanych rezerwacji.",
+    "PRICE": "Cena",
+    "TABLE_WHO": "KTO",
+    "STATUS": "STATUS",
+    "REQUESTED_CANCELLATION_BUTTON": "Wysłano prośbę o odwołanie",
+    "ROLE": "Rola",
+    "ROLE_MEMBER": "Członek",
+    "ROLE_OWNER": "Właściciel",
+    "NO_ROLE": "Brak"
+  },
+  "BUTTONS": {
+    "CANCELLATION_NOT_POSSIBLE": "Odwołanie niemożliwe",
+    "CANCEL": "Odwołaj",
+    "REQUEST_CANCEL": "Poproś o odwołanie",
+    "TOO_LATE_TO_CANCEL": "Za późno na odwołanie"
+  },
+  "STATUS": {
+    "CREATED": "Oczekuje na potwierdzenie",
+    "CONFIRMED": "Potwierdzona",
+    "CANCELLED": "Odwołana",
+    "REQUESTED_CANCELLATION": "Oczekuje na potwierdzenie odwołania",
+    "REJECTED": "Odrzucona"
+  },
+
+  "REGISTER": {
+    "CLOSE": "Zamknij",
+    "SUCCESS_TITLE": "Rejestracja zakończona sukcesem",
+    "SUCCESS_DESC": "Sprawdź swoją skrzynkę email i kliknij link w celu aktywacji konta.",
+    "ERROR_TITLE": "Błąd rejestracji",
+    "ERROR_CONFLICT": "Wystąpił błąd podczas rejestracji. Spróbuj ponownie później.",
+    "INVALID_DATA": "Nieprawidłowe dane rejestracyjne. Sprawdź swoje dane i spróbuj ponownie.",
+    "EMAIL_EXISTS": "Konto z tym adresem email już istnieje."
+  },
+  "ORGANIZATION_LIST.ADD_ORGANIZATION": {
+    "TITLE": "Dodaj Zespół",
+    "BAND_NAME": "Nazwa zespołu",
+    "CANCEL": "Anuluj",
+    "ACCEPT": "Dodaj zespół",
+    "SUCCESS_TITLE": "Zespół dodany",
+    "SUCCESS_DESC": "Zespół został pomyślnie dodany.",
+    "CLOSE": "Zamknij"
+  },
+  "ORGANIZATION_LIST.DELETE_ORGANIZATION": {
+    "TITLE": "Usuń zespół",
+    "CONFIRMATION": "Czy na pewno chcesz usunąć zespół?",
+    "CANCEL": "Anuluj",
+    "ACCEPT": "Usuń zespół",
+    "SUCCESS_TITLE": "Zespół usunięty",
+    "SUCCESS_DESC": "Zespół został pomyślnie usunięty.",
+    "CLOSE": "Zamknij"
+  },
+  "ORGANIZATION_LIST.DELETE_MEMBER": {
+    "TITLE": "Usuń członka zespołu",
+    "CONFIRMATION": "Czy na pewno chcesz usunąć członka zespołu?",
+    "CANCEL": "Anuluj",
+    "ACCEPT": "Usuń członka",
+    "SUCCESS_TITLE": "Członek usunięty",
+    "SUCCESS_DESC": "Członek został pomyślnie usunięty.",
+    "CLOSE": "Zamknij"
+  },
+
+  "ORGANIZATION_LIST.DELETE_OWNER": {
+    "TITLE": "Usuń właściciela zespołu",
+    "CONFIRMATION": "Czy na pewno chcesz usunąć właściciela zespołu?",
+    "CANCEL": "Anuluj",
+    "ACCEPT": "Usuń właściciela",
+    "SUCCESS_TITLE": "Właściciel usunięty",
+    "SUCCESS_DESC": "Właściciel został pomyślnie usunięty.",
+    "CLOSE": "Zamknij"
+  },
+  "ORGANIZATION_LIST": {
+    "MARK_AS_TRUSTED": "Oznacz jako zaufany",
+    "MARK_AS_NOT_TRUSTED": "Oznacz jako niezaufany",
+    "TRUSTED": "Zaufany",
+    "NOT_TRUSTED": "Nie zaufany"
+  },
+  "ORGANIZATION_LIST.ERRORS": {
+    "DELETE_ORG_FAILED": "Nie udało się usunąć zespołu. Spróbuj ponownie później.",
+    "REMOVE_USER_FAILED": "Nie udało się usunąć użytkownika. Spróbuj ponownie później.",
+    "REMOVE_OWNER_FAILED": "Nie udało się usunąć właściciela. Spróbuj ponownie później."
+  },
+  "ERROR": {
+    "CLOSE": "Zamknij",
+    "TITLE": "Wystąpił błąd",
+    "DESC": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.",
+    "ERROR_CANCELING_RESERVATION": "Błąd podczas odwoływania rezerwacji. Spróbuj ponownie później."
+  },
+  "ADD_USER_INTO_ORGANIZATION": {
+    "MODAL_CONFIRM_TITLE": "Dodaj użytkownika",
+    "ORG_NAME": "Nazwa organizacji",
+    "SELECT_USER": "Wybierz użytkownika",
+    "CANCEL": "Anuluj",
+    "CONFIRM": "Potwierdź"
+  },
+  "USER_MODALS": {
+    "MODAL_CONFIRM_TITLE": "Potwierdź akcję",
+    "CANCEL": "Anuluj",
+    "CONFIRM": "Potwierdź",
+    "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz poprosić o odwołanmie rezerwacji {{organization}}, {{date}} {{startHour}} - {{endHour}}? Prośba trafi do pracownika.",
+    "CONFIRM_REQUEST_CANCEL_TITLE": "Odwołanie rezerwacji",
+    "PRIVATE": "Prywatna",
+    "ORGANIZATION_ADDED": "Zespół utworzony",
+    "CONFIRM_DELETE_OWNER": "Potwierdź usunięcie właściciela",
+    "CONFIRM_DELETE_MEMBER": "Potwierdź usunięcie członka zespołu",
+    "CONFIRM_BAN_TITLE": "Banowanie",
+    "CONFIRM_BAN_BODY": "Potwierdź ban",
+    "SUCCESS": "Sukces"
+  },
+
+  "ADMIN_RESERVATIONS": {
+    "IS_PRIVATE": "Tak",
+    "IS_NOT_PRIVATE": "Nie",
+    "ACCEPT": "Akceptuj",
+    "REJECT": "Odrzuć",
+    "NO_RESERVATIONS": "Brak oczekujących rezerwacji",
+    "ACCEPTED": "Rezerwacja zaakceptowana",
+    "REJECTED": "Rezerwacja odrzucona",
+    "SEND_ACCEPT": "Pomysł ?",
+    "SEND_CANCEL": "Odwołaj",
+    "OK": "OK",
+    "PENDING": "Oczekujące",
+    "CONFIRMED": "Potwierdzone",
+    "CANCELLED": "Anulowane",
+    "REQUESTED_CANCELLATION": "Prośby o anulowanie",
+    "CONFIRM_ACCEPT_BODY": "Czy na pewno chcesz zaakceptować rezerwację zespołu {organization}, {date} {startHour} - {endHour}?",
+    "CONFIRM_ACCEPT_TITLE": "Potwierdź akceptację rezerwacji",
+    "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz zaakceptować prośbę o anulowanie rezerwacji zespołu {organization}, {date} {startHour} - {endHour}?",
+    "CONFIRM_REQUEST_CANCEL_TITLE": "Potwierdź akceptację prośby o anulowanie rezerwacji",
+    "CONFIRM_CANCEL_BODY": "Czy na pewno chcesz odrzucić rezerwację zespołu {organization}, {date} {startHour} - {endHour}?",
+    "CONFIRM_CANCEL_TITLE": "Potwierdź odrzucenie rezerwacji",
+    "ORGANIZATION": "Zespół",
+    "RESERVED_BY": "Rezerwujący",
+    "DATE": "Data",
+    "START_HOUR": "Godzina rozpoczęcia",
+    "END_HOUR": "Godzina zakończenia",
+    "CONFIRM_CANCEL_BUTTON": "Odwołaj",
+    "CONFIRM_REJECT_BUTTON": "Odrzuć",
+    "CONFIRM_ACCEPT": "Akceptuj",
+    "CONFIRM_CANCEL": "Odwołaj",
+    "PRIVATE": "Prywatna?",
+    "ACTION_COLUMN": "Akcja",
+    "ORG": "Zespół"
+  },
+  "PAGINATION": {
+    "PREVIOUS": "Poprzednia",
+    "NEXT": "Następna",
+    "PAGE": "Strona",
+    "TOTAL": "Suma"
   }
 }

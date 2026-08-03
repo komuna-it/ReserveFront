@@ -14,124 +14,94 @@ import { ReservationWrapper } from '../../model/reservationWrapper';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TextFormatingTool } from '../../tools/textFormatingTool';
+import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-popup';
+import { AddOrganizationModal } from '../../components/modals/add-organization-modal/add-organization-modal';
+import { ReservationStatus } from '../../model/reservationStatus';
+import { TableReservationsUser } from '../../components/tables/table-reservations-user/table-reservations-user';
+import { OrganizationMemberDto } from '../../model/organizationMemberDto';
+import { OrganizationMembers } from '../../components/tables/organization-members/organization-members';
+import { SuccessPopup } from '../../modals/success-popup/success-popup';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe],
+  imports: [
+    CommonModule,
+    TranslocoPipe,
+    ConfirmationPopup,
+    AddOrganizationModal,
+    TableReservationsUser,
+    OrganizationMembers,
+    SuccessPopup,
+  ],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
 export class ProfilePage implements OnInit {
+  readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
   readonly authService = inject(AuthService);
+  readonly translocoService = inject(TranslocoService);
   readonly helper = inject(CalendarHelper);
-  readonly store = inject(ReservationStore);
-
-  readonly email = this.authService.email();
   readonly reservationToDelete = signal<ReservationDto | null>(null);
-
+  readonly textFormatingTool = inject(TextFormatingTool);
   private sseController: AbortController | null = null;
 
-  readonly userId = parseInt(this.authService.userId() || '-1');
-
-  reservedByLabel(reservation: ReservationDto): string {
-    const org = this.organizations().find((o) => o.id === reservation.behalfOf);
-    return org ? `${org.name}` : `Nieznany`;
-  }
-
-  activeTab = signal<Tab>(new Tab(0, 'Moje rezerwacje', 'reservations', undefined));
-  allTabs = computed(() => {
-    let id = 0;
-    const newTabs: Tab[] = [];
-
-    newTabs.push(new Tab(id++, 'Moje rezerwacje', 'reservations', undefined));
-
-    for (const org of this.store.userOrganizations()) {
-      newTabs.push(new Tab(id++, org.name, 'organization', org));
-    }
-    newTabs.push(new Tab(id++, 'Utwórz zespół', 'createorganization', undefined));
-
-    return newTabs;
-  });
-
   activeOrgsUsers = computed(() => {
-    const activeTab = this.activeTab();
+    const activeTab = this.store.activeTab();
     if (activeTab.type === 'organization' && activeTab.org) {
       return activeTab.org.members;
     }
     return [];
   });
 
-  readonly organizations = signal<Organization[]>([]);
-  readonly reservations = signal<ReservationDto[]>([]);
-  readonly areYouSure = signal<boolean>(false);
+  constructor() {
+    this.authService.checkCurrentSession().subscribe();
+  }
+
+  getTitleText(): string {
+    if (this.store.confirmMarkReservationAsRequestCancel()) {
+      return this.translocoService.translate('USER_MODALS.CONFIRM_REQUEST_CANCEL_TITLE');
+    }
+    if (this.store.isAddOrganizationModalActive()) {
+      return this.translocoService.translate('USER_MODALS.ORGANIZATION_ADDED');
+    }
+    return '';
+  }
+
+  getBodyText(): string {
+    if (this.store.isAddOrganizationModalActive()) {
+      return '';
+    }
+    const res = this.store.selectedReservation();
+    if (!res) return '';
+
+    const params = {
+      organization: this.textFormatingTool.bandText(res),
+      date: this.textFormatingTool.dateColumnText(res),
+      startHour: this.textFormatingTool.startAtText(res),
+      endHour: this.textFormatingTool.endAtText(res),
+    };
+
+    console.log('params: ', params);
+    if (this.store.confirmMarkReservationAsRequestCancel()) {
+      return this.translocoService.translate('USER_MODALS.CONFIRM_REQUEST_CANCEL_BODY', params);
+    }
+
+    return '';
+  }
 
   ngOnInit() {
+    this.facade.getRooms();
     this.facade.getOrganizationsOfUserWithMembers();
+    this.facade.getAllReservationsForUserAndTheirOrganization();
     this.facade.connectToReservationStream();
   }
 
-  handleDeleteReservationClick(reservation: ReservationDto) {
-    console.log('clicked remove reservationId: ' + reservation);
-    this.reservationToDelete.set(reservation);
-    this.areYouSure.set(true);
-  }
-
-  getReservationsWhereUserBelongs() {
-    const orgs = this.organizations();
-    if (orgs.length === 0) {
-      this.reservations.set([]);
-      return;
-    }
-
-    this.facade.getAllReservationsForUserAndTheirOrganization(
-      parseInt(this.authService.userId() || '0'),
-    );
-  }
-  formatDate(dateStr: string): string {
-    try {
-      const d = new Date(dateStr);
-      return d.toLocaleString('pl-PL', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return dateStr;
-    }
-  }
-
-  formatDuration(durationStr: string): string {
-    return durationStr.replace('PT', '').replace('H', ' godz ').replace('M', ' min');
-  }
-
-  deleteReservation(reservationId: number) {
-    console.log(`Trying to delete reservation with id ${reservationId}`);
-    this.facade.deleteReservation(reservationId);
-    this.getReservationsWhereUserBelongs();
-    this.areYouSure.set(false);
-  }
-
-  deleteTeamMember(userId: number) {
-    console.log(`Trying to delete team member with id ${userId}`);
-  }
-
-  readonly clickedCreateTeam = signal(false);
   handleClickCreateTeam() {
-    this.clickedCreateTeam.set(true);
-  }
-
-  createOrganization(event: Event, name: string) {
-    event.preventDefault();
-
-    if (!name.trim()) return;
-
-    this.facade.createOrganization(name);
-    this.facade.getOrganizationsOfUserWithMembers();
+    this.store.isAddOrganizationModalActive.set(true);
   }
 
   ngOnDestroy() {

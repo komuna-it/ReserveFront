@@ -1,0 +1,43 @@
+<div
+  class="p-2 mb-4 w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
+>
+  <div class="grid grid-cols-7 gap-1">
+    <div>
+      @if (type() === ToolbarType.RESERVATION_BY_STATUS) {
+        <button
+          (click)="facade.handleClickCancelReservations()"
+          class="p-2 bg-red-500 text-white text-xs rounded"
+        >
+          Odwołaj
+        </button>
+      }
+    </div>
+    @if (type() === ToolbarType.USERS) {
+      <div class="grid grid-rows-2 mx-4">
+        <button
+          (click)="facade.handleClickBanUsers()"
+          class="p-2 bg-green-500 text-white text-xs rounded"
+        >
+          Ban
+        </button>
+        <button (click)="facade.unbanUsers()" class="p-2 bg-red-500 text-white text-xs rounded">
+          Unban(WiP)
+        </button>
+      </div>
+      <div class="grid grid-rows-2 mx-4">
+        <button
+          (click)="facade.markUsersTrusted()"
+          class="p-2 bg-green-500 text-white text-xs rounded"
+        >
+          Zaufany
+        </button>
+        <button
+          (click)="facade.markUsersUntrusted()"
+          class="p-2 bg-red-500 text-white text-xs rounded"
+        >
+          Niezaufany
+        </button>
+      </div>
+    }
+  </div>
+</div>

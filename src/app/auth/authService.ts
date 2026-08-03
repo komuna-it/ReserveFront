@@ -6,7 +6,9 @@ import { Router } from '@angular/router';
 export interface UserStatus {
   id: number;
   email: string;
-  roles: string[];
+  role: string;
+  trusted: false;
+  name: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -15,11 +17,9 @@ export class AuthService {
   private router = inject(Router);
   private apiUrl = process.env['VSF_API_URL'] || '/api';
 
-  // Reaktywne zarządzanie stanem usera
   private currentUserSignal = signal<UserStatus | null>(null);
   private isLoadingSignal = signal<boolean>(true);
 
-  // Selektory dla reszty aplikacji
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly isLoading = this.isLoadingSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.currentUserSignal() !== null);
@@ -28,7 +28,7 @@ export class AuthService {
   );
   readonly email = computed(() => this.currentUserSignal()?.email || null);
 
-  readonly isAdmin = computed(() => this.currentUserSignal()?.roles?.includes('ADMIN') ?? false);
+  readonly isAdmin = computed(() => this.currentUserSignal()?.role === 'ADMIN');
 
   constructor() {
     this.checkCurrentSession().subscribe();
@@ -71,6 +71,14 @@ export class AuthService {
 
   private executeLocalLogout() {
     this.currentUserSignal.set(null);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
+  }
+
+  refreshToken(): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/refresh`, {});
+  }
+
+  handleSessionExpired() {
+    this.executeLocalLogout();
   }
 }

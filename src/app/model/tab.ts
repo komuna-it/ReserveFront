@@ -1,5 +1,4 @@
 import { Organization } from './organization';
-import { OrganizationFront } from './organizationFront';
 
 export class Tab {
   constructor(

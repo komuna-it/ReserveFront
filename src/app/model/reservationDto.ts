@@ -1,8 +1,14 @@
+import { ReservationStatus } from './reservationStatus';
+import { ReservationType } from './reservationType';
+
 export interface ReservationDto {
-  id: number | null;
+  id: number;
+  type: ReservationType;
+  organization: number;
   reservedBy: number;
-  behalfOf?: number | null;
-  roomId: number;
+  room: number;
   startAt: string;
+  endAt: string;
   duration: string;
+  status: ReservationStatus;
 }

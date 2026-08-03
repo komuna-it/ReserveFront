@@ -1,0 +1,14 @@
+<div
+  class="w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
+>
+  <app-table-by-status [status]="store.statusForAdminPage()"></app-table-by-status>
+  <app-pagination
+    [totalElements]="store.paginationTotalNumber()"
+    [totalPages]="store.paginationTotalPages()"
+    [currentPage]="store.paginationPage()"
+    [isFirst]="store.paginationIsFirst()"
+    [isLast]="store.paginationIsLast()"
+    (previous)="facade.changeReservationsByStatusPage('prev')"
+    (next)="facade.changeReservationsByStatusPage('next')"
+  ></app-pagination>
+</div>

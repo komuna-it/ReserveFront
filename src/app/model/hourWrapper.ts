@@ -7,5 +7,10 @@ export class HourWrapper {
     public isReservedByMyOrganization: boolean,
     public isDisabled: boolean,
     public bandName: string,
+    public isPrivateReservation: boolean = false,
+    public privateReservationText: string = '',
+    public reservedByUserId: number | null = null,
+    public reservationText: string = '',
+    public isMyPrivateReservation: boolean = false,
   ) {}
 }

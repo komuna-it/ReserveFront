@@ -44,7 +44,7 @@
         }
       </div>
       <div class="hidden md:flex items-center space-x-6">
-        @if (authService.isAuthenticated()) {
+        @if (authService.isAdmin()) {
           <a
             routerLink="/admin"
             class="text-sm font-medium text-slate-300 hover:text-white transition-colors"

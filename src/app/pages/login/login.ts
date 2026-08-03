@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../auth/authService';
 import { FormsModule } from '@angular/forms';
@@ -14,9 +14,9 @@ import { Router } from '@angular/router';
 export class LoginPage {
   email = '';
   password = '';
-  errorMessage = '';
   isLoading = false;
   rememberMe = true;
+  readonly errorString = signal<string>('');
 
   constructor(
     private authService: AuthService,
@@ -24,7 +24,6 @@ export class LoginPage {
   ) {}
 
   login() {
-    this.errorMessage = '';
     this.isLoading = true;
     console.log(
       'Attempting login with email:',
@@ -45,12 +44,16 @@ export class LoginPage {
         this.isLoading = false;
 
         if (err.status === 401 || err.status === 403) {
-          this.errorMessage = 'Nieprawidłowy adres e-mail lub hasło';
+          // this.errorString.set('Nieprawidłowy adres e-mail lub hasło');
+          this.errorString.set(
+            err.error?.message || 'Nieprawidłowy adres e-mail / hasło lub konto nieaktywne',
+          );
         } else if (err.status === 0) {
-          this.errorMessage = 'Brak połączenia z serwerem';
+          this.errorString.set('Brak połączenia z serwerem');
         } else {
-          this.errorMessage =
-            err.error?.message || 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później';
+          this.errorString.set(
+            err.errorString?.message || 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później',
+          );
         }
 
         console.error('Błąd logowania:', err);

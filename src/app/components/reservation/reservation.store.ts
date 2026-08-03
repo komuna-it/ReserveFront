@@ -7,19 +7,32 @@ import { AuthService } from '../../auth/authService';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
-import { max } from 'rxjs';
 import { User } from '../../model/user';
+import { Page } from '../../model/page';
+import { ReservationStatus } from '../../model/reservationStatus';
+import { TranslocoService } from '@jsverse/transloco';
+import { Tab } from '../../model/tab';
+import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
   private helper = inject(CalendarHelper);
   private authService = inject(AuthService);
+  readonly loco = inject(TranslocoService);
+
+  readonly allUsers = signal<User[]>([]);
 
   readonly rooms = signal<Room[]>([]);
   readonly reservations = signal<ReservationDto[]>([]);
+
+  readonly reservationsPage = signal<number>(0);
+  readonly reservationsSize = signal<number>(100);
+
   readonly userOrganizations = signal<Organization[]>([]);
   readonly allOrganizations = signal<Organization[]>([]);
+
   readonly orgAndMembersMap = signal<Map<Organization, User[]>>(new Map());
+
   readonly daySelectedByUser = signal<Date>(new Date());
   readonly currentWeekStart = signal<Date>(this.helper.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
@@ -30,12 +43,17 @@ export class ReservationStore {
     if (!booking) return [];
 
     const reservs = this.currentDayReservations();
-    const reservsForRoom = reservs.filter((res) => res.roomId === booking?.roomId);
+
+    const reservsForRoom = reservs.filter((res) => res.room === booking?.roomId);
+    console.log('reservsForRoom: ', reservsForRoom);
+    console.table(
+      reservsForRoom.map((res) => ({ id: res.id, startAt: res.startAt, endAt: res.endAt })),
+    );
     const bookingStartHour = booking?.hour;
     let limitHour = 22;
 
     for (const res of reservsForRoom) {
-      const resStartHour = new Date(res.startAt).getHours();
+      const resStartHour = new Date(res.startAt).getUTCHours();
 
       if (resStartHour < limitHour && resStartHour > bookingStartHour) {
         limitHour = resStartHour;
@@ -43,6 +61,8 @@ export class ReservationStore {
     }
 
     const maxDuration = limitHour - bookingStartHour;
+    console.log('booking start hour: ', bookingStartHour);
+    console.log('limit hour: ', limitHour);
     console.log('max duration: ', maxDuration);
     return Array.from({ length: Math.max(0, maxDuration) }, (_, i) => i + 1);
   });
@@ -121,7 +141,7 @@ export class ReservationStore {
     const userOrgs = this.userOrgsMap();
     const allOrgs = this.allOrgsMap();
     const hoursRange = this.helper.hoursRange;
-
+    const privateReservationText = this.loco.translate('ADMIN_RESERVATIONS.IS_PRIVATE');
     const now = new Date();
     const isPastDay =
       new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate()) <
@@ -133,43 +153,70 @@ export class ReservationStore {
       const isPastHour = isPastDay || (isToday && hour <= currentHour);
 
       const cells = roomsList.map((room) => {
-        const matched = reservationsToday.find((res) => {
-          if (res.roomId !== room.id) return false;
-          const startHour = new Date(res.startAt).getHours();
-          const duration = this.helper.parseDurationToHours(res.duration);
-          return hour >= startHour && hour < startHour + duration;
+        const matchedReservation = reservationsToday.find((res) => {
+          if (res.room !== room.id) return false;
+          const startHour = new Date(res.startAt).getUTCHours();
+          const endHour = new Date(res.endAt).getUTCHours();
+          return hour >= startHour && hour < endHour;
         });
 
-        const isReserved = !!matched;
+        const isReserved = !!matchedReservation;
         let isFirst = false;
         let isLast = false;
         let isMyOrg = false;
         let bandName = '';
+        let isPrivateReservation = false;
+        let privateReservationText = 'Moja prywatna';
+        let reservedByUserId: number | null = null;
+        let reservationText = '';
+        let isMyPrivateReservation = false;
 
-        if (matched) {
-          const startHour = new Date(matched.startAt).getHours();
-          const duration = this.helper.parseDurationToHours(matched.duration);
+        if (matchedReservation) {
+          const startHour = new Date(matchedReservation.startAt).getUTCHours();
           isFirst = hour === startHour;
-          isLast = hour === startHour + duration - 1;
-
-          if (matched.behalfOf) {
+          isLast = hour === new Date(matchedReservation.endAt).getUTCHours() - 1;
+          reservedByUserId = matchedReservation.reservedBy;
+          console.log('matchedReservation:', matchedReservation);
+          if (matchedReservation.organization) {
             if (isAdmin) {
-              bandName = allOrgs.get(matched.behalfOf) || `Organizacja #${matched.behalfOf}`;
+              bandName =
+                allOrgs.get(matchedReservation.organization) ||
+                `${matchedReservation.organization}`;
               isMyOrg = false;
+              reservationText = bandName;
             } else {
-              if (userOrgs.has(matched.behalfOf)) {
+              if (userOrgs.has(matchedReservation.organization)) {
                 isMyOrg = true;
-                bandName = userOrgs.get(matched.behalfOf) || '';
+                bandName = userOrgs.get(matchedReservation.organization) || '';
+                reservationText = bandName;
               } else {
                 isMyOrg = false;
                 bandName = '';
+                reservationText = bandName;
               }
+            }
+          }
+
+          if (matchedReservation.organization === null) {
+            isPrivateReservation = true;
+            const userId = parseInt(this.authService.userId()!, 10);
+
+            if (this.authService.isAdmin()) {
+              const userText = this.allUsers().find(
+                (u) => u.id === matchedReservation.reservedBy,
+              )?.nick;
+              reservationText = `${userText} (prywatna)`;
+            } else if (matchedReservation.reservedBy === userId) {
+              reservationText = privateReservationText;
+              isMyPrivateReservation = true;
+            } else {
+              reservationText = '';
             }
           }
         }
 
         return {
-          roomId: room.id,
+          roomId: room.id ?? 0,
           hourWrapper: new HourWrapper(
             hour,
             isReserved,
@@ -178,11 +225,194 @@ export class ReservationStore {
             isMyOrg,
             isPastHour,
             bandName,
+            isPrivateReservation,
+            privateReservationText,
+            reservedByUserId,
+            reservationText,
+            isMyPrivateReservation,
           ),
         };
       });
 
       return { hour, cells };
+    });
+  });
+
+  // ================= modals control =================
+
+  readonly isAdminAddOrganizationModalActive = signal<boolean>(false);
+  readonly isAdminOrganizationModalActive = signal<boolean>(false);
+  readonly isAdminAddOrganizationSuccessPopupActive = signal<boolean>(false);
+  readonly isModalDeleteOrganizationActive = signal<boolean>(false);
+  readonly isModalDeleteMemberActive = signal<boolean>(false);
+  readonly isModalDeleteOwnerActive = signal<boolean>(false);
+  readonly isModalDeleteOrganizationSuccessActive = signal<boolean>(false);
+  readonly isModalDeleteMemberSuccessActive = signal<boolean>(false);
+  readonly isModalDeleteOwnerSuccessActive = signal<boolean>(false);
+  readonly isModalAddMemberActive = signal<boolean>(false);
+  readonly isBanModalActive = signal<boolean>(false);
+  readonly isBanUsersModalActive = signal<boolean>(false);
+  readonly isBanUsersSuccessActive = signal<boolean>(false);
+  readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
+  readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
+  readonly confirmMarkReservationAsCanceled = signal<boolean>(false);
+
+  readonly popupMarkedReservationAsAccepted = signal<boolean>(false);
+  readonly popupMarkedReservationAsRequestCancel = signal<boolean>(false);
+  readonly popupMarkedReservationAsCanceled = signal<boolean>(false);
+  readonly isPrivateReservationCheckboxActivated = signal<boolean>(false);
+
+  readonly statusForAdminPage = signal<ReservationStatus | null>(null);
+
+  readonly isAddOrganizationModalActive = signal<boolean | null>(null);
+
+  readonly popupConfirmationActive = signal<boolean | null>(null);
+
+  readonly organizationListSelectedUser = signal<User | null>(null);
+  readonly organizationListSelectedOrganization = signal<Organization | null>(null);
+  readonly selectedReservation = signal<ReservationDto | null>(null);
+  readonly selectedReservations = signal<ReservationDto[] | null>(null);
+
+  readonly globalErrorKey = signal<string | null>(null);
+
+  // =================
+
+  // reservation pagination
+
+  readonly reservationsByStatus = signal<ReservationDto[]>([]);
+  readonly paginationTotalNumber = signal<number>(0);
+  readonly paginationTotalPages = signal<number>(0);
+  readonly paginationPage = signal<number>(0);
+  readonly paginationIsFirst = signal<boolean>(false);
+  readonly paginationIsLast = signal<boolean>(false);
+
+  // org pagination
+
+  readonly orgsTotalElements = signal<number>(0);
+  readonly orgsTotalPages = signal<number>(0);
+  readonly orgsPage = signal<number>(0);
+  readonly orgsIsFirst = signal<boolean>(false);
+  readonly orgsIsLast = signal<boolean>(false);
+  readonly orgsSize = signal<number>(10);
+
+  // users pagination
+
+  readonly usersFiltered = computed(() => {
+    return this.allUsers().filter((u) => u.nick != 'SYSTEM');
+  });
+
+  readonly usersTotalElements = computed(() => {
+    return this.usersFiltered().length;
+  });
+
+  readonly userTotalPages = signal<number>(0);
+  readonly userPage = signal<number>(0);
+  readonly userIsFirst = signal<boolean>(false);
+  readonly userIsLast = signal<boolean>(false);
+  readonly userSize = signal<number>(10);
+
+  // Reservation Toolbar
+
+  readonly toolbarSelectedIds = signal<Set<number>>(new Set());
+  readonly toolbarAreAllSelected = computed(() => {
+    const currentItems = this.reservationsByStatus();
+    if (currentItems.length === 0) return false;
+    return currentItems.every((r) => this.toolbarSelectedIds().has(r.id));
+  });
+
+  readonly toolbarIsNoneSelected = computed(() => {
+    return this.toolbarSelectedIds().size === 0;
+  });
+  readonly toolbarIsIndeterminated = computed(() => {
+    return this.toolbarSelectedIds().size > 0 && !this.toolbarAreAllSelected();
+  });
+
+  // Users Toolbar
+
+  readonly toolbarUserSelectedIds = signal<Set<number>>(new Set());
+  readonly toolbarAreAllUsersSelected = computed(() => {
+    const currentItems = this.allUsers();
+    if (currentItems.length === 0) return false;
+    return currentItems.every((r) => this.toolbarSelectedIds().has(r.id));
+  });
+  readonly toolbarUserIsNoneSelected = computed(() => {
+    return this.toolbarSelectedIds().size === 0;
+  });
+  readonly toolbarUserIsIndeterminated = computed(() => {
+    return this.toolbarSelectedIds().size > 0 && !this.toolbarAreAllUsersSelected();
+  });
+
+  /// profile
+
+  activeTab = signal<Tab>(new Tab(0, 'Moje rezerwacje', 'reservations', undefined));
+  allTabs = computed(() => {
+    let id = 0;
+    const newTabs: Tab[] = [];
+
+    newTabs.push(new Tab(id++, 'Moje rezerwacje', 'reservations', undefined));
+
+    for (const org of this.userOrganizations()) {
+      newTabs.push(new Tab(id++, org.name, 'organization', org));
+    }
+    newTabs.push(new Tab(id++, 'Utwórz zespół', 'createorganization', undefined));
+
+    return newTabs;
+  });
+
+  readonly allMembersOfOrganization = computed(() => {
+    const org = this.activeTab().org;
+    const members = org?.members ?? [];
+    const owners = org?.owners ?? [];
+    const membersAndOwners: OrganizationMemberDto[] = [...members, ...owners];
+
+    return membersAndOwners;
+  });
+
+  // ban
+
+  readonly banReason = signal<string>('');
+  readonly banDuration = signal<string>('');
+
+  // search bar
+
+  readonly searchBarQuery = signal<string | null>('');
+
+  readonly filteredReservations = computed<ReservationDto[]>(() => {
+    const query = (this.searchBarQuery() ?? '').trim().toLowerCase();
+    const reservations = this.reservations();
+
+    if (!query) return reservations;
+
+    const matchingUserIds = new Set(
+      this.allUsers()
+        .filter(
+          (u) => u.nick?.toLowerCase().includes(query) || u.email?.toLowerCase().includes(query),
+        )
+        .map((u) => u.id),
+    );
+
+    const matchingRoomIds = new Set(
+      this.rooms()
+        .filter((r) => r.name?.toLowerCase().includes(query))
+        .map((r) => r.id),
+    );
+
+    const matchingOrgIds = new Set(
+      this.allOrganizations()
+        .filter((o) => o.name?.toLowerCase().includes(query))
+        .map((o) => o.id),
+    );
+
+    return reservations.filter((r) => {
+      const matchesRoom = matchingRoomIds.has(r.room);
+
+      const isOrg = r.organization !== null && r.organization !== undefined;
+
+      const matchesReservedBy = isOrg
+        ? matchingOrgIds.has(r.organization)
+        : matchingUserIds.has(r.reservedBy);
+
+      return matchesRoom || matchesReservedBy;
     });
   });
 }
