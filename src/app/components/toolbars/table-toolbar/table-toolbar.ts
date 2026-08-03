@@ -4,10 +4,11 @@ import { ReservationFacade } from '../../reservation/reservation.facade';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { BanModal } from '../../../modals/ban-modal/ban-modal';
 import { ToolbarType } from '../toolbarType';
+import { SearchBar } from '../search-bar/search-bar';
 
 @Component({
   selector: 'app-table-toolbar',
-  imports: [],
+  imports: [SearchBar],
   templateUrl: './table-toolbar.html',
   styleUrl: './table-toolbar.css',
 })

@@ -372,4 +372,47 @@ export class ReservationStore {
 
   readonly banReason = signal<string>('');
   readonly banDuration = signal<string>('');
+
+  // search bar
+
+  readonly searchBarQuery = signal<string | null>('');
+
+  readonly filteredReservations = computed<ReservationDto[]>(() => {
+    const query = (this.searchBarQuery() ?? '').trim().toLowerCase();
+    const reservations = this.reservations();
+
+    if (!query) return reservations;
+
+    const matchingUserIds = new Set(
+      this.allUsers()
+        .filter(
+          (u) => u.nick?.toLowerCase().includes(query) || u.email?.toLowerCase().includes(query),
+        )
+        .map((u) => u.id),
+    );
+
+    const matchingRoomIds = new Set(
+      this.rooms()
+        .filter((r) => r.name?.toLowerCase().includes(query))
+        .map((r) => r.id),
+    );
+
+    const matchingOrgIds = new Set(
+      this.allOrganizations()
+        .filter((o) => o.name?.toLowerCase().includes(query))
+        .map((o) => o.id),
+    );
+
+    return reservations.filter((r) => {
+      const matchesRoom = matchingRoomIds.has(r.room);
+
+      const isOrg = r.organization !== null && r.organization !== undefined;
+
+      const matchesReservedBy = isOrg
+        ? matchingOrgIds.has(r.organization)
+        : matchingUserIds.has(r.reservedBy);
+
+      return matchesRoom || matchesReservedBy;
+    });
+  });
 }

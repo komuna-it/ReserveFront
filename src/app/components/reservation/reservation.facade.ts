@@ -685,4 +685,47 @@ export class ReservationFacade {
       });
     });
   }
+
+  searchReservations(): ReservationDto[] {
+    const query = (this.store.searchBarQuery() ?? '').trim().toLowerCase();
+    const reservations = this.store.reservations();
+
+    if (!query) return reservations;
+
+    const matchingUserIds = new Set(
+      this.store
+        .allUsers()
+        .filter(
+          (u) => u.nick?.toLowerCase().includes(query) || u.email?.toLowerCase().includes(query),
+        )
+        .map((u) => u.id),
+    );
+
+    const matchingRoomIds = new Set(
+      this.store
+        .rooms()
+        .filter((r) => r.name?.toLowerCase().includes(query))
+        .map((r) => r.id),
+    );
+
+    const matchingOrgIds = new Set(
+      this.store
+        .allOrganizations()
+        .filter((o) => o.name?.toLowerCase().includes(query))
+        .map((o) => o.id),
+    );
+
+    return reservations.filter((reservation: ReservationDto) => {
+      const matchesRoom = matchingRoomIds.has(reservation.room);
+
+      const isOrgReservation =
+        reservation.organization !== null && reservation.organization !== undefined;
+
+      const matchesReservedBy = isOrgReservation
+        ? matchingOrgIds.has(reservation.organization)
+        : matchingUserIds.has(reservation.reservedBy);
+
+      return matchesRoom || matchesReservedBy;
+    });
+  }
 }
