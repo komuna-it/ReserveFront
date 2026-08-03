@@ -231,8 +231,8 @@
   }
 
   <!-- Popup - error -->
-  @if (store.globalErrorKey()) {
-    <app-error-popup></app-error-popup>
+  @if (store.globalErrorKey(); as errorKey) {
+    <app-error-popup [titleText]="errorKey | transloco" />
   }
 
   @if (store.isModalAddMemberActive()) {
