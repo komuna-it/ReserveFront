@@ -59,7 +59,10 @@
             }
           },
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "ssl": true,
+            "sslKey": "certs/localhost-key.pem",
+            "sslCert": "certs/localhost.pem"
           },
           "defaultConfiguration": "development"
         },
