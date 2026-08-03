@@ -21,6 +21,7 @@ export class ReservationFacade {
 
   initializeCalendar(isAdmin: boolean) {
     this.getRoomsAndReservations();
+    this.getAllUsers();
 
     const userId = this.authService.userId();
     if (!userId) {

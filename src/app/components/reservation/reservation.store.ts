@@ -166,7 +166,7 @@ export class ReservationStore {
         let isMyOrg = false;
         let bandName = '';
         let isPrivateReservation = false;
-        let privateReservationText = '';
+        let privateReservationText = 'Moja prywatna';
         let reservedByUserId: number | null = null;
         let reservationText = '';
         let isMyPrivateReservation = false;
@@ -176,7 +176,7 @@ export class ReservationStore {
           isFirst = hour === startHour;
           isLast = hour === new Date(matchedReservation.endAt).getUTCHours() - 1;
           reservedByUserId = matchedReservation.reservedBy;
-
+          console.log('matchedReservation:', matchedReservation);
           if (matchedReservation.organization) {
             if (isAdmin) {
               bandName =

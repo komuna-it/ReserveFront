@@ -140,11 +140,14 @@
                         <div
                           class="flex-col text-center w-full h-full flex items-center justify-center text-xs font-medium truncate px-2 transition-all cursor-not-allowed"
                           [ngClass]="{
-                            'bg-blue-500/20 text-blue-400 border-0':
-                              authService.isAdmin() || cell.hourWrapper.isReservedByMyOrganization,
                             'bg-red-500/20 text-red-400 border-0':
                               !authService.isAdmin() &&
-                              !cell.hourWrapper.isReservedByMyOrganization,
+                              !cell.hourWrapper.isReservedByMyOrganization &&
+                              !cell.hourWrapper.isMyPrivateReservation,
+                            'bg-blue-500/20 text-blue-400 border-0':
+                              authService.isAdmin() ||
+                              cell.hourWrapper.isReservedByMyOrganization ||
+                              cell.hourWrapper.isMyPrivateReservation,
                             'text-red-400/40 border-red-500/15 border-0':
                               !authService.isAdmin() &&
                               !cell.hourWrapper.isReservedByMyOrganization &&
