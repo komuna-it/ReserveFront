@@ -7,11 +7,22 @@ import { ReservationFacade } from '../reservation/reservation.facade';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../auth/authService';
 import { CalendarBookingModal } from '../modals/calendar-booking-modal/calendar-booking-modal';
+import { CalendarHour } from '../calendar-hour/calendar-hour';
+import { SuccessPopup } from '../../modals/success-popup/success-popup';
+import { ErrorPopup } from '../../modals/error-popup/error-popup';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslocoPipe, CalendarBookingModal],
+  imports: [
+    SuccessPopup,
+    ErrorPopup,
+    CommonModule,
+    FormsModule,
+    TranslocoPipe,
+    CalendarBookingModal,
+    CalendarHour,
+  ],
   templateUrl: './calendar.html',
 })
 export class CalendarComponent implements OnInit, OnDestroy {

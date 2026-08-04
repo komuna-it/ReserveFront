@@ -253,6 +253,8 @@ export class ReservationStore {
   readonly isBanModalActive = signal<boolean>(false);
   readonly isBanUsersModalActive = signal<boolean>(false);
   readonly isBanUsersSuccessActive = signal<boolean>(false);
+  readonly isReservationDetailsModalActive = signal<boolean>(false);
+
   readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
   readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
   readonly confirmMarkReservationAsCanceled = signal<boolean>(false);

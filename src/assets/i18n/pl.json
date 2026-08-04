@@ -33,7 +33,8 @@
     "ERROR_DESC": "Wybrany termin jest już niedostępny lub wystąpił błąd sieci.",
     "BACK_TO_CALENDAR": "Wróć do kalendarza",
     "PRIVATE_RESERVATION": "Zarezerwuj prywatnie (bez zespołu)",
-    "MY_PRIVATE_RESERVATION": "Moja prywatna rezerwacja"
+    "MY_PRIVATE_RESERVATION": "Moja prywatna rezerwacja",
+    "RESERVATION_DETAILS": "Szczegóły rezerwacji"
   },
   "USERS_TABLE": {
     "NICK": "Nick",
@@ -41,7 +42,9 @@
     "TRUSTED": "Zaufany",
     "NOT_TRUSTED": "Niezaufany",
     "REASON": "Powód",
-    "DURATION": "Długość"
+    "DURATION": "Długość",
+    "ORGANIZATION": "Zespół",
+    "ROOM": "Sala"
   },
   "PROFILE": {
     "TITLE": "Twój Profil",

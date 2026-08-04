@@ -42,4 +42,9 @@ export class TextFormatingTool {
       ? this.translocoService.translate('ADMIN_RESERVATIONS.IS_PRIVATE')
       : this.translocoService.translate('ADMIN_RESERVATIONS.IS_NOT_PRIVATE');
   }
+
+  getRoomName(res: ReservationDto): string {
+    const room = this.store.rooms().find((r) => r.id === res.room);
+    return room?.name ?? '';
+  }
 }
