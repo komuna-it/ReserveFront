@@ -109,4 +109,11 @@ export class ProfilePage implements OnInit {
       this.sseController.abort();
     }
   }
+
+  openRequestCancellation(res: ReservationDto) {
+    this.facade.openConfirmationUpdateReservationsStatus(
+      [res],
+      ReservationStatus.REQUESTED_CANCELLATION,
+    );
+  }
 }

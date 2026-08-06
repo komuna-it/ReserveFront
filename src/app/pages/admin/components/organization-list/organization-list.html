@@ -75,16 +75,6 @@
                     {{ userTrustedText(user) }}
                   </span>
                   <button
-                    (click)="facade.markUserTrusted(user.trusted, user.id)"
-                    class="shrink-0 px-2 py-0.5 text-xs font-medium rounded-md text-white transition-all shadow-sm active:scale-95"
-                    [ngClass]="{
-                      'bg-emerald-600 hover:bg-emerald-500': !user.trusted,
-                      'bg-amber-600/80 hover:bg-amber-600': user.trusted,
-                    }"
-                  >
-                    {{ userTrustedButtonText(user) }}
-                  </button>
-                  <button
                     (click)="handleDeleteMember(user.id, org.id)"
                     class="shrink-0 px-2 py-0.5 bg-rose-600/80 hover:bg-rose-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
                   >
@@ -118,17 +108,6 @@
               >
                 {{ orgTrustedText(org) }}
               </span>
-
-              <button
-                (click)="facade.markOrganizationAsTrusted(org.id)"
-                class="px-2.5 py-1 text-xs font-medium rounded-md text-white transition-all shadow-sm active:scale-95"
-                [ngClass]="{
-                  'bg-emerald-600 hover:bg-emerald-500': !org.trusted,
-                  'bg-amber-600/80 hover:bg-amber-600': org.trusted,
-                }"
-              >
-                {{ orgTrustedButtonText(org) }}
-              </button>
             </div>
           </td>
         </tr>

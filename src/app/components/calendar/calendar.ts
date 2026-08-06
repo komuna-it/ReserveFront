@@ -33,8 +33,17 @@ export class CalendarComponent implements OnInit, OnDestroy {
   readonly authService = inject(AuthService);
 
   ngOnInit() {
-    this.facade.initializeCalendar(this.authService.isAdmin());
-    console.log('isAdmin: ', this.authService.isAdmin());
+    this.facade.getRoomsAndReservations();
+    this.facade.getAllUsers();
+
+    if (this.authService.userId()) {
+      console.error('User id not loaded yet');
+      return;
+    }
+
+    console.log('Initializing calendar...');
+    this.facade.refreshOrganizations();
+    this.facade.connectToReservationStream();
   }
 
   ngOnDestroy() {

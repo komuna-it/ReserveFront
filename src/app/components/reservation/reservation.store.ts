@@ -258,6 +258,7 @@ export class ReservationStore {
   readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
   readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
   readonly confirmMarkReservationAsCanceled = signal<boolean>(false);
+  readonly confirmMarkReservationAsRejected = signal<boolean>(false);
 
   readonly popupMarkedReservationAsAccepted = signal<boolean>(false);
   readonly popupMarkedReservationAsRequestCancel = signal<boolean>(false);
@@ -313,36 +314,29 @@ export class ReservationStore {
   readonly userIsLast = signal<boolean>(false);
   readonly userSize = signal<number>(10);
 
-  // Reservation Toolbar
+  // Toolbar
 
   readonly toolbarSelectedIds = signal<Set<number>>(new Set());
-  readonly toolbarAreAllSelected = computed(() => {
-    const currentItems = this.reservationsByStatus();
-    if (currentItems.length === 0) return false;
-    return currentItems.every((r) => this.toolbarSelectedIds().has(r.id));
-  });
 
-  readonly toolbarIsNoneSelected = computed(() => {
-    return this.toolbarSelectedIds().size === 0;
-  });
-  readonly toolbarIsIndeterminated = computed(() => {
-    return this.toolbarSelectedIds().size > 0 && !this.toolbarAreAllSelected();
-  });
+  toggleSelection(id: number): void {
+    this.toolbarSelectedIds.update((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
 
-  // Users Toolbar
+  setSelectedIds(ids: Set<number>): void {
+    this.toolbarSelectedIds.set(ids);
+  }
 
-  readonly toolbarUserSelectedIds = signal<Set<number>>(new Set());
-  readonly toolbarAreAllUsersSelected = computed(() => {
-    const currentItems = this.allUsers();
-    if (currentItems.length === 0) return false;
-    return currentItems.every((r) => this.toolbarSelectedIds().has(r.id));
-  });
-  readonly toolbarUserIsNoneSelected = computed(() => {
-    return this.toolbarSelectedIds().size === 0;
-  });
-  readonly toolbarUserIsIndeterminated = computed(() => {
-    return this.toolbarSelectedIds().size > 0 && !this.toolbarAreAllUsersSelected();
-  });
+  clearSelection(): void {
+    this.toolbarSelectedIds.set(new Set());
+  }
 
   /// profile
 

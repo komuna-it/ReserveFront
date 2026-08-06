@@ -2,10 +2,11 @@ import { Component, computed, inject, input } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AuthService } from '../../auth/authService';
 import { ReservationStore } from '../reservation/reservation.store';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-calendar-hour',
-  imports: [NgClass],
+  imports: [NgClass, TranslocoPipe],
   templateUrl: './calendar-hour.html',
   styleUrl: './calendar-hour.css',
 })
@@ -43,5 +44,9 @@ export class CalendarHour {
       'rounded-t-3xl': isFirst && !isLast,
       'rounded-b-3xl': !isFirst && isLast,
     };
+  });
+
+  readonly cellFill = computed(() => {
+    return { 'border-b border-slate-700/50': !this.isReserved() || this.isLastHourOfReservation() };
   });
 }

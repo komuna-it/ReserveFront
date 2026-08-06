@@ -9,6 +9,7 @@ import { ReservationType } from '../../model/reservationType';
 import { CreateReservationRequest } from '../../model/CreateReservationRequest';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { ReservationDto } from '../../model/reservationDto';
+import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -18,21 +19,6 @@ export class ReservationFacade {
   private authService = inject(AuthService);
   private router = inject(Router);
   private sseController: AbortController | null = null;
-
-  initializeCalendar(isAdmin: boolean) {
-    this.getRoomsAndReservations();
-    this.getAllUsers();
-
-    const userId = this.authService.userId();
-    if (!userId) {
-      console.error('User id not loaded yet');
-      return;
-    }
-
-    console.log('Initializing calendar...');
-    this.refreshOrganizations();
-    this.connectToReservationStream();
-  }
 
   refreshOrganizations() {
     if (this.authService.isAdmin()) {
@@ -69,16 +55,15 @@ export class ReservationFacade {
       error: (e) => console.log('Error fetching rooms: ', e),
     });
 
-    this.api
-      .getReservations(this.store.reservationsPage(), this.store.reservationsSize())
-      .subscribe({
-        next: (pageData) => {
-          this.store.reservations.set(pageData.content);
-          console.log('Get reservations data:');
-          console.table(pageData.content);
-        },
-        error: (e) => console.log('Error fetching res: ', e),
-      });
+    // get reservations for a week, 12*3*7=252
+    this.api.getReservations(this.store.reservationsPage(), 252).subscribe({
+      next: (pageData) => {
+        this.store.reservations.set(pageData.content);
+        console.log('Get reservations data:');
+        console.table(pageData.content);
+      },
+      error: (e) => console.log('Error fetching res: ', e),
+    });
   }
 
   getAllReservationsForUserAndTheirOrganization() {
@@ -361,12 +346,17 @@ export class ReservationFacade {
     });
   }
 
-  markOrganizationAsTrusted(organizationId: number): void {
-    const trusted = !this.store.allOrganizations().find((org) => org.id === organizationId)
-      ?.trusted;
-    this.api.markOrganizationAsTrusted(organizationId, trusted).subscribe({
+  markOrganizationsAsTrusted(): void {
+    this.api.markOrganizationsAsTrusted(this.store.toolbarSelectedIds()).subscribe({
       next: () => this.refreshOrganizations(),
-      error: (e) => console.error(`Failed to mark organization`, e),
+      error: (e) => console.error(`Failed to markOrganizationsAsTrusted`, e),
+    });
+  }
+
+  markOrganizationsAsUntrusted(): void {
+    this.api.markOrganizationsAsUntrusted(this.store.toolbarSelectedIds()).subscribe({
+      next: () => this.refreshOrganizations(),
+      error: (e) => console.error(`Failed to markOrganizationsAsUnTrusted`, e),
     });
   }
 
@@ -398,62 +388,26 @@ export class ReservationFacade {
       });
   }
 
-  markReservationAsAccepted(reservationId: number) {
-    this.api.markReservationAsAccepted(reservationId).subscribe({
+  updateReservationsStatus(targetStatus: ReservationStatus): void {
+    const ids = this.store.toolbarSelectedIds();
+
+    if (!ids || ids.size === 0) {
+      console.error('No reservation IDs selected for status update');
+      return;
+    }
+
+    this.api.updateReservationsStatus(ids, targetStatus).subscribe({
       next: () => {
-        if (this.authService.isAdmin()) {
-          this.getRoomsAndReservations();
-        } else if (this.authService.currentUser()?.id != 0) {
-          this.getAllReservationsForUserAndTheirOrganization();
-        }
-        this.store.popupMarkedReservationAsAccepted.set(true);
-        this.getReservationsByStatus(ReservationStatus.CREATED);
+        const currentStatus = this.store.statusForAdminPage() ?? ReservationStatus.CREATED;
+        this.getReservationsByStatus(currentStatus);
+        this.store.clearSelection();
       },
-      error: (e) => {
-        console.error('Error markReservationAsAccepted: ', e);
-        this.store.globalErrorKey.set('Error markReservationAsAccepted');
+      error: (err: unknown) => {
+        console.error('Error updating reservation status:', err);
+        this.store.globalErrorKey.set('ERROR.STATUS_UPDATE_FAILED');
       },
     });
   }
-
-  markReservationAsRequestCancel(reservationId: number) {
-    this.api.markReservationAsRequestCancel(reservationId).subscribe({
-      next: () => {
-        if (this.authService.isAdmin()) {
-          this.getRoomsAndReservations();
-        } else if (this.authService.currentUser()?.id != 0) {
-          this.getAllReservationsForUserAndTheirOrganization();
-        }
-        this.store.popupMarkedReservationAsRequestCancel.set(true);
-        this.getReservationsByStatus(ReservationStatus.CREATED);
-      },
-      error: (e) => {
-        console.error('Error markReservationAsAccepted: ', e);
-        this.store.globalErrorKey.set('Error markReservationAsAccepted');
-      },
-    });
-  }
-
-  markReservationAsCanceled(reservationId: number) {
-    console.log('markReservationAsCanceled: resId:', reservationId);
-
-    this.api.markReservationAsCanceled(reservationId).subscribe({
-      next: () => {
-        if (this.authService.isAdmin()) {
-          this.getRoomsAndReservations();
-        } else if (this.authService.currentUser()?.id != 0) {
-          this.getAllReservationsForUserAndTheirOrganization();
-        }
-        this.store.popupMarkedReservationAsCanceled.set(true);
-        this.getReservationsByStatus(ReservationStatus.CREATED);
-      },
-      error: (e) => {
-        console.error('Error markReservationAsAccepted: ', e);
-        this.store.globalErrorKey.set('ERROR.ERROR_CANCELING_RESERVATION');
-      },
-    });
-  }
-
   // pagination
 
   changeReservationsByStatusPage(direction: 'next' | 'prev') {
@@ -487,6 +441,9 @@ export class ReservationFacade {
     this.store.confirmMarkReservationAsRequestCancel.set(false);
     this.store.globalErrorKey.set(null);
     this.store.isBanUsersModalActive.set(false);
+    this.store.isBanUsersSuccessActive.set(false);
+
+    this.store.displayBookingSuccesfulPopup.set(false);
   }
 
   handleClickBanUsers() {
@@ -498,151 +455,114 @@ export class ReservationFacade {
     this.router.navigate(['/admin/organizations']);
   }
 
-  handleConfirmAcceptReservation(res: ReservationDto) {
-    this.store.confirmMarkReservationAsAccepted.set(true);
-    this.store.selectedReservation.set(res);
-  }
-
-  handleAcceptReservation(res: ReservationDto) {
-    this.markReservationAsAccepted(res.id);
+  handleAcceptReservations(resIds: Set<number>) {
+    this.store.toolbarSelectedIds.set(resIds);
+    this.updateReservationsStatus(ReservationStatus.CONFIRMED);
     this.store.confirmMarkReservationAsAccepted.set(false);
     this.store.popupMarkedReservationAsAccepted.set(true);
   }
+  handleCancelReservation(resIds: Set<number>) {
+    this.store.toolbarSelectedIds.set(resIds);
 
-  handleClickCancelReservation(res: ReservationDto) {
-    this.store.confirmMarkReservationAsCanceled.set(true);
-    this.store.selectedReservation.set(res);
-  }
-
-  handleClickRequestCancelReservation(res: ReservationDto) {
-    this.store.selectedReservation.set(res);
-    this.store.confirmMarkReservationAsRequestCancel.set(true);
-  }
-
-  handleCancelReservation(res: ReservationDto) {
-    this.markReservationAsCanceled(res.id);
+    this.updateReservationsStatus(ReservationStatus.CANCELLED);
     this.store.confirmMarkReservationAsCanceled.set(false);
     this.store.popupMarkedReservationAsCanceled.set(true);
-  }
-
-  handleConfirmRequestCancelReservation(res: ReservationDto) {
-    this.markReservationAsCanceled(res.id);
-    this.store.confirmMarkReservationAsCanceled.set(false);
-    this.store.popupMarkedReservationAsCanceled.set(true);
-  }
-
-  // ================= Toolbar =================
-
-  toolbarToggleSelection(resId: number) {
-    this.store.toolbarSelectedIds.update((oldSet) => {
-      const newSet = new Set(oldSet);
-
-      if (newSet.has(resId)) {
-        newSet.delete(resId);
-      } else {
-        newSet.add(resId);
-      }
-      return newSet;
-    });
-  }
-
-  toolbarToggleMasterCheckbox() {
-    if (this.store.toolbarAreAllSelected() || this.store.toolbarIsIndeterminated()) {
-      this.store.toolbarSelectedIds.update(() => {
-        return new Set();
-      });
-    } else {
-      this.store.toolbarSelectedIds.update(() => {
-        const ids = this.store.reservationsByStatus().map((r) => r.id);
-        return new Set(ids);
-      });
-    }
   }
 
   // ==================================
 
-  handleClickCancelReservations() {
-    this.store.confirmMarkReservationAsCanceled.set(true);
-    const reservs = this.store
-      .reservationsByStatus()
-      .filter((r) => this.store.toolbarSelectedIds().has(r.id));
-    console.log('handleClickCancelReservations: ');
-    console.table(reservs);
-    this.store.selectedReservations.set(reservs);
-  }
-
   handleCancelReservations() {
-    const res = this.store.selectedReservations();
+    const res = new Set<number>(this.store.selectedReservations()?.map((r) => r.id));
     console.log('handleCancelReservations: ');
     console.table(res);
 
     if (!res) {
       return;
     }
-    res.forEach((r) => this.markReservationAsCanceled(r.id));
+    this.updateReservationsStatus(ReservationStatus.CANCELLED);
     this.store.confirmMarkReservationAsCanceled.set(false);
     this.store.popupMarkedReservationAsCanceled.set(true);
   }
 
-  // ==================================
+  openConfirmationUpdateReservationsStatus(
+    reservations: ReservationDto[],
+    status: ReservationStatus,
+  ) {
+    const res = new Set<number>(this.store.selectedReservations()?.map((r) => r.id));
+    this.store.selectedReservations.set(reservations);
 
-  banUser(userId: number, reason: string, duration: string) {
-    this.api.banUser(userId, reason, duration).subscribe({
-      next: () => {
-        console.log('Banned userId ', userId);
-        this.getAllUsers();
-      },
-      error: (e) => {
-        console.error('Error banning userId ', userId, ': ', e);
-        this.store.globalErrorKey.set(e);
-      },
-    });
+    switch (status) {
+      case ReservationStatus.CONFIRMED: {
+        this.store.confirmMarkReservationAsAccepted.set(true);
+        break;
+      }
+      case ReservationStatus.CANCELLED: {
+        this.store.confirmMarkReservationAsCanceled.set(true);
+        const reservs = this.store
+          .reservationsByStatus()
+          .filter((r) => this.store.toolbarSelectedIds().has(r.id));
+        console.log('handleClickCancelReservations: ');
+        console.table(reservs);
+        this.store.selectedReservations.set(reservs);
+
+        break;
+      }
+      case ReservationStatus.REJECTED: {
+        this.store.confirmMarkReservationAsRejected.set(true);
+        break;
+      }
+      case ReservationStatus.REJECTED_CANCELLATION: {
+        this.store.confirmMarkReservationAsRequestCancel.set(true);
+
+        break;
+      }
+      default: {
+        console.error('Error updating res status');
+      }
+    }
   }
+
+  // ==================================
 
   banUsers() {
     const userIds = this.store.toolbarSelectedIds();
     const reason = this.store.banReason();
     const duration = this.store.banDuration();
 
-    userIds.forEach((userId) => {
-      this.api.banUser(userId, reason, duration).subscribe({
-        next: () => {
-          console.log('Banned userId ', userId);
-          this.getAllUsers();
-          this.store.isBanUsersModalActive.set(false);
-          this.store.isBanUsersSuccessActive.set(true);
-        },
-        error: (e) => {
-          console.error('Error banning userId ', userId, ': ', e);
-          this.store.globalErrorKey.set(e);
-        },
-      });
+    this.api.banUsers(userIds, reason, duration).subscribe({
+      next: () => {
+        console.log('Banned userId ', userIds);
+        this.getAllUsers();
+        this.store.isBanUsersModalActive.set(false);
+        this.store.isBanUsersSuccessActive.set(true);
+      },
+      error: (e) => {
+        console.error('Error banning userId ', userIds, ': ', e);
+        this.store.globalErrorKey.set(e);
+      },
     });
   }
 
   unbanUsers() {
     const userIds = this.store.toolbarSelectedIds();
-    const reason = this.store.banReason();
-    const duration = this.store.banDuration();
 
-    userIds.forEach((userId) => {
-      this.api.banUser(userId, reason, duration).subscribe({
-        next: () => {
-          console.log('Banned userId ', userId);
-          this.getAllUsers();
-        },
-        error: (e) => {
-          console.error('Error banning userId ', userId, ': ', e);
-          this.store.globalErrorKey.set(e);
-        },
-      });
+    this.api.unbanUsers(userIds).subscribe({
+      next: () => {
+        console.log('Banned userId ', userIds);
+        this.getAllUsers();
+      },
+      error: (e) => {
+        console.error('Error banning userId ', userIds, ': ', e);
+        this.store.globalErrorKey.set(e);
+      },
     });
   }
 
   // ==================================
 
-  markUserTrusted(isTrusted: boolean, userId: number) {
-    this.api.markUserTrusted(!isTrusted, userId).subscribe({
+  markUsersTrusted() {
+    console.log('markUsersTrusted facade: ', this.store.toolbarSelectedIds());
+    this.api.markUsersTrusted(this.store.toolbarSelectedIds()).subscribe({
       next: () => {
         this.getAllUsers();
       },
@@ -653,38 +573,21 @@ export class ReservationFacade {
     });
   }
 
-  markUsersTrusted() {
-    const userIds = this.store.toolbarSelectedIds();
-    const trusted = true;
-
-    userIds.forEach((userId) => {
-      this.api.markUserTrusted(trusted, userId).subscribe({
-        next: () => {
-          this.getAllUsers();
-        },
-        error: (e) => {
-          console.error('Error marking user as trusted: ', e);
-          this.store.globalErrorKey.set('Error marking user as trusted');
-        },
-      });
-    });
-  }
-
   markUsersUntrusted() {
     const userIds = this.store.toolbarSelectedIds();
     const trusted = false;
-    userIds.forEach((userId) => {
-      this.api.markUserTrusted(trusted, userId).subscribe({
-        next: () => {
-          this.getAllUsers();
-        },
-        error: (e) => {
-          console.error('Error marking user as trusted: ', e);
-          this.store.globalErrorKey.set('Error marking user as trusted');
-        },
-      });
+    this.api.markUsersUntrusted(this.store.toolbarSelectedIds()).subscribe({
+      next: () => {
+        this.getAllUsers();
+      },
+      error: (e) => {
+        console.error('Error marking user as trusted: ', e);
+        this.store.globalErrorKey.set('Error marking user as trusted');
+      },
     });
   }
+
+  // ==================================
 
   searchReservations(): ReservationDto[] {
     const query = (this.store.searchBarQuery() ?? '').trim().toLowerCase();

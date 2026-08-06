@@ -20,7 +20,7 @@ export class TableReservationsUser {
   readonly translocoService = inject(TranslocoService);
   readonly textFormatingTool = inject(TextFormatingTool);
   readonly calendarHelper = inject(CalendarHelper);
-
+  readonly ReservationStatus = ReservationStatus;
   deleteReservation(reservationId: number) {
     console.log(`Trying to delete reservation with id ${reservationId}`);
     this.facade.deleteReservation(reservationId);

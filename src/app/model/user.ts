@@ -6,5 +6,6 @@ export class User {
     public role: string,
     public created: Date,
     public trusted: boolean,
+    public banned: boolean,
   ) {}
 }

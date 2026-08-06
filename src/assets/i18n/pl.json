@@ -44,7 +44,10 @@
     "REASON": "Powód",
     "DURATION": "Długość",
     "ORGANIZATION": "Zespół",
-    "ROOM": "Sala"
+    "ROOM": "Sala",
+    "IS_BANNED": "Zbanowany?",
+    "YES": "Tak",
+    "NO": "Nie"
   },
   "PROFILE": {
     "TITLE": "Twój Profil",
@@ -153,7 +156,8 @@
   "ORGANIZATION_LIST.ERRORS": {
     "DELETE_ORG_FAILED": "Nie udało się usunąć zespołu. Spróbuj ponownie później.",
     "REMOVE_USER_FAILED": "Nie udało się usunąć użytkownika. Spróbuj ponownie później.",
-    "REMOVE_OWNER_FAILED": "Nie udało się usunąć właściciela. Spróbuj ponownie później."
+    "REMOVE_OWNER_FAILED": "Nie udało się usunąć właściciela. Spróbuj ponownie później.",
+    "STATUS_UPDATE_FAILED": "Nie udało się zaktualizować statusu rezerwacji"
   },
   "ERROR": {
     "CLOSE": "Zamknij",

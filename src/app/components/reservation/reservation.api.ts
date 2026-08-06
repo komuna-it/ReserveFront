@@ -4,10 +4,11 @@ import { AuthService } from '../../auth/authService';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { User } from '../../model/user';
 import { Page } from '../../model/page';
 import { ReservationStatus } from '../../model/reservationStatus';
+import { throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationApi {
@@ -140,9 +141,16 @@ export class ReservationApi {
     return this.http.delete<void>(`${this.apiUrl}/organizations/decommission/${id}`);
   }
 
-  markOrganizationAsTrusted(organizationId: number, trusted: boolean): Observable<Organization> {
+  markOrganizationsAsTrusted(organizationIds: Set<number>): Observable<Organization> {
     return this.http.patch<Organization>(
-      `${this.apiUrl}/organizations/${organizationId}/isTrusted/${trusted}`,
+      `${this.apiUrl}/organizations/${organizationIds}/isTrusted/true`,
+      {},
+    );
+  }
+
+  markOrganizationsAsUntrusted(organizationIds: Set<number>): Observable<Organization> {
+    return this.http.patch<Organization>(
+      `${this.apiUrl}/organizations/${organizationIds}/isTrusted/false`,
       {},
     );
   }
@@ -150,9 +158,22 @@ export class ReservationApi {
   getAllUsers(page: number, size: number): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users/all`);
   }
+  markUsersTrusted(usersIds: Set<number>) {
+    const userIdsArray = Array.from(usersIds);
+    const trusted = true;
+    return this.http.patch<User>(`${this.apiUrl}/users/trustedStatus`, {
+      usersIds: userIdsArray,
+      trusted,
+    });
+  }
+  markUsersUntrusted(usersIds: Set<number>) {
+    const userIdsArray = Array.from(usersIds);
 
-  markUserTrusted(isTrusted: boolean, userId: number) {
-    return this.http.patch<User>(`${this.apiUrl}/users/${userId}/isTrusted/${isTrusted}`, {});
+    const trusted = false;
+    return this.http.patch<User>(`${this.apiUrl}/users/trustedStatus`, {
+      usersIds: userIdsArray,
+      trusted,
+    });
   }
 
   getReservationsByStatus(page = 0, size = 100, status: ReservationStatus) {
@@ -160,19 +181,39 @@ export class ReservationApi {
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
-  markReservationAsAccepted(reservationId: number) {
-    return this.http.post(`${this.apiUrl}/reservations/confirm/${reservationId}`, {});
+  updateReservationsStatus(resIds: Set<number>, status: ReservationStatus) {
+    const reservationIds = Array.from(resIds);
+
+    switch (status) {
+      case ReservationStatus.CONFIRMED:
+        return this.http.post(`${this.apiUrl}/reservations/confirm`, { reservationIds });
+
+      case ReservationStatus.REQUESTED_CANCELLATION:
+        return this.http.post(`${this.apiUrl}/reservations/requestCancel`, { reservationIds });
+
+      case ReservationStatus.CANCELLED:
+        return this.http.post(`${this.apiUrl}/reservations/confirmCancel`, { reservationIds });
+
+      case ReservationStatus.REJECTED:
+        return this.http.post(`${this.apiUrl}/reservations/reject`, { reservationIds });
+
+      case ReservationStatus.REJECTED_CANCELLATION:
+        return this.http.post(`${this.apiUrl}/reservations/rejectCancel`, { reservationIds });
+
+      default:
+        console.error('Unsupported status:', status);
+        return throwError(() => new Error(`Unsupported reservation status: ${status}`));
+    }
   }
 
-  markReservationAsRequestCancel(reservationId: number) {
-    return this.http.post(`${this.apiUrl}/reservations/requestCancel/${reservationId}`, {});
+  unbanUsers(userIds: Set<number>) {
+    const array = Array.from(userIds);
+
+    return this.http.put(`${this.apiUrl}/users/unban`, { userIds: array });
   }
 
-  markReservationAsCanceled(reservationId: number) {
-    return this.http.post(`${this.apiUrl}/reservations/reject/${reservationId}`, {});
-  }
-
-  banUser(userId: number, reason: string, duration: string) {
-    return this.http.put(`${this.apiUrl}/users/ban`, { userId, reason, duration });
+  banUsers(userIds: Set<number>, reason: string, duration: string) {
+    const array = Array.from(userIds);
+    return this.http.put(`${this.apiUrl}/users/ban`, { userIds: array, reason, duration });
   }
 }
