@@ -2,14 +2,7 @@ import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of, map } from 'rxjs';
 import { Router } from '@angular/router';
-
-export interface UserStatus {
-  id: number;
-  email: string;
-  role: string;
-  trusted: false;
-  name: string;
-}
+import { User } from '../model/user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -17,7 +10,7 @@ export class AuthService {
   private router = inject(Router);
   private apiUrl = process.env['VSF_API_URL'] || '/api';
 
-  private currentUserSignal = signal<UserStatus | null>(null);
+  private currentUserSignal = signal<User | null>(null);
   private isLoadingSignal = signal<boolean>(true);
 
   readonly currentUser = this.currentUserSignal.asReadonly();
@@ -34,9 +27,9 @@ export class AuthService {
     this.checkCurrentSession().subscribe();
   }
 
-  login(email: string, password: string, rememberMe: boolean): Observable<UserStatus> {
+  login(email: string, password: string, rememberMe: boolean): Observable<User> {
     return this.http
-      .post<UserStatus>(`${this.apiUrl}/auth/login`, { email, password, rememberMe })
+      .post<User>(`${this.apiUrl}/auth/login`, { email, password, rememberMe })
       .pipe(tap((user) => this.currentUserSignal.set(user)));
   }
 
@@ -46,7 +39,7 @@ export class AuthService {
 
   checkCurrentSession(): Observable<boolean> {
     this.isLoadingSignal.set(true);
-    return this.http.get<UserStatus>(`${this.apiUrl}/auth/me`).pipe(
+    return this.http.get<User>(`${this.apiUrl}/auth/me`).pipe(
       map((user) => {
         console.log('AuthService: Refreshed session user:', user);
         this.currentUserSignal.set(user);
@@ -60,6 +53,10 @@ export class AuthService {
         return of(false);
       }),
     );
+  }
+
+  handleUserBanned(reason?: string): void {
+    this.currentUserSignal.set(null);
   }
 
   logout() {
