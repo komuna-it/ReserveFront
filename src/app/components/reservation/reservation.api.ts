@@ -20,14 +20,21 @@ export class ReservationApi {
     return this.http.get<Room[]>(`${this.apiUrl}/rooms`);
   }
 
-  getReservationsByRoom(roomId: number, page = 0, size = 100): Observable<Page<ReservationDto>> {
+  getReservationsByRoom(
+    roomId: number,
+    page: number,
+    size: number,
+  ): Observable<Page<ReservationDto>> {
     const params = new HttpParams().set('page', page).set('size', size);
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations/room/${roomId}`, {
       params,
     });
   }
 
-  getReservationsForAllUsersOrganizations(page = 0, size = 100): Observable<Page<ReservationDto>> {
+  getReservationsForAllUsersOrganizations(
+    page: number,
+    size: number,
+  ): Observable<Page<ReservationDto>> {
     const rawUserId = (this.authService.userId() || '').toString().replace(/['"]/g, '');
     const params = new HttpParams().set('page', page).set('size', size);
 
@@ -37,7 +44,7 @@ export class ReservationApi {
     );
   }
 
-  getReservations(page = 0, size = 100): Observable<Page<ReservationDto>> {
+  getReservations(page: number, size: number): Observable<Page<ReservationDto>> {
     const params = new HttpParams().set('page', page).set('size', size);
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
@@ -51,12 +58,12 @@ export class ReservationApi {
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
-  getFutureReservations(page = 0, size = 100): Observable<Page<ReservationDto>> {
+  getFutureReservations(page: number, size: number): Observable<Page<ReservationDto>> {
     const params = new HttpParams().set('future', 'true').set('page', page).set('size', size);
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
-  getOrganizationsOfUserWithMembers(page = 0, size = 20): Observable<Page<Organization>> {
+  getOrganizationsOfUserWithMembers(page: number, size: number): Observable<Page<Organization>> {
     let userId = this.authService.userId();
     if (userId) {
       userId = userId.toString().replace(/['"]/g, '');
@@ -71,7 +78,7 @@ export class ReservationApi {
     return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 
-  getAllOrganizations(page = 0, size = 20): Observable<Page<Organization>> {
+  getAllOrganizations(page: number, size: number): Observable<Page<Organization>> {
     const params = new HttpParams().set('page', page).set('size', size);
     return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
@@ -91,7 +98,7 @@ export class ReservationApi {
     return this.http.get<User[]>(`${this.apiUrl}/organizations`, { params });
   }
 
-  getAllMembersAllOrganizations(page = 0, size = 20): Observable<Page<Organization>> {
+  getAllMembersAllOrganizations(page: number, size: number): Observable<Page<Organization>> {
     const params = new HttpParams().set('fetchMembers', 'true').set('page', page).set('size', size);
     return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
@@ -176,7 +183,7 @@ export class ReservationApi {
     });
   }
 
-  getReservationsByStatus(page = 0, size = 100, status: ReservationStatus) {
+  getReservationsByStatus(page: number, size: number, status: ReservationStatus) {
     const params = new HttpParams().set('page', page).set('size', size).set('status', status);
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }

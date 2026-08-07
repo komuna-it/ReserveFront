@@ -1,3 +1,4 @@
+<app-table-toolbar [type]="toolbarType"></app-table-toolbar>
 <div
   class="w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
 >
@@ -11,5 +12,6 @@
     [isLast]="store.paginationIsLast()"
     (previous)="facade.changeReservationsByStatusPage('prev')"
     (next)="facade.changeReservationsByStatusPage('next')"
+    (sizeChange)="facade.changeReservationsByStatusSize($event)"
   ></app-pagination>
 </div>

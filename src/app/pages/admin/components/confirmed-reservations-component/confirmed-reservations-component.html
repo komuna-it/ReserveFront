@@ -11,5 +11,6 @@
     [isLast]="store.paginationIsLast()"
     (previous)="facade.changeReservationsByStatusPage('prev')"
     (next)="facade.changeReservationsByStatusPage('next')"
+    (sizeChange)="facade.changeReservationsByStatusSize($event)"
   ></app-pagination>
 </div>

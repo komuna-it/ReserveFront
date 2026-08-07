@@ -25,9 +25,6 @@ export class ReservationStore {
   readonly rooms = signal<Room[]>([]);
   readonly reservations = signal<ReservationDto[]>([]);
 
-  readonly reservationsPage = signal<number>(0);
-  readonly reservationsSize = signal<number>(100);
-
   readonly userOrganizations = signal<Organization[]>([]);
   readonly allOrganizations = signal<Organization[]>([]);
 
@@ -45,10 +42,6 @@ export class ReservationStore {
     const reservs = this.currentDayReservations();
 
     const reservsForRoom = reservs.filter((res) => res.room === booking?.roomId);
-    console.log('reservsForRoom: ', reservsForRoom);
-    console.table(
-      reservsForRoom.map((res) => ({ id: res.id, startAt: res.startAt, endAt: res.endAt })),
-    );
     const bookingStartHour = booking?.hour;
     let limitHour = 22;
 
@@ -61,9 +54,6 @@ export class ReservationStore {
     }
 
     const maxDuration = limitHour - bookingStartHour;
-    console.log('booking start hour: ', bookingStartHour);
-    console.log('limit hour: ', limitHour);
-    console.log('max duration: ', maxDuration);
     return Array.from({ length: Math.max(0, maxDuration) }, (_, i) => i + 1);
   });
 
@@ -281,6 +271,7 @@ export class ReservationStore {
   // =================
 
   // reservation pagination
+  readonly paginationOptions = signal<number[]>([5, 10, 25, 50, 100]);
 
   readonly reservationsByStatus = signal<ReservationDto[]>([]);
   readonly paginationTotalNumber = signal<number>(0);
@@ -288,6 +279,7 @@ export class ReservationStore {
   readonly paginationPage = signal<number>(0);
   readonly paginationIsFirst = signal<boolean>(false);
   readonly paginationIsLast = signal<boolean>(false);
+  readonly paginationSize = signal<number>(0);
 
   // org pagination
 

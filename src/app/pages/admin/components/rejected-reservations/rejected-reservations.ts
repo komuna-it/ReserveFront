@@ -5,10 +5,11 @@ import { ReservationFacade } from '../../../../components/reservation/reservatio
 import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
 import { TableByStatus } from '../table-by-status/table-by-status';
 import { Pagination } from '../../../../layout/pagination/pagination';
+import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 
 @Component({
   selector: 'app-rejected-reservations',
-  imports: [Pagination, TableByStatus],
+  imports: [Pagination, TableByStatus, TableToolbar],
   templateUrl: './rejected-reservations.html',
   styleUrl: './rejected-reservations.css',
 })
@@ -20,4 +21,6 @@ export class RejectedReservations {
     this.store.statusForAdminPage.set(ReservationStatus.REJECTED);
     this.facade.getReservationsByStatus(ReservationStatus.REJECTED);
   }
+
+  readonly toolbarType = ToolbarType.RESERVATION_BY_STATUS;
 }

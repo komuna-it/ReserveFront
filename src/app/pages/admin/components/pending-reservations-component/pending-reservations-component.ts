@@ -12,11 +12,13 @@ import { AdminPage } from '../../admin';
 import { TableByStatus } from '../table-by-status/table-by-status';
 import { ConfirmationPopup } from '../../../../modals/confirmation-popup/confirmation-popup';
 import { Pagination } from '../../../../layout/pagination/pagination';
+import { ToolbarType } from '../../../../components/toolbars/toolbarType';
+import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
 
 @Component({
   selector: 'app-pending-reservations-component',
   templateUrl: './pending-reservations-component.html',
-  imports: [TableByStatus, Pagination],
+  imports: [TableByStatus, Pagination, TableToolbar],
 
   styleUrl: './pending-reservations-component.css',
 })
@@ -29,4 +31,5 @@ export class PendingReservationsComponent implements OnInit {
     this.store.statusForAdminPage.set(ReservationStatus.CREATED);
     this.facade.getReservationsByStatus(ReservationStatus.CREATED);
   }
+  readonly toolbarType = ToolbarType.RESERVATION_BY_STATUS;
 }

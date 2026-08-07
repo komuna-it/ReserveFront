@@ -56,7 +56,7 @@ export class ReservationFacade {
     });
 
     // get reservations for a week, 12*3*7=252
-    this.api.getReservations(this.store.reservationsPage(), 252).subscribe({
+    this.api.getReservations(this.store.paginationPage(), 252).subscribe({
       next: (pageData) => {
         this.store.reservations.set(pageData.content);
         console.log('Get reservations data:');
@@ -73,8 +73,8 @@ export class ReservationFacade {
     this.api
       .getAllReservationsForUserAndTheirOrganization(
         userIdNumber,
-        this.store.reservationsPage(),
-        this.store.reservationsSize(),
+        this.store.paginationPage(),
+        this.store.paginationSize(),
       )
       .subscribe({
         next: (pageData) => {
@@ -372,20 +372,29 @@ export class ReservationFacade {
       error: (e) => console.error('Error fetching all users: ', e),
     });
   }
-
   getReservationsByStatus(status: ReservationStatus) {
-    console.log('inside getReservationsByStatus: ', status);
     this.api
-      .getReservationsByStatus(this.store.reservationsPage(), this.store.reservationsSize(), status)
+      .getReservationsByStatus(this.store.paginationPage(), this.store.paginationSize(), status)
       .subscribe({
         next: (pageData) => {
           this.store.reservationsByStatus.set(pageData.content);
           this.store.paginationTotalNumber.set(pageData.totalElements);
-          console.log('getReservationsByStatus data:');
-          console.table(pageData.content);
+          this.store.paginationTotalPages.set(pageData.totalPages - 1);
+          this.store.paginationIsFirst.set(pageData.first);
+          this.store.paginationIsLast.set(pageData.last);
         },
-        error: (e) => console.log('Error fetching res: ', e),
+        error: (e) => console.error('Error fetching reservations by status: ', e),
       });
+  }
+
+  changeReservationsByStatusSize(newSize: number) {
+    this.store.paginationSize.set(newSize);
+    this.store.paginationPage.set(0);
+
+    const currentStatus = this.store.statusForAdminPage();
+    if (currentStatus) {
+      this.getReservationsByStatus(currentStatus);
+    }
   }
 
   updateReservationsStatus(targetStatus: ReservationStatus): void {
@@ -412,11 +421,12 @@ export class ReservationFacade {
 
   changeReservationsByStatusPage(direction: 'next' | 'prev') {
     const currentPage = this.store.paginationPage();
-    const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
-    if (this.authService.isAdmin()) {
-      this.getAllMembersAllOrganizations(newPage);
-    } else {
-      this.getOrganizationsOfUserWithMembers(newPage);
+    const newPage = direction === 'next' ? currentPage + 1 : Math.max(0, currentPage - 1);
+    this.store.paginationPage.set(newPage);
+
+    const currentStatus = this.store.statusForAdminPage();
+    if (currentStatus) {
+      this.getReservationsByStatus(currentStatus);
     }
   }
 

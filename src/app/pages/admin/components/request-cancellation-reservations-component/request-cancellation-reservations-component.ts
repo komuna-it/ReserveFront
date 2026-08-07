@@ -8,10 +8,12 @@ import { CalendarHelper } from '../../../../components/calendar/calendar.helper'
 import { AdminPage } from '../../admin';
 import { TableByStatus } from '../table-by-status/table-by-status';
 import { Pagination } from '../../../../layout/pagination/pagination';
+import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
+import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 
 @Component({
   selector: 'app-request-cancellation-reservations-component',
-  imports: [TableByStatus, Pagination],
+  imports: [TableByStatus, Pagination, TableToolbar],
   templateUrl: './request-cancellation-reservations-component.html',
   styleUrl: './request-cancellation-reservations-component.css',
 })
@@ -27,4 +29,6 @@ export class RequestCancellationReservationsComponent {
     this.store.statusForAdminPage.set(ReservationStatus.REQUESTED_CANCELLATION);
     this.facade.getReservationsByStatus(ReservationStatus.REQUESTED_CANCELLATION);
   }
+
+  readonly toolbarType = ToolbarType.RESERVATION_BY_STATUS;
 }
