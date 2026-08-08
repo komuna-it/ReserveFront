@@ -45,6 +45,7 @@
     "DURATION": "Długość",
     "ORGANIZATION": "Zespół",
     "ROOM": "Sala",
+    "IS_TRUESTED": "Zaufany?",
     "IS_BANNED": "Zbanowany?",
     "YES": "Tak",
     "NO": "Nie"
@@ -191,7 +192,7 @@
     "IS_PRIVATE": "Tak",
     "IS_NOT_PRIVATE": "Nie",
     "ACCEPT": "Akceptuj",
-    "REJECT": "Odrzuć",
+    "REJECT": "Odwołaj",
     "NO_RESERVATIONS": "Brak oczekujących rezerwacji",
     "ACCEPTED": "Rezerwacja zaakceptowana",
     "REJECTED": "Rezerwacja odrzucona",

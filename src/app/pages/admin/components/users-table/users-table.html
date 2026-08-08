@@ -29,7 +29,7 @@
           {{ 'USERS_TABLE.EMAIL' | transloco }}
         </th>
         <th class="py-3.5 px-4 font-semibold border-r border-slate-700/60 w-[45%]">
-          {{ 'USERS_TABLE.EMAIL' | transloco }}
+          {{ 'USERS_TABLE.IS_TRUESTED' | transloco }}
         </th>
         <th class="py-3.5 px-4 font-semibold text-center w-[20%]">
           {{ 'USERS_TABLE.IS_BANNED' | transloco }}
@@ -67,7 +67,7 @@
           </td>
 
           <!-- Status column -->
-          <td class="px-4 py-3 text-center align-middle">
+          <td class="px-4 py-3 text-center align-middle border-r border-slate-700/60">
             @if (user.trusted) {
               <span
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"

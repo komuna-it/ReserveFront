@@ -4,6 +4,7 @@ import { ReservationFacade } from '../../reservation/reservation.facade';
 import { ToolbarType } from '../toolbarType';
 import { SearchBar } from '../search-bar/search-bar';
 import { ReservationStatus } from '../../../model/reservationStatus';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 interface Identifiable {
   id: number;
@@ -11,7 +12,7 @@ interface Identifiable {
 
 @Component({
   selector: 'app-table-toolbar',
-  imports: [SearchBar],
+  imports: [SearchBar, TranslocoPipe],
   templateUrl: './table-toolbar.html',
   styleUrl: './table-toolbar.css',
 })
@@ -65,5 +66,22 @@ export class TableToolbar {
       const allIds = new Set(this.activeItems().map((item) => item.id));
       this.store.setSelectedIds(allIds);
     }
+  }
+
+  showCancelButton() {
+    return (
+      this.type() === ToolbarType.RESERVATION_BY_STATUS &&
+      (this.store.statusForAdminPage() === ReservationStatus.CREATED ||
+        this.store.statusForAdminPage() === ReservationStatus.CONFIRMED ||
+        this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION)
+    );
+  }
+
+  showAcceptButton() {
+    return (
+      this.type() === ToolbarType.RESERVATION_BY_STATUS &&
+      (this.store.statusForAdminPage() === ReservationStatus.CREATED ||
+        this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION)
+    );
   }
 }

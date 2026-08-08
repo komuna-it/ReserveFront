@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
-import { RequestCancellationReservationsComponent } from '../pages/admin/components/request-cancellation-reservations-component/request-cancellation-reservations-component';
-import { RejectedReservations } from '../pages/admin/components/rejected-reservations/rejected-reservations';
+import { ReservationStatus } from '../model/reservationStatus';
 
 export const RESERVATIONS_ROUTES: Routes = [
   {
@@ -15,36 +14,41 @@ export const RESERVATIONS_ROUTES: Routes = [
   {
     path: 'confirmed',
     loadComponent: () =>
-      import('../pages/admin/components/confirmed-reservations-component/confirmed-reservations-component').then(
-        (m) => m.ConfirmedReservationsComponent,
+      import('../pages/admin/components/reservations-by-status/reservations-by-status').then(
+        (m) => m.ReservationsByStatus,
       ),
+    data: { status: ReservationStatus.CONFIRMED },
   },
   {
     path: 'pending',
     loadComponent: () =>
-      import('../pages/admin/components/pending-reservations-component/pending-reservations-component').then(
-        (m) => m.PendingReservationsComponent,
+      import('../pages/admin/components/reservations-by-status/reservations-by-status').then(
+        (m) => m.ReservationsByStatus,
       ),
+    data: { status: ReservationStatus.CREATED },
   },
   {
     path: 'cancelled',
     loadComponent: () =>
-      import('../pages/admin/components/cancelled-reservations-component/cancelled-reservations-component').then(
-        (m) => m.CancelledReservationsComponent,
+      import('../pages/admin/components/reservations-by-status/reservations-by-status').then(
+        (m) => m.ReservationsByStatus,
       ),
+    data: { status: ReservationStatus.CANCELLED },
   },
   {
     path: 'request-cancellation',
     loadComponent: () =>
-      import('../pages/admin/components/request-cancellation-reservations-component/request-cancellation-reservations-component').then(
-        (m) => m.RequestCancellationReservationsComponent,
+      import('../pages/admin/components/reservations-by-status/reservations-by-status').then(
+        (m) => m.ReservationsByStatus,
       ),
+    data: { status: ReservationStatus.REQUESTED_CANCELLATION },
   },
   {
     path: 'rejected',
     loadComponent: () =>
-      import('../pages/admin/components/rejected-reservations/rejected-reservations').then(
-        (m) => m.RejectedReservations,
+      import('../pages/admin/components/reservations-by-status/reservations-by-status').then(
+        (m) => m.ReservationsByStatus,
       ),
+    data: { status: ReservationStatus.REJECTED },
   },
 ];
