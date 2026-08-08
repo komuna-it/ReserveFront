@@ -4,6 +4,8 @@ import { TranslocoService } from '@jsverse/transloco';
 import { ReservationStore } from '../components/reservation/reservation.store';
 import { CalendarHelper } from '../components/calendar/calendar.helper';
 import { ReservationFacade } from '../components/reservation/reservation.facade';
+import { ReservationStatus } from '../model/reservationStatus';
+import { User } from '../model/user';
 
 @Injectable({ providedIn: 'root' })
 export class TextFormatingTool {
@@ -63,5 +65,44 @@ export class TextFormatingTool {
 
   getPrice(res: ReservationDto): string {
     return 'brak';
+  }
+
+  formatDuration(res: ReservationDto): string {
+    return this.calendarHelper.generateDurationLabel(res.startAt, res.duration);
+  }
+
+  reservedByLabel(reservation: ReservationDto): string {
+    const org = this.store.userOrganizations().find((o) => o.id === reservation.organization);
+
+    return org ? `${org.name}` : this.translocoService.translate('USER_MODALS.PRIVATE');
+  }
+
+  getStatusText(res: ReservationDto): string {
+    switch (res.status) {
+      case ReservationStatus.CREATED:
+        return this.translocoService.translate('STATUS.CREATED');
+      case ReservationStatus.CONFIRMED:
+        return this.translocoService.translate('STATUS.CONFIRMED');
+      case ReservationStatus.CANCELLED:
+        return this.translocoService.translate('STATUS.CANCELLED');
+      case ReservationStatus.REQUESTED_CANCELLATION:
+        return this.translocoService.translate('STATUS.REQUESTED_CANCELLATION');
+      case ReservationStatus.REJECTED:
+        return this.translocoService.translate('STATUS.REJECTED');
+      default:
+        return '';
+    }
+  }
+
+  getIsUserBannedText(user: User) {
+    return user.banned
+      ? this.translocoService.translate('USERS_TABLE.YES')
+      : this.translocoService.translate('USERS_TABLE.NO');
+  }
+
+  getIsUserTrustedText(user: User) {
+    return user.banned
+      ? this.translocoService.translate('USERS_TABLE.YES')
+      : this.translocoService.translate('USERS_TABLE.NO');
   }
 }

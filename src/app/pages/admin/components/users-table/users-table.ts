@@ -7,6 +7,8 @@ import { Pagination } from '../../../../layout/pagination/pagination';
 import { ErrorPopup } from '../../../../modals/error-popup/error-popup';
 import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
 import { ToolbarType } from '../../../../components/toolbars/toolbarType';
+import { UserDetailsModal } from '../../../../modals/user-details-modal/user-details-modal';
+import { User } from '../../../../model/user';
 
 @Component({
   selector: 'app-users-table',
@@ -20,7 +22,6 @@ export class UsersTable {
 
   readonly toolbarType = ToolbarType.USERS;
 
-  // Stan master-checkboxa dla aktualnie przefiltrowanej listy użytkowników
   readonly areAllSelected = computed(() => {
     const users = this.store.usersFiltered();
     if (users.length === 0) return false;
@@ -44,5 +45,10 @@ export class UsersTable {
 
   toggleUserSelection(id: number): void {
     this.store.toggleSelection(id);
+  }
+
+  selectUserAndOpenDetailsModal(user: User) {
+    this.store.selectedUser.set(user);
+    this.store.isUserDetailsModalActive.set(true);
   }
 }

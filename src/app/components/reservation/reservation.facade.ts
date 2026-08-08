@@ -10,6 +10,7 @@ import { CreateReservationRequest } from '../../model/CreateReservationRequest';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { ReservationDto } from '../../model/reservationDto';
 import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
+import { User } from '../../model/user';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -70,6 +71,31 @@ export class ReservationFacade {
   getAllReservationsForUserAndTheirOrganization() {
     const userId = (this.authService.userId() || '').toString().replace(/['"]/g, '');
     const userIdNumber = parseInt(userId, 10);
+
+    this.api
+      .getAllReservationsForUserAndTheirOrganization(
+        userIdNumber,
+        this.store.paginationPage(),
+        this.store.paginationSize(),
+      )
+      .subscribe({
+        next: (pageData) => {
+          this.store.reservations.set([]);
+
+          console.log(
+            'getAllReservationsForUserAndTheirOrganization: Fetched reservations for user and their organization:',
+          );
+          console.table(pageData.content);
+
+          this.store.reservations.set(pageData.content);
+        },
+
+        error: (e) => console.log('Error: ', e),
+      });
+  }
+
+  getAllReservationsForUserAndTheirOrganizationsByUser(user: User) {
+    const userIdNumber = user.id;
 
     this.api
       .getAllReservationsForUserAndTheirOrganization(
@@ -461,7 +487,7 @@ export class ReservationFacade {
     this.store.globalErrorKey.set(null);
     this.store.isBanUsersModalActive.set(false);
     this.store.isBanUsersSuccessActive.set(false);
-
+    this.store.isUserDetailsModalActive.set(false);
     this.store.displayBookingSuccesfulPopup.set(false);
   }
 

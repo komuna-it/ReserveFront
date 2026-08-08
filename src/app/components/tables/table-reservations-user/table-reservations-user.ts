@@ -26,15 +26,7 @@ export class TableReservationsUser {
     this.facade.deleteReservation(reservationId);
     this.facade.getAllReservationsForUserAndTheirOrganization();
   }
-  formatDuration(res: ReservationDto): string {
-    return this.calendarHelper.generateDurationLabel(res.startAt, res.duration);
-  }
 
-  reservedByLabel(reservation: ReservationDto): string {
-    const org = this.store.userOrganizations().find((o) => o.id === reservation.organization);
-
-    return org ? `${org.name}` : this.translocoService.translate('USER_MODALS.PRIVATE');
-  }
   isCancellationPossible(res: ReservationDto): boolean {
     if (
       res.status === ReservationStatus.CANCELLED ||
@@ -71,28 +63,6 @@ export class TableReservationsUser {
       case ReservationStatus.REQUESTED_CANCELLATION:
         return this.translocoService.translate('BUTTONS.CANCELLATION_NOT_POSSIBLE');
 
-      default:
-        return '';
-    }
-  }
-
-  getRoomName(res: ReservationDto): string {
-    const room = this.store.rooms().find((r) => r.id === res.room);
-    return room ? room.name : '';
-  }
-
-  getStatusText(res: ReservationDto): string {
-    switch (res.status) {
-      case ReservationStatus.CREATED:
-        return this.translocoService.translate('STATUS.CREATED');
-      case ReservationStatus.CONFIRMED:
-        return this.translocoService.translate('STATUS.CONFIRMED');
-      case ReservationStatus.CANCELLED:
-        return this.translocoService.translate('STATUS.CANCELLED');
-      case ReservationStatus.REQUESTED_CANCELLATION:
-        return this.translocoService.translate('STATUS.REQUESTED_CANCELLATION');
-      case ReservationStatus.REJECTED:
-        return this.translocoService.translate('STATUS.REJECTED');
       default:
         return '';
     }

@@ -256,6 +256,7 @@ export class ReservationStore {
   readonly isBanUsersModalActive = signal<boolean>(false);
   readonly isBanUsersSuccessActive = signal<boolean>(false);
   readonly isReservationDetailsModalActive = signal<boolean>(false);
+  readonly isUserDetailsModalActive = signal<boolean>(false);
 
   readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
   readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
@@ -276,6 +277,7 @@ export class ReservationStore {
   readonly organizationListSelectedUser = signal<User | null>(null);
   readonly organizationListSelectedOrganization = signal<Organization | null>(null);
   readonly selectedReservation = signal<ReservationDto | null>(null);
+  readonly selectedUser = signal<User | null>(null);
   readonly selectedReservations = signal<ReservationDto[] | null>(null);
 
   readonly globalErrorKey = signal<string | null>(null);

@@ -12,10 +12,12 @@ import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-
 import { ErrorPopup } from '../../modals/error-popup/error-popup';
 import { BanModal } from '../../modals/ban-modal/ban-modal';
 import { SuccessPopup } from '../../modals/success-popup/success-popup';
+import { UserDetailsModal } from '../../modals/user-details-modal/user-details-modal';
 
 @Component({
   selector: 'app-admin',
   imports: [
+    UserDetailsModal,
     ConfirmationPopup,
     SuccessPopup,
     RouterOutlet,

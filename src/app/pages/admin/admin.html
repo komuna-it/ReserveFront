@@ -43,3 +43,6 @@
     (ok)="facade.closeModals()"
   ></app-success-popup>
 }
+@if (store.isUserDetailsModalActive()) {
+  <app-user-details-modal [user]="store.selectedUser()"></app-user-details-modal>
+}

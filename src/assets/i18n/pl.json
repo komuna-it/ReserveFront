@@ -50,6 +50,7 @@
     "ROOM": "Sala",
     "IS_TRUESTED": "Zaufany?",
     "IS_BANNED": "Zbanowany?",
+    "BANNED_UNTIL": "Koniec bana:",
     "YES": "Tak",
     "NO": "Nie"
   },
@@ -223,7 +224,10 @@
     "CONFIRM_CANCEL": "Odwołaj",
     "PRIVATE": "Prywatna?",
     "ACTION_COLUMN": "Akcja",
-    "ORG": "Zespół"
+    "ORG": "Zespół",
+    "USER_DETAILS": "Szczegóły użytkownika",
+    "USERS_ORGANIZATIONS": "Zespoły do których należy",
+    "USERS_OR_THEIR_ORGS_RESERVATIONS": "Rezerwacje użytkownika lub jego zespołów"
   },
   "PAGINATION": {
     "PREVIOUS": "Poprzednia",
