@@ -3,7 +3,7 @@ import { ReservationApi } from './reservation.api';
 import { ReservationStore } from './reservation.store';
 import { CalendarHelper } from '../calendar/calendar.helper';
 import { AuthService } from '../../auth/authService';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { ReservationType } from '../../model/reservationType';
 import { CreateReservationRequest } from '../../model/CreateReservationRequest';
@@ -19,6 +19,7 @@ export class ReservationFacade {
   private authService = inject(AuthService);
   private router = inject(Router);
   private sseController: AbortController | null = null;
+  private readonly route = inject(ActivatedRoute);
 
   refreshOrganizations() {
     if (this.authService.isAdmin()) {
@@ -148,7 +149,7 @@ export class ReservationFacade {
     this.selectDay(d);
   }
 
-  handleBookingClick(hour: number, roomId: number) {
+  openBookingModal(hour: number, roomId: number) {
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login']);
       return;
@@ -174,6 +175,7 @@ export class ReservationFacade {
       roomName: this.store.rooms().find((r) => r.id === roomId)?.name,
       organizationId: defaultOrg || 0,
       reservedByUserId: parseInt(rawUserId, 10),
+      reservationType: ReservationType.REHERSEAL,
     });
   }
 
@@ -372,24 +374,28 @@ export class ReservationFacade {
       error: (e) => console.error('Error fetching all users: ', e),
     });
   }
-  getReservationsByStatus(status: ReservationStatus) {
-    this.api
-      .getReservationsByStatus(this.store.paginationPage(), this.store.paginationSize(), status)
-      .subscribe({
-        next: (pageData) => {
-          this.store.reservationsByStatus.set(pageData.content);
-          this.store.paginationTotalNumber.set(pageData.totalElements);
-          this.store.paginationTotalPages.set(pageData.totalPages - 1);
-          this.store.paginationIsFirst.set(pageData.first);
-          this.store.paginationIsLast.set(pageData.last);
-        },
-        error: (e) => console.error('Error fetching reservations by status: ', e),
-      });
+  getReservationsByStatus(status: ReservationStatus): void {
+    const sortBy = this.store.currentSortBy();
+    const sortDir = this.store.currentSortDir();
+    const page = this.store.paginationPage();
+    const size = this.store.paginationSize();
+
+    const sortParam = `${sortBy},${sortDir}`;
+
+    this.api.getReservationsByStatus(page, size, status, sortParam).subscribe({
+      next: (pageData) => {
+        this.store.reservationsByStatus.set(pageData.content);
+        this.store.paginationTotalNumber.set(pageData.totalElements);
+        this.store.paginationTotalPages.set(pageData.totalPages - 1);
+        this.store.paginationIsFirst.set(pageData.first);
+        this.store.paginationIsLast.set(pageData.last);
+      },
+      error: (e) => console.error('Error fetching reservations by status: ', e),
+    });
   }
 
   changeReservationsByStatusSize(newSize: number) {
     this.store.paginationSize.set(newSize);
-    this.store.paginationPage.set(0);
 
     const currentStatus = this.store.statusForAdminPage();
     if (currentStatus) {
@@ -419,15 +425,20 @@ export class ReservationFacade {
   }
   // pagination
 
-  changeReservationsByStatusPage(direction: 'next' | 'prev') {
+  changeReservationsByStatusPage(direction: 'next' | 'prev'): void {
     const currentPage = this.store.paginationPage();
-    const newPage = direction === 'next' ? currentPage + 1 : Math.max(0, currentPage - 1);
-    this.store.paginationPage.set(newPage);
+    const totalPages = this.store.paginationTotalPages(); // Zakładając, że masz to w store
 
-    const currentStatus = this.store.statusForAdminPage();
-    if (currentStatus) {
-      this.getReservationsByStatus(currentStatus);
-    }
+    let newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
+    newPage = Math.max(0, Math.min(newPage, totalPages));
+
+    if (newPage === currentPage) return;
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: newPage },
+      queryParamsHandling: 'merge',
+    });
   }
 
   // modals

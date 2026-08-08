@@ -183,8 +183,12 @@ export class ReservationApi {
     });
   }
 
-  getReservationsByStatus(page: number, size: number, status: ReservationStatus) {
-    const params = new HttpParams().set('page', page).set('size', size).set('status', status);
+  getReservationsByStatus(page: number, size: number, status: ReservationStatus, sort: string) {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size)
+      .set('status', status)
+      .set('sort', sort);
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 

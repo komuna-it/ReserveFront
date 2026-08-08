@@ -7,5 +7,6 @@ export class User {
     public created: Date,
     public trusted: boolean,
     public banned: boolean,
+    public bannedUntil: Date,
   ) {}
 }

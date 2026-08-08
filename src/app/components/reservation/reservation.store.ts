@@ -13,12 +13,16 @@ import { ReservationStatus } from '../../model/reservationStatus';
 import { TranslocoService } from '@jsverse/transloco';
 import { Tab } from '../../model/tab';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
+import { ReservationType } from '../../model/reservationType';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
   private helper = inject(CalendarHelper);
   private authService = inject(AuthService);
   readonly loco = inject(TranslocoService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly allUsers = signal<User[]>([]);
 
@@ -34,6 +38,13 @@ export class ReservationStore {
   readonly currentWeekStart = signal<Date>(this.helper.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
   readonly testText = signal<string>('');
+
+  readonly reservationTypeOptions = computed(() => {
+    const reherseal = ReservationType.REHERSEAL;
+    const recording = ReservationType.RECORDING;
+
+    return Array.of(reherseal, recording);
+  });
 
   readonly durationOptions = computed(() => {
     const booking = this.selectedBooking();
@@ -68,6 +79,7 @@ export class ReservationStore {
     roomName: string | undefined;
     organizationId: number;
     reservedByUserId: number;
+    reservationType: ReservationType;
   } | null>(null);
 
   readonly userOrgsMap = computed(
@@ -275,11 +287,13 @@ export class ReservationStore {
 
   readonly reservationsByStatus = signal<ReservationDto[]>([]);
   readonly paginationTotalNumber = signal<number>(0);
-  readonly paginationTotalPages = signal<number>(0);
-  readonly paginationPage = signal<number>(0);
+  readonly paginationTotalPages = signal<number>(1);
+  readonly paginationPage = computed(() =>
+    this.queryParams()['page'] ? Number(this.queryParams()['page']) : 0,
+  );
   readonly paginationIsFirst = signal<boolean>(false);
   readonly paginationIsLast = signal<boolean>(false);
-  readonly paginationSize = signal<number>(0);
+  readonly paginationSize = signal<number>(10);
 
   // org pagination
 
@@ -403,4 +417,14 @@ export class ReservationStore {
       return matchesRoom || matchesReservedBy;
     });
   });
+
+  // ======= Sorting params
+
+  readonly queryParams = toSignal(this.route.queryParams, {
+    initialValue: {} as Params,
+  });
+  readonly currentSortBy = computed(() => this.queryParams()['sortBy'] ?? 'startAt');
+  readonly currentSortDir = computed(
+    () => (this.queryParams()['sortDir'] as 'asc' | 'desc') ?? 'desc',
+  );
 }

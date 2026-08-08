@@ -21,6 +21,7 @@
     "MODAL_START": "Start",
     "MODAL_LOCATION": "Sala",
     "MODAL_DURATION": "Czas trwania",
+    "RESERVATION_TYPE": "Rodzaj rezerwacji",
     "HOUR_SINGULAR": "godzina",
     "HOUR_PLURAL": "godziny",
     "MODAL_BAND": "Zespół",
@@ -34,7 +35,9 @@
     "BACK_TO_CALENDAR": "Wróć do kalendarza",
     "PRIVATE_RESERVATION": "Zarezerwuj prywatnie (bez zespołu)",
     "MY_PRIVATE_RESERVATION": "Moja prywatna rezerwacja",
-    "RESERVATION_DETAILS": "Szczegóły rezerwacji"
+    "RESERVATION_DETAILS": "Szczegóły rezerwacji",
+    "REHEARSAL": "Próba",
+    "RECORDING": "Nagranie"
   },
   "USERS_TABLE": {
     "NICK": "Nick",

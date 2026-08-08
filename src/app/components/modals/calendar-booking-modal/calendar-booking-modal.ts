@@ -22,7 +22,6 @@ export class CalendarBookingModal implements OnInit {
   readonly authService = inject(AuthService);
 
   constructor() {
-    // Automatically runs whenever userOrganizations signal updates
     effect(() => {
       const orgs = this.store.userOrganizations();
 
