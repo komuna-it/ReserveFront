@@ -386,7 +386,7 @@ export class ReservationFacade {
       next: (pageData) => {
         this.store.reservationsByStatus.set(pageData.content);
         this.store.paginationTotalNumber.set(pageData.totalElements);
-        this.store.paginationTotalPages.set(pageData.totalPages - 1);
+        this.store.paginationTotalPages.set(pageData.totalPages);
         this.store.paginationIsFirst.set(pageData.first);
         this.store.paginationIsLast.set(pageData.last);
       },
@@ -394,9 +394,7 @@ export class ReservationFacade {
     });
   }
 
-  changeReservationsByStatusSize(newSize: number) {
-    this.store.paginationSize.set(newSize);
-
+  changeReservationsByStatusSize() {
     const currentStatus = this.store.statusForAdminPage();
     if (currentStatus) {
       this.getReservationsByStatus(currentStatus);

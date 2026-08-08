@@ -25,6 +25,21 @@ export class TableByStatus {
   readonly status = input<ReservationStatus | null>(null);
   readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} as Params });
 
+  // ========= rows
+
+  displayRows = computed(() => {
+    const res = this.store.reservationsByStatus();
+    if (!res || res.length === 0) {
+      return [];
+    }
+    const array = Array.from(
+      { length: this.store.paginationSize() },
+      (_, index) => res[index] ?? null,
+    );
+
+    return array;
+  });
+
   // ========= checkbox-ing
 
   readonly areAllSelected = computed(() => {

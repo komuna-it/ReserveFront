@@ -63,55 +63,65 @@
   </thead>
 
   <tbody class="divide-y divide-slate-700/70 text-slate-300">
-    @for (res of store.reservationsByStatus(); track res.id) {
-      <tr class="hover:bg-slate-700/30 transition-colors">
-        <!-- Toolbar checkbox -->
-        <td class="p-1.5 border-r border-slate-700/60 align-middle text-center">
-          <label
-            class="inline-flex items-center justify-center p-2.5 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
-          >
-            <input
-              type="checkbox"
-              [checked]="store.toolbarSelectedIds().has(res.id)"
-              (change)="toggleSelection(res.id)"
-              class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
-            />
-          </label>
-        </td>
+    @for (res of displayRows(); track $index) {
+      @if (res) {
+        <!-- Wiersz z danymi -->
+        <tr class="hover:bg-slate-700/30 transition-colors h-[49px]">
+          <!-- Toolbar checkbox -->
+          <td class="p-1.5 border-r border-slate-700/60 align-middle text-center">
+            <label
+              class="inline-flex items-center justify-center p-2.5 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
+            >
+              <input
+                type="checkbox"
+                [checked]="store.toolbarSelectedIds().has(res.id)"
+                (change)="toggleSelection(res.id)"
+                class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+              />
+            </label>
+          </td>
 
-        <!-- Reserved by column -->
-        <td class="p-3.5 border-r border-slate-700/60 align-middle">
-          {{ textFormatingTool.reservedByText(res) }}
-        </td>
+          <!-- Reserved by column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            {{ textFormatingTool.reservedByText(res) }}
+          </td>
 
-        <!-- Date column -->
-        <td class="p-3.5 border-r border-slate-700/60 align-middle">
-          {{ textFormatingTool.dateColumnText(res) }}
-        </td>
+          <!-- Date column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+            {{ textFormatingTool.dateColumnText(res) }}
+          </td>
 
-        <!-- StartAt column -->
-        <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
-          {{ textFormatingTool.startAtText(res) }}
-        </td>
+          <!-- StartAt column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
+            {{ textFormatingTool.startAtText(res) }}
+          </td>
 
-        <!-- EndAt column -->
-        <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
-          {{ textFormatingTool.endAtText(res) }}
-        </td>
+          <!-- EndAt column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
+            {{ textFormatingTool.endAtText(res) }}
+          </td>
 
-        <!-- EndAt column -->
-        <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
-          {{ textFormatingTool.getRoomName(res) }}
-        </td>
+          <!-- Room column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
+            {{ textFormatingTool.getRoomName(res) }}
+          </td>
 
-        <!-- EndAt column -->
-        <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
-          {{ textFormatingTool.getPrice(res) }}
-        </td>
-      </tr>
+          <!-- Price column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
+            {{ textFormatingTool.getPrice(res) }}
+          </td>
+        </tr>
+      } @else {
+        <!-- Pusty wiersz dopełniający wysokość tabeli -->
+        <tr class="h-[49px] pointer-events-none select-none">
+          <td colspan="7" class="border-r border-slate-700/60 text-center text-slate-400 italic">
+            &nbsp;
+          </td>
+        </tr>
+      }
     } @empty {
-      <tr>
-        <td colspan="8" class="p-8 text-center text-slate-400 italic">
+      <tr class="hidden md:table-row h-[49px] pointer-events-none select-none">
+        <td colspan="7" class="p-6 border-r border-slate-700/60 text-center text-slate-400 italic">
           {{ 'ADMIN_RESERVATIONS.NO_RESERVATIONS' | transloco }}
         </td>
       </tr>

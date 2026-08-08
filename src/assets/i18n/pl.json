@@ -196,7 +196,7 @@
     "IS_NOT_PRIVATE": "Nie",
     "ACCEPT": "Akceptuj",
     "REJECT": "Odwołaj",
-    "NO_RESERVATIONS": "Brak oczekujących rezerwacji",
+    "NO_RESERVATIONS": "Brak rezerwacji do wyświetlenia",
     "ACCEPTED": "Rezerwacja zaakceptowana",
     "REJECTED": "Rezerwacja odrzucona",
     "SEND_ACCEPT": "Pomysł ?",
@@ -229,6 +229,6 @@
     "PREVIOUS": "Poprzednia",
     "NEXT": "Następna",
     "PAGE": "Strona",
-    "TOTAL": "Suma"
+    "TOTAL": "Razem"
   }
 }

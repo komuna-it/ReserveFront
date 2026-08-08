@@ -293,7 +293,9 @@ export class ReservationStore {
   );
   readonly paginationIsFirst = signal<boolean>(false);
   readonly paginationIsLast = signal<boolean>(false);
-  readonly paginationSize = signal<number>(10);
+  readonly paginationSize = computed(() =>
+    this.queryParams()['size'] ? Number(this.queryParams()['size']) : 5,
+  );
 
   // org pagination
 
