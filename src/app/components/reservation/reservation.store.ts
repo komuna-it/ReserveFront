@@ -39,6 +39,7 @@ export class ReservationStore {
   readonly currentWeekStart = signal<Date>(this.helper.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
   readonly testText = signal<string>('');
+  readonly reservationTypeBooking = signal<ReservationType | null>(null);
 
   readonly reservationTypeOptions = computed(() => {
     const reherseal = ReservationType.REHERSEAL;
@@ -431,11 +432,12 @@ export class ReservationStore {
       case ToolbarType.USERS:
         return (this.queryParams()['sortBy'] as string) ?? 'nick';
       case ToolbarType.RESERVATION_BY_STATUS:
-        return (this.queryParams()['sortBy'] as string) ?? 'startAt';
+        return (this.queryParams()['sortBy'] as string) ?? 'id';
       default:
         return (this.queryParams()['sortBy'] as string) ?? 'id';
     }
   });
+
   readonly currentSortDir = computed(
     () => (this.queryParams()['sortDir'] as 'asc' | 'desc') ?? 'desc',
   );

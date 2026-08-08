@@ -134,10 +134,11 @@ export class ReservationFacade {
       roomId: booking.roomId,
       startAt: startAtDate.toISOString(),
       duration: `PT${booking.duration}H`,
-      type: ReservationType.REHERSEAL,
+      type: this.store.reservationTypeBooking() ?? ReservationType.REHERSEAL,
       organizationId: isPrivate ? null : booking.organizationId,
     };
 
+    console.log('this.store.reservationTypeBooking(): ', this.store.reservationTypeBooking());
     console.log('req sent to backend (Standard UTC): ');
     console.table(req);
 
@@ -201,8 +202,10 @@ export class ReservationFacade {
       roomName: this.store.rooms().find((r) => r.id === roomId)?.name,
       organizationId: defaultOrg || 0,
       reservedByUserId: parseInt(rawUserId, 10),
-      reservationType: ReservationType.REHERSEAL,
+      reservationType: this.store.reservationTypeBooking() ?? ReservationType.REHERSEAL,
     });
+    console.log('booking debugging:');
+    console.table(this.store.selectedBooking());
   }
 
   connectToReservationStream() {

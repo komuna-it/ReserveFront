@@ -38,22 +38,22 @@
         </div>
       </th>
 
-      <!-- Date column (3) -->
       <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
         {{ 'ADMIN_RESERVATIONS.DATE' | transloco }}
       </th>
 
-      <!-- Start hour column (4) -->
       <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
         {{ 'ADMIN_RESERVATIONS.START_HOUR' | transloco }}
       </th>
 
-      <!-- End hour column (5) -->
       <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
         {{ 'ADMIN_RESERVATIONS.END_HOUR' | transloco }}
       </th>
 
-      <!-- room  6 -->
+      <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
+        {{ 'CALENDAR.TYPE' | transloco }}
+      </th>
+
       <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
         {{ 'USERS_TABLE.ROOM' | transloco }}
       </th>
@@ -102,6 +102,11 @@
           <!-- EndAt column -->
           <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
             {{ textFormatingTool.endAtText(res) }}
+          </td>
+
+          <!-- rodzaj -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
+            {{ 'CALENDAR.' + res.type | transloco }}
           </td>
 
           <!-- Room column -->

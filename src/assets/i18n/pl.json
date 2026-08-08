@@ -37,7 +37,8 @@
     "MY_PRIVATE_RESERVATION": "Moja prywatna rezerwacja",
     "RESERVATION_DETAILS": "Szczegóły rezerwacji",
     "REHEARSAL": "Próba",
-    "RECORDING": "Nagranie"
+    "RECORDING": "Nagranie",
+    "TYPE": "Rodzaj"
   },
   "USERS_TABLE": {
     "NICK": "Nick",
