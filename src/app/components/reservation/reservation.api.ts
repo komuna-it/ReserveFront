@@ -162,9 +162,12 @@ export class ReservationApi {
     );
   }
 
-  getAllUsers(page: number, size: number): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/users/all`);
+  getAllUsers(page: number, size: number, sort: string) {
+    const params = new HttpParams().set('page', page).set('size', size).set('sort', sort);
+
+    return this.http.get<Page<User>>(`${this.apiUrl}/users/all`, { params });
   }
+
   markUsersTrusted(usersIds: Set<number>) {
     const userIdsArray = Array.from(usersIds);
     const trusted = true;

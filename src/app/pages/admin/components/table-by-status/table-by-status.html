@@ -25,9 +25,12 @@
       >
         <div class="flex items-center justify-center gap-1.5">
           {{ 'ADMIN_RESERVATIONS.RESERVED_BY' | transloco }}
-          <span class="text-lg leading-none" [class.text-emerald-500]="currentSortBy() === 'r'">
-            @if (currentSortBy() === 'r') {
-              {{ currentSortDir() === 'asc' ? '↑' : '↓' }}
+          <span
+            class="text-lg leading-none"
+            [class.text-emerald-500]="store.currentSortBy() === 'r'"
+          >
+            @if (store.currentSortBy() === 'r') {
+              {{ store.currentSortDir() === 'asc' ? '↑' : '↓' }}
             } @else {
               <span class="text-slate-600 opacity-50">↕</span>
             }

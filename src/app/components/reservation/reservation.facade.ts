@@ -276,12 +276,7 @@ export class ReservationFacade {
         if (this.authService.isAdmin()) {
           this.store.userOrganizations.set(pageData.content);
         }
-
-        this.store.orgsPage.set(pageData.number);
-        this.store.orgsTotalPages.set(pageData.totalPages);
-        this.store.orgsTotalElements.set(pageData.totalElements);
-        this.store.orgsIsFirst.set(pageData.first);
-        this.store.orgsIsLast.set(pageData.last);
+        this.setPageData(pageData);
       },
       error: () => console.error('Error in getAllMembersAllOrganizations'),
     });
@@ -298,9 +293,6 @@ export class ReservationFacade {
   }
 
   changeUsersPage(direction: 'next' | 'prev') {
-    const currentPage = this.store.orgsPage();
-    const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
-    this.store.orgsPage.set(newPage);
     this.getAllUsers();
   }
 
@@ -318,11 +310,8 @@ export class ReservationFacade {
     this.api.getOrganizationsOfUserWithMembers(page, this.store.orgsSize()).subscribe({
       next: (pageData) => {
         this.store.userOrganizations.set(pageData.content);
-        this.store.orgsPage.set(pageData.number);
-        this.store.orgsTotalPages.set(pageData.totalPages);
-        this.store.orgsTotalElements.set(pageData.totalElements);
-        this.store.orgsIsFirst.set(pageData.first);
-        this.store.orgsIsLast.set(pageData.last);
+        this.setPageData(pageData);
+
         console.log('fetched getOrganizationsOfUserWithMembers(): ');
         console.table(pageData.content);
       },
@@ -389,17 +378,29 @@ export class ReservationFacade {
   }
 
   getAllUsers() {
-    const page = this.store.userPage();
-    let size = this.store.userSize();
-    if (size === 0) size = 20;
-    return this.api.getAllUsers(page, size).subscribe({
-      next: (users) => {
-        this.store.allUsers.set(users);
-        this.refreshOrganizations();
+    const sortBy = this.store.currentSortBy();
+    const sortDir = this.store.currentSortDir();
+    const page = this.store.paginationPage();
+    const size = this.store.paginationSize();
+    const sortParam = `${sortBy},${sortDir}`;
+
+    return this.api.getAllUsers(page, size, sortParam).subscribe({
+      next: (pageData) => {
+        this.store.allUsers.set(pageData.content);
+        this.setPageData(pageData);
+        // this.refreshOrganizations();
       },
       error: (e) => console.error('Error fetching all users: ', e),
     });
   }
+
+  setPageData(pageData: any) {
+    this.store.paginationTotalNumber.set(pageData.totalElements);
+    this.store.paginationTotalPages.set(pageData.totalPages);
+    this.store.paginationIsFirst.set(pageData.first);
+    this.store.paginationIsLast.set(pageData.last);
+  }
+
   getReservationsByStatus(status: ReservationStatus): void {
     const sortBy = this.store.currentSortBy();
     const sortDir = this.store.currentSortDir();
@@ -411,10 +412,7 @@ export class ReservationFacade {
     this.api.getReservationsByStatus(page, size, status, sortParam).subscribe({
       next: (pageData) => {
         this.store.reservationsByStatus.set(pageData.content);
-        this.store.paginationTotalNumber.set(pageData.totalElements);
-        this.store.paginationTotalPages.set(pageData.totalPages);
-        this.store.paginationIsFirst.set(pageData.first);
-        this.store.paginationIsLast.set(pageData.last);
+        this.setPageData(pageData);
       },
       error: (e) => console.error('Error fetching reservations by status: ', e),
     });
@@ -449,9 +447,9 @@ export class ReservationFacade {
   }
   // pagination
 
-  changeReservationsByStatusPage(direction: 'next' | 'prev'): void {
+  changePage(direction: 'next' | 'prev'): void {
     const currentPage = this.store.paginationPage();
-    const totalPages = this.store.paginationTotalPages(); // Zakładając, że masz to w store
+    const totalPages = this.store.paginationTotalPages();
 
     let newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
     newPage = Math.max(0, Math.min(newPage, totalPages));

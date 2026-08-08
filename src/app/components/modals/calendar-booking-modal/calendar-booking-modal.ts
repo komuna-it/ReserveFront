@@ -34,6 +34,7 @@ export class CalendarBookingModal implements OnInit {
   }
 
   ngOnInit() {
+    console.log('opening CalendarBookingModal');
     this.facade.refreshOrganizations();
   }
   managePrivateReservationCheckbox() {

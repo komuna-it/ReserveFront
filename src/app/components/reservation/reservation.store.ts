@@ -16,6 +16,7 @@ import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { ReservationType } from '../../model/reservationType';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ToolbarType } from '../toolbars/toolbarType';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
@@ -310,12 +311,8 @@ export class ReservationStore {
 
   // users pagination
 
-  readonly usersFiltered = computed(() => {
-    return this.allUsers().filter((u) => u.nick != 'SYSTEM');
-  });
-
   readonly usersTotalElements = computed(() => {
-    return this.usersFiltered().length;
+    return this.allUsers().length;
   });
 
   readonly userTotalPages = signal<number>(0);
@@ -424,10 +421,21 @@ export class ReservationStore {
 
   // ======= Sorting params
 
+  readonly toolbarType = signal<ToolbarType | null>(null);
+
   readonly queryParams = toSignal(this.route.queryParams, {
     initialValue: {} as Params,
   });
-  readonly currentSortBy = computed(() => this.queryParams()['sortBy'] ?? 'startAt');
+  readonly currentSortBy = computed<string>(() => {
+    switch (this.toolbarType()) {
+      case ToolbarType.USERS:
+        return (this.queryParams()['sortBy'] as string) ?? 'nick';
+      case ToolbarType.RESERVATION_BY_STATUS:
+        return (this.queryParams()['sortBy'] as string) ?? 'startAt';
+      default:
+        return (this.queryParams()['sortBy'] as string) ?? 'id';
+    }
+  });
   readonly currentSortDir = computed(
     () => (this.queryParams()['sortDir'] as 'asc' | 'desc') ?? 'desc',
   );

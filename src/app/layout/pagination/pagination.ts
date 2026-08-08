@@ -28,6 +28,18 @@ export class Pagination {
   readonly next = output<void>();
   readonly sizeChange = output<number>();
 
+  constructor() {
+    effect(() => {
+      console.log('[Pagination Debug]', {
+        totalElements: this.totalElements(),
+        totalPages: this.totalPages(),
+        currentPage: this.currentPage(),
+        isFirst: this.isFirst(),
+        isLast: this.isLast(),
+      });
+    });
+  }
+
   onSizeChange(newSize: number | string): void {
     const size = Number(newSize);
     this.router.navigate([], {

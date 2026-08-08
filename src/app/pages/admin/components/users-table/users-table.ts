@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservationStore } from '../../../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
@@ -22,8 +22,20 @@ export class UsersTable {
 
   readonly toolbarType = ToolbarType.USERS;
 
+  constructor() {
+    this.store.toolbarType.set(ToolbarType.USERS);
+    effect(() => {
+      this.store.currentSortBy();
+      this.store.currentSortDir();
+      this.store.paginationPage();
+      this.store.paginationSize();
+
+      this.facade.getAllUsers();
+    });
+  }
+
   readonly areAllSelected = computed(() => {
-    const users = this.store.usersFiltered();
+    const users = this.store.allUsers();
     if (users.length === 0) return false;
     const selected = this.store.toolbarSelectedIds();
     return users.every((u) => selected.has(u.id));
@@ -38,7 +50,7 @@ export class UsersTable {
     if (this.areAllSelected() || this.isIndeterminate()) {
       this.store.clearSelection();
     } else {
-      const allIds = new Set(this.store.usersFiltered().map((u) => u.id));
+      const allIds = new Set(this.store.allUsers().map((u) => u.id));
       this.store.setSelectedIds(allIds);
     }
   }

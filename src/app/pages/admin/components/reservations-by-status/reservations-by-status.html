@@ -9,8 +9,8 @@
     [currentPage]="store.paginationPage()"
     [isFirst]="store.paginationIsFirst()"
     [isLast]="store.paginationIsLast()"
-    (previous)="facade.changeReservationsByStatusPage('prev')"
-    (next)="facade.changeReservationsByStatusPage('next')"
+    (previous)="facade.changePage('prev')"
+    (next)="facade.changePage('next')"
     (sizeChange)="facade.changeReservationsByStatusSize()"
   ></app-pagination>
 </div>

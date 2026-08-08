@@ -38,7 +38,7 @@
     </thead>
 
     <tbody class="divide-y divide-slate-700/70 text-slate-300">
-      @for (user of store.usersFiltered(); track user.id) {
+      @for (user of store.allUsers(); track user.id) {
         <tr
           class="hover:bg-slate-700/30 transition-colors"
           (click)="selectUserAndOpenDetailsModal(user)"
@@ -149,12 +149,14 @@
   </table>
 
   <app-pagination
-    [totalElements]="store.usersTotalElements()"
-    [totalPages]="store.userTotalPages()"
-    [currentPage]="store.userPage()"
-    [isFirst]="store.userIsFirst()"
-    [isLast]="store.userIsLast()"
-    (previous)="facade.changeUsersPage('prev')"
+    [totalElements]="store.paginationTotalNumber()"
+    [totalPages]="store.paginationTotalPages()"
+    [currentPage]="store.paginationPage()"
+    [isFirst]="store.paginationIsFirst()"
+    [isLast]="store.paginationIsLast()"
+    (previous)="facade.changePage('prev')"
+    (next)="facade.changePage('next')"
+    (sizeChange)="facade.getAllUsers()"
   ></app-pagination>
 
   @if (store.globalErrorKey()) {

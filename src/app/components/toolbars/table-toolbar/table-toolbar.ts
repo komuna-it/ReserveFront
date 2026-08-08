@@ -31,7 +31,7 @@ export class TableToolbar {
       case ToolbarType.RESERVATION_BY_STATUS:
         return this.store.reservationsByStatus();
       case ToolbarType.USERS:
-        return this.store.usersFiltered();
+        return this.store.allUsers();
       case ToolbarType.ADMIN_ORGANIZATIONS:
         return this.store.allOrganizations();
       default:

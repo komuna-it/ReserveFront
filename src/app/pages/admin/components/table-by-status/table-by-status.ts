@@ -8,6 +8,7 @@ import { ReservationDto } from '../../../../model/reservationDto';
 import { TextFormatingTool } from '../../../../tools/textFormatingTool';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 
 @Component({
   selector: 'app-table-by-status',
@@ -70,6 +71,8 @@ export class TableByStatus {
   // ======= Sorting
 
   constructor() {
+    this.store.toolbarType.set(ToolbarType.RESERVATION_BY_STATUS);
+
     effect(() => {
       const currentStatus = this.status();
       if (!currentStatus) return;
@@ -99,9 +102,4 @@ export class TableByStatus {
       queryParamsHandling: 'merge',
     });
   }
-
-  readonly currentSortBy = computed(() => this.queryParams()['sortBy'] ?? 'startAt');
-  readonly currentSortDir = computed(
-    () => (this.queryParams()['sortDir'] as 'asc' | 'desc') ?? 'desc',
-  );
 }
