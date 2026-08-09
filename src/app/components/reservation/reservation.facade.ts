@@ -314,8 +314,6 @@ export class ReservationFacade {
   }
 
   changeReservationsSize(newSize: number) {
-    const param = this.store.reservationsSizeQueryParamName();
-
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {

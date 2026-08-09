@@ -38,7 +38,7 @@
     </thead>
 
     <tbody class="divide-y divide-slate-700/70 text-slate-300">
-      @for (user of store.allUsers(); track user.id) {
+      @for (user of store.users(); track user.id) {
         <tr class="hover:bg-slate-700/30 transition-colors">
           <!-- Checkbox column -->
           <td class="p-3 border-r border-slate-700/60 text-center align-middle">

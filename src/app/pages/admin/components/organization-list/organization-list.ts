@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservationStore } from '../../../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
@@ -12,6 +12,7 @@ import { Pagination } from '../../../../layout/pagination/pagination';
 import { SuccessPopup } from '../../../../modals/success-popup/success-popup';
 import { ErrorPopup } from '../../../../modals/error-popup/error-popup';
 import { ConfirmationPopup } from '../../../../modals/confirmation-popup/confirmation-popup';
+import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 
 @Component({
   selector: 'app-organization-list',
@@ -34,7 +35,7 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly facade = inject(ReservationFacade);
   readonly loco = inject(TranslocoService);
   readonly safeOrganizations = computed(() => {
-    const orgs = this.store.allOrganizations();
+    const orgs = this.store.organizations();
     if (!Array.isArray(orgs)) return [];
 
     return orgs.map((org) => ({
@@ -43,6 +44,20 @@ export class OrganizationList implements OnInit, OnDestroy {
       members: Array.isArray(org?.members) ? org.members : [],
     }));
   });
+
+  constructor() {
+    this.store.toolbarType.set(ToolbarType.ADMIN_ORGANIZATIONS);
+
+    effect(() => {
+      this.store.currentSortBy();
+      this.store.currentSortDir();
+      this.store.currentOrganizationsPage();
+      this.store.currentOrganizationsSize();
+
+      this.facade.getAllMembersAllOrganizations();
+    });
+  }
+
   ngOnInit(): void {
     this.facade.getAllUsers();
     this.facade.getAllMembersAllOrganizations();

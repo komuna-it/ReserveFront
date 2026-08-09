@@ -124,8 +124,9 @@
   <!-- Pagination -->
   <app-pagination
     [totalElements]="store.organizationsPage().totalElements"
-    [currentPage]="store.organizationsPage().number"
-    [pageSize]="store.organizationsPage().size"
+    [totalPages]="store.organizationsPage().totalPages"
+    [currentPage]="store.currentOrganizationsPage()"
+    [pageSize]="store.currentOrganizationsSize()"
     (pageChange)="facade.changeOrganizationsPage($event)"
     (sizeChange)="facade.changeOrganizationsSize($event)"
   ></app-pagination>

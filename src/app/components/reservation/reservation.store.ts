@@ -323,7 +323,7 @@ export class ReservationStore {
     () => Number(this.queryParams()[this.usersPageQueryParamName()]) || 0,
   );
   readonly currentOrganizationsPage = computed(
-    () => Number(this.queryParams()[this.reservationsPageQueryParamName()]) || 0,
+    () => Number(this.queryParams()[this.organizationsPageQueryParamName()]) || 0,
   );
 
   // Toolbar

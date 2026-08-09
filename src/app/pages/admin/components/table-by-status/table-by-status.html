@@ -71,7 +71,7 @@
   </thead>
 
   <tbody class="divide-y divide-slate-700/70 text-slate-300">
-    @for (res of displayRows(); track $index) {
+    @for (res of store.reservations(); track $index) {
       @if (res) {
         <!-- Wiersz z danymi -->
         <tr class="hover:bg-slate-700/30 transition-colors h-[49px]">
