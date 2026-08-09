@@ -46,3 +46,45 @@
 @if (store.isUserDetailsModalActive()) {
   <app-user-details-modal [user]="store.selectedUser()"></app-user-details-modal>
 }
+
+@if (store.selectedOrganization(); as org) {
+  @if (store.isOrganizationDetailsModalActive()) {
+    <app-organization-details-modal></app-organization-details-modal>
+  }
+
+  @if (store.isModalAddMemberActive()) {
+    <app-add-user-into-organization-modal [type]="'member'"></app-add-user-into-organization-modal>
+  }
+
+  @if (store.isModalAddOwnerActive()) {
+    <app-add-user-into-organization-modal [type]="'owner'"></app-add-user-into-organization-modal>
+  }
+}
+
+<!-- Modal - confirm deleting owner from org -->
+@if (store.selectedOrganization(); as res) {
+  @if (store.selectedUser(); as user) {
+    @if (store.isModalDeleteOwnerActive()) {
+      <app-confirmation-popup
+        [titleText]="'USER_MODALS.CONFIRM_DELETE_OWNER' | transloco"
+        (ok)="facade.removeOwnerFromOrganization(user.id, res.id)"
+        (cancel)="facade.closeModals()"
+      ></app-confirmation-popup>
+    }
+  }
+}
+
+<!-- Popup -  success -->
+@if (
+  store.isModalDeleteMemberSuccessActive() ||
+  store.isModalDeleteOrganizationSuccessActive() ||
+  store.isModalDeleteOwnerSuccessActive() ||
+  store.isAdminAddOrganizationSuccessPopupActive()
+) {
+  <app-success-popup [titleText]="'USER_MODALS.SUCCESS | transloco '"></app-success-popup>
+}
+
+<!-- Popup - error -->
+@if (store.globalErrorKey(); as errorKey) {
+  <app-error-popup [titleText]="errorKey | transloco" />
+}

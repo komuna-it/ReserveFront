@@ -13,6 +13,8 @@ import { ErrorPopup } from '../../modals/error-popup/error-popup';
 import { BanModal } from '../../modals/ban-modal/ban-modal';
 import { SuccessPopup } from '../../modals/success-popup/success-popup';
 import { UserDetailsModal } from '../../modals/user-details-modal/user-details-modal';
+import { OrganizationDetailsModal } from '../../modals/organization-details-modal/organization-details-modal';
+import { AddUserIntoOrganizationModal } from '../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
 
 @Component({
   selector: 'app-admin',
@@ -25,6 +27,8 @@ import { UserDetailsModal } from '../../modals/user-details-modal/user-details-m
     TranslocoPipe,
     ErrorPopup,
     BanModal,
+    OrganizationDetailsModal,
+    AddUserIntoOrganizationModal,
   ],
   templateUrl: './admin.html',
   styleUrl: './admin.css',

@@ -1,0 +1,309 @@
+<!-- Modal Backdrop -->
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-150"
+  (click)="facade.closeModals()"
+  (keyup.escape)="facade.closeModals()"
+  tabindex="0"
+>
+  <div
+    class="relative my-auto flex max-h-[90vh] w-full max-w-7xl flex-col rounded-xl border border-slate-800 bg-slate-900 p-6 md:p-8 text-slate-200 shadow-xl transition-all"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Modal Header -->
+    <div class="mb-6 flex shrink-0 items-center justify-between border-b border-slate-800 pb-4">
+      <div class="flex items-center gap-4">
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700/60 bg-slate-800 text-slate-300"
+        >
+          <svg
+            class="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="9" stroke-width="1.5"></circle>
+            <line x1="12" y1="8" x2="12" y2="8.01" stroke-width="2.5" stroke-linecap="round"></line>
+            <line x1="12" y1="11" x2="12" y2="16" stroke-width="1.5" stroke-linecap="round"></line>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-3">
+            <h2 class="text-lg font-semibold text-slate-100">
+              {{ 'ADMIN_RESERVATIONS.ORGANIZATION_DETAILS' | transloco }}
+            </h2>
+
+            <!-- Trusted Status Badge -->
+            <span
+              class="rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+              [class]="
+                organization().trusted
+                  ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                  : 'border-slate-700/50 bg-slate-800 text-slate-400'
+              "
+            >
+              {{ orgTrustedText(organization()) }}
+            </span>
+          </div>
+          <p class="mt-0.5 font-mono text-xs text-slate-500">ID: {{ organization().id }}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Separate Trusted / Untrusted Buttons -->
+        <div class="flex items-center gap-1.5">
+          <!-- Button: Zaufana -->
+          <button
+            type="button"
+            (click)="facade.markSingleOrganizationAsTrusted(organization().id)"
+            [disabled]="organization().trusted"
+            class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all"
+            [class]="
+              organization().trusted
+                ? 'cursor-default border-emerald-500/40 bg-emerald-500/20 text-emerald-300'
+                : 'border-slate-700/60 bg-slate-800/80 text-slate-400 hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400 active:scale-95'
+            "
+          >
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+            Zaufana
+          </button>
+
+          <!-- Button: Niezaufana -->
+          <button
+            type="button"
+            (click)="facade.markSingleOrganizationAsUntrusted(organization().id)"
+            [disabled]="!organization().trusted"
+            class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all"
+            [class]="
+              !organization().trusted
+                ? 'cursor-default border-rose-500/40 bg-rose-500/20 text-rose-300'
+                : 'border-slate-700/60 bg-slate-800/80 text-slate-400 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-400 active:scale-95'
+            "
+          >
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+            Niezaufana
+          </button>
+        </div>
+
+        <div class="h-6 w-px bg-slate-800"></div>
+
+        <button
+          type="button"
+          (click)="facade.closeModals()"
+          class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100 active:scale-95"
+          aria-label="Zamknij modal"
+        >
+          <svg
+            class="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="custom-scrollbar overflow-y-auto pr-1.5 space-y-6 flex-1">
+      <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <!-- Owners Section -->
+        <div
+          class="flex flex-col justify-between rounded-xl border border-slate-800/60 bg-slate-950/30 p-4"
+        >
+          <div>
+            <div class="mb-3 flex items-center justify-between">
+              <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                {{ 'ADMIN_RESERVATIONS.ORGANIZATION_OWNERS' | transloco }}
+              </h3>
+              <span
+                class="rounded border border-slate-700/40 bg-slate-800 px-2 py-0.5 text-xs text-slate-400"
+              >
+                {{ owners().length }}
+              </span>
+            </div>
+
+            <div class="space-y-2">
+              @for (owner of owners(); track owner.id) {
+                @if (owner) {
+                  <div
+                    class="flex items-center justify-between rounded-lg border border-slate-800/80 bg-slate-900/60 p-2.5 transition-all"
+                  >
+                    <div class="flex min-w-0 items-center gap-2.5">
+                      <div
+                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700/50 bg-slate-800 text-xs font-medium uppercase text-slate-300"
+                      >
+                        {{ owner.nick?.charAt(0) || 'U' }}
+                      </div>
+                      <div class="truncate">
+                        <span class="block text-[10px] uppercase tracking-wide text-slate-500">
+                          {{ 'USERS_TABLE.NICK' | transloco }}
+                        </span>
+                        <span class="block truncate text-sm font-medium text-slate-200">
+                          {{ owner.nick }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      <!-- Demote Owner to Member -->
+                      <button
+                        type="button"
+                        (click)="facade.prepareDemoteOwner(owner.id, organization().id)"
+                        [disabled]="owners().length <= 1"
+                        class="rounded px-2 py-1 text-xs font-medium text-amber-400 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-amber-400"
+                        title="Degraduj do członka"
+                      >
+                        Degraduj
+                      </button>
+
+                      <!-- Delete Owner -->
+                      <button
+                        type="button"
+                        (click)="facade.prepareDeleteOwner(owner.id, organization().id)"
+                        [disabled]="!isDeleteOwnerButtonActive()"
+                        class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400"
+                      >
+                        {{ 'COMMON.DELETE' | transloco }}
+                      </button>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Members Section -->
+        <div
+          class="flex flex-col justify-between rounded-xl border border-slate-800/60 bg-slate-950/30 p-4"
+        >
+          <div>
+            <div class="mb-3 flex items-center justify-between">
+              <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                {{ 'ADMIN_RESERVATIONS.ORGANIZATION_MEMBERS' | transloco }}
+              </h3>
+              <span
+                class="rounded border border-slate-700/40 bg-slate-800 px-2 py-0.5 text-xs text-slate-400"
+              >
+                {{ members().length }}
+              </span>
+            </div>
+
+            <div class="space-y-2">
+              @for (member of members(); track member.id) {
+                @if (member) {
+                  <div
+                    class="flex items-center justify-between rounded-lg border border-slate-800/80 bg-slate-900/60 p-2.5 transition-all"
+                  >
+                    <div class="flex min-w-0 items-center gap-2.5">
+                      <div
+                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700/50 bg-slate-800 text-xs font-medium uppercase text-slate-300"
+                      >
+                        {{ member.nick?.charAt(0) || 'U' }}
+                      </div>
+                      <div class="truncate">
+                        <span class="block text-[10px] uppercase tracking-wide text-slate-500">
+                          {{ 'USERS_TABLE.NICK' | transloco }}
+                        </span>
+                        <span class="block truncate text-sm font-medium text-slate-200">
+                          {{ member.nick }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      <!-- Promote Member to Owner -->
+                      <button
+                        type="button"
+                        (click)="facade.preparePromoteMember(member.id, organization().id)"
+                        class="rounded px-2 py-1 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/10"
+                        title="Awansuj na właściciela"
+                      >
+                        Awansuj
+                      </button>
+
+                      <!-- Delete Member -->
+                      <button
+                        type="button"
+                        (click)="facade.prepareDeleteMember(member.id, organization().id)"
+                        class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
+                      >
+                        {{ 'COMMON.DELETE' | transloco }}
+                      </button>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+
+            <button
+              type="button"
+              (click)="facade.prepareAddMember(organization().id)"
+              class="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2 text-xs font-medium text-slate-300 transition-all hover:border-slate-600 hover:bg-slate-800 active:scale-[0.99]"
+            >
+              <span class="text-sm leading-none">+</span>
+              {{ 'ADMIN_RESERVATIONS.ADD_MEMBER' | transloco }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Reservations Section -->
+        <div class="rounded-xl border border-slate-800/60 bg-slate-950/30 p-4 md:col-span-2">
+          <h3
+            class="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400"
+          >
+            <svg
+              class="h-4 w-4 text-slate-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              ></path>
+            </svg>
+            {{ 'ADMIN_RESERVATIONS.ORGANIZATION_RESERVATIONS' | transloco }}
+          </h3>
+          <app-table-reservations-admin></app-table-reservations-admin>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Action -->
+    <div class="mt-6 flex w-full shrink-0 justify-end border-t border-slate-800 pt-4">
+      <button
+        type="button"
+        (click)="facade.closeModals()"
+        class="rounded-lg border border-slate-700/60 bg-slate-800 px-6 py-2 text-xs font-medium text-slate-200 shadow-sm transition-all hover:bg-slate-700 hover:text-white active:scale-95"
+      >
+        {{ 'COMMON.CLOSE' | transloco }}
+      </button>
+    </div>
+  </div>
+</div>

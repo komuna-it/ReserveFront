@@ -12,6 +12,7 @@ import { ReservationDto } from '../../model/reservationDto';
 import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 import { User } from '../../model/user';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -93,6 +94,22 @@ export class ReservationFacade {
 
         error: (e) => console.log('Error: ', e),
       });
+  }
+
+  getReservationsForOrganization() {
+    const page = this.store.currentReservationsPage();
+    const size = this.store.currentReservationsSize();
+    const sortBy = this.store.currentSortBy();
+    const sortDir = this.store.currentSortDir();
+    const sortParam = `${sortBy},${sortDir}`;
+
+    const orgId = this.store.selectedOrganization()?.id ?? 0;
+    this.api.getReservationsForOrganization(page, size, sortParam, orgId).subscribe({
+      next: (pageData) => {
+        this.store.reservationsPage.set(pageData);
+      },
+      error: (e) => console.error('Error getReservationsForOrganization: ', e),
+    });
   }
 
   getAllReservationsForUserAndTheirOrganizationsByUser(user: User) {
@@ -402,16 +419,6 @@ export class ReservationFacade {
     });
   }
 
-  removeUserFromOrganization(userId: number, organizationId: number): void {
-    this.api.removeUserFromOrganization(userId, organizationId).subscribe({
-      next: () => this.refreshOrganizations(),
-      error: (e) => {
-        this.store.globalErrorKey.set('ORGANIZATION_LIST.ERRORS.REMOVE_USER_FAILED');
-        console.error(e);
-      },
-    });
-  }
-
   removeOrg(organizationId: number): void {
     this.api.removeOrg(organizationId).subscribe({
       next: () => this.refreshOrganizations(),
@@ -422,35 +429,312 @@ export class ReservationFacade {
     });
   }
 
-  addOwnerIntoOrganization(ownerId: number, organizationId: number): void {
-    this.api.addOwnerIntoOrganization(ownerId, organizationId).subscribe({
-      next: () => this.refreshOrganizations(),
-      error: (e) => console.error(`Failed to add owner`, e),
+  addMemberToOrganization(userId: number, orgId: number): void {
+    console.log(`[Facade] addMemberToOrganization -> userId: ${userId}, orgId: ${orgId}`);
+
+    this.api.addMemberIntoOrganization(userId, orgId).subscribe({
+      next: () => {
+        console.log('[Facade] addMemberIntoOrganization -> sukces API');
+
+        this.store.isModalAddMemberActive.set(false);
+        this.store.organizationListSelectedUser.set(null);
+
+        if (this.store.isModalAddMemberSuccessActive) {
+          this.store.isModalAddMemberSuccessActive.set(true);
+        }
+
+        const addedUser = this.store.users().find((u) => u.id === userId);
+
+        if (addedUser) {
+          const newMember: OrganizationMemberDto = {
+            id: 0,
+            organizationId: orgId,
+            userId: addedUser.id,
+            role: 'MEMBER',
+            email: addedUser.email,
+            nick: addedUser.nick,
+          };
+
+          this.store.selectedOrganization.update((currentOrg) => {
+            if (!currentOrg || currentOrg.id !== orgId) return currentOrg;
+            return {
+              ...currentOrg,
+              members: [...(currentOrg.members || []), newMember],
+            };
+          });
+        }
+
+        this.refreshOrganizations();
+      },
+      error: (err) => {
+        console.error('[Facade] Błąd podczas dodawania członka do organizacji:', err);
+        this.store.globalErrorKey.set(err);
+      },
     });
   }
 
-  addUserIntoOrganization(userId: number, organizationId: number): void {
-    this.api.addUserIntoOrganization(userId, organizationId).subscribe({
-      next: () => this.refreshOrganizations(),
-      error: (e) => console.error(`Failed to add user`, e),
+  addOwnerToOrganization(userId: number, orgId: number): void {
+    console.log(`[Facade] addOwnerToOrganization -> userId: ${userId}, orgId: ${orgId}`);
+
+    this.api.addOwnerIntoOrganization(userId, orgId).subscribe({
+      next: (res) => {
+        console.log('[Facade] addOwnerIntoOrganization -> sukces API');
+
+        this.store.isModalAddOwnerActive.set(false);
+        this.store.organizationListSelectedUser.set(null);
+
+        if (this.store.isModalAddOwnerSuccessActive) {
+          this.store.isModalAddOwnerSuccessActive.set(true);
+        }
+
+        const addedUser = this.store.users().find((u) => u.id === userId);
+
+        if (addedUser) {
+          const newOwner: OrganizationMemberDto = {
+            id: 0,
+            organizationId: orgId,
+            userId: addedUser.id,
+            role: 'OWNER',
+            email: addedUser.email,
+            nick: addedUser.nick,
+          };
+
+          this.store.selectedOrganization.update((currentOrg) => {
+            if (!currentOrg || currentOrg.id !== orgId) return currentOrg;
+            return {
+              ...currentOrg,
+              owners: [...(currentOrg.owners || []), newOwner],
+            };
+          });
+
+          console.log('[Facade] Dodano nowego właściciela do stanu lokalnego:', newOwner);
+        }
+
+        this.refreshOrganizations();
+      },
+      error: (err) => {
+        console.error('[Facade] Błąd podczas dodawania właściciela do organizacji:', err);
+        this.store.globalErrorKey.set(err);
+      },
     });
   }
 
+  markSingleOrganizationAsTrusted(organizationId: number): void {
+    const ids = Array.of(organizationId);
+    this.api.markOrganizationsAsTrusted(ids).subscribe({
+      next: () => {
+        const currentOrg = this.store.selectedOrganization();
+        if (currentOrg && currentOrg.id === organizationId) {
+          this.store.selectedOrganization.set({
+            ...currentOrg,
+            trusted: true,
+          });
+        }
+        this.refreshOrganizations();
+      },
+      error: (e) => console.error(`Failed to markOrganizationsAsTrusted`, e),
+    });
+  }
+
+  markSingleOrganizationAsUntrusted(organizationId: number): void {
+    const ids = Array.of(organizationId);
+    this.api.markOrganizationsAsUntrusted(ids).subscribe({
+      next: () => {
+        const currentOrg = this.store.selectedOrganization();
+        if (currentOrg && currentOrg.id === organizationId) {
+          this.store.selectedOrganization.set({
+            ...currentOrg,
+            trusted: false,
+          });
+        }
+        this.refreshOrganizations();
+      },
+      error: (e) => console.error(`Failed to markOrganizationsAsUntrusted`, e),
+    });
+  }
   markOrganizationsAsTrusted(): void {
-    this.api.markOrganizationsAsTrusted(this.store.toolbarSelectedIds()).subscribe({
+    const ids = Array.from(this.store.toolbarSelectedIds());
+    this.api.markOrganizationsAsTrusted(ids).subscribe({
       next: () => this.refreshOrganizations(),
       error: (e) => console.error(`Failed to markOrganizationsAsTrusted`, e),
     });
   }
 
   markOrganizationsAsUntrusted(): void {
-    this.api.markOrganizationsAsUntrusted(this.store.toolbarSelectedIds()).subscribe({
+    const ids = Array.from(this.store.toolbarSelectedIds());
+    this.api.markOrganizationsAsUntrusted(ids).subscribe({
       next: () => this.refreshOrganizations(),
       error: (e) => console.error(`Failed to markOrganizationsAsUnTrusted`, e),
     });
   }
 
   // ======== USERS
+
+  preparePromoteMember(userId: number, orgId: number): void {
+    this.api.promoteMemberToOwner(userId, orgId).subscribe({
+      next: (updatedMember: OrganizationMemberDto) => {
+        this.store.selectedOrganization.update((currentOrg) => {
+          if (!currentOrg || currentOrg.id !== orgId) {
+            return currentOrg;
+          }
+
+          const memberToPromote = currentOrg.members?.find((m) => m.userId === userId);
+
+          const promotedUser: OrganizationMemberDto = updatedMember?.id
+            ? updatedMember
+            : {
+                ...memberToPromote!,
+                role: 'OWNER',
+              };
+
+          return {
+            ...currentOrg,
+            members: (currentOrg.members || []).filter((m) => m.userId !== userId),
+            owners: [...(currentOrg.owners || []), promotedUser],
+          };
+        });
+      },
+    });
+  }
+
+  prepareDemoteOwner(userId: number, orgId: number): void {
+    const org = this.store.selectedOrganization();
+
+    if (!org || (org.owners?.length || 0) <= 1) {
+      return;
+    }
+
+    this.api.demoteOwnerToMember(userId, orgId).subscribe({
+      next: (updatedMember: OrganizationMemberDto) => {
+        this.store.selectedOrganization.update((currentOrg) => {
+          if (!currentOrg || currentOrg.id !== orgId) {
+            return currentOrg;
+          }
+
+          const ownerToDemote = currentOrg.owners?.find((o) => o.userId === userId);
+
+          const demotedUser: OrganizationMemberDto = updatedMember?.id
+            ? updatedMember
+            : {
+                ...ownerToDemote!,
+                role: 'MEMBER',
+              };
+
+          return {
+            ...currentOrg,
+            owners: (currentOrg.owners || []).filter((o) => o.userId !== userId),
+            members: [...(currentOrg.members || []), demotedUser],
+          };
+        });
+      },
+    });
+  }
+
+  removeUserFromOrganization(userId: number, orgId: number): void {
+    const org = this.store.selectedOrganization();
+
+    if (!org) {
+      return;
+    }
+
+    const isOwner = org.owners?.some((o) => o.userId === userId);
+    if (isOwner && (org.owners?.length || 0) <= 1) {
+      return;
+    }
+
+    this.api.removeUserFromOrganization(userId, orgId).subscribe({
+      next: () => {
+        this.store.selectedOrganization.update((currentOrg) => {
+          if (!currentOrg || currentOrg.id !== orgId) {
+            return currentOrg;
+          }
+
+          return {
+            ...currentOrg,
+            owners: (currentOrg.owners || []).filter((o) => o.userId !== userId),
+            members: (currentOrg.members || []).filter((m) => m.userId !== userId),
+          };
+        });
+
+        this.refreshOrganizations();
+      },
+    });
+  }
+  prepareDeleteOrganization(orgId: number): void {
+    if (!orgId) return;
+    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    if (!org) {
+      console.error(`Organization with ID ${orgId} not found in allOrganizations.`);
+      return;
+    }
+    this.store.selectedOrganization.set(org);
+    this.store.isModalDeleteOrganizationActive.set(true);
+  }
+
+  prepareDeleteMember(userId: number, orgId: number): void {
+    this.removeUserFromOrganization(userId, orgId);
+  }
+
+  prepareDeleteOwner(userId: number, orgId: number): void {
+    this.removeUserFromOrganization(userId, orgId);
+  }
+
+  prepareAddMember(orgId: number): void {
+    if (!orgId) return;
+    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    if (!org) return;
+
+    this.store.selectedOrganization.set(org);
+    this.store.isModalAddMemberActive.set(true);
+  }
+
+  prepareAddOwner(orgId: number): void {
+    if (!orgId) return;
+    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    if (!org) return;
+
+    this.store.selectedOrganization.set(org);
+    this.store.isModalAddOwnerActive.set(true);
+  }
+
+  confirmDeleteOrganization(): void {
+    const org = this.store.selectedOrganization();
+    if (!org) return;
+
+    this.api.removeOrg(org.id).subscribe(() => {
+      this.store.isModalDeleteOrganizationActive.set(false);
+      this.store.selectedOrganization.set(null);
+      this.store.isModalDeleteOrganizationSuccessActive.set(true);
+    });
+  }
+
+  confirmDeleteMember(): void {
+    const user = this.store.organizationListSelectedUser();
+    const org = this.store.selectedOrganization();
+    if (!user || !org) return;
+
+    this.api.removeUserFromOrganization(user.id, org.id).subscribe(() => {
+      this.store.isModalDeleteMemberActive.set(false);
+      this.store.organizationListSelectedUser.set(null);
+      this.store.selectedOrganization.set(null);
+      this.store.isModalDeleteMemberSuccessActive.set(true);
+      this.refreshOrganizations();
+    });
+  }
+
+  confirmDeleteOwner(): void {
+    const user = this.store.organizationListSelectedUser();
+    const org = this.store.selectedOrganization();
+    if (!user || !org || !user.id || !org.id) return;
+
+    this.api.removeOwnerFromOrganization(user.id, org.id).subscribe(() => {
+      this.store.isModalDeleteOwnerActive.set(false);
+      this.store.organizationListSelectedUser.set(null);
+      this.store.selectedOrganization.set(null);
+      this.store.isModalDeleteOwnerSuccessActive.set(true);
+      this.refreshOrganizations();
+    });
+  }
 
   getAllUsers() {
     const sortBy = this.store.currentSortBy();
@@ -497,6 +781,8 @@ export class ReservationFacade {
 
   closeModals(): void {
     this.store.isAdminAddOrganizationModalActive.set(false);
+    this.store.isModalAddOwnerActive.set(false);
+    this.store.isModalAddMemberActive.set(false);
     this.store.isAdminAddOrganizationSuccessPopupActive.set(false);
     this.store.confirmMarkReservationAsCanceled.set(false);
     this.store.isModalDeleteOwnerActive.set(false);
@@ -517,6 +803,7 @@ export class ReservationFacade {
     this.store.isBanUsersSuccessActive.set(false);
     this.store.isUserDetailsModalActive.set(false);
     this.store.displayBookingSuccesfulPopup.set(false);
+    this.store.isOrganizationDetailsModalActive.set(false);
   }
 
   handleClickBanUsers() {

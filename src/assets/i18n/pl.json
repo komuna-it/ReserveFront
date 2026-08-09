@@ -231,12 +231,26 @@
     "ORG": "Zespół",
     "USER_DETAILS": "Szczegóły użytkownika",
     "USERS_ORGANIZATIONS": "Zespoły do których należy",
-    "USERS_OR_THEIR_ORGS_RESERVATIONS": "Rezerwacje użytkownika lub jego zespołów"
+    "USERS_OR_THEIR_ORGS_RESERVATIONS": "Rezerwacje użytkownika lub jego zespołów",
+    "ORGANIZATION_DETAILS": "Szczegóły zespołu",
+    "ORGANIZATION_MEMBERS": "Członkowie zespołu",
+    "ORGANIZATION_OWNERS": "Właściciele zespołu",
+    "ORGANIZATION_RESERVATIONS": "Rezerwacje zespołu",
+    "EMPTY_OWNERS": "Brak właścicieli",
+    "EMPTY_MEMBERS": "Brak członków",
+    "ADD_MEMBER": "Dodaj członka",
+    "ADD_OWNER": "Dodaj właściciela",
+    "ADD_USER_INTO_ORGANIZATION_PLACEHOLDER": "Wybierz użytkownika"
   },
   "PAGINATION": {
     "PREVIOUS": "Poprzednia",
     "NEXT": "Następna",
     "PAGE": "Strona",
     "TOTAL": "Razem"
+  },
+  "COMMON": {
+    "DELETE": "Usuń",
+    "CLOSE": "Zamknij",
+    "SELECT": "Wybierz"
   }
 }

@@ -255,11 +255,15 @@ export class ReservationStore {
   readonly isModalDeleteMemberSuccessActive = signal<boolean>(false);
   readonly isModalDeleteOwnerSuccessActive = signal<boolean>(false);
   readonly isModalAddMemberActive = signal<boolean>(false);
+  readonly isModalAddOwnerActive = signal<boolean>(false);
   readonly isBanModalActive = signal<boolean>(false);
   readonly isBanUsersModalActive = signal<boolean>(false);
   readonly isBanUsersSuccessActive = signal<boolean>(false);
   readonly isReservationDetailsModalActive = signal<boolean>(false);
   readonly isUserDetailsModalActive = signal<boolean>(false);
+  readonly isOrganizationDetailsModalActive = signal<boolean>(false);
+  readonly isModalAddOwnerSuccessActive = signal<boolean>(false);
+  readonly isModalAddMemberSuccessActive = signal<boolean>(false);
 
   readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
   readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
@@ -278,7 +282,7 @@ export class ReservationStore {
   readonly popupConfirmationActive = signal<boolean | null>(null);
 
   readonly organizationListSelectedUser = signal<User | null>(null);
-  readonly organizationListSelectedOrganization = signal<Organization | null>(null);
+  readonly selectedOrganization = signal<Organization | null>(null);
   readonly selectedReservation = signal<ReservationDto | null>(null);
   readonly selectedUser = signal<User | null>(null);
   readonly selectedReservations = signal<ReservationDto[] | null>(null);
