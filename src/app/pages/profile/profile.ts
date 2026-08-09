@@ -47,6 +47,7 @@ export class ProfilePage implements OnInit {
   readonly helper = inject(CalendarHelper);
   readonly reservationToDelete = signal<ReservationDto | null>(null);
   readonly textFormatingTool = inject(TextFormatingTool);
+  readonly auth = inject(AuthService);
   private sseController: AbortController | null = null;
 
   activeOrgsUsers = computed(() => {
@@ -94,8 +95,11 @@ export class ProfilePage implements OnInit {
   }
 
   ngOnInit() {
+    if (this.auth.currentUser()) {
+      this.facade.getOrganizationsOfUser(true, this.auth.currentUser()?.id ?? 0);
+    }
     this.facade.getRooms();
-    this.facade.getOrganizationsOfUserWithMembers();
+
     this.facade.getAllReservationsForUserAndTheirOrganization();
     this.facade.connectToReservationStream();
   }

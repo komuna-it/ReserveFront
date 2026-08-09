@@ -58,8 +58,6 @@ export class TextFormatingTool {
 
   getRoomName(res: ReservationDto): string {
     const room = this.store.rooms().find((r) => r.id === res.room);
-    console.log('rooms:');
-    console.table(room);
     return room?.name ?? '';
   }
 
@@ -95,13 +93,13 @@ export class TextFormatingTool {
   }
 
   getIsUserBannedText(user: User) {
-    return user.banned
+    return user.banDto
       ? this.translocoService.translate('USERS_TABLE.YES')
       : this.translocoService.translate('USERS_TABLE.NO');
   }
 
   getIsUserTrustedText(user: User) {
-    return user.banned
+    return user.banDto
       ? this.translocoService.translate('USERS_TABLE.YES')
       : this.translocoService.translate('USERS_TABLE.NO');
   }

@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { effect, inject, Injectable } from '@angular/core';
 import { ReservationApi } from './reservation.api';
 import { ReservationStore } from './reservation.store';
 import { CalendarHelper } from '../calendar/calendar.helper';
@@ -11,6 +11,7 @@ import { ReservationStatus } from '../../model/reservationStatus';
 import { ReservationDto } from '../../model/reservationDto';
 import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 import { User } from '../../model/user';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -24,10 +25,12 @@ export class ReservationFacade {
 
   refreshOrganizations() {
     if (this.authService.isAdmin()) {
-      this.getAllMembersAllOrganizations(0);
+      this.getAllMembersAllOrganizations();
       console.log('refreshed admin organizations:');
     } else {
-      this.getOrganizationsOfUserWithMembers(0);
+      if (this.authService.currentUser()) {
+        this.getOrganizationsOfUser(true, this.authService.currentUser()?.id ?? 0);
+      }
       console.log(
         "refreshed user's organizations (count): ",
         this.store.userOrganizations().length,
@@ -58,9 +61,9 @@ export class ReservationFacade {
     });
 
     // get reservations for a week, 12*3*7=252
-    this.api.getReservations(this.store.paginationPage(), 252).subscribe({
+    this.api.getReservations(this.store.currentReservationsPage(), 252).subscribe({
       next: (pageData) => {
-        this.store.reservations.set(pageData.content);
+        this.store.reservationsPage.set(pageData);
         console.log('Get reservations data:');
         console.table(pageData.content);
       },
@@ -75,19 +78,17 @@ export class ReservationFacade {
     this.api
       .getAllReservationsForUserAndTheirOrganization(
         userIdNumber,
-        this.store.paginationPage(),
-        this.store.paginationSize(),
+        this.store.currentOrganizationsPage(),
+        this.store.currentOrganizationsSize(),
       )
       .subscribe({
         next: (pageData) => {
-          this.store.reservations.set([]);
-
           console.log(
             'getAllReservationsForUserAndTheirOrganization: Fetched reservations for user and their organization:',
           );
           console.table(pageData.content);
 
-          this.store.reservations.set(pageData.content);
+          this.store.reservationsPage.set(pageData);
         },
 
         error: (e) => console.log('Error: ', e),
@@ -100,19 +101,17 @@ export class ReservationFacade {
     this.api
       .getAllReservationsForUserAndTheirOrganization(
         userIdNumber,
-        this.store.paginationPage(),
-        this.store.paginationSize(),
+        this.store.currentOrganizationsPage(),
+        this.store.currentOrganizationsSize(),
       )
       .subscribe({
         next: (pageData) => {
-          this.store.reservations.set([]);
-
           console.log(
             'getAllReservationsForUserAndTheirOrganization: Fetched reservations for user and their organization:',
           );
           console.table(pageData.content);
 
-          this.store.reservations.set(pageData.content);
+          this.store.reservationsPage.set(pageData);
         },
 
         error: (e) => console.log('Error: ', e),
@@ -262,41 +261,108 @@ export class ReservationFacade {
     }
   }
 
-  getUserByEmail(email: string) {
-    this.api.getUserByEmail(email).subscribe({
-      next: (u) => console.log('fetched user by email: ', u),
-      error: (e) => console.log('error fetching user by email: ', e),
+  getReservationsByStatus(status: ReservationStatus): void {
+    const sortBy = this.store.currentSortBy();
+    const sortDir = this.store.currentSortDir();
+    const page = this.store.currentReservationsPage();
+    const size = this.store.currentReservationsSize();
+
+    const sortParam = `${sortBy},${sortDir}`;
+
+    this.api.getReservationsByStatus(page, size, status, sortParam).subscribe({
+      next: (pageData) => {
+        this.store.reservationsPage.set(pageData);
+      },
+      error: (e) => console.error('Error fetching reservations by status: ', e),
+    });
+  }
+
+  changeReservationsByStatusSize() {
+    const currentStatus = this.store.statusForAdminPage();
+    if (currentStatus) {
+      this.getReservationsByStatus(currentStatus);
+    }
+  }
+
+  updateReservationsStatus(targetStatus: ReservationStatus): void {
+    const ids = this.store.toolbarSelectedIds();
+
+    if (!ids || ids.size === 0) {
+      console.error('No reservation IDs selected for status update');
+      return;
+    }
+
+    this.api.updateReservationsStatus(ids, targetStatus).subscribe({
+      next: () => {
+        const currentStatus = this.store.statusForAdminPage() ?? ReservationStatus.CREATED;
+        this.getReservationsByStatus(currentStatus);
+        this.store.clearSelection();
+      },
+      error: (err: unknown) => {
+        console.error('Error updating reservation status:', err);
+        this.store.globalErrorKey.set('ERROR.STATUS_UPDATE_FAILED');
+      },
+    });
+  }
+
+  changeReservationsPage(newPage: number) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { [this.store.reservationsPageQueryParamName()]: newPage },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  changeReservationsSize(newSize: number) {
+    const param = this.store.reservationsSizeQueryParamName();
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        [this.store.reservationsSizeQueryParamName()]: newSize,
+        [this.store.reservationsPageQueryParamName()]: 0,
+      },
+      queryParamsHandling: 'merge',
     });
   }
 
   // ======================= ORGS ========================
 
-  getAllMembersAllOrganizations(page: number = 0) {
-    this.api.getAllMembersAllOrganizations(page, this.store.orgsSize()).subscribe({
-      next: (pageData) => {
-        this.store.allOrganizations.set(pageData.content);
-
-        if (this.authService.isAdmin()) {
-          this.store.userOrganizations.set(pageData.content);
-        }
-        this.setPageData(pageData);
-      },
-      error: () => console.error('Error in getAllMembersAllOrganizations'),
+  changeOrganizationsPage(newPage: number) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { [this.store.organizationsPageQueryParamName()]: newPage },
+      queryParamsHandling: 'merge',
     });
   }
 
-  changeOrganizationsPage(direction: 'next' | 'prev') {
-    const currentPage = this.store.orgsPage();
-    const newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
-    if (this.authService.isAdmin()) {
-      this.getAllMembersAllOrganizations(newPage);
-    } else {
-      this.getOrganizationsOfUserWithMembers(newPage);
-    }
+  changeOrganizationsSize(newSize: number) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        [this.store.organizationsSizeQueryParamName()]: newSize,
+        [this.store.organizationsPageQueryParamName()]: 0,
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 
-  changeUsersPage(direction: 'next' | 'prev') {
-    this.getAllUsers();
+  getAllMembersAllOrganizations() {
+    this.api
+      .getAllMembersAllOrganizations(
+        this.store.currentOrganizationsPage(),
+        this.store.currentOrganizationsSize(),
+      )
+      .subscribe({
+        next: (pageData) => {
+          this.store.allOrganizations.set(pageData.content);
+
+          if (this.authService.isAdmin()) {
+            this.store.organizationsPage.set(pageData);
+          }
+        },
+        error: () => console.error('Error in getAllMembersAllOrganizations'),
+      });
   }
 
   createOrganization(name: string) {
@@ -309,17 +375,23 @@ export class ReservationFacade {
     });
   }
 
-  getOrganizationsOfUserWithMembers(page: number = 0) {
-    this.api.getOrganizationsOfUserWithMembers(page, this.store.orgsSize()).subscribe({
-      next: (pageData) => {
-        this.store.userOrganizations.set(pageData.content);
-        this.setPageData(pageData);
+  getOrganizationsOfUser(withMembers: boolean, userId: number) {
+    this.api
+      .getOrganizationsOfUser(
+        this.store.currentOrganizationsPage(),
+        this.store.currentOrganizationsSize(),
+        withMembers,
+        userId,
+      )
+      .subscribe({
+        next: (pageData) => {
+          this.store.organizationsPage.set(pageData);
 
-        console.log('fetched getOrganizationsOfUserWithMembers(): ');
-        console.table(pageData.content);
-      },
-      error: (e) => console.error('Error in getOrganizationsOfUserWithMembers: ', e),
-    });
+          console.log('fetched getOrganizationsOfUserWithMembers(): ');
+          console.table(pageData.content);
+        },
+        error: (e) => console.error('Error in getOrganizationsOfUserWithMembers: ', e),
+      });
   }
 
   removeOwnerFromOrganization(ownerId: number, organizationId: number): void {
@@ -380,89 +452,46 @@ export class ReservationFacade {
     });
   }
 
+  // ======== USERS
+
   getAllUsers() {
     const sortBy = this.store.currentSortBy();
     const sortDir = this.store.currentSortDir();
-    const page = this.store.paginationPage();
-    const size = this.store.paginationSize();
+    const page = this.store.currentUsersPage();
+    const size = this.store.currentUsersSize();
     const sortParam = `${sortBy},${sortDir}`;
 
     return this.api.getAllUsers(page, size, sortParam).subscribe({
       next: (pageData) => {
-        this.store.allUsers.set(pageData.content);
-        this.setPageData(pageData);
-        // this.refreshOrganizations();
+        this.store.usersPage.set(pageData);
       },
-      error: (e) => console.error('Error fetching all users: ', e),
+      error: (e) => console.error('Error fetching usersPage: ', e),
     });
   }
 
-  setPageData(pageData: any) {
-    this.store.paginationTotalNumber.set(pageData.totalElements);
-    this.store.paginationTotalPages.set(pageData.totalPages);
-    this.store.paginationIsFirst.set(pageData.first);
-    this.store.paginationIsLast.set(pageData.last);
-  }
-
-  getReservationsByStatus(status: ReservationStatus): void {
-    const sortBy = this.store.currentSortBy();
-    const sortDir = this.store.currentSortDir();
-    const page = this.store.paginationPage();
-    const size = this.store.paginationSize();
-
-    const sortParam = `${sortBy},${sortDir}`;
-
-    this.api.getReservationsByStatus(page, size, status, sortParam).subscribe({
-      next: (pageData) => {
-        this.store.reservationsByStatus.set(pageData.content);
-        this.setPageData(pageData);
-      },
-      error: (e) => console.error('Error fetching reservations by status: ', e),
-    });
-  }
-
-  changeReservationsByStatusSize() {
-    const currentStatus = this.store.statusForAdminPage();
-    if (currentStatus) {
-      this.getReservationsByStatus(currentStatus);
-    }
-  }
-
-  updateReservationsStatus(targetStatus: ReservationStatus): void {
-    const ids = this.store.toolbarSelectedIds();
-
-    if (!ids || ids.size === 0) {
-      console.error('No reservation IDs selected for status update');
-      return;
-    }
-
-    this.api.updateReservationsStatus(ids, targetStatus).subscribe({
-      next: () => {
-        const currentStatus = this.store.statusForAdminPage() ?? ReservationStatus.CREATED;
-        this.getReservationsByStatus(currentStatus);
-        this.store.clearSelection();
-      },
-      error: (err: unknown) => {
-        console.error('Error updating reservation status:', err);
-        this.store.globalErrorKey.set('ERROR.STATUS_UPDATE_FAILED');
-      },
-    });
-  }
-  // pagination
-
-  changePage(direction: 'next' | 'prev'): void {
-    const currentPage = this.store.paginationPage();
-    const totalPages = this.store.paginationTotalPages();
-
-    let newPage = direction === 'next' ? currentPage + 1 : currentPage - 1;
-    newPage = Math.max(0, Math.min(newPage, totalPages));
-
-    if (newPage === currentPage) return;
-
+  changeUsersPage(newPage: number) {
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { page: newPage },
+      queryParams: { [this.store.usersPageQueryParamName()]: newPage },
       queryParamsHandling: 'merge',
+    });
+  }
+
+  changeUsersSize(newSize: number) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        [this.store.usersSizeQueryParamName()]: newSize,
+        [this.store.usersPageQueryParamName()]: 0,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  getUserByEmail(email: string) {
+    this.api.getUserByEmail(email).subscribe({
+      next: (u) => console.log('fetched user by email: ', u),
+      error: (e) => console.log('error fetching user by email: ', e),
     });
   }
 
@@ -545,7 +574,7 @@ export class ReservationFacade {
       case ReservationStatus.CANCELLED: {
         this.store.confirmMarkReservationAsCanceled.set(true);
         const reservs = this.store
-          .reservationsByStatus()
+          .reservations()
           .filter((r) => this.store.toolbarSelectedIds().has(r.id));
         console.log('handleClickCancelReservations: ');
         console.table(reservs);

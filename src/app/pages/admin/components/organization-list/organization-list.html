@@ -123,13 +123,11 @@
 
   <!-- Pagination -->
   <app-pagination
-    [totalElements]="store.orgsTotalElements()"
-    [totalPages]="store.orgsTotalPages()"
-    [currentPage]="store.orgsPage()"
-    [isFirst]="store.orgsIsFirst()"
-    [isLast]="store.orgsIsLast()"
-    (previous)="facade.changeOrganizationsPage('prev')"
-    (next)="facade.changeOrganizationsPage('next')"
+    [totalElements]="store.organizationsPage().totalElements"
+    [currentPage]="store.organizationsPage().number"
+    [pageSize]="store.organizationsPage().size"
+    (pageChange)="facade.changeOrganizationsPage($event)"
+    (sizeChange)="facade.changeOrganizationsSize($event)"
   ></app-pagination>
 
   <!-- Modal - Add Organization -->

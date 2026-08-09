@@ -27,8 +27,8 @@ export class UsersTable {
     effect(() => {
       this.store.currentSortBy();
       this.store.currentSortDir();
-      this.store.paginationPage();
-      this.store.paginationSize();
+      this.store.currentUsersPage();
+      this.store.currentUsersPage();
 
       this.facade.getAllUsers();
     });

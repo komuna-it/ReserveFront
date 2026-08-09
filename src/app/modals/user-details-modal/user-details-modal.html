@@ -40,11 +40,8 @@
       </button>
     </div>
 
-    <!-- Przewijana zawartość modala -->
     <div class="overflow-y-auto space-y-6 pr-1">
-      <!-- Siatka: Dane użytkownika + Organizacje obok siebie -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Dane użytkownika -->
         <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50">
           <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
             {{ 'ADMIN_RESERVATIONS.USER_DETAILS' | transloco }}
@@ -66,20 +63,34 @@
                   {{ tool.getIsUserBannedText(user) }}</span
                 >
               </p>
-              @if (user.banned) {
-                <p class="flex justify-between border-b border-slate-800 pb-1.5">
-                  <span class="text-slate-400">{{ 'USERS_TABLE.BANNED_UNTIL' | transloco }}</span>
-                  <span class="font-medium text-slate-200">
-                    {{ helper.generatBanExpirationFromDate(user.bannedUntil) }}</span
-                  >
-                </p>
-              }
-              <p class="flex justify-between pb-1.5">
+              <p class="flex justify-between border-b border-slate-800 pb-1.5">
                 <span class="text-slate-400">{{ 'USERS_TABLE.IS_TRUESTED' | transloco }}</span>
                 <span class="font-medium text-slate-200">{{
                   tool.getIsUserTrustedText(user)
                 }}</span>
               </p>
+              @if (user.banDto) {
+                <p class="flex justify-between border-b border-slate-800 pb-1.5">
+                  <span class="text-slate-400">{{ 'USERS_TABLE.BANNED_AT' | transloco }}</span>
+                  <span class="font-medium text-slate-200">
+                    {{ helper.generatBanExpirationFromDate(user.banDto.bannedAt) }}</span
+                  >
+                </p>
+                <p class="flex justify-between border-b border-slate-800 pb-1.5">
+                  <span class="text-slate-400">{{ 'USERS_TABLE.BANNED_UNTIL' | transloco }}</span>
+                  <span class="font-medium text-slate-200">
+                    {{ helper.generatBanExpirationFromDate(user.banDto.banExpires) }}</span
+                  >
+                </p>
+                <p class="flex justify-between border-b border-slate-800 pb-1.5">
+                  <span class="text-slate-400">{{ 'USERS_TABLE.REASON' | transloco }}</span>
+                  <span class="font-medium text-slate-200"> {{ user.banDto.reason }}</span>
+                </p>
+                <p class="flex justify-between border-b border-slate-800 pb-1.5">
+                  <span class="text-slate-400">{{ 'USERS_TABLE.BANNED_BY' | transloco }}</span>
+                  <span class="font-medium text-slate-200"> {{ user.banDto.bannedBy.nick }}</span>
+                </p>
+              }
             </div>
           }
         </div>

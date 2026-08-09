@@ -29,7 +29,7 @@ export class TableToolbar {
   readonly activeItems = computed<Identifiable[]>(() => {
     switch (this.type()) {
       case ToolbarType.RESERVATION_BY_STATUS:
-        return this.store.reservationsByStatus();
+        return this.store.reservations();
       case ToolbarType.USERS:
         return this.store.allUsers();
       case ToolbarType.ADMIN_ORGANIZATIONS:

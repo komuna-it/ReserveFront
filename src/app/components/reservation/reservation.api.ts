@@ -63,15 +63,15 @@ export class ReservationApi {
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
-  getOrganizationsOfUserWithMembers(page: number, size: number): Observable<Page<Organization>> {
-    let userId = this.authService.userId();
-    if (userId) {
-      userId = userId.toString().replace(/['"]/g, '');
-    }
-
+  getOrganizationsOfUser(
+    page: number,
+    size: number,
+    withMembers: boolean,
+    userId: number,
+  ): Observable<Page<Organization>> {
     const params = new HttpParams()
       .set('userId', userId ?? '')
-      .set('fetchMembers', 'true')
+      .set('fetchMembers', withMembers)
       .set('page', page)
       .set('size', size);
 

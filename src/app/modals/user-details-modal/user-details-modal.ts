@@ -7,6 +7,7 @@ import { TextFormatingTool } from '../../tools/textFormatingTool';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { User } from '../../model/user';
 import { UserReservations } from '../../pages/admin/components/user-reservations/user-reservations';
+import { AuthService } from '../../auth/authService';
 
 @Component({
   selector: 'app-user-details-modal',
@@ -19,6 +20,7 @@ export class UserDetailsModal {
   readonly facade = inject(ReservationFacade);
   readonly helper = inject(CalendarHelper);
   readonly tool = inject(TextFormatingTool);
+  readonly auth = inject(AuthService);
   readonly ReservationStatus = ReservationStatus;
   readonly textFormatingTool = inject(TextFormatingTool);
 
@@ -30,6 +32,9 @@ export class UserDetailsModal {
 
       if (currentUser) {
         this.facade.getAllReservationsForUserAndTheirOrganizationsByUser(currentUser);
+        if (this.auth.currentUser()) {
+          this.facade.getOrganizationsOfUser(true, this.auth.currentUser()?.id ?? 0);
+        }
       }
       console.table(currentUser);
     });

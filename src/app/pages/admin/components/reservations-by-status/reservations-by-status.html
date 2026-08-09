@@ -4,13 +4,11 @@
 >
   <app-table-by-status [status]="store.statusForAdminPage()"></app-table-by-status>
   <app-pagination
-    [totalElements]="store.paginationTotalNumber()"
-    [totalPages]="store.paginationTotalPages()"
-    [currentPage]="store.paginationPage()"
-    [isFirst]="store.paginationIsFirst()"
-    [isLast]="store.paginationIsLast()"
-    (previous)="facade.changePage('prev')"
-    (next)="facade.changePage('next')"
-    (sizeChange)="facade.changeReservationsByStatusSize()"
+    [totalElements]="store.reservationsPage().totalElements"
+    [currentPage]="store.reservationsPage().number"
+    [pageSize]="store.currentReservationsSize()"
+    [totalPages]="store.reservationsPage().totalPages"
+    (pageChange)="facade.changeReservationsPage($event)"
+    (sizeChange)="facade.changeReservationsSize($event)"
   ></app-pagination>
 </div>

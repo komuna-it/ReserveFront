@@ -45,7 +45,7 @@ export class OrganizationList implements OnInit, OnDestroy {
   });
   ngOnInit(): void {
     this.facade.getAllUsers();
-    this.facade.getAllMembersAllOrganizations(0);
+    this.facade.getAllMembersAllOrganizations();
     this.store.isAdminOrganizationModalActive.set(true);
   }
 

@@ -62,6 +62,11 @@
       <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
         {{ 'PROFILE.PRICE' | transloco }}
       </th>
+
+      <!-- paid 8 -->
+      <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
+        {{ 'PROFILE.IS_PAID' | transloco }}
+      </th>
     </tr>
   </thead>
 
@@ -115,6 +120,11 @@
           </td>
 
           <!-- Price column -->
+          <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
+            {{ textFormatingTool.getPrice(res) }}
+          </td>
+
+          <!-- isPaid column -->
           <td class="p-3.5 border-r border-slate-700/60 align-middle text-center">
             {{ textFormatingTool.getPrice(res) }}
           </td>

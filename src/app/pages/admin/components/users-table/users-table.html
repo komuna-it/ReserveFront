@@ -39,10 +39,7 @@
 
     <tbody class="divide-y divide-slate-700/70 text-slate-300">
       @for (user of store.allUsers(); track user.id) {
-        <tr
-          class="hover:bg-slate-700/30 transition-colors"
-          (click)="selectUserAndOpenDetailsModal(user)"
-        >
+        <tr class="hover:bg-slate-700/30 transition-colors">
           <!-- Checkbox column -->
           <td class="p-3 border-r border-slate-700/60 text-center align-middle">
             <label
@@ -59,13 +56,17 @@
 
           <!-- Nick column -->
           <td
+            (click)="selectUserAndOpenDetailsModal(user)"
             class="px-4 py-3 border-r border-slate-700/60 align-middle font-medium text-slate-200"
           >
             {{ user.nick }}
           </td>
 
           <!-- Email column -->
-          <td class="px-4 py-3 border-r border-slate-700/60 align-middle text-slate-400">
+          <td
+            class="px-4 py-3 border-r border-slate-700/60 align-middle text-slate-400"
+            (click)="selectUserAndOpenDetailsModal(user)"
+          >
             {{ user.email }}
           </td>
 
@@ -105,10 +106,10 @@
           </td>
           <!-- ban column -->
           <td class="px-4 py-3 text-center align-middle">
-            @if (user.banned) {
+            @if (user.banDto) {
               <span
                 class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20"
-                [title]="user.bannedUntil"
+                [title]="user.banDto.banExpires"
               >
                 <svg
                   class="w-4 h-4"
@@ -149,14 +150,12 @@
   </table>
 
   <app-pagination
-    [totalElements]="store.paginationTotalNumber()"
-    [totalPages]="store.paginationTotalPages()"
-    [currentPage]="store.paginationPage()"
-    [isFirst]="store.paginationIsFirst()"
-    [isLast]="store.paginationIsLast()"
-    (previous)="facade.changePage('prev')"
-    (next)="facade.changePage('next')"
-    (sizeChange)="facade.getAllUsers()"
+    [totalElements]="store.usersPage().totalElements"
+    [totalPages]="store.usersPage().totalPages"
+    [currentPage]="store.usersPage().number"
+    [pageSize]="store.usersPage().size"
+    (pageChange)="facade.changeUsersPage($event)"
+    (sizeChange)="facade.changeUsersSize($event)"
   ></app-pagination>
 
   @if (store.globalErrorKey()) {

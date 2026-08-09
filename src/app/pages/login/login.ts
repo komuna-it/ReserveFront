@@ -36,7 +36,7 @@ export class LoginPage {
       next: (user) => {
         this.isLoading = false;
 
-        if (user.banned) {
+        if (user.banDto) {
           console.log('detected user banned');
           this.store.globalErrorKey.set(ErrorType.USER_BANNED);
           return;

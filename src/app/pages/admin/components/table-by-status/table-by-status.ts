@@ -29,12 +29,12 @@ export class TableByStatus {
   // ========= rows
 
   displayRows = computed(() => {
-    const res = this.store.reservationsByStatus();
+    const res = this.store.reservations();
     if (!res || res.length === 0) {
       return [];
     }
     const array = Array.from(
-      { length: this.store.paginationSize() },
+      { length: this.store.currentReservationsSize() },
       (_, index) => res[index] ?? null,
     );
 
@@ -44,7 +44,7 @@ export class TableByStatus {
   // ========= checkbox-ing
 
   readonly areAllSelected = computed(() => {
-    const items = this.store.reservationsByStatus();
+    const items = this.store.reservations();
     if (items.length === 0) return false;
     const selected = this.store.toolbarSelectedIds();
     return items.every((res) => selected.has(res.id));
@@ -59,7 +59,7 @@ export class TableByStatus {
     if (this.areAllSelected() || this.isIndeterminate()) {
       this.store.clearSelection();
     } else {
-      const allIds = new Set(this.store.reservationsByStatus().map((res) => res.id));
+      const allIds = new Set(this.store.reservations().map((res) => res.id));
       this.store.setSelectedIds(allIds);
     }
   }
@@ -77,12 +77,10 @@ export class TableByStatus {
       const currentStatus = this.status();
       if (!currentStatus) return;
 
-      // Accessing computed signals registers dependencies
       this.store.currentSortBy();
       this.store.currentSortDir();
-      this.store.paginationPage();
-      this.store.paginationSize();
-
+      this.store.currentReservationsPage();
+      this.store.currentReservationsSize();
       this.facade.getReservationsByStatus(currentStatus);
     });
   }

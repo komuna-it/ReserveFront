@@ -3,6 +3,7 @@ import { ReservationStore } from '../../reservation/reservation.store';
 import { ReservationFacade } from '../../reservation/reservation.facade';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { OrganizationMemberDto } from '../../../model/organizationMemberDto';
+import { AuthService } from '../../../auth/authService';
 
 @Component({
   selector: 'app-organization-members',
@@ -15,9 +16,12 @@ export class OrganizationMembers implements OnInit {
   readonly facade = inject(ReservationFacade);
   readonly translocoService = inject(TranslocoService);
   readonly loco = inject(TranslocoService);
+  readonly auth = inject(AuthService);
 
   ngOnInit() {
-    this.facade.getOrganizationsOfUserWithMembers();
+    if (this.auth.currentUser()) {
+      this.facade.getOrganizationsOfUser(true, this.auth.currentUser()?.id ?? 0);
+    }
   }
 
   deleteTeamMember(userId: number) {

@@ -8,7 +8,7 @@ import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
 import { User } from '../../model/user';
-import { Page } from '../../model/page';
+import { initialPage, Page } from '../../model/page';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { TranslocoService } from '@jsverse/transloco';
 import { Tab } from '../../model/tab';
@@ -28,11 +28,13 @@ export class ReservationStore {
   readonly allUsers = signal<User[]>([]);
 
   readonly rooms = signal<Room[]>([]);
-  readonly reservations = signal<ReservationDto[]>([]);
+  readonly reservations = computed(() => this.reservationsPage().content);
 
+  readonly users = computed(() => this.usersPage().content);
   readonly userOrganizations = signal<Organization[]>([]);
-  readonly allOrganizations = signal<Organization[]>([]);
 
+  readonly organizations = computed(() => this.organizationsPage().content);
+  readonly allOrganizations = signal<Organization[]>([]);
   readonly orgAndMembersMap = signal<Map<Organization, User[]>>(new Map());
 
   readonly daySelectedByUser = signal<Date>(new Date());
@@ -180,7 +182,6 @@ export class ReservationStore {
           isFirst = hour === startHour;
           isLast = hour === new Date(matchedReservation.endAt).getUTCHours() - 1;
           reservedByUserId = matchedReservation.reservedBy;
-          console.log('matchedReservation:', matchedReservation);
           if (matchedReservation.organization) {
             if (isAdmin) {
               bandName =
@@ -286,41 +287,44 @@ export class ReservationStore {
 
   // =================
 
-  // reservation pagination
-  readonly paginationOptions = signal<number[]>([5, 10, 25, 50, 100]);
+  //  pagination
+  readonly reservationsPage = signal<Page<ReservationDto>>(initialPage);
+  readonly usersPage = signal<Page<User>>(initialPage);
+  readonly organizationsPage = signal<Page<Organization>>(initialPage);
 
-  readonly reservationsByStatus = signal<ReservationDto[]>([]);
-  readonly paginationTotalNumber = signal<number>(0);
-  readonly paginationTotalPages = signal<number>(1);
-  readonly paginationPage = computed(() =>
-    this.queryParams()['page'] ? Number(this.queryParams()['page']) : 0,
+  //params
+
+  readonly reservationsPageQueryParamName = signal<string>('resPage');
+  readonly organizationsPageQueryParamName = signal<string>('orgsPage');
+  readonly usersPageQueryParamName = signal<string>('usersPage');
+
+  readonly reservationsSizeQueryParamName = signal<string>('resSize');
+  readonly organizationsSizeQueryParamName = signal<string>('orgsSize');
+  readonly usersSizeQueryParamName = signal<string>('usersSize');
+
+  // size
+
+  readonly currentReservationsSize = computed(
+    () => Number(this.queryParams()[this.reservationsSizeQueryParamName()]) || 10,
   );
-  readonly paginationIsFirst = signal<boolean>(false);
-  readonly paginationIsLast = signal<boolean>(false);
-  readonly paginationSize = computed(() =>
-    this.queryParams()['size'] ? Number(this.queryParams()['size']) : 5,
+  readonly currentOrganizationsSize = computed(
+    () => Number(this.queryParams()[this.organizationsSizeQueryParamName()]) || 10,
+  );
+  readonly currentUsersSize = computed(
+    () => Number(this.queryParams()[this.usersSizeQueryParamName()]) || 10,
   );
 
-  // org pagination
+  // page
 
-  readonly orgsTotalElements = signal<number>(0);
-  readonly orgsTotalPages = signal<number>(0);
-  readonly orgsPage = signal<number>(0);
-  readonly orgsIsFirst = signal<boolean>(false);
-  readonly orgsIsLast = signal<boolean>(false);
-  readonly orgsSize = signal<number>(10);
-
-  // users pagination
-
-  readonly usersTotalElements = computed(() => {
-    return this.allUsers().length;
-  });
-
-  readonly userTotalPages = signal<number>(0);
-  readonly userPage = signal<number>(0);
-  readonly userIsFirst = signal<boolean>(false);
-  readonly userIsLast = signal<boolean>(false);
-  readonly userSize = signal<number>(10);
+  readonly currentReservationsPage = computed(
+    () => Number(this.queryParams()[this.reservationsPageQueryParamName()]) || 0,
+  );
+  readonly currentUsersPage = computed(
+    () => Number(this.queryParams()[this.usersPageQueryParamName()]) || 0,
+  );
+  readonly currentOrganizationsPage = computed(
+    () => Number(this.queryParams()[this.reservationsPageQueryParamName()]) || 0,
+  );
 
   // Toolbar
 

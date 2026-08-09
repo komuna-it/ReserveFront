@@ -47,10 +47,13 @@
     "NOT_TRUSTED": "Niezaufany",
     "REASON": "Powód",
     "DURATION": "Długość",
+    "BANNED_BY": "Zbanowany przez",
+    "BANNED_AT": "Data bana",
     "ORGANIZATION": "Zespół",
     "ROOM": "Sala",
     "IS_TRUESTED": "Zaufany?",
     "IS_BANNED": "Zbanowany?",
+    "IS_PAID": "Opłacone?",
     "BANNED_UNTIL": "Koniec bana:",
     "YES": "Tak",
     "NO": "Nie"
