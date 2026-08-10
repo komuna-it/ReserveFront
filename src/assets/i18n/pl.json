@@ -21,6 +21,7 @@
     "MODAL_START": "Start",
     "MODAL_LOCATION": "Sala",
     "MODAL_DURATION": "Czas trwania",
+    "RESERVATION_TYPE": "Rodzaj rezerwacji",
     "HOUR_SINGULAR": "godzina",
     "HOUR_PLURAL": "godziny",
     "MODAL_BAND": "Zespół",
@@ -33,7 +34,14 @@
     "ERROR_DESC": "Wybrany termin jest już niedostępny lub wystąpił błąd sieci.",
     "BACK_TO_CALENDAR": "Wróć do kalendarza",
     "PRIVATE_RESERVATION": "Zarezerwuj prywatnie (bez zespołu)",
-    "MY_PRIVATE_RESERVATION": "Moja prywatna rezerwacja"
+    "MY_PRIVATE_RESERVATION": "Moja prywatna rezerwacja",
+    "RESERVATION_DETAILS": "Szczegóły rezerwacji",
+    "REHEARSAL": "Próba",
+    "RECORDING": "Nagranie",
+    "TYPE": "Rodzaj",
+    "NOT_MEMBER_OF_ANY_BAND": "Nie jesteś członkiem żadnego zespołu!",
+    "CREATE_ONE": "Kliknij tutaj aby utworzyć zespół",
+    "MODAL_RESERVED_FOR_USER": "Rezerwacja w imieniu"
   },
   "USERS_TABLE": {
     "NICK": "Nick",
@@ -41,7 +49,17 @@
     "TRUSTED": "Zaufany",
     "NOT_TRUSTED": "Niezaufany",
     "REASON": "Powód",
-    "DURATION": "Długość"
+    "DURATION": "Długość",
+    "BANNED_BY": "Zbanowany przez",
+    "BANNED_AT": "Data bana",
+    "ORGANIZATION": "Zespół",
+    "ROOM": "Sala",
+    "IS_TRUESTED": "Zaufany?",
+    "IS_BANNED": "Zbanowany?",
+    "IS_PAID": "Opłacone?",
+    "BANNED_UNTIL": "Koniec bana:",
+    "YES": "Tak",
+    "NO": "Nie"
   },
   "PROFILE": {
     "TITLE": "Twój Profil",
@@ -150,7 +168,8 @@
   "ORGANIZATION_LIST.ERRORS": {
     "DELETE_ORG_FAILED": "Nie udało się usunąć zespołu. Spróbuj ponownie później.",
     "REMOVE_USER_FAILED": "Nie udało się usunąć użytkownika. Spróbuj ponownie później.",
-    "REMOVE_OWNER_FAILED": "Nie udało się usunąć właściciela. Spróbuj ponownie później."
+    "REMOVE_OWNER_FAILED": "Nie udało się usunąć właściciela. Spróbuj ponownie później.",
+    "STATUS_UPDATE_FAILED": "Nie udało się zaktualizować statusu rezerwacji"
   },
   "ERROR": {
     "CLOSE": "Zamknij",
@@ -184,8 +203,8 @@
     "IS_PRIVATE": "Tak",
     "IS_NOT_PRIVATE": "Nie",
     "ACCEPT": "Akceptuj",
-    "REJECT": "Odrzuć",
-    "NO_RESERVATIONS": "Brak oczekujących rezerwacji",
+    "REJECT": "Odwołaj",
+    "NO_RESERVATIONS": "Brak rezerwacji do wyświetlenia",
     "ACCEPTED": "Rezerwacja zaakceptowana",
     "REJECTED": "Rezerwacja odrzucona",
     "SEND_ACCEPT": "Pomysł ?",
@@ -212,12 +231,29 @@
     "CONFIRM_CANCEL": "Odwołaj",
     "PRIVATE": "Prywatna?",
     "ACTION_COLUMN": "Akcja",
-    "ORG": "Zespół"
+    "ORG": "Zespół",
+    "USER_DETAILS": "Szczegóły użytkownika",
+    "USERS_ORGANIZATIONS": "Zespoły do których należy",
+    "USERS_OR_THEIR_ORGS_RESERVATIONS": "Rezerwacje użytkownika lub jego zespołów",
+    "ORGANIZATION_DETAILS": "Szczegóły zespołu",
+    "ORGANIZATION_MEMBERS": "Członkowie zespołu",
+    "ORGANIZATION_OWNERS": "Właściciele zespołu",
+    "ORGANIZATION_RESERVATIONS": "Rezerwacje zespołu",
+    "EMPTY_OWNERS": "Brak właścicieli",
+    "EMPTY_MEMBERS": "Brak członków",
+    "ADD_MEMBER": "Dodaj członka",
+    "ADD_OWNER": "Dodaj właściciela",
+    "ADD_USER_INTO_ORGANIZATION_PLACEHOLDER": "Wybierz użytkownika"
   },
   "PAGINATION": {
     "PREVIOUS": "Poprzednia",
     "NEXT": "Następna",
     "PAGE": "Strona",
-    "TOTAL": "Suma"
+    "TOTAL": "Razem"
+  },
+  "COMMON": {
+    "DELETE": "Usuń",
+    "CLOSE": "Zamknij",
+    "SELECT": "Wybierz"
   }
 }

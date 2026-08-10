@@ -1,14 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ReservationFacade } from '../../reservation/reservation.facade';
 import { ReservationStore } from '../../reservation/reservation.store';
-import { filter } from 'rxjs';
-import { User } from '../../../model/user';
 
 @Component({
   selector: 'app-add-user-into-organization-modal',
+  standalone: true,
   imports: [CommonModule, FormsModule, TranslocoPipe],
   templateUrl: './add-user-into-organization-modal.html',
   styleUrl: './add-user-into-organization-modal.css',
@@ -16,50 +15,52 @@ import { User } from '../../../model/user';
 export class AddUserIntoOrganizationModal implements OnInit, OnDestroy {
   readonly facade = inject(ReservationFacade);
   readonly store = inject(ReservationStore);
+
+  readonly type = input.required<'member' | 'owner' | string>();
+
   ngOnInit(): void {
     this.facade.getAllUsers();
-    console.log('State of all users: ' + this.store.allUsers());
+    this.store.organizationListSelectedUser.set(null);
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.store.organizationListSelectedUser.set(null);
+  }
 
-  readonly allUsersSafe = computed(() => {
-    const users = this.store.allUsers();
+  readonly usersToAddIntoOrganization = computed(() => {
+    const availableUsers = this.store.users() ?? [];
+    const selectedOrg = this.store.selectedOrganization();
 
-    return users.filter((u) => u.nick != 'SYSTEM');
+    if (!selectedOrg) {
+      return availableUsers;
+    }
+
+    const existingUserIds = new Set([
+      ...(selectedOrg.members?.map((m) => m.userId) ?? []),
+      ...(selectedOrg.owners?.map((o) => o.userId) ?? []),
+    ]);
+
+    return availableUsers.filter((user) => user.id !== undefined && !existingUserIds.has(user.id));
   });
 
-  readonly selectedOrganization = computed(() => {
-    const org = this.store.organizationListSelectedOrganization();
-    if (!org) return null;
-
-    return org;
-  });
-
-  cancel() {
+  cancel(): void {
     this.store.isModalAddMemberActive.set(false);
+    this.store.isModalAddOwnerActive.set(false);
+    this.store.organizationListSelectedUser.set(null);
   }
 
-  confirm() {
-    console.log(
-      'State: ' +
-        'this.store.organizationListSelectedUser: ' +
-        this.store.organizationListSelectedUser() +
-        ' ,organizationListSelectedOrganization: ' +
-        this.store.organizationListSelectedOrganization() +
-        ' , this.store.organizationListSelectedUser()?.id=' +
-        this.store.organizationListSelectedUser()?.id,
-    );
+  confirm(): void {
+    const selectedUser = this.store.organizationListSelectedUser();
+    const selectedOrg = this.store.selectedOrganization();
 
-    if (
-      this.store.organizationListSelectedUser() &&
-      this.store.organizationListSelectedOrganization()
-    ) {
-      this.facade.addUserIntoOrganization(
-        this.store.organizationListSelectedUser()?.id ?? 0,
-        this.store.organizationListSelectedOrganization()?.id ?? 0,
-      );
-      this.store.isModalAddMemberActive.set(false);
+    if (!selectedUser?.id || !selectedOrg?.id) {
+      return;
+    }
+
+    if (this.type() === 'owner') {
+      this.facade.addOwnerToOrganization(selectedUser.id, selectedOrg.id);
+    } else {
+      this.facade.addMemberToOrganization(selectedUser.id, selectedOrg.id);
     }
   }
 }

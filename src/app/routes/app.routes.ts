@@ -25,7 +25,7 @@ export const routes: Routes = [
   },
   {
     path: 'profile',
-    loadComponent: () => import('../pages/profile/profile').then((m) => m.ProfilePage),
+    loadChildren: () => import('./profile.routes').then((m) => m.PROFILE_ROUTES),
     canActivate: [authenticatedGuard],
   },
   {

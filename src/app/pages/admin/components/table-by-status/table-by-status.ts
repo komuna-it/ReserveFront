@@ -1,161 +1,103 @@
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import { Component, computed, effect, HostListener, inject, input, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ReservationStore } from '../../../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { AdminPage } from '../../admin';
-import { PendingReservationsComponent } from '../pending-reservations-component/pending-reservations-component';
 import { ReservationStatus } from '../../../../model/reservationStatus';
 import { ReservationDto } from '../../../../model/reservationDto';
 import { TextFormatingTool } from '../../../../tools/textFormatingTool';
-import { ConfirmationPopup } from '../../../../modals/confirmation-popup/confirmation-popup';
-import { SuccessPopup } from '../../../../modals/success-popup/success-popup';
-import { ErrorPopup } from '../../../../modals/error-popup/error-popup';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 
 @Component({
   selector: 'app-table-by-status',
-  imports: [TranslocoPipe],
+  imports: [CommonModule, TranslocoPipe],
   templateUrl: './table-by-status.html',
   styleUrl: './table-by-status.css',
 })
 export class TableByStatus {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
-  readonly parent = inject(AdminPage);
-  readonly status = input<any | null>();
-  readonly translocoService = inject(TranslocoService);
   readonly textFormatingTool = inject(TextFormatingTool);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  getAcceptText(): string {
-    switch (this.store.statusForAdminPage()) {
-      case ReservationStatus.CREATED: {
-        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_ACCEPT');
-      }
-      case ReservationStatus.CANCELLED: {
-        return this.translocoService.translate('ADMIN_CANCELLED_RESERVATIONS.CONFIRM_ACCEPT');
-      }
-      case ReservationStatus.CONFIRMED: {
-        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_ACCEPT');
-      }
-      case ReservationStatus.REJECTED_CANCELLATION: {
-        return this.translocoService.translate(
-          'ADMIN_REJECTED_CANCELLATION_RESERVATIONS.CONFIRM_ACCEPT',
-        );
-      }
-      case ReservationStatus.REQUESTED_CANCELLATION: {
-        return this.translocoService.translate(
-          'ADMIN_REQUESTED_CANCELLATION_RESERVATIONS.CONFIRM_ACCEPT',
-        );
-      }
-      default: {
-        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_ACCEPT_BUTTON');
-      }
+  readonly status = input<ReservationStatus | null>(null);
+  readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} as Params });
+
+  // ========= rows
+
+  displayRows = computed(() => {
+    const res = this.store.reservations();
+    if (!res || res.length === 0) {
+      return [];
     }
-    return 'OK';
+    const array = Array.from(
+      { length: this.store.currentReservationsSize() },
+      (_, index) => res[index] ?? null,
+    );
+
+    return array;
+  });
+
+  // ========= checkbox-ing
+
+  readonly areAllSelected = computed(() => {
+    const items = this.store.reservations();
+    if (items.length === 0) return false;
+    const selected = this.store.toolbarSelectedIds();
+    return items.every((res) => selected.has(res.id));
+  });
+
+  readonly isIndeterminate = computed(() => {
+    const selectedSize = this.store.toolbarSelectedIds().size;
+    return selectedSize > 0 && !this.areAllSelected();
+  });
+
+  toggleMasterCheckbox(): void {
+    if (this.areAllSelected() || this.isIndeterminate()) {
+      this.store.clearSelection();
+    } else {
+      const allIds = new Set(this.store.reservations().map((res) => res.id));
+      this.store.setSelectedIds(allIds);
+    }
   }
 
-  getCancelText(): string {
-    switch (this.store.statusForAdminPage()) {
-      case ReservationStatus.CREATED: {
-        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_REJECT_BUTTON');
-      }
-      case ReservationStatus.CANCELLED: {
-        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
-      }
-      case ReservationStatus.CONFIRMED: {
-        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
-      }
-      case ReservationStatus.REJECTED_CANCELLATION: {
-        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
-      }
-      case ReservationStatus.REQUESTED_CANCELLATION: {
-        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
-      }
-      default: {
-        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
-      }
-    }
-    return 'Cancel';
+  toggleSelection(id: number): void {
+    this.store.toggleSelection(id);
   }
 
-  handleAcceptClick(res: ReservationDto) {
-    switch (this.store.statusForAdminPage()) {
-      case ReservationStatus.CREATED: {
-        this.facade.handleAcceptReservation(res);
-        break;
-      }
-      case ReservationStatus.CANCELLED: {
-        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
-        break;
-      }
-      case ReservationStatus.CONFIRMED: {
-        return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON');
-        break;
-      }
-      case ReservationStatus.REJECTED_CANCELLATION: {
-        return this.translocoService.translate(
-          'ADMIN_REJECTED_CANCELLATION_RESERVATIONS.CONFIRM_CANCEL_BUTTON',
-        );
-        break;
-      }
-      case ReservationStatus.REQUESTED_CANCELLATION: {
-        return this.translocoService.translate(
-          'ADMIN_REQUESTED_CANCELLATION_RESERVATIONS.CONFIRM_CANCEL_BUTTON',
-        );
-        break;
-      }
-      default: {
-        ('Accept');
-      }
-    }
-    return 'Accept';
+  // ======= Sorting
+
+  constructor() {
+    this.store.toolbarType.set(ToolbarType.RESERVATION_BY_STATUS);
+
+    effect(() => {
+      const currentStatus = this.status();
+      if (!currentStatus) return;
+
+      this.store.currentSortBy();
+      this.store.currentSortDir();
+      this.store.currentReservationsPage();
+      this.store.currentReservationsSize();
+      this.facade.getReservationsByStatus(currentStatus);
+    });
   }
 
-  handleCancelClick(res: ReservationDto) {
-    switch (this.store.statusForAdminPage()) {
-      case ReservationStatus.CREATED: {
-        this.facade.handleCancelReservation(res);
-        break;
-      }
-      case ReservationStatus.CANCELLED: {
-        this.facade.handleCancelReservation(res);
-        break;
-      }
-      case ReservationStatus.CONFIRMED: {
-        this.facade.handleCancelReservation(res);
-        break;
-      }
-      case ReservationStatus.REJECTED_CANCELLATION: {
-        this.facade.handleCancelReservation(res);
-        break;
-      }
-      case ReservationStatus.REQUESTED_CANCELLATION: {
-        this.facade.handleCancelReservation(res);
-        break;
-      }
-      default: {
-        ('Cancel');
-      }
-    }
-    return 'Cancel';
-  }
+  toggleSort(column: string): void {
+    const isCurrentlySortedByThis = this.store.currentSortBy() === column;
+    const nextDir =
+      isCurrentlySortedByThis && this.store.currentSortDir() === 'asc' ? 'desc' : 'asc';
 
-  isAcceptButtonVisible(): boolean {
-    switch (this.store.statusForAdminPage()) {
-      case ReservationStatus.CREATED: {
-        return true;
-      }
-      case ReservationStatus.CANCELLED: {
-        return false;
-      }
-      case ReservationStatus.CONFIRMED: {
-        return false;
-      }
-      case ReservationStatus.REQUESTED_CANCELLATION: {
-        return false;
-      }
-      default: {
-        return false;
-      }
-    }
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        sortBy: column,
+        sortDir: nextDir,
+        page: 0,
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 }

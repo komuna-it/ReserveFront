@@ -7,7 +7,7 @@ export class Organization {
     public name: string,
     public created: Date,
     public trusted: boolean,
-    public owners?: OrganizationMemberDto[],
-    public members?: OrganizationMemberDto[],
+    public owners: OrganizationMemberDto[] = [],
+    public members: OrganizationMemberDto[] = [],
   ) {}
 }

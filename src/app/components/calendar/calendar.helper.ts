@@ -65,6 +65,19 @@ export class CalendarHelper {
     return `${day}.${month}.${year} ${startAt}:00`;
   }
 
+  generatBanExpirationFromDate(dateString: Date): string {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    console.log('day: ', day);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const startAt = date.getHours();
+    const minutes = date.getMinutes();
+    let minutesString = '';
+    if (minutes < 10) minutesString = `0${minutes}`;
+    return `${day}.${month}.${year} ${startAt}:${minutesString}`;
+  }
+
   generateDayLabel(dateString: string): string {
     const date = new Date(dateString);
     const day = date.getDate();

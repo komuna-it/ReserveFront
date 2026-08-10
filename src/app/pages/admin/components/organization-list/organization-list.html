@@ -1,3 +1,13 @@
+<div class="mb-4 pl-3 border-slate-700/80 space-y-1 pt-1">
+  <button
+    (click)="facade.handleUserAddOrganization()"
+    class="text-left flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-emerald-400 hover:text-white hover:bg-emerald-600/20 border border-emerald-500/20 transition-all active:scale-95"
+    [class.bg-emerald-600/20]="store.isAdminOrganizationModalActive()"
+  >
+    <span class="text-emerald-400 text-sm font-bold">+ Dodaj zespół</span>
+  </button>
+</div>
+
 <div
   class="w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
 >
@@ -6,13 +16,35 @@
       <tr
         class="bg-slate-900/80 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700"
       >
-        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
+        @if (mode() === 'admin') {
+          <th class="py-3.5 px-2 font-semibold text-center border-r border-slate-700/60 w-[5%]">
+            <label
+              class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
+            >
+              <input
+                type="checkbox"
+                (change)="toggleMasterCheckbox()"
+                [checked]="areAllSelected()"
+                [indeterminate]="isIndeterminate()"
+                class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+              />
+            </label>
+          </th>
+        }
+
+        <th
+          class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 cursor-pointer"
+        >
           Zespół
         </th>
-        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
-          Owner
+        <th
+          class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 cursor-pointer"
+        >
+          Właściciele
         </th>
-        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
+        <th
+          class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 cursor-pointer"
+        >
           Członkowie
         </th>
         <th class="py-3.5 px-4 font-semibold text-center w-[16%]">Zaufany zespół</th>
@@ -21,39 +53,47 @@
     <tbody class="divide-y divide-slate-700/70 text-slate-300">
       @for (org of safeOrganizations(); track org.id) {
         <tr class="hover:bg-slate-700/30 transition-colors">
-          <!-- org column -->
-          <td class="p-3.5 border-r border-slate-700/60 align-middle">
-            <div
-              class="flex items-center justify-between gap-3 bg-slate-900/40 p-2 rounded-lg border border-slate-700/40"
-            >
-              <span class="font-semibold text-slate-100 truncate text-sm" [title]="org.name">
+          <!-- Wywołanie sygnału: mode() -->
+          @if (mode() === 'admin') {
+            <td class="p-1.5 border-r border-slate-700/60 align-middle text-center">
+              <label
+                class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="store.toolbarSelectedIds().has(org.id)"
+                  (change)="toggleSelection(org.id)"
+                  class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+                />
+              </label>
+            </td>
+          }
+
+          <!-- Name Column -->
+          <td
+            class="cursor-pointer p-3.5 border-r border-slate-700/60 align-middle"
+            (click)="selectOrganizationAndOpenDetailsModal(org)"
+          >
+            <div class="flex items-center justify-between gap-1">
+              <span class="font-semibold text-slate-100 truncate text-base" [title]="org.name">
                 {{ org.name }}
               </span>
-              <button
-                (click)="handleDeleteOrganization(org.id)"
-                class="shrink-0 px-2.5 py-1 bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-medium rounded-md transition-all shadow-sm active:scale-95"
-              >
-                Usuń
-              </button>
             </div>
           </td>
 
-          <!-- owners column -->
-          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+          <!-- Owners Column -->
+          <td
+            class="p-3.5 border-r border-slate-700/60 align-middle cursor-pointer"
+            (click)="selectOrganizationAndOpenDetailsModal(org)"
+          >
             <div class="flex flex-col gap-1.5 justify-center">
               @for (owner of org.owners; track owner.id) {
                 <div
                   class="flex items-center justify-between gap-2 bg-slate-900/40 px-2.5 py-1.5 rounded-lg border border-slate-700/30"
                 >
                   <span class="text-slate-300 text-xs font-mono truncate" [title]="owner.email">
-                    {{ owner.email }}
+                    {{ owner.nick }} ({{ owner.email }})
                   </span>
-                  <button
-                    (click)="handleDeleteOwner(owner.id, org.id)"
-                    class="shrink-0 px-2 py-0.5 bg-rose-600/80 hover:bg-rose-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
-                  >
-                    Usuń
-                  </button>
                 </div>
               } @empty {
                 <span class="text-slate-500 text-xs italic text-center py-1">Brak właściciela</span>
@@ -61,80 +101,70 @@
             </div>
           </td>
 
-          <!-- users column -->
-          <td class="p-3.5 border-r border-slate-700/60 align-middle">
+          <!-- Members Column -->
+          <td
+            class="p-3.5 border-r border-slate-700/60 align-middle cursor-pointer"
+            (click)="selectOrganizationAndOpenDetailsModal(org)"
+          >
             <div class="flex flex-col gap-1.5 justify-center">
               @for (user of org.members; track user.id) {
                 <div
                   class="flex items-center justify-between gap-2 bg-slate-900/40 px-2.5 py-1.5 rounded-lg border border-slate-700/30"
                 >
                   <span class="text-slate-300 text-xs font-mono truncate" [title]="user.email">
-                    {{ user.email }}
+                    {{ user.nick }} ({{ user.email }})
                   </span>
-                  <span class="text-slate-300 text-xs font-mono truncate" [title]="user.trusted">
-                    {{ userTrustedText(user) }}
-                  </span>
-                  <button
-                    (click)="facade.markUserTrusted(user.trusted, user.id)"
-                    class="shrink-0 px-2 py-0.5 text-xs font-medium rounded-md text-white transition-all shadow-sm active:scale-95"
-                    [ngClass]="{
-                      'bg-emerald-600 hover:bg-emerald-500': !user.trusted,
-                      'bg-amber-600/80 hover:bg-amber-600': user.trusted,
-                    }"
-                  >
-                    {{ userTrustedButtonText(user) }}
-                  </button>
-                  <button
-                    (click)="handleDeleteMember(user.id, org.id)"
-                    class="shrink-0 px-2 py-0.5 bg-rose-600/80 hover:bg-rose-600 text-white text-[11px] font-medium rounded transition-all active:scale-95"
-                  >
-                    Usuń
-                  </button>
                 </div>
               } @empty {
                 <span class="text-slate-500 text-xs italic text-center py-1">Brak członków</span>
               }
-
-              <!-- add member button -->
-              <button
-                (click)="handleAddMember(org.id)"
-                class="mt-1 w-full py-1 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-green-200 hover:text-emerald-300 border border-emerald-500/30 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5"
-              >
-                <span>+</span> Dodaj członka
-              </button>
             </div>
           </td>
 
-          <!-- band trusted column -->
-          <td class="p-3.5 align-middle text-center">
-            <div class="flex flex-col gap-2 items-center justify-center">
+          <!-- Trusted Column -->
+          <td
+            class="px-4 py-3 text-center align-middle cursor-pointer"
+            (click)="selectOrganizationAndOpenDetailsModal(org)"
+          >
+            @if (org.trusted) {
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                [ngClass]="
-                  org.trusted
-                    ? 'bg-green-700 text-green-200 border border-emerald-500/30'
-                    : 'bg-slate-700/50 text-slate-400 border border-slate-600/30'
-                "
+                class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                [title]="'USERS_TABLE.YES' | transloco"
               >
-                {{ orgTrustedText(org) }}
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
               </span>
-
-              <button
-                (click)="facade.markOrganizationAsTrusted(org.id)"
-                class="px-2.5 py-1 text-xs font-medium rounded-md text-white transition-all shadow-sm active:scale-95"
-                [ngClass]="{
-                  'bg-emerald-600 hover:bg-emerald-500': !org.trusted,
-                  'bg-amber-600/80 hover:bg-amber-600': org.trusted,
-                }"
+            } @else {
+              <span
+                class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-800/60 text-slate-500 border border-slate-700/50"
+                [title]="'USERS_TABLE.NO' | transloco"
               >
-                {{ orgTrustedButtonText(org) }}
-              </button>
-            </div>
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+              </span>
+            }
           </td>
         </tr>
       } @empty {
         <tr>
-          <td colspan="4" class="p-8 text-center text-slate-400 italic">
+          <td
+            [attr.colspan]="mode() === 'admin' ? 5 : 4"
+            class="p-8 text-center text-slate-400 italic"
+          >
             Brak zespołów do wyświetlenia
           </td>
         </tr>
@@ -144,98 +174,11 @@
 
   <!-- Pagination -->
   <app-pagination
-    [totalElements]="store.orgsTotalElements()"
-    [totalPages]="store.orgsTotalPages()"
-    [currentPage]="store.orgsPage()"
-    [isFirst]="store.orgsIsFirst()"
-    [isLast]="store.orgsIsLast()"
-    (previous)="facade.changeOrganizationsPage('prev')"
-    (next)="facade.changeOrganizationsPage('next')"
+    [totalElements]="store.organizationsPage().totalElements"
+    [totalPages]="store.organizationsPage().totalPages"
+    [currentPage]="store.currentOrganizationsPage()"
+    [pageSize]="store.currentOrganizationsSize()"
+    (pageChange)="facade.changeOrganizationsPage($event)"
+    (sizeChange)="facade.changeOrganizationsSize($event)"
   ></app-pagination>
-
-  <!-- Modal - Add Organization -->
-  @if (
-    store.isAdminAddOrganizationModalActive() && !store.isAdminAddOrganizationSuccessPopupActive()
-  ) {
-    <app-add-organization-modal></app-add-organization-modal>
-  }
-
-  <!-- Popup org added successfully -->
-  @if (store.isAdminAddOrganizationSuccessPopupActive()) {
-    <app-success-popup [titleText]="getOrganizationAddedTitleText()"></app-success-popup>
-  }
-
-  <!-- Modal - delete org -->
-  @if (store.isModalDeleteOrganizationActive()) {
-    <div
-      class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
-    >
-      <div
-        class="bg-slate-800 border border-slate-700 text-slate-100 p-6 rounded-2xl w-full max-w-sm shadow-2xl flex flex-col"
-      >
-        <h2 class="text-lg font-bold tracking-tight mb-2 text-rose-400">
-          {{ 'ORGANIZATION_LIST.DELETE_ORGANIZATION.TITLE' | transloco }}
-        </h2>
-        <p class="text-xs text-slate-300 mb-6">
-          {{ 'ORGANIZATION_LIST.DELETE_ORGANIZATION.CONFIRMATION' | transloco }}
-        </p>
-        <div class="flex gap-3 justify-end">
-          <button
-            (click)="closeModals()"
-            class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
-          >
-            {{ 'ORGANIZATION_LIST.DELETE_ORGANIZATION.CANCEL' | transloco }}
-          </button>
-          <button
-            (click)="confirmDeleteOrganization()"
-            class="px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-md transition-all active:scale-95"
-          >
-            {{ 'ORGANIZATION_LIST.DELETE_ORGANIZATION.ACCEPT' | transloco }}
-          </button>
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- Modal - confirm deleting owner from org -->
-  @if (store.isModalDeleteOwnerActive()) {
-    <app-confirmation-popup
-      [titleText]="'USER_MODALS.CONFIRM_DELETE_OWNER' | transloco"
-      (ok)="confirmDeleteOwner()"
-      (cancel)="facade.closeModals()"
-    ></app-confirmation-popup>
-  }
-
-  <!-- Modal - confirm deleting owner from org -->
-  @if (store.isModalDeleteMemberActive()) {
-    <app-confirmation-popup
-      [titleText]="'USER_MODALS.CONFIRM_DELETE_MEMBER' | transloco"
-      (ok)="confirmDeleteMember()"
-      (cancel)="facade.closeModals()"
-    ></app-confirmation-popup>
-  }
-
-  <!-- Popup - delete organization success -->
-  @if (store.isModalDeleteOrganizationSuccessActive()) {
-    <app-success-popup [titleText]="getOrganizationAddedTitleText()"></app-success-popup>
-  }
-
-  <!-- Popup - delete member success -->
-  @if (store.isModalDeleteMemberSuccessActive()) {
-    <app-success-popup [titleText]="getDeleteMemberSuccessTitleText()"></app-success-popup>
-  }
-
-  <!-- Popup - delete owner success -->
-  @if (store.isModalDeleteOwnerSuccessActive()) {
-    <app-success-popup [titleText]="getDeleteOwnerSuccessTitleText()"></app-success-popup>
-  }
-
-  <!-- Popup - error -->
-  @if (store.globalErrorKey(); as errorKey) {
-    <app-error-popup [titleText]="errorKey | transloco" />
-  }
-
-  @if (store.isModalAddMemberActive()) {
-    <app-add-user-into-organization-modal></app-add-user-into-organization-modal>
-  }
 </div>

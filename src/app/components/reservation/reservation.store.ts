@@ -8,35 +8,48 @@ import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
 import { User } from '../../model/user';
-import { Page } from '../../model/page';
+import { initialPage, Page } from '../../model/page';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { TranslocoService } from '@jsverse/transloco';
 import { Tab } from '../../model/tab';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
+import { ReservationType } from '../../model/reservationType';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ToolbarType } from '../toolbars/toolbarType';
+import { Booking } from '../../model/booking';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
   private helper = inject(CalendarHelper);
   private authService = inject(AuthService);
   readonly loco = inject(TranslocoService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly allUsers = signal<User[]>([]);
 
   readonly rooms = signal<Room[]>([]);
-  readonly reservations = signal<ReservationDto[]>([]);
+  readonly reservations = computed(() => this.reservationsPage().content);
 
-  readonly reservationsPage = signal<number>(0);
-  readonly reservationsSize = signal<number>(100);
-
+  readonly users = computed(() => this.usersPage().content);
   readonly userOrganizations = signal<Organization[]>([]);
-  readonly allOrganizations = signal<Organization[]>([]);
 
+  readonly organizations = computed(() => this.organizationsPage().content);
+  readonly allOrganizations = signal<Organization[]>([]);
   readonly orgAndMembersMap = signal<Map<Organization, User[]>>(new Map());
 
   readonly daySelectedByUser = signal<Date>(new Date());
   readonly currentWeekStart = signal<Date>(this.helper.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
   readonly testText = signal<string>('');
+  readonly reservationTypeBooking = signal<ReservationType | null>(null);
+
+  readonly reservationTypeOptions = computed(() => {
+    const reherseal = ReservationType.REHEARSAL;
+    const recording = ReservationType.RECORDING;
+
+    return Array.of(reherseal, recording);
+  });
 
   readonly durationOptions = computed(() => {
     const booking = this.selectedBooking();
@@ -45,10 +58,6 @@ export class ReservationStore {
     const reservs = this.currentDayReservations();
 
     const reservsForRoom = reservs.filter((res) => res.room === booking?.roomId);
-    console.log('reservsForRoom: ', reservsForRoom);
-    console.table(
-      reservsForRoom.map((res) => ({ id: res.id, startAt: res.startAt, endAt: res.endAt })),
-    );
     const bookingStartHour = booking?.hour;
     let limitHour = 22;
 
@@ -61,28 +70,15 @@ export class ReservationStore {
     }
 
     const maxDuration = limitHour - bookingStartHour;
-    console.log('booking start hour: ', bookingStartHour);
-    console.log('limit hour: ', limitHour);
-    console.log('max duration: ', maxDuration);
     return Array.from({ length: Math.max(0, maxDuration) }, (_, i) => i + 1);
   });
 
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
   readonly displayBookingErrorPopup = signal<boolean>(false);
 
-  readonly selectedBooking = signal<{
-    date: string;
-    hour: number;
-    roomId: number;
-    duration: number;
-    roomName: string | undefined;
-    organizationId: number;
-    reservedByUserId: number;
-  } | null>(null);
+  readonly selectedBooking = signal<Booking | null>(null);
 
-  readonly userOrgsMap = computed(
-    () => new Map(this.userOrganizations().map((o) => [o.id, o.name])),
-  );
+  readonly userOrgsMap = computed(() => new Map(this.organizations().map((o) => [o.id, o.name])));
   readonly allOrgsMap = computed(() => new Map(this.allOrganizations().map((o) => [o.id, o.name])));
   readonly teamsList = signal<OrganizationFront[]>([]);
 
@@ -176,7 +172,6 @@ export class ReservationStore {
           isFirst = hour === startHour;
           isLast = hour === new Date(matchedReservation.endAt).getUTCHours() - 1;
           reservedByUserId = matchedReservation.reservedBy;
-          console.log('matchedReservation:', matchedReservation);
           if (matchedReservation.organization) {
             if (isAdmin) {
               bandName =
@@ -199,14 +194,14 @@ export class ReservationStore {
 
           if (matchedReservation.organization === null) {
             isPrivateReservation = true;
-            const userId = parseInt(this.authService.userId()!, 10);
+            const loggedUserId = parseInt(this.authService.userId()!, 10);
 
             if (this.authService.isAdmin()) {
-              const userText = this.allUsers().find(
+              const userText = this.users().find(
                 (u) => u.id === matchedReservation.reservedBy,
               )?.nick;
               reservationText = `${userText} (prywatna)`;
-            } else if (matchedReservation.reservedBy === userId) {
+            } else if (matchedReservation.reservedBy === loggedUserId) {
               reservationText = privateReservationText;
               isMyPrivateReservation = true;
             } else {
@@ -250,12 +245,20 @@ export class ReservationStore {
   readonly isModalDeleteMemberSuccessActive = signal<boolean>(false);
   readonly isModalDeleteOwnerSuccessActive = signal<boolean>(false);
   readonly isModalAddMemberActive = signal<boolean>(false);
+  readonly isModalAddOwnerActive = signal<boolean>(false);
   readonly isBanModalActive = signal<boolean>(false);
   readonly isBanUsersModalActive = signal<boolean>(false);
   readonly isBanUsersSuccessActive = signal<boolean>(false);
+  readonly isReservationDetailsModalActive = signal<boolean>(false);
+  readonly isUserDetailsModalActive = signal<boolean>(false);
+  readonly isOrganizationDetailsModalActive = signal<boolean>(false);
+  readonly isModalAddOwnerSuccessActive = signal<boolean>(false);
+  readonly isModalAddMemberSuccessActive = signal<boolean>(false);
+
   readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
   readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
   readonly confirmMarkReservationAsCanceled = signal<boolean>(false);
+  readonly confirmMarkReservationAsRejected = signal<boolean>(false);
 
   readonly popupMarkedReservationAsAccepted = signal<boolean>(false);
   readonly popupMarkedReservationAsRequestCancel = signal<boolean>(false);
@@ -269,78 +272,77 @@ export class ReservationStore {
   readonly popupConfirmationActive = signal<boolean | null>(null);
 
   readonly organizationListSelectedUser = signal<User | null>(null);
-  readonly organizationListSelectedOrganization = signal<Organization | null>(null);
+  readonly selectedOrganization = signal<Organization | null>(null);
   readonly selectedReservation = signal<ReservationDto | null>(null);
+  readonly selectedUser = signal<User | null>(null);
   readonly selectedReservations = signal<ReservationDto[] | null>(null);
 
   readonly globalErrorKey = signal<string | null>(null);
 
   // =================
 
-  // reservation pagination
+  //  pagination
+  readonly reservationsPage = signal<Page<ReservationDto>>(initialPage);
+  readonly usersPage = signal<Page<User>>(initialPage);
+  readonly organizationsPage = signal<Page<Organization>>(initialPage);
 
-  readonly reservationsByStatus = signal<ReservationDto[]>([]);
-  readonly paginationTotalNumber = signal<number>(0);
-  readonly paginationTotalPages = signal<number>(0);
-  readonly paginationPage = signal<number>(0);
-  readonly paginationIsFirst = signal<boolean>(false);
-  readonly paginationIsLast = signal<boolean>(false);
+  //params
 
-  // org pagination
+  readonly reservationsPageQueryParamName = signal<string>('resPage');
+  readonly organizationsPageQueryParamName = signal<string>('orgsPage');
+  readonly usersPageQueryParamName = signal<string>('usersPage');
 
-  readonly orgsTotalElements = signal<number>(0);
-  readonly orgsTotalPages = signal<number>(0);
-  readonly orgsPage = signal<number>(0);
-  readonly orgsIsFirst = signal<boolean>(false);
-  readonly orgsIsLast = signal<boolean>(false);
-  readonly orgsSize = signal<number>(10);
+  readonly reservationsSizeQueryParamName = signal<string>('resSize');
+  readonly organizationsSizeQueryParamName = signal<string>('orgsSize');
+  readonly usersSizeQueryParamName = signal<string>('usersSize');
 
-  // users pagination
+  // size
 
-  readonly usersFiltered = computed(() => {
-    return this.allUsers().filter((u) => u.nick != 'SYSTEM');
-  });
+  readonly currentReservationsSize = computed(
+    () => Number(this.queryParams()[this.reservationsSizeQueryParamName()]) || 10,
+  );
+  readonly currentOrganizationsSize = computed(
+    () => Number(this.queryParams()[this.organizationsSizeQueryParamName()]) || 10,
+  );
+  readonly currentUsersSize = computed(
+    () => Number(this.queryParams()[this.usersSizeQueryParamName()]) || 10,
+  );
 
-  readonly usersTotalElements = computed(() => {
-    return this.usersFiltered().length;
-  });
+  // page
 
-  readonly userTotalPages = signal<number>(0);
-  readonly userPage = signal<number>(0);
-  readonly userIsFirst = signal<boolean>(false);
-  readonly userIsLast = signal<boolean>(false);
-  readonly userSize = signal<number>(10);
+  readonly currentReservationsPage = computed(
+    () => Number(this.queryParams()[this.reservationsPageQueryParamName()]) || 0,
+  );
+  readonly currentUsersPage = computed(
+    () => Number(this.queryParams()[this.usersPageQueryParamName()]) || 0,
+  );
+  readonly currentOrganizationsPage = computed(
+    () => Number(this.queryParams()[this.organizationsPageQueryParamName()]) || 0,
+  );
 
-  // Reservation Toolbar
+  // Toolbar
 
   readonly toolbarSelectedIds = signal<Set<number>>(new Set());
-  readonly toolbarAreAllSelected = computed(() => {
-    const currentItems = this.reservationsByStatus();
-    if (currentItems.length === 0) return false;
-    return currentItems.every((r) => this.toolbarSelectedIds().has(r.id));
-  });
 
-  readonly toolbarIsNoneSelected = computed(() => {
-    return this.toolbarSelectedIds().size === 0;
-  });
-  readonly toolbarIsIndeterminated = computed(() => {
-    return this.toolbarSelectedIds().size > 0 && !this.toolbarAreAllSelected();
-  });
+  toggleSelection(id: number): void {
+    this.toolbarSelectedIds.update((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
 
-  // Users Toolbar
+  setSelectedIds(ids: Set<number>): void {
+    this.toolbarSelectedIds.set(ids);
+  }
 
-  readonly toolbarUserSelectedIds = signal<Set<number>>(new Set());
-  readonly toolbarAreAllUsersSelected = computed(() => {
-    const currentItems = this.allUsers();
-    if (currentItems.length === 0) return false;
-    return currentItems.every((r) => this.toolbarSelectedIds().has(r.id));
-  });
-  readonly toolbarUserIsNoneSelected = computed(() => {
-    return this.toolbarSelectedIds().size === 0;
-  });
-  readonly toolbarUserIsIndeterminated = computed(() => {
-    return this.toolbarSelectedIds().size > 0 && !this.toolbarAreAllUsersSelected();
-  });
+  clearSelection(): void {
+    this.toolbarSelectedIds.set(new Set());
+  }
 
   /// profile
 
@@ -415,4 +417,26 @@ export class ReservationStore {
       return matchesRoom || matchesReservedBy;
     });
   });
+
+  // ======= Sorting params
+
+  readonly toolbarType = signal<ToolbarType | null>(null);
+
+  readonly queryParams = toSignal(this.route.queryParams, {
+    initialValue: {} as Params,
+  });
+  readonly currentSortBy = computed<string>(() => {
+    switch (this.toolbarType()) {
+      case ToolbarType.USERS:
+        return (this.queryParams()['sortBy'] as string) ?? 'nick';
+      case ToolbarType.RESERVATION_BY_STATUS:
+        return (this.queryParams()['sortBy'] as string) ?? 'id';
+      default:
+        return (this.queryParams()['sortBy'] as string) ?? 'id';
+    }
+  });
+
+  readonly currentSortDir = computed(
+    () => (this.queryParams()['sortDir'] as 'asc' | 'desc') ?? 'desc',
+  );
 }

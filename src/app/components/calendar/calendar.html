@@ -137,62 +137,23 @@
                       }"
                     >
                       @if (cell.hourWrapper.isReserved) {
-                        <div
-                          class="flex-col text-center w-full h-full flex items-center justify-center text-xs font-medium truncate px-2 transition-all cursor-not-allowed"
-                          [ngClass]="{
-                            'bg-red-500/20 text-red-400 border-0':
-                              !authService.isAdmin() &&
-                              !cell.hourWrapper.isReservedByMyOrganization &&
-                              !cell.hourWrapper.isMyPrivateReservation,
-                            'bg-blue-500/20 text-blue-400 border-0':
-                              authService.isAdmin() ||
-                              cell.hourWrapper.isReservedByMyOrganization ||
-                              cell.hourWrapper.isMyPrivateReservation,
-                            'text-red-400/40 border-red-500/15 border-0':
-                              !authService.isAdmin() &&
-                              !cell.hourWrapper.isReservedByMyOrganization &&
-                              !cell.hourWrapper.isFirstHourOfReservation &&
-                              !cell.hourWrapper.isLastHourOfReservation,
-                            'text-blue-400/50 border-blue-500/20 border-0':
-                              (authService.isAdmin() ||
-                                cell.hourWrapper.isReservedByMyOrganization) &&
-                              !cell.hourWrapper.isFirstHourOfReservation &&
-                              !cell.hourWrapper.isLastHourOfReservation,
-                            'rounded-full border-0':
-                              cell.hourWrapper.isFirstHourOfReservation &&
-                              cell.hourWrapper.isLastHourOfReservation,
-                            'rounded-t-3xl border-0':
-                              cell.hourWrapper.isFirstHourOfReservation &&
-                              !cell.hourWrapper.isLastHourOfReservation,
-                            'rounded-b-3xl border-0':
-                              !cell.hourWrapper.isFirstHourOfReservation &&
-                              cell.hourWrapper.isLastHourOfReservation,
-                            'border-0 ':
-                              !cell.hourWrapper.isFirstHourOfReservation &&
-                              !cell.hourWrapper.isLastHourOfReservation,
-                          }"
-                        >
-                          @if (
-                            authService.isAdmin() ||
-                            cell.hourWrapper.isReservedByMyOrganization ||
-                            cell.hourWrapper.isMyPrivateReservation
-                          ) {
-                            <span
-                              class="font-bold text-[10px] tracking-wide uppercase block truncate w-full px-1"
-                              [ngClass]="
-                                authService.isAdmin() ? 'text-emerald-300' : 'text-blue-300'
-                              "
-                            >
-                              {{ cell.hourWrapper.reservationText }}
-                            </span>
-                          }
-                        </div>
+                        <app-calendar-hour
+                          [isForAdmin]="authService.isAdmin()"
+                          [isMyPrivate]="cell.hourWrapper.isMyPrivateReservation"
+                          [isMyOrganization]="cell.hourWrapper.isReservedByMyOrganization"
+                          [isFirstHourOfReservation]="cell.hourWrapper.isFirstHourOfReservation"
+                          [isLastHourOfReservation]="cell.hourWrapper.isLastHourOfReservation"
+                          [isDisabled]="cell.hourWrapper.isDisabled"
+                          [isReserved]="cell.hourWrapper.isReserved"
+                          [reservationText]="cell.hourWrapper.reservationText"
+                          [hour]="row.hour"
+                        ></app-calendar-hour>
                       } @else if (cell.hourWrapper.isDisabled) {
                         <div></div>
                       } @else {
                         <div class="py-3 inline-block w-24 h-full flex items-center justify-center">
                           <button
-                            (click)="facade.handleBookingClick(row.hour, cell.roomId)"
+                            (click)="facade.openBookingModal(row.hour, cell.roomId)"
                             class="inline-block px-4 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-white border border-emerald-500/30 transition-all"
                           >
                             {{ 'CALENDAR.FREE_SLOT' | transloco }}
@@ -213,44 +174,10 @@
   <app-calendar-booking-modal></app-calendar-booking-modal>
 
   @if (store.displayBookingSuccesfulPopup()) {
-    <div
-      class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50"
-    >
-      <div
-        class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
-      >
-        <h2 class="text-xl font-bold tracking-tight mb-2">
-          {{ 'CALENDAR.SUCCESS_TITLE' | transloco }}
-        </h2>
-        <p class="text-sm text-emerald-100 mb-4">{{ 'CALENDAR.SUCCESS_DESC' | transloco }}</p>
-        <button
-          (click)="store.displayBookingSuccesfulPopup.set(false)"
-          class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
-        >
-          {{ 'CALENDAR.CLOSE' | transloco }}
-        </button>
-      </div>
-    </div>
+    <app-success-popup [titleText]="'CALENDAR.SUCCESS_TITLE' | transloco"></app-success-popup>
   }
 
   @if (store.displayBookingErrorPopup()) {
-    <div
-      class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50"
-    >
-      <div
-        class="bg-red-600 text-white p-6 rounded-xl shadow-lg border border-red-400 text-center max-w-xs w-full"
-      >
-        <h2 class="text-xl font-bold tracking-tight mb-2">
-          {{ 'CALENDAR.ERROR_TITLE' | transloco }}
-        </h2>
-        <p class="text-sm text-red-100 mb-4">{{ 'CALENDAR.ERROR_DESC' | transloco }}</p>
-        <button
-          (click)="store.displayBookingErrorPopup.set(false)"
-          class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-red-600 hover:bg-gray-100 transition-colors shadow-md"
-        >
-          {{ 'CALENDAR.BACK_TO_CALENDAR' | transloco }}
-        </button>
-      </div>
-    </div>
+    <app-error-popup [titleText]="'CALENDAR.ERROR_TITLE' | transloco"></app-error-popup>
   }
 </div>

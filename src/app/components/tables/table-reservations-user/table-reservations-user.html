@@ -27,19 +27,21 @@
               <td class="py-4 px-6 text-slate-500 font-mono">{{ idx + 1 }}</td>
               <td class="py-4 px-6">
                 <span class="px-2 py-1 rounded text-slate-300 text-s border border-slate-700">
-                  {{ getRoomName(res) }}
+                  {{ textFormatingTool.getRoomName(res) }}
                 </span>
               </td>
               <td class="py-4 px-6 font-mono text-slate-300 text-s">
-                {{ formatDuration(res) }}
+                {{ textFormatingTool.formatDuration(res) }}
               </td>
-              <td class="py-4 px-6 text-slate-400">{{ reservedByLabel(res) }}</td>
+              <td class="py-4 px-6 text-slate-400">{{ textFormatingTool.reservedByLabel(res) }}</td>
               <td class="py-4 px-6 text-slate-400">*cena*</td>
-              <td class="py-4 px-6 text-slate-400">{{ getStatusText(res) }}</td>
+              <td class="py-4 px-6 text-slate-400">{{ textFormatingTool.getStatusText(res) }}</td>
 
               <td class="py-4 px-6">
                 <button
-                  (click)="facade.handleClickRequestCancelReservation(res)"
+                  (click)="
+                    facade.updateReservationsStatus(ReservationStatus.REQUESTED_CANCELLATION)
+                  "
                   [disabled]="!isCancellationPossible(res)"
                   class="text-white text-s bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
                   [ngClass]="{

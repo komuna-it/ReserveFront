@@ -1,3 +1,5 @@
+import { BanDto } from './banDto';
+
 export class User {
   constructor(
     public id: number,
@@ -6,5 +8,6 @@ export class User {
     public role: string,
     public created: Date,
     public trusted: boolean,
+    public banDto: BanDto,
   ) {}
 }

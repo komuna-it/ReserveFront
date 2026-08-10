@@ -1,43 +1,148 @@
 <div
-  class="p-2 mb-4 w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
+  class="my-4 flex items-center justify-between gap-3 px-4 py-3 w-full overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/60 shadow-lg backdrop-blur-md"
 >
-  <div class="grid grid-cols-7 gap-1">
-    <div>
-      @if (type() === ToolbarType.RESERVATION_BY_STATUS) {
-        <button
-          (click)="facade.handleClickCancelReservations()"
-          class="p-2 bg-red-500 text-white text-xs rounded"
+  <div class="flex items-center gap-2 flex-wrap">
+    @if (!isNoneSelected()) {
+      <div
+        class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-xs font-medium text-indigo-400 mr-1 animate-fade-in"
+      >
+        <span class="flex h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
+        Zaznaczono: {{ selectedIds().size }}
+      </div>
+      <div class="h-4 w-[1px] bg-slate-800 mx-1"></div>
+    }
+
+    <!-- RESERVATION BY STATUS -->
+
+    @if (showAcceptButton()) {
+      <button
+        (click)="facade.updateReservationsStatus(ReservationStatus.CONFIRMED)"
+        [disabled]="isNoneSelected()"
+        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
+      >
+        <svg
+          class="h-3.5 w-3.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
         >
-          Odwołaj
-        </button>
-      }
-    </div>
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+        </svg>
+        {{ 'ADMIN_RESERVATIONS.ACCEPT' | transloco }}
+      </button>
+    }
+
+    @if (showCancelButton()) {
+      <button
+        (click)="facade.updateReservationsStatus(ReservationStatus.REJECTED)"
+        [disabled]="isNoneSelected()"
+        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
+      >
+        <svg
+          class="h-3.5 w-3.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+        </svg>
+        {{ 'ADMIN_RESERVATIONS.REJECT' | transloco }}
+      </button>
+    }
+
+    <!-- USERS -->
     @if (type() === ToolbarType.USERS) {
-      <div class="grid grid-rows-2 mx-4">
+      <div
+        class="inline-flex items-center gap-1.5 p-1 rounded-lg border border-slate-800 bg-slate-900"
+      >
         <button
           (click)="facade.handleClickBanUsers()"
-          class="p-2 bg-green-500 text-white text-xs rounded"
+          [disabled]="isNoneSelected()"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:bg-red-500/10 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-300 transition-all"
         >
+          <svg
+            class="h-3.5 w-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+          </svg>
           Ban
         </button>
-        <button (click)="facade.unbanUsers()" class="p-2 bg-red-500 text-white text-xs rounded">
-          Unban(WiP)
+
+        <button
+          (click)="facade.unbanUsers()"
+          [disabled]="isNoneSelected()"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-300 transition-all"
+        >
+          <svg
+            class="h-3.5 w-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+            ></path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="m9 12 2 2 4-4"></path>
+          </svg>
+          Unban
         </button>
       </div>
-      <div class="grid grid-rows-2 mx-4">
+
+      <div class="h-4 w-[1px] bg-slate-800 mx-1"></div>
+
+      <div class="inline-flex items-center gap-1.5">
         <button
           (click)="facade.markUsersTrusted()"
-          class="p-2 bg-green-500 text-white text-xs rounded"
+          [disabled]="isNoneSelected()"
+          class="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:text-slate-300 transition-all"
         >
           Zaufany
         </button>
         <button
           (click)="facade.markUsersUntrusted()"
-          class="p-2 bg-red-500 text-white text-xs rounded"
+          [disabled]="isNoneSelected()"
+          class="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:text-slate-300 transition-all"
         >
           Niezaufany
         </button>
       </div>
     }
+
+    <!-- ADMIN ORGANIZATIONS -->
+    @if (type() === ToolbarType.ADMIN_ORGANIZATIONS) {
+      <div class="inline-flex items-center gap-1.5">
+        <button
+          (click)="facade.markOrganizationsAsTrusted()"
+          [disabled]="isNoneSelected()"
+          class="px-3 py-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 text-xs font-medium text-purple-300 hover:bg-purple-500/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-purple-500/10 transition-all"
+        >
+          Zaufany
+        </button>
+        <button
+          (click)="facade.markOrganizationsAsUntrusted()"
+          [disabled]="isNoneSelected()"
+          class="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:text-slate-300 transition-all"
+        >
+          Niezaufany
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- SEARCH BAR SLOT -->
+  <div class="flex items-center gap-2">
+    <app-search-bar></app-search-bar>
   </div>
 </div>

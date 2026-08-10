@@ -3,13 +3,21 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarComponent } from '../../components/calendar/calendar';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { ReservationDetailsModal } from '../../modals/reservation-details-modal/reservation-details-modal';
+import { ReservationStore } from '../../components/reservation/reservation.store';
+import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { CalendarHelper } from '../../components/calendar/calendar.helper';
 
 @Component({
   selector: 'calendar-page',
   standalone: true,
-  imports: [CalendarComponent, CommonModule, FormsModule],
+  imports: [CalendarComponent, CommonModule, FormsModule, ReservationDetailsModal],
   templateUrl: './calendar.html',
 })
 export class CalendarPage implements OnInit {
+  readonly store = inject(ReservationStore);
+  readonly facade = inject(ReservationFacade);
+  readonly helper = inject(CalendarHelper);
+
   ngOnInit() {}
 }

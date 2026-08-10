@@ -1,12 +1,13 @@
 import { Component, DestroyRef, HostListener, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router'; // <- USUNIĘTO RouterOutlet
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { filter } from 'rxjs';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
 
 @Component({
   selector: 'app-admin-sidebar',
+  standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './admin-sidebar.html',
   styleUrl: './admin-sidebar.css',

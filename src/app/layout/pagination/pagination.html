@@ -1,29 +1,39 @@
 <div
   class="flex flex-wrap gap-3 justify-between items-center p-4 bg-slate-900/90 border-t border-slate-700 text-sm text-slate-300"
 >
-  <div class="text-xs text-slate-400">
+  <div class="text-sm text-slate-400">
     {{ 'PAGINATION.TOTAL' | transloco }}:
-    <span class="font-bold text-slate-200">{{ totalElements() }}</span>
+    <span class="font-medium text-white">{{ totalElements() }}</span>
   </div>
-  <div class="flex gap-3 items-center">
+
+  <div class="flex items-center gap-2">
     <button
+      type="button"
       [disabled]="isFirst()"
-      (click)="previous.emit()"
-      class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg border border-slate-700 text-xs font-medium transition-all"
+      (click)="onPrevious()"
+      class="px-3 py-1 bg-slate-800 text-slate-200 border border-slate-700 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700 transition-colors"
     >
       {{ 'PAGINATION.PREVIOUS' | transloco }}
     </button>
-    <span class="text-xs font-medium text-slate-400">
-      {{ 'PAGINATION.PAGE' | transloco }}
-      <strong class="text-slate-200">{{ currentPage() + 1 }}</strong> z
-      <strong class="text-slate-200">{{ totalPages() + 1 }}</strong>
-    </span>
+
+    <span class="text-sm text-slate-400"> {{ currentPage() + 1 }} / {{ totalPages() }} </span>
+
     <button
+      type="button"
       [disabled]="isLast()"
-      (click)="next.emit()"
-      class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg border border-slate-700 text-xs font-medium transition-all"
+      (click)="onNext()"
+      class="px-3 py-1 bg-slate-800 text-slate-200 border border-slate-700 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700 transition-colors"
     >
       {{ 'PAGINATION.NEXT' | transloco }}
     </button>
+    <select
+      [value]="pageSize()"
+      (change)="onSizeSelect($event)"
+      class="bg-slate-800 border border-slate-700 text-white rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+    >
+      @for (option of pageSizeOptions(); track option) {
+        <option [value]="option" [selected]="option === pageSize()">{{ option }}</option>
+      }
+    </select>
   </div>
 </div>

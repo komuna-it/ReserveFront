@@ -6,6 +6,7 @@ export interface ReservationDto {
   type: ReservationType;
   organization: number;
   reservedBy: number;
+  reservedByText: string;
   room: number;
   startAt: string;
   endAt: string;

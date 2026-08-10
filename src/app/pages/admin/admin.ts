@@ -11,10 +11,27 @@ import { AdminSidebar } from '../../layout/admin-sidebar/admin-sidebar';
 import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-popup';
 import { ErrorPopup } from '../../modals/error-popup/error-popup';
 import { BanModal } from '../../modals/ban-modal/ban-modal';
+import { SuccessPopup } from '../../modals/success-popup/success-popup';
+import { UserDetailsModal } from '../../modals/user-details-modal/user-details-modal';
+import { OrganizationDetailsModal } from '../../modals/organization-details-modal/organization-details-modal';
+import { AddUserIntoOrganizationModal } from '../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
+import { AddOrganizationModal } from '../../components/modals/add-organization-modal/add-organization-modal';
 
 @Component({
   selector: 'app-admin',
-  imports: [ConfirmationPopup, RouterOutlet, AdminSidebar, TranslocoPipe, ErrorPopup, BanModal],
+  imports: [
+    UserDetailsModal,
+    ConfirmationPopup,
+    SuccessPopup,
+    RouterOutlet,
+    AdminSidebar,
+    TranslocoPipe,
+    ErrorPopup,
+    BanModal,
+    OrganizationDetailsModal,
+    AddUserIntoOrganizationModal,
+    AddOrganizationModal,
+  ],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
@@ -23,7 +40,7 @@ export class AdminPage implements OnInit {
   readonly facade = inject(ReservationFacade);
   readonly translocoService = inject(TranslocoService);
   readonly textFormatingTool = inject(TextFormatingTool);
-
+  readonly ReservationStatus = ReservationStatus;
   readonly reservation = input<any | null>(null);
 
   ngOnInit(): void {

@@ -1,9 +1,13 @@
 @if (store.selectedBooking(); as booking) {
-  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm"
+    (click)="facade.closeModals()"
+  >
     <div
-      class="bg-slate-800 border border-slate-700 text-slate-100 px-4 py-4 rounded-2xl w-full max-w-sm shadow-2xl"
+      class="w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-800 p-4 text-slate-100 shadow-2xl"
+      (click)="$event.stopPropagation()"
     >
-      <h2 class="text-xl font-bold tracking-tight mb-4 text-emerald-400">
+      <h2 class="mb-4 text-xl font-bold tracking-tight text-emerald-400">
         {{ 'CALENDAR.MODAL_CONFIRM_TITLE' | transloco }}
       </h2>
 
@@ -21,12 +25,33 @@
         </p>
       </div>
 
+      @if (authService.isAdmin()) {
+        <div class="mb-6">
+          <label
+            for="userSelect"
+            class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400"
+          >
+            {{ 'CALENDAR.MODAL_RESERVED_FOR_USER' | transloco }}:
+          </label>
+          <select
+            id="userSelect"
+            [(ngModel)]="booking.reservedByUserId"
+            class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+            @for (user of store.users(); track user.id) {
+              <option [value]="user.id">{{ user.nick }} - {{ user.email }}</option>
+            }
+          </select>
+        </div>
+      }
+
       <div class="mb-6">
         <label
           for="durationSelect"
           class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
-          >{{ 'CALENDAR.MODAL_DURATION' | transloco }}:</label
         >
+          {{ 'CALENDAR.MODAL_DURATION' | transloco }}:
+        </label>
         <select
           id="durationSelect"
           [(ngModel)]="booking.duration"
@@ -45,39 +70,64 @@
         </select>
       </div>
 
+      <!-- Type Select -->
+      <div class="mb-6">
+        <label
+          for="reservationTypeSelect"
+          class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400"
+        >
+          {{ 'CALENDAR.RESERVATION_TYPE' | transloco }}:
+        </label>
+        <select
+          id="reservationTypeSelect"
+          [(ngModel)]="store.reservationTypeBooking"
+          class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        >
+          @for (type of store.reservationTypeOptions(); track type; let isFirst = $first) {
+            <option [value]="type" [selected]="isFirst && !store.reservationTypeBooking()">
+              {{ 'CALENDAR.' + type | transloco }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <!-- Wybór Organizacji / Zespołu -->
       <div class="mb-6">
         <label
           for="bandSelect"
-          class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
-          >{{ 'CALENDAR.MODAL_BAND' | transloco }}:</label
+          class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400"
         >
+          {{ 'CALENDAR.MODAL_BAND' | transloco }}:
+        </label>
         <select
           id="bandSelect"
           [(ngModel)]="booking.organizationId"
           [disabled]="
-            store.isPrivateReservationCheckboxActivated() || store.userOrganizations().length === 0
+            store.isPrivateReservationCheckboxActivated() ||
+            (!authService.isAdmin() && store.organizations().length === 0)
           "
-          class="w-full bg-slate-700 text-white font-medium border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          @for (org of store.userOrganizations(); track org.id) {
+          @for (org of store.organizations(); track org.id) {
             <option [value]="org.id">{{ org.name }}</option>
           }
         </select>
       </div>
 
-      @if (store.userOrganizations().length === 0) {
+      <!-- Informacja o braku zespołu tylko dla zwykłego usera -->
+      @if (!authService.isAdmin() && store.organizations().length === 0) {
         <div class="text-sm text-red-400 mb-4">
-          You're not member of any band!
+          {{ 'CALENDAR.NOT_MEMBER_OF_ANY_BAND' | transloco }}
           <button
             (click)="handleAddOrganizationModal()"
             class="underline text-emerald-400 cursor-pointer"
           >
-            Click here to create one.
+            {{ 'CALENDAR.CREATE_ONE' | transloco }}
           </button>
         </div>
       }
 
-      <!--  checkbox for private reservation -->
+      <!-- Checkbox rezerwacji prywatnej -->
       <div class="mb-6 flex items-center gap-3">
         <input
           id="privateReservationCheckbox"
@@ -85,14 +135,13 @@
           [ngModel]="store.isPrivateReservationCheckboxActivated()"
           (click)="togglePrivateReservationCheckbox()"
           [disabled]="isPrivateReservationCheckboxDisabled()"
-          class="w-4 h-4 text-emerald-600 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2 cursor-pointer"
+          class="w-4 h-4 text-emerald-600 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         />
         <label
           for="privateReservationCheckbox"
           class="text-sm font-medium text-slate-300 cursor-pointer select-none"
           [class.cursor-not-allowed]="isPrivateReservationCheckboxDisabled()"
           [class.opacity-50]="isPrivateReservationCheckboxDisabled()"
-          [class.cursor-pointer]="!isPrivateReservationCheckboxDisabled()"
         >
           {{ 'CALENDAR.PRIVATE_RESERVATION' | transloco }}
         </label>

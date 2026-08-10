@@ -1,4 +1,4 @@
 export enum ReservationType {
-  REHERSEAL = 'REHEARSAL',
+  REHEARSAL = 'REHEARSAL',
   RECORDING = 'RECORDING',
 }
