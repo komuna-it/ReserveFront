@@ -402,10 +402,10 @@ export class ReservationFacade {
         next: (pageData) => {
           this.store.organizationsPage.set(pageData);
 
-          console.log('fetched getOrganizationsOfUserWithMembers(): ');
+          console.log('getOrganizationsOfUser(): ');
           console.table(pageData.content);
         },
-        error: (e) => console.error('Error in getOrganizationsOfUserWithMembers: ', e),
+        error: (e) => console.error('Error in getOrganizationsOfUser: ', e),
       });
   }
 

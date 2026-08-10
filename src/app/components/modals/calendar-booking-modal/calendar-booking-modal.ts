@@ -23,7 +23,7 @@ export class CalendarBookingModal implements OnInit {
 
   constructor() {
     effect(() => {
-      const orgs = this.store.userOrganizations();
+      const orgs = this.store.organizations();
 
       if (orgs.length === 0) {
         this.store.isPrivateReservationCheckboxActivated.set(true);
@@ -38,7 +38,7 @@ export class CalendarBookingModal implements OnInit {
     this.facade.refreshOrganizations();
   }
   managePrivateReservationCheckbox() {
-    if (this.store.userOrganizations().length === 0) {
+    if (this.store.organizations().length === 0) {
       this.store.isPrivateReservationCheckboxActivated.set(true);
     }
   }
@@ -49,13 +49,12 @@ export class CalendarBookingModal implements OnInit {
 
   isPrivateCheckboxDisabled() {
     return (
-      this.store.userOrganizations().length === 0 &&
-      this.store.isPrivateReservationCheckboxActivated()
+      this.store.organizations().length === 0 && this.store.isPrivateReservationCheckboxActivated()
     );
   }
 
   togglePrivateReservationCheckbox() {
-    if (this.store.userOrganizations().length === 0) {
+    if (this.store.organizations().length === 0) {
       return;
     }
 
@@ -65,6 +64,6 @@ export class CalendarBookingModal implements OnInit {
   }
 
   isPrivateReservationCheckboxDisabled() {
-    return this.store.userOrganizations().length === 0;
+    return this.store.organizations().length === 0;
   }
 }

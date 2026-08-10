@@ -74,17 +74,17 @@
           id="bandSelect"
           [(ngModel)]="booking.organizationId"
           [disabled]="
-            store.isPrivateReservationCheckboxActivated() || store.userOrganizations().length === 0
+            store.isPrivateReservationCheckboxActivated() || store.organizations().length === 0
           "
           class="w-full bg-slate-700 text-white font-medium border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          @for (org of store.userOrganizations(); track org.id) {
+          @for (org of store.organizations(); track org.id) {
             <option [value]="org.id">{{ org.name }}</option>
           }
         </select>
       </div>
 
-      @if (store.userOrganizations().length === 0) {
+      @if (store.organizations().length === 0) {
         <div class="text-sm text-red-400 mb-4">
           You're not member of any band!
           <button
