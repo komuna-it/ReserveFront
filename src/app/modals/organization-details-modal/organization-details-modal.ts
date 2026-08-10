@@ -20,20 +20,16 @@ export class OrganizationDetailsModal {
   readonly loco = inject(TranslocoService);
 
   readonly organization = computed(() => this.store.selectedOrganization()!);
+  readonly owners = computed(() => this.organization().owners);
+  readonly members = computed(() => this.organization().members);
 
-  readonly owners = computed(
-    () => this.organization()?.owners ?? this.store.selectedOrganization()?.owners ?? [],
-  );
-  readonly members = computed(
-    () => this.organization()?.members ?? this.store.selectedOrganization()?.members ?? [],
-  );
-
-  isDeleteOwnerButtonActive = computed(() => {
-    const owners = this.organization()?.owners;
-    if (!owners) return false;
-    return owners.length >= 2;
-  });
-
+  isDeleteOwnerButtonActive = computed(() => this.owners().length >= 2);
+  constructor() {
+    effect(() => {
+      const org = this.store.selectedOrganization();
+      console.log('Modal sees new organization', org);
+    });
+  }
   orgTrustedText(org: Organization) {
     return org.trusted
       ? this.loco.translate('ORGANIZATION_LIST.TRUSTED')

@@ -52,8 +52,6 @@ export class OrganizationList implements OnInit, OnDestroy {
       this.store.currentSortDir();
       this.store.currentOrganizationsPage();
       this.store.currentOrganizationsSize();
-
-      this.facade.getAllMembersAllOrganizations();
     });
   }
 
@@ -113,7 +111,23 @@ export class OrganizationList implements OnInit, OnDestroy {
   }
 
   selectOrganizationAndOpenDetailsModal(org: Organization) {
-    this.store.selectedOrganization.set(org);
+    this.store.selectedOrganization.set(
+      new Organization(
+        org.id,
+        org.name,
+        org.created,
+        org.trusted,
+        org.owners.map(
+          (o) =>
+            new OrganizationMemberDto(o.id, o.organizationId, o.userId, o.role, o.email, o.nick),
+        ),
+        org.members.map(
+          (m) =>
+            new OrganizationMemberDto(m.id, m.organizationId, m.userId, m.role, m.email, m.nick),
+        ),
+      ),
+    );
+
     this.store.isOrganizationDetailsModalActive.set(true);
   }
 }

@@ -28,7 +28,6 @@ export class AddUserIntoOrganizationModal implements OnInit, OnDestroy {
   }
 
   readonly usersToAddIntoOrganization = computed(() => {
-    // Pobieramy ze store.users(), ponieważ facade.getAllUsers() zapisuje do usersPage
     const availableUsers = this.store.users() ?? [];
     const selectedOrg = this.store.selectedOrganization();
 
@@ -37,8 +36,8 @@ export class AddUserIntoOrganizationModal implements OnInit, OnDestroy {
     }
 
     const existingUserIds = new Set([
-      ...(selectedOrg.members?.map((m) => m.id) ?? []),
-      ...(selectedOrg.owners?.map((o) => o.id) ?? []),
+      ...(selectedOrg.members?.map((m) => m.userId) ?? []),
+      ...(selectedOrg.owners?.map((o) => o.userId) ?? []),
     ]);
 
     return availableUsers.filter((user) => user.id !== undefined && !existingUserIds.has(user.id));

@@ -410,7 +410,7 @@ export class ReservationFacade {
   }
 
   removeOwnerFromOrganization(ownerId: number, organizationId: number): void {
-    this.api.removeUserFromOrganization(ownerId, organizationId).subscribe({
+    this.api.removeOwnerFromOrganization(ownerId, organizationId).subscribe({
       next: () => this.refreshOrganizations(),
       error: (e) => {
         this.store.globalErrorKey.set('ORGANIZATION_LIST.ERRORS.REMOVE_OWNER_FAILED');
@@ -571,95 +571,79 @@ export class ReservationFacade {
   // ======== USERS
 
   preparePromoteMember(userId: number, orgId: number): void {
+    console.log('preparePromoteMember userId ', userId, ' orgId ', orgId);
     this.api.promoteMemberToOwner(userId, orgId).subscribe({
       next: (updatedMember: OrganizationMemberDto) => {
-        this.store.selectedOrganization.update((currentOrg) => {
-          if (!currentOrg || currentOrg.id !== orgId) {
-            return currentOrg;
-          }
+        const org = this.store.selectedOrganization();
+        if (!org || org.id !== orgId) return;
 
-          const memberToPromote = currentOrg.members?.find((m) => m.userId === userId);
+        const memberToPromote = org.members?.find((m) => m.userId === userId);
 
-          const promotedUser: OrganizationMemberDto = updatedMember?.id
-            ? updatedMember
-            : {
-                ...memberToPromote!,
-                role: 'OWNER',
-              };
+        const promotedUser: OrganizationMemberDto = updatedMember?.id
+          ? updatedMember
+          : { ...memberToPromote!, role: 'OWNER' };
 
-          return {
-            ...currentOrg,
-            members: (currentOrg.members || []).filter((m) => m.userId !== userId),
-            owners: [...(currentOrg.owners || []), promotedUser],
-          };
+        this.store.selectedOrganization.set({
+          ...org,
+          owners: [...org.owners.filter((o) => o.userId !== userId), promotedUser],
+          members: org.members.filter((m) => m.userId !== userId),
         });
       },
     });
   }
 
   prepareDemoteOwner(userId: number, orgId: number): void {
-    const org = this.store.selectedOrganization();
+    console.log('prepareDemoteOwner userId ', userId, ' orgId ', orgId);
 
-    if (!org || (org.owners?.length || 0) <= 1) {
-      return;
-    }
+    const org = this.store.selectedOrganization();
+    if (!org || org.id !== orgId || org.owners.length <= 1) return;
 
     this.api.demoteOwnerToMember(userId, orgId).subscribe({
       next: (updatedMember: OrganizationMemberDto) => {
-        this.store.selectedOrganization.update((currentOrg) => {
-          if (!currentOrg || currentOrg.id !== orgId) {
-            return currentOrg;
-          }
+        const ownerToDemote = org.owners.find((o) => o.userId === userId);
 
-          const ownerToDemote = currentOrg.owners?.find((o) => o.userId === userId);
+        const demotedUser: OrganizationMemberDto = updatedMember?.id
+          ? updatedMember
+          : { ...ownerToDemote!, role: 'MEMBER' };
 
-          const demotedUser: OrganizationMemberDto = updatedMember?.id
-            ? updatedMember
-            : {
-                ...ownerToDemote!,
-                role: 'MEMBER',
-              };
-
-          return {
-            ...currentOrg,
-            owners: (currentOrg.owners || []).filter((o) => o.userId !== userId),
-            members: [...(currentOrg.members || []), demotedUser],
-          };
+        this.store.selectedOrganization.set({
+          ...org,
+          owners: org.owners.filter((o) => o.userId !== userId),
+          members: [...org.members, demotedUser],
         });
       },
     });
   }
 
   removeUserFromOrganization(userId: number, orgId: number): void {
+    console.log('removeUserFromOrganization userId ', userId, ' orgId ', orgId);
+
     const org = this.store.selectedOrganization();
+    console.log('org:');
+    console.table(org);
+    console.log('members:');
+    console.table(org?.members);
+    console.log('owners:');
+    console.table(org?.owners);
 
-    if (!org) {
-      return;
-    }
+    if (!org || org.id !== orgId) return;
 
-    const isOwner = org.owners?.some((o) => o.userId === userId);
-    if (isOwner && (org.owners?.length || 0) <= 1) {
-      return;
-    }
+    const isOwner = org.owners.some((o) => o.userId === userId);
+    if (isOwner && org.owners.length <= 1) return;
 
     this.api.removeUserFromOrganization(userId, orgId).subscribe({
       next: () => {
-        this.store.selectedOrganization.update((currentOrg) => {
-          if (!currentOrg || currentOrg.id !== orgId) {
-            return currentOrg;
-          }
-
-          return {
-            ...currentOrg,
-            owners: (currentOrg.owners || []).filter((o) => o.userId !== userId),
-            members: (currentOrg.members || []).filter((m) => m.userId !== userId),
-          };
+        this.store.selectedOrganization.set({
+          ...org,
+          owners: org.owners.filter((o) => o.userId !== userId),
+          members: org.members.filter((m) => m.userId !== userId),
         });
 
         this.refreshOrganizations();
       },
     });
   }
+
   prepareDeleteOrganization(orgId: number): void {
     if (!orgId) return;
     const org = this.store.allOrganizations().find((o) => o.id === orgId);
@@ -667,7 +651,12 @@ export class ReservationFacade {
       console.error(`Organization with ID ${orgId} not found in allOrganizations.`);
       return;
     }
-    this.store.selectedOrganization.set(org);
+    this.store.selectedOrganization.set({
+      ...org,
+      owners: [...org.owners],
+      members: [...org.members],
+    });
+
     this.store.isModalDeleteOrganizationActive.set(true);
   }
 
@@ -684,7 +673,12 @@ export class ReservationFacade {
     const org = this.store.allOrganizations().find((o) => o.id === orgId);
     if (!org) return;
 
-    this.store.selectedOrganization.set(org);
+    this.store.selectedOrganization.set({
+      ...org,
+      owners: [...org.owners],
+      members: [...org.members],
+    });
+
     this.store.isModalAddMemberActive.set(true);
   }
 
@@ -693,7 +687,12 @@ export class ReservationFacade {
     const org = this.store.allOrganizations().find((o) => o.id === orgId);
     if (!org) return;
 
-    this.store.selectedOrganization.set(org);
+    this.store.selectedOrganization.set({
+      ...org,
+      owners: [...org.owners],
+      members: [...org.members],
+    });
+
     this.store.isModalAddOwnerActive.set(true);
   }
 

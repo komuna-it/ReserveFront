@@ -50,9 +50,7 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <!-- Separate Trusted / Untrusted Buttons -->
         <div class="flex items-center gap-1.5">
-          <!-- Button: Zaufana -->
           <button
             type="button"
             (click)="facade.markSingleOrganizationAsTrusted(organization().id)"
@@ -72,10 +70,9 @@
                 d="M5 13l4 4L19 7"
               ></path>
             </svg>
-            Zaufana
+            Zaufany
           </button>
 
-          <!-- Button: Niezaufana -->
           <button
             type="button"
             (click)="facade.markSingleOrganizationAsUntrusted(organization().id)"
@@ -95,7 +92,7 @@
                 d="M6 18L18 6M6 6l12 12"
               ></path>
             </svg>
-            Niezaufana
+            Niezaufany
           </button>
         </div>
 
@@ -125,7 +122,6 @@
       </div>
     </div>
 
-    <!-- Modal Body -->
     <div class="custom-scrollbar overflow-y-auto pr-1.5 space-y-6 flex-1">
       <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
         <!-- Owners Section -->
@@ -170,7 +166,7 @@
                       <!-- Demote Owner to Member -->
                       <button
                         type="button"
-                        (click)="facade.prepareDemoteOwner(owner.id, organization().id)"
+                        (click)="facade.prepareDemoteOwner(owner.userId, organization().id)"
                         [disabled]="owners().length <= 1"
                         class="rounded px-2 py-1 text-xs font-medium text-amber-400 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-amber-400"
                         title="Degraduj do członka"
@@ -181,7 +177,7 @@
                       <!-- Delete Owner -->
                       <button
                         type="button"
-                        (click)="facade.prepareDeleteOwner(owner.id, organization().id)"
+                        (click)="facade.prepareDeleteOwner(owner.userId, organization().id)"
                         [disabled]="!isDeleteOwnerButtonActive()"
                         class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400"
                       >
@@ -237,7 +233,7 @@
                       <!-- Promote Member to Owner -->
                       <button
                         type="button"
-                        (click)="facade.preparePromoteMember(member.id, organization().id)"
+                        (click)="facade.preparePromoteMember(member.userId, organization().id)"
                         class="rounded px-2 py-1 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/10"
                         title="Awansuj na właściciela"
                       >
@@ -247,7 +243,7 @@
                       <!-- Delete Member -->
                       <button
                         type="button"
-                        (click)="facade.prepareDeleteMember(member.id, organization().id)"
+                        (click)="facade.prepareDeleteMember(member.userId, organization().id)"
                         class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
                       >
                         {{ 'COMMON.DELETE' | transloco }}

@@ -15,6 +15,7 @@ import { SuccessPopup } from '../../modals/success-popup/success-popup';
 import { UserDetailsModal } from '../../modals/user-details-modal/user-details-modal';
 import { OrganizationDetailsModal } from '../../modals/organization-details-modal/organization-details-modal';
 import { AddUserIntoOrganizationModal } from '../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
+import { AddOrganizationModal } from '../../components/modals/add-organization-modal/add-organization-modal';
 
 @Component({
   selector: 'app-admin',
@@ -29,6 +30,7 @@ import { AddUserIntoOrganizationModal } from '../../components/modals/add-user-i
     BanModal,
     OrganizationDetailsModal,
     AddUserIntoOrganizationModal,
+    AddOrganizationModal,
   ],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
