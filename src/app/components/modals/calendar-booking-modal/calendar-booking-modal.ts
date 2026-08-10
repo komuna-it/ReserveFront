@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { CalendarHelper } from '../../calendar/calendar.helper';
 import { AuthService } from '../../../auth/authService';
@@ -25,18 +25,22 @@ export class CalendarBookingModal implements OnInit {
     effect(() => {
       const orgs = this.store.organizations();
       const booking = this.store.selectedBooking();
+      const isAdmin = this.authService.isAdmin();
 
-      if (orgs.length === 0) {
+      // Zwykły użytkownik bez organizacji ma wymuszoną rezerwację prywatną
+      if (!isAdmin && orgs.length === 0) {
         this.store.isPrivateReservationCheckboxActivated.set(true);
-      } else {
+      } else if (!isAdmin) {
         this.store.isPrivateReservationCheckboxActivated.set(false);
+      }
 
-        if (
-          booking &&
-          (!booking.organizationId || !orgs.some((org) => org.id === booking.organizationId))
-        ) {
-          booking.organizationId = orgs[0].id;
-        }
+      // Preselekcja organizacji, jeśli dostępna i brak wyboru
+      if (
+        booking &&
+        orgs.length > 0 &&
+        (!booking.organizationId || !orgs.some((org) => org.id === booking.organizationId))
+      ) {
+        booking.organizationId = orgs[0].id;
       }
     });
 
@@ -44,13 +48,13 @@ export class CalendarBookingModal implements OnInit {
       this.store.reservationTypeBooking.set(this.store.reservationTypeOptions()[0]);
     }
   }
+
   ngOnInit() {
     console.log('opening CalendarBookingModal');
     this.facade.refreshOrganizations();
-  }
-  managePrivateReservationCheckbox() {
-    if (this.store.organizations().length === 0) {
-      this.store.isPrivateReservationCheckboxActivated.set(true);
+
+    if (this.authService.isAdmin()) {
+      this.facade.getAllUsers();
     }
   }
 
@@ -58,15 +62,8 @@ export class CalendarBookingModal implements OnInit {
     this.store.isAddOrganizationModalActive.set(true);
   }
 
-  isPrivateCheckboxDisabled() {
-    return (
-      this.store.organizations().length === 0 && this.store.isPrivateReservationCheckboxActivated()
-    );
-  }
-
   togglePrivateReservationCheckbox() {
-    const orgs = this.store.organizations();
-    if (orgs.length === 0) {
+    if (this.isPrivateReservationCheckboxDisabled()) {
       return;
     }
 
@@ -74,11 +71,17 @@ export class CalendarBookingModal implements OnInit {
     this.store.isPrivateReservationCheckboxActivated.set(isPrivateNow);
 
     const booking = this.store.selectedBooking();
+    const orgs = this.store.organizations();
     if (!isPrivateNow && booking && !booking.organizationId && orgs.length > 0) {
       booking.organizationId = orgs[0].id;
     }
   }
+
   isPrivateReservationCheckboxDisabled() {
+    // Admin zawsze może przełączać checkbox
+    if (this.authService.isAdmin()) {
+      return false;
+    }
     return this.store.organizations().length === 0;
   }
 }

@@ -136,35 +136,29 @@ export class ReservationFacade {
       });
   }
 
-  confirmBooking() {
+  confirmBooking(): void {
     const booking = this.store.selectedBooking();
-    console.log('confirmBooking()...');
     if (!booking) return;
 
     const [year, month, day] = booking.date.split('-').map(Number);
+    const startAt = new Date(Date.UTC(year, month - 1, day, booking.hour)).toISOString();
 
-    const utcTimestamp = Date.UTC(year, month - 1, day, booking.hour, 0, 0, 0);
-    const startAtDate = new Date(utcTimestamp);
-    const isPrivate = this.store.isPrivateReservationCheckboxActivated();
-
-    let req: CreateReservationRequest = {
+    const req: CreateReservationRequest = {
       roomId: booking.roomId,
-      startAt: startAtDate.toISOString(),
+      startAt,
       duration: `PT${booking.duration}H`,
-      type: this.store.reservationTypeBooking() ?? ReservationType.REHERSEAL,
-      organizationId: isPrivate ? null : booking.organizationId,
+      type: this.store.reservationTypeBooking() ?? ReservationType.REHEARSAL,
+      organizationId: this.store.isPrivateReservationCheckboxActivated()
+        ? null
+        : booking.organizationId,
+      reservedByUserId: booking.reservedByUserId,
     };
-
-    console.log('this.store.reservationTypeBooking(): ', this.store.reservationTypeBooking());
-    console.log('req sent to backend (Standard UTC): ');
-    console.table(req);
 
     this.api.postReservation(req).subscribe({
       next: () => {
         this.store.selectedBooking.set(null);
         this.store.displayBookingSuccesfulPopup.set(true);
         this.getRoomsAndReservations();
-        console.log('success from this.api.postReservation!');
       },
       error: (err) => {
         console.error('Booking error response:', err);
@@ -219,7 +213,7 @@ export class ReservationFacade {
       roomName: this.store.rooms().find((r) => r.id === roomId)?.name,
       organizationId: defaultOrg || 0,
       reservedByUserId: parseInt(rawUserId, 10),
-      reservationType: this.store.reservationTypeBooking() ?? ReservationType.REHERSEAL,
+      reservationType: this.store.reservationTypeBooking() ?? ReservationType.REHEARSAL,
     });
     console.log('booking debugging:');
     console.table(this.store.selectedBooking());
@@ -261,11 +255,17 @@ export class ReservationFacade {
             (this.authService.userId() || '').toString().replace(/['"]/g, ''),
             10,
           );
+          const isAdminLogged = this.authService.isAdmin();
           const currentBooking = this.store.selectedBooking() ?? null;
           const isColizion = this.isSseReservationColiding(res, currentBooking);
 
           // Wyświetl błąd tylko jeśli stworzona rezerwacja koliduje I pochodzi od innego użytkownika
-          if (msg.event === 'RESERVATION_CREATED' && isColizion && res.reservedBy !== safeUserId) {
+          if (
+            msg.event === 'RESERVATION_CREATED' &&
+            isColizion &&
+            res.reservedBy !== safeUserId &&
+            !isAdminLogged
+          ) {
             this.store.displayBookingErrorPopup.set(true);
           }
         } catch (err) {

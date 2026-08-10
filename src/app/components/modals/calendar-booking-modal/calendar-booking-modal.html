@@ -10,6 +10,7 @@
       <h2 class="mb-4 text-xl font-bold tracking-tight text-emerald-400">
         {{ 'CALENDAR.MODAL_CONFIRM_TITLE' | transloco }}
       </h2>
+
       <div
         class="space-y-2 text-sm text-slate-300 mb-6 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"
       >
@@ -24,12 +25,33 @@
         </p>
       </div>
 
+      @if (authService.isAdmin()) {
+        <div class="mb-6">
+          <label
+            for="userSelect"
+            class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400"
+          >
+            {{ 'CALENDAR.MODAL_RESERVED_FOR_USER' | transloco }}:
+          </label>
+          <select
+            id="userSelect"
+            [(ngModel)]="booking.reservedByUserId"
+            class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+            @for (user of store.users(); track user.id) {
+              <option [value]="user.id">{{ user.nick }} - {{ user.email }}</option>
+            }
+          </select>
+        </div>
+      }
+
       <div class="mb-6">
         <label
           for="durationSelect"
           class="block text-xs font-bold tracking-wider uppercase text-slate-400 mb-2"
-          >{{ 'CALENDAR.MODAL_DURATION' | transloco }}:</label
         >
+          {{ 'CALENDAR.MODAL_DURATION' | transloco }}:
+        </label>
         <select
           id="durationSelect"
           [(ngModel)]="booking.duration"
@@ -48,7 +70,7 @@
         </select>
       </div>
 
-      <!-- Reservation Type Select -->
+      <!-- Type Select -->
       <div class="mb-6">
         <label
           for="reservationTypeSelect"
@@ -69,6 +91,7 @@
         </select>
       </div>
 
+      <!-- Wybór Organizacji / Zespołu -->
       <div class="mb-6">
         <label
           for="bandSelect"
@@ -80,7 +103,8 @@
           id="bandSelect"
           [(ngModel)]="booking.organizationId"
           [disabled]="
-            store.isPrivateReservationCheckboxActivated() || store.organizations().length === 0
+            store.isPrivateReservationCheckboxActivated() ||
+            (!authService.isAdmin() && store.organizations().length === 0)
           "
           class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
@@ -90,7 +114,8 @@
         </select>
       </div>
 
-      @if (store.organizations().length === 0) {
+      <!-- Informacja o braku zespołu tylko dla zwykłego usera -->
+      @if (!authService.isAdmin() && store.organizations().length === 0) {
         <div class="text-sm text-red-400 mb-4">
           {{ 'CALENDAR.NOT_MEMBER_OF_ANY_BAND' | transloco }}
           <button
@@ -102,7 +127,7 @@
         </div>
       }
 
-      <!--  checkbox for private reservation -->
+      <!-- Checkbox rezerwacji prywatnej -->
       <div class="mb-6 flex items-center gap-3">
         <input
           id="privateReservationCheckbox"
@@ -110,14 +135,13 @@
           [ngModel]="store.isPrivateReservationCheckboxActivated()"
           (click)="togglePrivateReservationCheckbox()"
           [disabled]="isPrivateReservationCheckboxDisabled()"
-          class="w-4 h-4 text-emerald-600 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2 cursor-pointer"
+          class="w-4 h-4 text-emerald-600 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         />
         <label
           for="privateReservationCheckbox"
           class="text-sm font-medium text-slate-300 cursor-pointer select-none"
           [class.cursor-not-allowed]="isPrivateReservationCheckboxDisabled()"
           [class.opacity-50]="isPrivateReservationCheckboxDisabled()"
-          [class.cursor-pointer]="!isPrivateReservationCheckboxDisabled()"
         >
           {{ 'CALENDAR.PRIVATE_RESERVATION' | transloco }}
         </label>

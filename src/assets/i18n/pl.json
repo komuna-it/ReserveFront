@@ -40,7 +40,8 @@
     "RECORDING": "Nagranie",
     "TYPE": "Rodzaj",
     "NOT_MEMBER_OF_ANY_BAND": "Nie jesteś członkiem żadnego zespołu!",
-    "CREATE_ONE": "Kliknij tutaj aby utworzyć zespół"
+    "CREATE_ONE": "Kliknij tutaj aby utworzyć zespół",
+    "MODAL_RESERVED_FOR_USER": "Rezerwacja w imieniu"
   },
   "USERS_TABLE": {
     "NICK": "Nick",

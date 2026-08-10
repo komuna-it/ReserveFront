@@ -45,7 +45,7 @@ export class ReservationStore {
   readonly reservationTypeBooking = signal<ReservationType | null>(null);
 
   readonly reservationTypeOptions = computed(() => {
-    const reherseal = ReservationType.REHERSEAL;
+    const reherseal = ReservationType.REHEARSAL;
     const recording = ReservationType.RECORDING;
 
     return Array.of(reherseal, recording);
