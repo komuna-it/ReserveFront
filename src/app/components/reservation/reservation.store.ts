@@ -194,14 +194,14 @@ export class ReservationStore {
 
           if (matchedReservation.organization === null) {
             isPrivateReservation = true;
-            const userId = parseInt(this.authService.userId()!, 10);
+            const loggedUserId = parseInt(this.authService.userId()!, 10);
 
             if (this.authService.isAdmin()) {
-              const userText = this.allUsers().find(
+              const userText = this.users().find(
                 (u) => u.id === matchedReservation.reservedBy,
               )?.nick;
               reservationText = `${userText} (prywatna)`;
-            } else if (matchedReservation.reservedBy === userId) {
+            } else if (matchedReservation.reservedBy === loggedUserId) {
               reservationText = privateReservationText;
               isMyPrivateReservation = true;
             } else {
