@@ -865,6 +865,10 @@ export class ReservationFacade {
     this.router.navigate(['/admin/organizations']);
   }
 
+  handleUserAddOrganization() {
+    this.store.isAdminAddOrganizationModalActive.set(true);
+  }
+
   handleAcceptReservations(resIds: Set<number>) {
     this.store.toolbarSelectedIds.set(resIds);
     this.updateReservationsStatus(ReservationStatus.CONFIRMED);

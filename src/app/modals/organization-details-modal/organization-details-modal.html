@@ -50,53 +50,55 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <div class="flex items-center gap-1.5">
-          <button
-            type="button"
-            (click)="facade.markSingleOrganizationAsTrusted(organization().id)"
-            [disabled]="organization().trusted"
-            class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all"
-            [class]="
-              organization().trusted
-                ? 'cursor-default border-emerald-500/40 bg-emerald-500/20 text-emerald-300'
-                : 'border-slate-700/60 bg-slate-800/80 text-slate-400 hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400 active:scale-95'
-            "
-          >
-            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-              ></path>
-            </svg>
-            Zaufany
-          </button>
+        @if (isAdmin()) {
+          <div class="flex items-center gap-1.5">
+            <button
+              type="button"
+              (click)="facade.markSingleOrganizationAsTrusted(organization().id)"
+              [disabled]="organization().trusted"
+              class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all"
+              [class]="
+                organization().trusted
+                  ? 'cursor-default border-emerald-500/40 bg-emerald-500/20 text-emerald-300'
+                  : 'border-slate-700/60 bg-slate-800/80 text-slate-400 hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400 active:scale-95'
+              "
+            >
+              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+              </svg>
+              Zaufany
+            </button>
 
-          <button
-            type="button"
-            (click)="facade.markSingleOrganizationAsUntrusted(organization().id)"
-            [disabled]="!organization().trusted"
-            class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all"
-            [class]="
-              !organization().trusted
-                ? 'cursor-default border-rose-500/40 bg-rose-500/20 text-rose-300'
-                : 'border-slate-700/60 bg-slate-800/80 text-slate-400 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-400 active:scale-95'
-            "
-          >
-            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-            Niezaufany
-          </button>
-        </div>
+            <button
+              type="button"
+              (click)="facade.markSingleOrganizationAsUntrusted(organization().id)"
+              [disabled]="!organization().trusted"
+              class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all"
+              [class]="
+                !organization().trusted
+                  ? 'cursor-default border-rose-500/40 bg-rose-500/20 text-rose-300'
+                  : 'border-slate-700/60 bg-slate-800/80 text-slate-400 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-400 active:scale-95'
+              "
+            >
+              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
+              </svg>
+              Niezaufany
+            </button>
+          </div>
 
-        <div class="h-6 w-px bg-slate-800"></div>
+          <div class="h-6 w-px bg-slate-800"></div>
+        }
 
         <button
           type="button"
@@ -125,9 +127,7 @@
     <div class="custom-scrollbar overflow-y-auto pr-1.5 space-y-6 flex-1">
       <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
         <!-- Owners Section -->
-        <div
-          class="flex flex-col justify-between rounded-xl border border-slate-800/60 bg-slate-950/30 p-4"
-        >
+        <div class="flex flex-col justify-between rounded-xl p-4">
           <div>
             <div class="mb-3 flex items-center justify-between">
               <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -162,28 +162,28 @@
                       </div>
                     </div>
 
-                    <div class="flex items-center gap-1.5 shrink-0">
-                      <!-- Demote Owner to Member -->
-                      <button
-                        type="button"
-                        (click)="facade.prepareDemoteOwner(owner.userId, organization().id)"
-                        [disabled]="owners().length <= 1"
-                        class="rounded px-2 py-1 text-xs font-medium text-amber-400 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-amber-400"
-                        title="Degraduj do członka"
-                      >
-                        Degraduj
-                      </button>
+                    @if (canManageMembers()) {
+                      <div class="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          (click)="facade.prepareDemoteOwner(owner.userId, organization().id)"
+                          [disabled]="owners().length <= 1"
+                          class="rounded px-2 py-1 text-xs font-medium text-amber-400 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-amber-400"
+                          title="Degraduj do członka"
+                        >
+                          Degraduj
+                        </button>
 
-                      <!-- Delete Owner -->
-                      <button
-                        type="button"
-                        (click)="facade.prepareDeleteOwner(owner.userId, organization().id)"
-                        [disabled]="!isDeleteOwnerButtonActive()"
-                        class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400"
-                      >
-                        {{ 'COMMON.DELETE' | transloco }}
-                      </button>
-                    </div>
+                        <button
+                          type="button"
+                          (click)="facade.prepareDeleteOwner(owner.userId, organization().id)"
+                          [disabled]="!isDeleteOwnerButtonActive()"
+                          class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400"
+                        >
+                          {{ 'COMMON.DELETE' | transloco }}
+                        </button>
+                      </div>
+                    }
                   </div>
                 }
               }
@@ -192,9 +192,7 @@
         </div>
 
         <!-- Members Section -->
-        <div
-          class="flex flex-col justify-between rounded-xl border border-slate-800/60 bg-slate-950/30 p-4"
-        >
+        <div class="flex flex-col justify-between rounded-xl p-4">
           <div>
             <div class="mb-3 flex items-center justify-between">
               <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -229,46 +227,49 @@
                       </div>
                     </div>
 
-                    <div class="flex items-center gap-1.5 shrink-0">
-                      <!-- Promote Member to Owner -->
-                      <button
-                        type="button"
-                        (click)="facade.preparePromoteMember(member.userId, organization().id)"
-                        class="rounded px-2 py-1 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/10"
-                        title="Awansuj na właściciela"
-                      >
-                        Awansuj
-                      </button>
+                    <!-- Awansuj/Usuń Członka - WŁAŚCICIEL LUB ADMIN -->
+                    @if (canManageMembers()) {
+                      <div class="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          (click)="facade.preparePromoteMember(member.userId, organization().id)"
+                          class="rounded px-2 py-1 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/10"
+                          title="Awansuj na właściciela"
+                        >
+                          Awansuj
+                        </button>
 
-                      <!-- Delete Member -->
-                      <button
-                        type="button"
-                        (click)="facade.prepareDeleteMember(member.userId, organization().id)"
-                        class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
-                      >
-                        {{ 'COMMON.DELETE' | transloco }}
-                      </button>
-                    </div>
+                        <button
+                          type="button"
+                          (click)="facade.prepareDeleteMember(member.userId, organization().id)"
+                          class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
+                        >
+                          {{ 'COMMON.DELETE' | transloco }}
+                        </button>
+                      </div>
+                    }
                   </div>
                 }
               }
             </div>
 
-            <button
-              type="button"
-              (click)="facade.prepareAddMember(organization().id)"
-              class="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2 text-xs font-medium text-slate-300 transition-all hover:border-slate-600 hover:bg-slate-800 active:scale-[0.99]"
-            >
-              <span class="text-sm leading-none">+</span>
-              {{ 'ADMIN_RESERVATIONS.ADD_MEMBER' | transloco }}
-            </button>
+            @if (canManageMembers()) {
+              <button
+                type="button"
+                (click)="facade.prepareAddMember(organization().id)"
+                class="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2 text-xs font-medium text-slate-300 transition-all hover:border-slate-600 hover:bg-slate-800 active:scale-[0.99]"
+              >
+                <span class="text-sm leading-none">+</span>
+                {{ 'ADMIN_RESERVATIONS.ADD_MEMBER' | transloco }}
+              </button>
+            }
           </div>
         </div>
 
         <!-- Reservations Section -->
-        <div class="rounded-xl border border-slate-800/60 bg-slate-950/30 p-4 md:col-span-2">
+        <div class="mt-4 md:col-span-2">
           <h3
-            class="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400"
+            class="mt-2 mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400"
           >
             <svg
               class="h-4 w-4 text-slate-400"

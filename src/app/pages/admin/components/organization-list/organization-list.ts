@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, computed, effect } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, computed, effect, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservationStore } from '../../../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
@@ -23,16 +23,15 @@ import { ToolbarType } from '../../../../components/toolbars/toolbarType';
     AddUserIntoOrganizationModal,
     AddOrganizationModal,
     Pagination,
-    SuccessPopup,
-    ErrorPopup,
-    ConfirmationPopup,
   ],
   templateUrl: './organization-list.html',
   styleUrl: './organization-list.css',
 })
 export class OrganizationList implements OnInit, OnDestroy {
+  readonly mode = input<'admin' | 'user'>('user');
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
+
   readonly safeOrganizations = computed(() => {
     const orgs = this.store.organizations();
     if (!Array.isArray(orgs)) return [];
@@ -43,19 +42,6 @@ export class OrganizationList implements OnInit, OnDestroy {
       members: Array.isArray(org?.members) ? org.members : [],
     }));
   });
-
-  constructor() {
-    this.store.toolbarType.set(ToolbarType.ADMIN_ORGANIZATIONS);
-
-    effect(() => {
-      this.store.currentSortBy();
-      this.store.currentSortDir();
-      this.store.currentOrganizationsPage();
-      this.store.currentOrganizationsSize();
-    });
-  }
-
-  // ========= checkbox-ing
 
   readonly areAllSelected = computed(() => {
     const items = this.store.organizations();
@@ -68,6 +54,32 @@ export class OrganizationList implements OnInit, OnDestroy {
     const selectedSize = this.store.toolbarSelectedIds().size;
     return selectedSize > 0 && !this.areAllSelected();
   });
+
+  constructor() {
+    effect(() => {
+      this.store.currentSortBy();
+      this.store.currentSortDir();
+      this.store.currentOrganizationsPage();
+      this.store.currentOrganizationsSize();
+    });
+  }
+
+  ngOnInit(): void {
+    // Odczyt sygnału w TypeScript poprzez this.mode()
+    if (this.mode() === 'admin') {
+      this.store.toolbarType.set(ToolbarType.ADMIN_ORGANIZATIONS);
+      this.store.isAdminOrganizationModalActive.set(true);
+    }
+    this.facade.getAllUsers();
+    this.facade.getAllMembersAllOrganizations();
+  }
+
+  ngOnDestroy(): void {
+    if (this.mode() === 'admin') {
+      this.store.teamsList.set([]);
+      this.store.isAdminOrganizationModalActive.set(false);
+    }
+  }
 
   toggleMasterCheckbox(): void {
     if (this.areAllSelected() || this.isIndeterminate()) {
@@ -82,35 +94,19 @@ export class OrganizationList implements OnInit, OnDestroy {
     this.store.toggleSelection(id);
   }
 
-  // =======
-
-  ngOnInit(): void {
-    this.facade.getAllUsers();
-    this.facade.getAllMembersAllOrganizations();
-    this.store.isAdminOrganizationModalActive.set(true);
-  }
-
-  ngOnDestroy(): void {
-    this.store.teamsList.set([]);
-    this.store.isAdminOrganizationModalActive.set(false);
-  }
-
   closeModals(): void {
     this.store.isAdminAddOrganizationModalActive.set(false);
     this.store.isAdminAddOrganizationSuccessPopupActive.set(false);
-
     this.store.isModalDeleteOwnerActive.set(false);
     this.store.isModalDeleteMemberActive.set(false);
     this.store.isModalDeleteOrganizationActive.set(false);
-
     this.store.isModalDeleteOrganizationSuccessActive.set(false);
     this.store.isModalDeleteMemberSuccessActive.set(false);
     this.store.isModalDeleteOwnerSuccessActive.set(false);
-
     this.store.globalErrorKey.set(null);
   }
 
-  selectOrganizationAndOpenDetailsModal(org: Organization) {
+  selectOrganizationAndOpenDetailsModal(org: Organization): void {
     this.store.selectedOrganization.set(
       new Organization(
         org.id,

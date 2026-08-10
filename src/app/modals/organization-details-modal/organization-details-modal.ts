@@ -1,11 +1,11 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, effect, inject } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
 import { Organization } from '../../model/organization';
 import { TableReservationsAdmin } from '../../components/tables/table-reservations-admin/table-reservations-admin';
-import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { User } from '../../model/user';
+import { AuthService } from '../../auth/authService';
 
 @Component({
   selector: 'app-organization-details-modal',
@@ -17,19 +17,34 @@ import { User } from '../../model/user';
 export class OrganizationDetailsModal {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
+  readonly auth = inject(AuthService);
   readonly loco = inject(TranslocoService);
 
   readonly organization = computed(() => this.store.selectedOrganization()!);
   readonly owners = computed(() => this.organization().owners);
   readonly members = computed(() => this.organization().members);
 
+  readonly currentUser = computed(() => this.auth.currentUser());
+
+  readonly isAdmin = computed(() => this.auth.isAdmin() || this.currentUser()?.role === 'ADMIN');
+
+  readonly isOwner = computed(() => {
+    const userId = this.currentUser()?.id;
+    if (!userId) return false;
+    return this.owners().some((o) => o.userId === userId || o.id === userId);
+  });
+
+  readonly canManageMembers = computed(() => this.isAdmin() || this.isOwner());
+
   isDeleteOwnerButtonActive = computed(() => this.owners().length >= 2);
+
   constructor() {
     effect(() => {
       const org = this.store.selectedOrganization();
       console.log('Modal sees new organization', org);
     });
   }
+
   orgTrustedText(org: Organization) {
     return org.trusted
       ? this.loco.translate('ORGANIZATION_LIST.TRUSTED')

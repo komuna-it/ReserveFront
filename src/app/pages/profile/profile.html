@@ -1,93 +1,13 @@
 <div class="min-h-screen bg-slate-900 text-slate-100 flex flex-col md:flex-row antialiased">
-  <!-- Left Sidebar -->
   <app-user-sidebar class="shrink-0"></app-user-sidebar>
 
-  <!-- Main Content Area -->
   <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6">
-    <!-- Profile Header Card -->
-    <div
-      class="bg-slate-800/90 p-6 rounded-2xl border border-slate-700/80 shadow-xl backdrop-blur-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-    >
-      <div>
-        <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          {{ 'PROFILE.TITLE' | transloco }}
-        </h1>
-        <p class="text-sm text-slate-400 mt-1">
-          {{ 'PROFILE.SUBTITLE' | transloco }}
-        </p>
-      </div>
-
-      <!-- User Info Badge -->
-      <div
-        class="flex items-center gap-3 bg-slate-900/80 px-4 py-2.5 rounded-xl border border-slate-700/60 text-xs font-mono"
-      >
-        <div class="flex flex-col gap-0.5">
-          <span class="text-slate-400">
-            Email:
-            <strong class="text-slate-200">{{
-              authService.email() || ('PROFILE.UNAUTHENTICATED' | transloco)
-            }}</strong>
-          </span>
-          <span class="text-slate-400">
-            Rola:
-            <strong class="text-emerald-400">{{ authService.isAdmin() ? 'ADMIN' : 'USER' }}</strong>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Navigation Tabs -->
-    <div class="flex border-b border-slate-700/80 gap-2 overflow-x-auto pb-px">
-      @for (tab of store.allTabs(); track tab.id) {
-        @if (tab.type === 'reservations') {
-          <button
-            (click)="store.activeTab.set(tab)"
-            [class]="
-              store.activeTab().id === tab.id
-                ? 'bg-slate-800 text-emerald-400 border-emerald-500 font-semibold'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border-transparent'
-            "
-            class="px-5 py-3 text-sm border-b-2 transition-all rounded-t-xl whitespace-nowrap flex items-center gap-2"
-          >
-            <span>{{ 'PROFILE.TAB_RESERVATIONS' | transloco }}</span>
-          </button>
-        } @else if (tab.type === 'organization') {
-          <button
-            (click)="store.activeTab.set(tab)"
-            [class]="
-              store.activeTab().id === tab.id
-                ? 'bg-slate-800 text-emerald-400 border-emerald-500 font-semibold'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border-transparent'
-            "
-            class="px-5 py-3 text-sm border-b-2 transition-all rounded-t-xl whitespace-nowrap flex items-center gap-2"
-          >
-            <span>{{ tab.org?.name }}</span>
-          </button>
-        } @else if (tab.type === 'createorganization') {
-          <button
-            (click)="store.isAddOrganizationModalActive.set(true)"
-            class="px-4 py-2.5 my-auto text-xs font-semibold rounded-lg bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/30 transition-all flex items-center gap-1.5 ml-auto"
-          >
-            <span>+ {{ tab.name }}</span>
-          </button>
-        }
-      }
-    </div>
-
-    <!-- Tab Views -->
-    <div class="mt-4">
-      @if (store.activeTab().type === 'reservations') {
-        <app-table-reservations-user></app-table-reservations-user>
-      }
-
-      @if (store.activeTab().type === 'organization') {
-        <app-organization-members></app-organization-members>
-      }
+    <div>
+      <router-outlet></router-outlet>
     </div>
   </main>
 </div>
 
-<!-- Modals & Popups -->
 @if (store.confirmMarkReservationAsRequestCancel() && store.selectedReservation(); as res) {
   <app-confirmation-popup
     [titleText]="getTitleText()"
@@ -103,4 +23,54 @@
 
 @if (store.popupConfirmationActive() && store.isAddOrganizationModalActive()) {
   <app-success-popup [titleText]="getTitleText()"></app-success-popup>
+}
+
+@if (store.selectedOrganization(); as org) {
+  @if (store.isOrganizationDetailsModalActive()) {
+    <app-organization-details-modal></app-organization-details-modal>
+  }
+
+  @if (store.isModalAddMemberActive()) {
+    <app-add-user-into-organization-modal [type]="'member'"></app-add-user-into-organization-modal>
+  }
+
+  @if (store.isModalAddOwnerActive()) {
+    <app-add-user-into-organization-modal [type]="'owner'"></app-add-user-into-organization-modal>
+  }
+}
+
+<!-- Modal - confirm deleting owner from org -->
+@if (store.selectedOrganization(); as res) {
+  @if (store.selectedUser(); as user) {
+    @if (store.isModalDeleteOwnerActive()) {
+      <app-confirmation-popup
+        [titleText]="'USER_MODALS.CONFIRM_DELETE_OWNER' | transloco"
+        (ok)="facade.removeOwnerFromOrganization(user.id, res.id)"
+        (cancel)="facade.closeModals()"
+      ></app-confirmation-popup>
+    }
+  }
+}
+
+<!-- Popup - success -->
+@if (
+  store.isModalDeleteMemberSuccessActive() ||
+  store.isModalDeleteOrganizationSuccessActive() ||
+  store.isModalDeleteOwnerSuccessActive() ||
+  store.isAdminAddOrganizationSuccessPopupActive()
+) {
+  <app-success-popup [titleText]="'USER_MODALS.SUCCESS' | transloco"></app-success-popup>
+}
+
+<!-- Popup - error -->
+@if (store.globalErrorKey(); as errorKey) {
+  <app-error-popup [titleText]="errorKey | transloco" />
+}
+
+<!-- Modal - Add Organization -->
+@if (store.isAdminAddOrganizationModalActive()) {
+  <app-add-organization-modal></app-add-organization-modal>
+}
+@if (store.isAdminAddOrganizationSuccessPopupActive()) {
+  <app-success-popup [titleText]="'USER_MODALS.SUCCESS' | transloco"></app-success-popup>
 }
