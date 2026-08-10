@@ -1,16 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../auth/authService';
-import { User } from '../../model/user';
-import { Organization } from '../../model/organization';
 import { ReservationDto } from '../../model/reservationDto';
-import { Room } from '../../model/room';
-import { Tab } from '../../model/tab';
-import { OrganizationFront } from '../../model/organizationFront';
-import { forkJoin, map } from 'rxjs';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { ReservationWrapper } from '../../model/reservationWrapper';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
@@ -20,9 +11,9 @@ import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-
 import { AddOrganizationModal } from '../../components/modals/add-organization-modal/add-organization-modal';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { TableReservationsUser } from '../../components/tables/table-reservations-user/table-reservations-user';
-import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { OrganizationMembers } from '../../components/tables/organization-members/organization-members';
 import { SuccessPopup } from '../../modals/success-popup/success-popup';
+import { UserSidebar } from '../../layout/user-sidebar/user-sidebar';
 
 @Component({
   selector: 'app-profile',
@@ -35,6 +26,7 @@ import { SuccessPopup } from '../../modals/success-popup/success-popup';
     TableReservationsUser,
     OrganizationMembers,
     SuccessPopup,
+    UserSidebar,
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
