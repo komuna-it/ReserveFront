@@ -20,7 +20,7 @@ export class AddOrganizationModal {
 
   @HostListener('document:keydown.escape')
   onKeydownHandler(): void {
-    this.closeModals();
+    this.facade.closeModals();
   }
 
   createOrganization(name: string): void {
@@ -29,25 +29,9 @@ export class AddOrganizationModal {
     try {
       this.facade.createOrganization(name.trim());
       this.store.popupConfirmationActive.set(true);
+      this.facade.closeModals();
     } catch (error) {
       console.error('Error creating organization:', error);
     }
-  }
-
-  closeModals(): void {
-    this.store.isAdminAddOrganizationModalActive.set(false);
-    this.store.isAdminAddOrganizationSuccessPopupActive.set(false);
-
-    this.store.isModalDeleteOwnerActive.set(false);
-    this.store.isModalDeleteMemberActive.set(false);
-    this.store.isModalDeleteOrganizationActive.set(false);
-
-    this.store.isModalDeleteOrganizationSuccessActive.set(false);
-    this.store.isModalDeleteMemberSuccessActive.set(false);
-    this.store.isModalDeleteOwnerSuccessActive.set(false);
-
-    this.store.globalErrorKey.set(null);
-    this.store.isAddOrganizationModalActive.set(false);
-    this.store.popupConfirmationActive.set(false);
   }
 }

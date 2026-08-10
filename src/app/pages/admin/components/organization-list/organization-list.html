@@ -21,13 +21,19 @@
           </label>
         </th>
 
-        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
+        <th
+          class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%] cursor-pointer"
+        >
           Zespół
         </th>
-        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
-          Owner
+        <th
+          class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%] cursor-pointer"
+        >
+          Właściciele
         </th>
-        <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%]">
+        <th
+          class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[28%] cursor-pointer"
+        >
           Członkowie
         </th>
         <th class="py-3.5 px-4 font-semibold text-center w-[16%]">Zaufany zespół</th>
@@ -103,7 +109,10 @@
           </td>
 
           <!-- band trusted column -->
-          <td class="px-4 py-3 text-center align-middle border-r border-slate-700/60">
+          <td
+            class="px-4 py-3 text-center align-middle border-r border-slate-700/60"
+            (click)="selectOrganizationAndOpenDetailsModal(org)"
+          >
             @if (org.trusted) {
               <span
                 class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-green-500/10 text-green-400 border border-red-500/20"
@@ -156,11 +165,4 @@
     (pageChange)="facade.changeOrganizationsPage($event)"
     (sizeChange)="facade.changeOrganizationsSize($event)"
   ></app-pagination>
-
-  <!-- Modal - Add Organization -->
-  @if (
-    store.isAdminAddOrganizationModalActive() && !store.isAdminAddOrganizationSuccessPopupActive()
-  ) {
-    <app-add-organization-modal></app-add-organization-modal>
-  }
 </div>

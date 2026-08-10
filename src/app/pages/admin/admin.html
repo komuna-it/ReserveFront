@@ -88,3 +88,11 @@
 @if (store.globalErrorKey(); as errorKey) {
   <app-error-popup [titleText]="errorKey | transloco" />
 }
+
+<!-- Modal - Add Organization -->
+@if (store.isAdminAddOrganizationModalActive()) {
+  <app-add-organization-modal></app-add-organization-modal>
+}
+@if (store.isAdminAddOrganizationSuccessPopupActive()) {
+  <app-success-popup [titleText]="'USER_MODALS.SUCCESS | transloco '"></app-success-popup>
+}
