@@ -31,6 +31,10 @@ export class CalendarBookingModal implements OnInit {
         this.store.isPrivateReservationCheckboxActivated.set(false);
       }
     });
+
+    if (this.store.reservationTypeOptions().length > 0) {
+      this.store.reservationTypeBooking.set(this.store.reservationTypeOptions()[0]);
+    }
   }
 
   ngOnInit() {

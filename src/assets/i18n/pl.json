@@ -38,7 +38,9 @@
     "RESERVATION_DETAILS": "Szczegóły rezerwacji",
     "REHEARSAL": "Próba",
     "RECORDING": "Nagranie",
-    "TYPE": "Rodzaj"
+    "TYPE": "Rodzaj",
+    "NOT_MEMBER_OF_ANY_BAND": "Nie jesteś członkiem żadnego zespołu!",
+    "CREATE_ONE": "Kliknij tutaj aby utworzyć zespół"
   },
   "USERS_TABLE": {
     "NICK": "Nick",

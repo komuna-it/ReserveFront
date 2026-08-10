@@ -787,7 +787,7 @@ export class ReservationFacade {
     this.store.isModalDeleteOwnerActive.set(false);
     this.store.isModalDeleteMemberActive.set(false);
     this.store.isModalDeleteOrganizationActive.set(false);
-
+    this.store.selectedBooking.set(null);
     this.store.isModalDeleteOrganizationSuccessActive.set(false);
     this.store.isModalDeleteMemberSuccessActive.set(false);
     this.store.isModalDeleteOwnerSuccessActive.set(false);

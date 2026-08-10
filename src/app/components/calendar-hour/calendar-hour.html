@@ -1,22 +1,16 @@
-<td class="py-0 px-1 text-center min-w-0 h-14" [ngClass]="cellFill()">
-  <div
-    class="w-full h-full min-h-[3.5rem] flex items-center justify-center text-xs font-medium truncate px-1 transition-all border-0"
-    [ngClass]="cellClasses()"
-  >
-    @if (canViewDetails()) {
-      <button
-        type="button"
-        (click)="store.isReservationDetailsModalActive.set(true)"
-        class="w-full h-full flex items-center justify-center text-center focus:outline-none cursor-pointer"
+<div
+  class="w-full h-full min-h-[1.5rem] flex items-center justify-center text-xs font-medium truncate transition-all border-0"
+  [ngClass]="cellClasses()"
+>
+  @if (canViewDetails()) {
+    <button type="button" (click)="store.isReservationDetailsModalActive.set(true)">
+      <span
+        class="font-bold text-[10px] tracking-wide uppercase block truncate w-full px-1 text-center"
+        [class.text-emerald-300]="isForAdmin()"
+        [class.text-blue-300]="!isForAdmin()"
       >
-        <span
-          class="font-bold text-[10px] tracking-wide uppercase block truncate w-full px-1 text-center"
-          [class.text-emerald-300]="isForAdmin()"
-          [class.text-blue-300]="!isForAdmin()"
-        >
-          {{ reservationText() }}
-        </span>
-      </button>
-    }
-  </div>
-</td>
+        {{ reservationText() }}
+      </span>
+    </button>
+  }
+</div>

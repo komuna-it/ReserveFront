@@ -40,13 +40,13 @@ export class CalendarHour {
       'text-blue-400/50 border-blue-500/20': hasAccess && !isFirst && !isLast,
       'text-red-400/40 border-red-500/15': !hasAccess && !isFirst && !isLast,
 
-      'rounded-full': isFirst && isLast,
+      'rounded-full border-0': isFirst && isLast,
       'rounded-t-3xl': isFirst && !isLast,
       'rounded-b-3xl': !isFirst && isLast,
     };
   });
 
   readonly cellFill = computed(() => {
-    return { 'border-b border-slate-700/50': !this.isReserved() || this.isLastHourOfReservation() };
+    return { 'border-b border-slate-700/50': !this.isReserved() };
   });
 }

@@ -86,9 +86,7 @@ export class ReservationStore {
     reservationType: ReservationType;
   } | null>(null);
 
-  readonly userOrgsMap = computed(
-    () => new Map(this.userOrganizations().map((o) => [o.id, o.name])),
-  );
+  readonly userOrgsMap = computed(() => new Map(this.organizations().map((o) => [o.id, o.name])));
   readonly allOrgsMap = computed(() => new Map(this.allOrganizations().map((o) => [o.id, o.name])));
   readonly teamsList = signal<OrganizationFront[]>([]);
 
