@@ -34,9 +34,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.facade.getRoomsAndReservations();
-    // this.facade.getAllUsers();
+    this.facade.getAllUsers();
 
-    if (this.authService.userId()) {
+    if (!this.authService.userId()) {
       console.error('User id not loaded yet');
       return;
     }

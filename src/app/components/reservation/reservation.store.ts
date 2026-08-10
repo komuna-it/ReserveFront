@@ -17,6 +17,7 @@ import { ReservationType } from '../../model/reservationType';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ToolbarType } from '../toolbars/toolbarType';
+import { Booking } from '../../model/booking';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
@@ -75,16 +76,7 @@ export class ReservationStore {
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
   readonly displayBookingErrorPopup = signal<boolean>(false);
 
-  readonly selectedBooking = signal<{
-    date: string;
-    hour: number;
-    roomId: number;
-    duration: number;
-    roomName: string | undefined;
-    organizationId: number;
-    reservedByUserId: number;
-    reservationType: ReservationType;
-  } | null>(null);
+  readonly selectedBooking = signal<Booking | null>(null);
 
   readonly userOrgsMap = computed(() => new Map(this.organizations().map((o) => [o.id, o.name])));
   readonly allOrgsMap = computed(() => new Map(this.allOrganizations().map((o) => [o.id, o.name])));

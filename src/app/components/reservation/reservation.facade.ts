@@ -13,6 +13,7 @@ import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 import { User } from '../../model/user';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
+import { Booking } from '../../model/booking';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -225,29 +226,79 @@ export class ReservationFacade {
   }
 
   connectToReservationStream() {
+    console.log('Connecting to SSE');
     this.disconnectStream();
     this.sseController = new AbortController();
+
     const url = `${process.env['VSF_API_URL'] || ''}/sse`;
+
     fetchEventSource(url, {
       method: 'GET',
       signal: this.sseController.signal,
-      onmessage: (msg) => {
-        const msgData = JSON.parse(msg.data);
-        const reservedBy: ReservationDto = JSON.parse(msg.data);
-        const reservedById = reservedBy.reservedBy;
-
-        if (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_REMOVED') {
-          this.getRoomsAndReservations();
+      headers: {
+        Accept: 'text/event-stream',
+      },
+      onopen: async (response) => {
+        if (response.ok) {
+          console.log('SSE connection successfully opened!');
+          return;
         }
+        console.error('SSE connection failed with status:', response.status);
+      },
+      onmessage: (msg) => {
+        console.log(`Fetched SSE! Event: ${msg.event}`, msg.data);
 
-        const safeUserId = parseInt(
-          (this.authService.userId() || '').toString().replace(/['"]/g, ''),
-        );
-        if (msg.event === 'RESERVATION_CREATED' && reservedById !== safeUserId) {
-          this.store.displayBookingErrorPopup.set(true);
+        if (!msg.data) return;
+
+        try {
+          const res: ReservationDto = JSON.parse(msg.data);
+
+          if (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_REMOVED') {
+            this.getRoomsAndReservations();
+          }
+
+          const safeUserId = parseInt(
+            (this.authService.userId() || '').toString().replace(/['"]/g, ''),
+            10,
+          );
+          const currentBooking = this.store.selectedBooking() ?? null;
+          const isColizion = this.isSseReservationColiding(res, currentBooking);
+
+          // Wyświetl błąd tylko jeśli stworzona rezerwacja koliduje I pochodzi od innego użytkownika
+          if (msg.event === 'RESERVATION_CREATED' && isColizion && res.reservedBy !== safeUserId) {
+            this.store.displayBookingErrorPopup.set(true);
+          }
+        } catch (err) {
+          console.error('Error parsing SSE message data:', err, 'Data was:', msg.data);
         }
       },
+      onerror: (err) => {
+        console.error('SSE Stream Error:', err);
+      },
     });
+  }
+
+  isSseReservationColiding(res: ReservationDto, b: Booking | null): boolean {
+    if (!b) return false;
+
+    if (Number(res.room) !== Number(b.roomId)) {
+      return false;
+    }
+
+    const resStartDate = new Date(res.startAt);
+    const resEndDate = new Date(res.endAt);
+
+    const bookingStartDate = new Date(b.date);
+    bookingStartDate.setUTCHours(b.hour, 0, 0, 0);
+
+    const bookingEndDate = new Date(bookingStartDate);
+    bookingEndDate.setUTCHours(b.hour + b.duration, 0, 0, 0);
+
+    const isTimeOverlapping =
+      resStartDate.getTime() < bookingEndDate.getTime() &&
+      resEndDate.getTime() > bookingStartDate.getTime();
+
+    return isTimeOverlapping;
   }
 
   deleteReservation(id: number) {
@@ -791,7 +842,7 @@ export class ReservationFacade {
     this.store.isModalDeleteOrganizationSuccessActive.set(false);
     this.store.isModalDeleteMemberSuccessActive.set(false);
     this.store.isModalDeleteOwnerSuccessActive.set(false);
-
+    this.store.displayBookingErrorPopup.set(false);
     this.store.globalErrorKey.set(null);
     this.store.isAddOrganizationModalActive.set(false);
     this.store.popupConfirmationActive.set(false);

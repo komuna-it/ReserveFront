@@ -24,11 +24,19 @@ export class CalendarBookingModal implements OnInit {
   constructor() {
     effect(() => {
       const orgs = this.store.organizations();
+      const booking = this.store.selectedBooking();
 
       if (orgs.length === 0) {
         this.store.isPrivateReservationCheckboxActivated.set(true);
       } else {
         this.store.isPrivateReservationCheckboxActivated.set(false);
+
+        if (
+          booking &&
+          (!booking.organizationId || !orgs.some((org) => org.id === booking.organizationId))
+        ) {
+          booking.organizationId = orgs[0].id;
+        }
       }
     });
 
@@ -36,7 +44,6 @@ export class CalendarBookingModal implements OnInit {
       this.store.reservationTypeBooking.set(this.store.reservationTypeOptions()[0]);
     }
   }
-
   ngOnInit() {
     console.log('opening CalendarBookingModal');
     this.facade.refreshOrganizations();
@@ -58,15 +65,19 @@ export class CalendarBookingModal implements OnInit {
   }
 
   togglePrivateReservationCheckbox() {
-    if (this.store.organizations().length === 0) {
+    const orgs = this.store.organizations();
+    if (orgs.length === 0) {
       return;
     }
 
-    return this.store.isPrivateReservationCheckboxActivated.set(
-      !this.store.isPrivateReservationCheckboxActivated(),
-    );
-  }
+    const isPrivateNow = !this.store.isPrivateReservationCheckboxActivated();
+    this.store.isPrivateReservationCheckboxActivated.set(isPrivateNow);
 
+    const booking = this.store.selectedBooking();
+    if (!isPrivateNow && booking && !booking.organizationId && orgs.length > 0) {
+      booking.organizationId = orgs[0].id;
+    }
+  }
   isPrivateReservationCheckboxDisabled() {
     return this.store.organizations().length === 0;
   }
