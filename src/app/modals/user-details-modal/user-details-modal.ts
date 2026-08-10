@@ -32,9 +32,7 @@ export class UserDetailsModal {
 
       if (currentUser) {
         this.facade.getAllReservationsForUserAndTheirOrganizationsByUser(currentUser);
-        if (this.auth.currentUser()) {
-          this.facade.getOrganizationsOfUser(true, this.auth.currentUser()?.id ?? 0);
-        }
+        this.facade.getOrganizationsOfUser(true, currentUser.id);
       }
       console.table(currentUser);
     });

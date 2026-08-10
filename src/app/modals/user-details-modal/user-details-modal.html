@@ -101,7 +101,7 @@
             {{ 'ADMIN_RESERVATIONS.USERS_ORGANIZATIONS' | transloco }}
           </h3>
           <div class="max-h-58 overflow-y-auto space-y-1.5 pr-1">
-            @for (org of store.userOrganizations(); track org.id) {
+            @for (org of store.organizations(); track org.id) {
               <div
                 class="text-xs text-slate-300 bg-slate-800/80 p-2 rounded-lg border border-slate-700/50 font-medium"
               >
