@@ -27,14 +27,12 @@ export class CalendarBookingModal implements OnInit {
       const booking = this.store.selectedBooking();
       const isAdmin = this.authService.isAdmin();
 
-      // Zwykły użytkownik bez organizacji ma wymuszoną rezerwację prywatną
       if (!isAdmin && orgs.length === 0) {
         this.store.isPrivateReservationCheckboxActivated.set(true);
       } else if (!isAdmin) {
         this.store.isPrivateReservationCheckboxActivated.set(false);
       }
 
-      // Preselekcja organizacji, jeśli dostępna i brak wyboru
       if (
         booking &&
         orgs.length > 0 &&
@@ -78,7 +76,6 @@ export class CalendarBookingModal implements OnInit {
   }
 
   isPrivateReservationCheckboxDisabled() {
-    // Admin zawsze może przełączać checkbox
     if (this.authService.isAdmin()) {
       return false;
     }

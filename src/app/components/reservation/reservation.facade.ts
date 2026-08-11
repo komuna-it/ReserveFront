@@ -195,7 +195,7 @@ export class ReservationFacade {
     }
     const day = this.store.daySelectedByUser();
     const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
-
+    const price = this.store.price();
     const userOrgs = this.store.userOrganizations();
     const allOrgs = this.store.allOrganizations();
     let defaultOrg = userOrgs[0]?.id;
@@ -210,6 +210,7 @@ export class ReservationFacade {
       date: dateStr,
       hour,
       roomId,
+      price: price,
       duration: 1,
       roomName: this.store.rooms().find((r) => r.id === roomId)?.name,
       organizationId: defaultOrg || 0,

@@ -81,6 +81,9 @@ export class ReservationStore {
   readonly displayBookingErrorPopup = signal<boolean>(false);
 
   readonly selectedBooking = signal<Booking | null>(null);
+  readonly price = computed(() => {
+    return 100;
+  });
 
   readonly userOrgsMap = computed(() => new Map(this.organizations().map((o) => [o.id, o.name])));
   readonly allOrgsMap = computed(() => new Map(this.allOrganizations().map((o) => [o.id, o.name])));

@@ -255,6 +255,7 @@
   "COMMON": {
     "DELETE": "Usuń",
     "CLOSE": "Zamknij",
-    "SELECT": "Wybierz"
+    "SELECT": "Wybierz",
+    "PRICE": "Razem"
   }
 }
