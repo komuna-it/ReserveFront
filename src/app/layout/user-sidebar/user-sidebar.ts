@@ -6,11 +6,12 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
 import { AuthService } from '../../auth/authService';
+import { UserSettings } from '../../components/user-settings/user-settings';
 
 @Component({
   selector: 'app-user-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, TranslocoPipe],
+  imports: [RouterLink, RouterLinkActive, TranslocoPipe, UserSettings],
   templateUrl: './user-sidebar.html',
   styleUrl: './user-sidebar.css',
 })

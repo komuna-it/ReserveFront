@@ -97,7 +97,8 @@
     "ROLE": "Rola",
     "ROLE_MEMBER": "Członek",
     "ROLE_OWNER": "Właściciel",
-    "NO_ROLE": "Brak"
+    "NO_ROLE": "Brak",
+    "PREFERRED_LANGUAGE": "Domyślny język"
   },
   "BUTTONS": {
     "CANCELLATION_NOT_POSSIBLE": "Odwołanie niemożliwe",

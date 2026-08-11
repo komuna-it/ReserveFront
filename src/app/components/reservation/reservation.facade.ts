@@ -14,6 +14,7 @@ import { User } from '../../model/user';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { Booking } from '../../model/booking';
+import { finalize } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -1044,5 +1045,36 @@ export class ReservationFacade {
 
       return matchesRoom || matchesReservedBy;
     });
+  }
+
+  postPriceForRoomId(roomId: number, resType: ReservationType, price: number) {
+    this.store.pricingLoadingState.set({ roomId, type: resType });
+
+    this.api
+      .postPriceForRoomId(roomId, resType, price)
+      .pipe(finalize(() => this.store.pricingLoadingState.set(null)))
+      .subscribe({
+        next: () => {
+          this.getRooms();
+        },
+        error: (e) => {
+          console.error('Error postPriceForRoomId: ', e);
+        },
+      });
+  }
+
+  setPreferredLanguage(language: string) {
+    const user = this.authService.currentUser();
+
+    if (user && user.email) {
+      this.api.setPreferredLanguage(language).subscribe({
+        next: () => {
+          console.log(`set language for ${user.email}: ${language}`);
+        },
+        error: (e) => {
+          console.error('Error setPreferredLanguageByUserId: ', e);
+        },
+      });
+    }
   }
 }

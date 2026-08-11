@@ -1,0 +1,46 @@
+<div class="w-full max-w-xl rounded-2xl shadow-xl backdrop-blur-sm">
+  <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 items-center gap-4">
+    <label class="text-sm font-medium text-slate-200">
+      {{ 'PROFILE.PREFERRED_LANGUAGE' | transloco }}
+    </label>
+
+    <select
+      class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-sm font-medium uppercase focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition cursor-pointer"
+      [value]="alreadyPreferredLanguage"
+      (change)="onLanguageSelect($event)"
+    >
+      @for (option of store.availableLanguages(); track option) {
+        <option [value]="option" [selected]="option === alreadyPreferredLanguage">
+          {{ option }}
+        </option>
+      }
+    </select>
+  </div>
+
+  <hr class="mb-6 border-slate-700/50" />
+
+  @if (auth.currentUser(); as user) {
+    <div
+      class="rounded-xl bg-slate-900/60 border border-slate-700/40 p-4 space-y-3 font-mono text-xs"
+    >
+      <div class="flex items-center justify-between gap-4 border-b border-slate-800/80 pb-2">
+        <span class="text-slate-400 text-sm font-medium">Nick</span>
+        <span class="text-slate-200 text-sm font-semibold truncate">{{ user.nick }}</span>
+      </div>
+
+      <div class="flex items-center justify-between gap-4 border-b border-slate-800/80 pb-2">
+        <span class="text-slate-400 text-sm font-medium">Email</span>
+        <span class="text-slate-200 text-sm truncate">{{ user.email }}</span>
+      </div>
+
+      <div class="flex items-center justify-between gap-4">
+        <span class="text-slate-400 text-sm font-medium">Rola</span>
+        <span
+          class="text-emerald-400 font-semibold uppercase tracking-wider text-xs px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20"
+        >
+          {{ user.role }}
+        </span>
+      </div>
+    </div>
+  }
+</div>

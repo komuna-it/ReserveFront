@@ -1,1 +1,136 @@
-<p>admin-pricing works!</p>
+<div class="p-6">
+  <div class="mb-6 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-slate-100 tracking-tight">Zarządzanie Cennikiem</h1>
+    <!-- Ewentualny przycisk odświeżania -->
+    <button
+      (click)="facade.getRooms()"
+      class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm"
+      [disabled]="isLoading()"
+    >
+      <svg
+        class="w-4 h-4"
+        [class.animate-spin]="isLoading()"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+        />
+      </svg>
+      Odśwież
+    </button>
+  </div>
+
+  @if (isLoading() && roomPriceRows().length === 0) {
+    <div class="flex justify-center items-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+    </div>
+  } @else {
+    <div class="bg-slate-800 shadow-xl rounded-2xl border border-slate-700 overflow-hidden">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-slate-700 bg-slate-900/50">
+            <th class="p-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">Sala</th>
+            <th class="p-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">
+              Cena nagrania (PLN/h)
+            </th>
+            <th class="p-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">
+              Cena próby (PLN/h)
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-700/50">
+          @for (row of roomPriceRows(); track row.roomId) {
+            <tr class="hover:bg-slate-700/30 transition-colors">
+              <!-- Nazwa Sali -->
+              <td class="p-4 font-medium text-slate-100">
+                {{ row.roomName }}
+                <span class="text-xs text-slate-500 block">ID: {{ row.roomId }}</span>
+              </td>
+
+              <!-- Edycja ceny Recording -->
+              <td class="p-4">
+                <div class="flex items-center gap-2">
+                  <input
+                    type="number"
+                    [ngModel]="row.recordingPrice"
+                    (ngModelChange)="onPriceChange(row.roomId, ResType.RECORDING, $event)"
+                    class="w-32 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-emerald-400 font-mono focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                    placeholder="0"
+                    min="0"
+                  />
+                  <button
+                    (click)="savePrice(row.roomId, ResType.RECORDING)"
+                    class="p-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-600 text-white rounded-lg transition-colors flex items-center justify-center min-w-[40px]"
+                    [disabled]="row.isSavingRecording"
+                    title="Zapisz cenę nagrań"
+                  >
+                    @if (row.isSavingRecording) {
+                      <div
+                        class="w-4 h-4 animate-spin rounded-full border-2 border-white border-b-transparent"
+                      ></div>
+                    } @else {
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    }
+                  </button>
+                </div>
+              </td>
+
+              <!-- Edycja ceny Rehearsal -->
+              <td class="p-4">
+                <div class="flex items-center gap-2">
+                  <input
+                    type="number"
+                    [ngModel]="row.rehearsalPrice"
+                    (ngModelChange)="onPriceChange(row.roomId, ResType.REHEARSAL, $event)"
+                    class="w-32 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sky-400 font-mono focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition"
+                    placeholder="0"
+                    min="0"
+                  />
+                  <button
+                    (click)="savePrice(row.roomId, ResType.REHEARSAL)"
+                    class="p-2.5 bg-sky-600 hover:bg-sky-500 disabled:bg-slate-600 text-white rounded-lg transition-colors flex items-center justify-center min-w-[40px]"
+                    [disabled]="row.isSavingRehearsal"
+                    title="Zapisz cenę prób"
+                  >
+                    @if (row.isSavingRehearsal) {
+                      <div
+                        class="w-4 h-4 animate-spin rounded-full border-2 border-white border-b-transparent"
+                      ></div>
+                    } @else {
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    }
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="3" class="p-8 text-center text-slate-500 italic">
+                Nie znaleziono sal. Upewnij się, że Sale są zdefiniowane w systemie.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

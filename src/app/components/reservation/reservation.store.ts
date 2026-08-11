@@ -44,6 +44,10 @@ export class ReservationStore {
   readonly testText = signal<string>('');
   readonly reservationTypeBooking = signal<ReservationType | null>(null);
 
+  //pricing
+  readonly pricingLoadingState = signal<{ roomId: number; type: ReservationType } | null>(null);
+  readonly isLoadingRooms = signal<boolean>(false);
+
   readonly reservationTypeOptions = computed(() => {
     const reherseal = ReservationType.REHEARSAL;
     const recording = ReservationType.RECORDING;
@@ -439,4 +443,7 @@ export class ReservationStore {
   readonly currentSortDir = computed(
     () => (this.queryParams()['sortDir'] as 'asc' | 'desc') ?? 'desc',
   );
+
+  // settings
+  readonly availableLanguages = signal<string[]>(['pl', 'en', 'ua']);
 }

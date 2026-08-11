@@ -12,4 +12,5 @@ export interface ReservationDto {
   endAt: string;
   duration: string;
   status: ReservationStatus;
+  price: number;
 }
