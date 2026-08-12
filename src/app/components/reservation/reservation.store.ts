@@ -55,6 +55,13 @@ export class ReservationStore {
     return Array.of(reherseal, recording);
   });
 
+  readonly allowedReservationTypes = computed(() => {
+    const rooms = this.rooms();
+    const room = rooms.find((r) => r.id === this.selectedBooking()?.roomId);
+    if (!room) return;
+    return room.isRecordable ? this.reservationTypeOptions() : Array.of(ReservationType.REHEARSAL);
+  });
+
   readonly durationOptions = computed(() => {
     const booking = this.selectedBooking();
     if (!booking) return [];
