@@ -274,7 +274,6 @@ export class ReservationFacade {
           const currentBooking = this.store.selectedBooking() ?? null;
           const isColizion = this.isSseReservationColiding(res, currentBooking);
 
-          // Wyświetl błąd tylko jeśli stworzona rezerwacja koliduje I pochodzi od innego użytkownika
           if (
             msg.event === 'RESERVATION_CREATED' &&
             isColizion &&
@@ -1094,10 +1093,11 @@ export class ReservationFacade {
     if (user && user.email) {
       this.api.setPreferredLanguage(language).subscribe({
         next: () => {
+          this.authService.updateUserLanguage(language);
           console.log(`set language for ${user.email}: ${language}`);
         },
         error: (e) => {
-          console.error('Error setPreferredLanguageByUserId: ', e);
+          console.error('Error setPreferredLanguage: ', e);
         },
       });
     }

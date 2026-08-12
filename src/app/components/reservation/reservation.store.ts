@@ -460,4 +460,5 @@ export class ReservationStore {
 
   // settings
   readonly availableLanguages = signal<string[]>(['pl', 'en', 'ua']);
+  readonly selectedLanguage = signal<string>('');
 }

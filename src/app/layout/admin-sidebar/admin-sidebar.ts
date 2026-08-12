@@ -4,11 +4,12 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/ro
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { filter } from 'rxjs';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-admin-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, TranslocoPipe],
   templateUrl: './admin-sidebar.html',
   styleUrl: './admin-sidebar.css',
 })

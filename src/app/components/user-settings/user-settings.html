@@ -6,17 +6,16 @@
 
     <select
       class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-sm font-medium uppercase focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition cursor-pointer"
-      [value]="alreadyPreferredLanguage"
+      [value]="currentLanguage()"
       (change)="onLanguageSelect($event)"
     >
       @for (option of store.availableLanguages(); track option) {
-        <option [value]="option" [selected]="option === alreadyPreferredLanguage">
+        <option [value]="option" [selected]="option === currentLanguage()">
           {{ option }}
         </option>
       }
     </select>
   </div>
-
   <hr class="mb-6 border-slate-700/50" />
 
   @if (auth.currentUser(); as user) {
@@ -34,10 +33,8 @@
       </div>
 
       <div class="flex items-center justify-between gap-4">
-        <span class="text-slate-400 text-sm font-medium">Rola</span>
-        <span
-          class="text-emerald-400 font-semibold uppercase tracking-wider text-xs px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20"
-        >
+        <span class="text-slate-400 text-sm font-medium">{{ 'PROFILE.ROLE' | transloco }}</span>
+        <span class="uppercase px-2 py-0.5 rounded">
           {{ user.role }}
         </span>
       </div>

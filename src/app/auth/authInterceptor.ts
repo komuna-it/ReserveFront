@@ -12,7 +12,6 @@ import { ErrorResponse } from '../model/error/errorResponse';
 import { ErrorType } from '../model/error/errorType';
 import { ReservationStore } from '../components/reservation/reservation.store';
 
-// Stan odświeżania tokena (zarządzany globalnie dla interceptora)
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
 

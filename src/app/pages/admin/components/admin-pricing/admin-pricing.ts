@@ -6,11 +6,12 @@ import { ReservationStore } from '../../../../components/reservation/reservation
 import { ReservationType } from '../../../../model/reservationType';
 import { Room } from '../../../../model/room';
 import { AddRoomModal } from '../../../../modals/add-room-modal/add-room-modal';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-admin-pricing',
   standalone: true,
-  imports: [CommonModule, FormsModule, AddRoomModal],
+  imports: [CommonModule, FormsModule, AddRoomModal, TranslocoPipe],
   templateUrl: './admin-pricing.html',
 })
 export class AdminPricing implements OnInit {

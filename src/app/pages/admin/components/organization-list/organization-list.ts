@@ -65,7 +65,6 @@ export class OrganizationList implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Odczyt sygnału w TypeScript poprzez this.mode()
     if (this.mode() === 'admin') {
       this.store.toolbarType.set(ToolbarType.ADMIN_ORGANIZATIONS);
       this.store.isAdminOrganizationModalActive.set(true);

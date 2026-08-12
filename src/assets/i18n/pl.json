@@ -41,7 +41,8 @@
     "TYPE": "Rodzaj",
     "NOT_MEMBER_OF_ANY_BAND": "Nie jesteś członkiem żadnego zespołu!",
     "CREATE_ONE": "Kliknij tutaj aby utworzyć zespół",
-    "MODAL_RESERVED_FOR_USER": "Rezerwacja w imieniu"
+    "MODAL_RESERVED_FOR_USER": "Rezerwacja w imieniu",
+    "CALENDAR": "Kalendarz"
   },
   "USERS_TABLE": {
     "NICK": "Nick",
@@ -99,7 +100,9 @@
     "ROLE_OWNER": "Właściciel",
     "NO_ROLE": "Brak",
     "PREFERRED_LANGUAGE": "Domyślny język",
-    "IS_PAID": "Opłacone?"
+    "IS_PAID": "Opłacone?",
+    "USERS": "Użytkownicy",
+    "ROOMS_AND_PRICING": "Salki i cennik"
   },
   "BUTTONS": {
     "CANCELLATION_NOT_POSSIBLE": "Odwołanie niemożliwe",
@@ -108,10 +111,10 @@
     "TOO_LATE_TO_CANCEL": "Za późno na odwołanie"
   },
   "STATUS": {
-    "CREATED": "Oczekuje na potwierdzenie",
+    "CREATED": "Do potwierdzenia",
     "CONFIRMED": "Potwierdzona",
     "CANCELLED": "Odwołana",
-    "REQUESTED_CANCELLATION": "Oczekuje na potwierdzenie odwołania",
+    "REQUESTED_CANCELLATION": "Do odwołania",
     "REJECTED": "Odrzucona"
   },
 
@@ -248,7 +251,9 @@
     "ADD_USER_INTO_ORGANIZATION_PLACEHOLDER": "Wybierz użytkownika",
     "ADD_ROOM": "Dodaj salę",
     "ROOM_NAME": "Nazwa sali",
-    "IS_RECORDABLE": "Nagrywanie?"
+    "IS_RECORDABLE": "Nagrywanie?",
+    "PRICES_MANAGEMENT": "Zarządzanie Cennikiem i Nagraniami",
+    "ADMIN_PANEL": "Panel Admina"
   },
   "PAGINATION": {
     "PREVIOUS": "Poprzednia",
@@ -260,6 +265,13 @@
     "DELETE": "Usuń",
     "CLOSE": "Zamknij",
     "SELECT": "Wybierz",
-    "PRICE": "Razem"
+    "PRICE": "Razem",
+    "BANDS": "Zespoły",
+    "RESERVATIONS": "Rezerwacje",
+    "SETTINGS": "Ustawienia",
+    "ADD_BAND": "Dodaj zespół",
+    "NOT_AVAILABLE_FOR_THIS_ROOM": "Niedostępne dla tej sali",
+    "NO_ROOMS_TO_DISPLAY": "Brak sal do wyświetlenia",
+    "ROOM": "Sala"
   }
 }
