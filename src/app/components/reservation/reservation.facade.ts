@@ -53,6 +53,19 @@ export class ReservationFacade {
     });
   }
 
+  postRoom(name: string) {
+    return this.api.postRoom(name).subscribe({
+      next: () => {
+        console.log(`posted room ${name}`);
+        this.getRooms();
+      },
+      error: (e) => {
+        console.error(`error posting room ${name}`);
+        this.store.globalErrorKey.set(e);
+      },
+    });
+  }
+
   getRoomsAndReservations() {
     this.api.getRooms().subscribe({
       next: (rooms) => {
@@ -848,7 +861,7 @@ export class ReservationFacade {
     this.store.globalErrorKey.set(null);
     this.store.isAddOrganizationModalActive.set(false);
     this.store.popupConfirmationActive.set(false);
-
+    this.store.isModalAddRoomActive.set(false);
     this.store.confirmMarkReservationAsRequestCancel.set(false);
     this.store.globalErrorKey.set(null);
     this.store.isBanUsersModalActive.set(false);
@@ -1062,6 +1075,17 @@ export class ReservationFacade {
           console.error('Error postPriceForRoomId: ', e);
         },
       });
+  }
+
+  isRoomRecordable(roomId: number, recordable: boolean) {
+    this.api.isRoomRecordable(roomId, recordable).subscribe({
+      next: () => {
+        this.getRooms();
+      },
+      error: (e) => {
+        console.error('Error isRoomRecordable: ', e);
+      },
+    });
   }
 
   setPreferredLanguage(language: string) {

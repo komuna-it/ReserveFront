@@ -96,3 +96,7 @@
 @if (store.isAdminAddOrganizationSuccessPopupActive()) {
   <app-success-popup [titleText]="'USER_MODALS.SUCCESS | transloco '"></app-success-popup>
 }
+
+@if (store.isModalAddRoomActive()) {
+  <app-add-room-modal></app-add-room-modal>
+}

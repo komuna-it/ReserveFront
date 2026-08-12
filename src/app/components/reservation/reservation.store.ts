@@ -253,6 +253,7 @@ export class ReservationStore {
   readonly isModalDeleteOwnerSuccessActive = signal<boolean>(false);
   readonly isModalAddMemberActive = signal<boolean>(false);
   readonly isModalAddOwnerActive = signal<boolean>(false);
+  readonly isModalAddRoomActive = signal<boolean>(false);
   readonly isBanModalActive = signal<boolean>(false);
   readonly isBanUsersModalActive = signal<boolean>(false);
   readonly isBanUsersSuccessActive = signal<boolean>(false);

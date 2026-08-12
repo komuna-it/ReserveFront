@@ -22,6 +22,10 @@ export class ReservationApi {
     return this.http.get<Room[]>(`${this.apiUrl}/rooms`);
   }
 
+  postRoom(name: string) {
+    return this.http.post<Room>(`${this.apiUrl}/rooms/create/${name}`, {});
+  }
+
   getReservationsByRoom(
     roomId: number,
     page: number,
@@ -270,5 +274,9 @@ export class ReservationApi {
 
   setPreferredLanguage(language: string) {
     return this.http.patch<User>(`${this.apiUrl}/users/preferredLanguage/${language}`, {});
+  }
+
+  isRoomRecordable(roomId: number, recordable: boolean) {
+    return this.http.put<Room>(`${this.apiUrl}/room/isRecordable/${recordable}`, {});
   }
 }

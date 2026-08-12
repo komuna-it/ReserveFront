@@ -244,7 +244,10 @@
     "EMPTY_MEMBERS": "Brak członków",
     "ADD_MEMBER": "Dodaj członka",
     "ADD_OWNER": "Dodaj właściciela",
-    "ADD_USER_INTO_ORGANIZATION_PLACEHOLDER": "Wybierz użytkownika"
+    "ADD_USER_INTO_ORGANIZATION_PLACEHOLDER": "Wybierz użytkownika",
+    "ADD_ROOM": "Dodaj salę",
+    "ROOM_NAME": "Nazwa sali",
+    "IS_RECORDABLE": "Nagrywanie?"
   },
   "PAGINATION": {
     "PREVIOUS": "Poprzednia",
