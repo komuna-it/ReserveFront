@@ -26,19 +26,20 @@
         <span class="text-xs text-slate-400 uppercase font-semibold tracking-wider">
           {{ 'ADD_USER_INTO_ORGANIZATION.ORG_NAME' | transloco }}:
         </span>
-        <!-- Użycie właściwego i spójnego z logiką sygnału -->
         <span class="font-medium text-slate-200">
           {{ store.selectedOrganization()?.name }}
         </span>
       </p>
-      <p class="flex justify-between items-center">
-        <span class="text-xs text-slate-400 uppercase font-semibold tracking-wider">Rola:</span>
-        <span
-          class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 capitalize"
-        >
-          {{ type() }}
-        </span>
-      </p>
+      @if (auth.isAdmin()) {
+        <p class="flex justify-between items-center">
+          <span class="text-xs text-slate-400 uppercase font-semibold tracking-wider">Rola:</span>
+          <span
+            class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 capitalize"
+          >
+            {{ 'PROFILE.' + role() | transloco }}
+          </span>
+        </p>
+      }
     </div>
     <div class="mb-6">
       <label
@@ -60,7 +61,11 @@
 
         @for (user of usersToAddIntoOrganization(); track user.id) {
           <option [ngValue]="user" class="bg-slate-900 text-slate-200 py-1">
-            {{ user.nick }} ({{ user.email }})
+            @if (auth.isAdmin()) {
+              {{ user.nick }} ({{ user.email }})
+            } @else {
+              {{ user.nick }}
+            }
           </option>
         } @empty {
           <option [ngValue]="null" disabled class="bg-slate-900 text-slate-500 italic">

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ReservationFacade } from '../../reservation/reservation.facade';
 import { ReservationStore } from '../../reservation/reservation.store';
+import { AuthService } from '../../../auth/authService';
 
 @Component({
   selector: 'app-add-user-into-organization-modal',
@@ -15,6 +16,7 @@ import { ReservationStore } from '../../reservation/reservation.store';
 export class AddUserIntoOrganizationModal implements OnInit, OnDestroy {
   readonly facade = inject(ReservationFacade);
   readonly store = inject(ReservationStore);
+  readonly auth = inject(AuthService);
 
   readonly type = input.required<'member' | 'owner' | string>();
 
@@ -22,6 +24,10 @@ export class AddUserIntoOrganizationModal implements OnInit, OnDestroy {
     this.facade.getAllUsers();
     this.store.organizationListSelectedUser.set(null);
   }
+
+  readonly role = computed(() => {
+    return this.type().toUpperCase();
+  });
 
   ngOnDestroy(): void {
     this.store.organizationListSelectedUser.set(null);

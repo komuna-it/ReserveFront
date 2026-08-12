@@ -6,11 +6,12 @@ import { Organization } from '../../model/organization';
 import { TableReservationsAdmin } from '../../components/tables/table-reservations-admin/table-reservations-admin';
 import { User } from '../../model/user';
 import { AuthService } from '../../auth/authService';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-organization-details-modal',
   standalone: true,
-  imports: [TranslocoPipe, TableReservationsAdmin],
+  imports: [TranslocoPipe, TableReservationsAdmin, NgClass],
   templateUrl: './organization-details-modal.html',
   styleUrl: './organization-details-modal.css',
 })

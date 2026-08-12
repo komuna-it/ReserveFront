@@ -42,7 +42,8 @@
     "NOT_MEMBER_OF_ANY_BAND": "You are not a member of any band!",
     "CREATE_ONE": "Click here to create a band",
     "MODAL_RESERVED_FOR_USER": "Reservation on behalf of",
-    "CALENDAR": "Calendar"
+    "CALENDAR": "Calendar",
+    "NO_USERS_TO_ADD": "No users to add"
   },
   "USERS_TABLE": {
     "NICK": "Nickname",

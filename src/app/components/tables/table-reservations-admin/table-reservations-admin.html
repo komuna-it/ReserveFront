@@ -47,4 +47,13 @@
       </div>
     }
   </div>
+
+  <app-pagination
+    [totalElements]="store.reservationsPage().totalElements"
+    [currentPage]="store.reservationsPage().number"
+    [pageSize]="store.currentReservationsSize()"
+    [totalPages]="store.reservationsPage().totalPages"
+    (pageChange)="facade.changeReservationsPage($event)"
+    (sizeChange)="facade.changeReservationsSize($event)"
+  ></app-pagination>
 </div>

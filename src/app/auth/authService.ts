@@ -23,7 +23,11 @@ export class AuthService {
   );
   readonly email = computed(() => this.currentUserSignal()?.email || null);
 
-  readonly isAdmin = computed(() => this.currentUserSignal()?.role === 'ADMIN');
+  readonly isAdmin = computed(() => {
+    return (
+      this.currentUserSignal()?.role === 'ADMIN' || this.currentUserSignal()?.role === 'MANAGER'
+    );
+  });
 
   constructor() {
     this.checkCurrentSession().subscribe();

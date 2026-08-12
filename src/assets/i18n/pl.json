@@ -60,7 +60,8 @@
     "IS_PAID": "Opłacone?",
     "BANNED_UNTIL": "Koniec bana:",
     "YES": "Tak",
-    "NO": "Nie"
+    "NO": "Nie",
+    "NO_USERS_TO_ADD": "Brak użytkowników do dodania"
   },
   "PROFILE": {
     "TITLE": "Twój Profil",
@@ -102,7 +103,9 @@
     "PREFERRED_LANGUAGE": "Domyślny język",
     "IS_PAID": "Opłacone?",
     "USERS": "Użytkownicy",
-    "ROOMS_AND_PRICING": "Salki i cennik"
+    "ROOMS_AND_PRICING": "Salki i cennik",
+    "MEMBER": "Członek",
+    "OWNER": "Właściciel"
   },
   "BUTTONS": {
     "CANCELLATION_NOT_POSSIBLE": "Odwołanie niemożliwe",
@@ -184,7 +187,7 @@
   },
   "ADD_USER_INTO_ORGANIZATION": {
     "MODAL_CONFIRM_TITLE": "Dodaj użytkownika",
-    "ORG_NAME": "Nazwa organizacji",
+    "ORG_NAME": "Nazwa zespołu",
     "SELECT_USER": "Wybierz użytkownika",
     "CANCEL": "Anuluj",
     "CONFIRM": "Potwierdź"
