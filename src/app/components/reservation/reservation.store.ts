@@ -82,7 +82,17 @@ export class ReservationStore {
 
   readonly selectedBooking = signal<Booking | null>(null);
   readonly price = computed(() => {
-    return 100;
+    const booking = this.selectedBooking();
+    if (!booking) return 0;
+
+    const room = this.rooms().find((r) => r.id === booking.roomId);
+    if (!room?.pricing) return 0;
+
+    const type = booking.reservationType ?? this.reservationTypeBooking();
+
+    const pricePerHour = room.pricing[type] ?? 0;
+
+    return (Number(booking.duration) || 0) * pricePerHour;
   });
 
   readonly userOrgsMap = computed(() => new Map(this.organizations().map((o) => [o.id, o.name])));

@@ -1,8 +1,9 @@
 import { PriceByReservationType } from './priceByReservationType';
+import { ReservationType } from './reservationType';
 
 export interface Room {
   id: number;
   name: string;
   isRecordable: boolean;
-  pricing: PriceByReservationType[];
+  pricing: Record<ReservationType, number>;
 }

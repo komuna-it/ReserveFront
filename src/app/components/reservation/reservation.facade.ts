@@ -223,7 +223,7 @@ export class ReservationFacade {
       date: dateStr,
       hour,
       roomId,
-      price: price,
+      price: price ?? 9999,
       duration: 1,
       roomName: this.store.rooms().find((r) => r.id === roomId)?.name,
       organizationId: defaultOrg || 0,

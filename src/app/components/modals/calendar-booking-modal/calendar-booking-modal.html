@@ -54,7 +54,8 @@
         </label>
         <select
           id="durationSelect"
-          [(ngModel)]="booking.duration"
+          [ngModel]="booking.duration"
+          (ngModelChange)="updateDuration($event)"
           class="w-full bg-slate-700 text-white font-medium border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
         >
           @for (opt of store.durationOptions(); track opt) {
@@ -70,7 +71,6 @@
         </select>
       </div>
 
-      <!-- Type Select -->
       <div class="mb-6">
         <label
           for="reservationTypeSelect"
@@ -80,11 +80,12 @@
         </label>
         <select
           id="reservationTypeSelect"
-          [(ngModel)]="store.reservationTypeBooking"
+          [ngModel]="booking.reservationType ?? store.reservationTypeBooking()"
+          (ngModelChange)="updateReservationType($event)"
           class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
-          @for (type of store.reservationTypeOptions(); track type; let isFirst = $first) {
-            <option [value]="type" [selected]="isFirst && !store.reservationTypeBooking()">
+          @for (type of store.reservationTypeOptions(); track type) {
+            <option [value]="type">
               {{ 'CALENDAR.' + type | transloco }}
             </option>
           }

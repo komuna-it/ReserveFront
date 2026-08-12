@@ -15,7 +15,7 @@
         routerLink="/admin/reservations"
         routerLinkActive="bg-emerald-600 text-white shadow-lg shadow-emerald-900/30"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/60 hover:text-white transition-all group"
+        class="text-m font-bold flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/60 hover:text-white transition-all group"
       >
         <svg
           class="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition-colors"
@@ -33,47 +33,46 @@
         Rezerwacje
       </a>
 
-      <!-- Drzewo pod-akcji Rezerwacji -->
       <div class="ml-4 pl-3 border-l-2 border-slate-700/80 space-y-1 pt-1">
         <a
           routerLink="/admin/reservations/calendar"
           routerLinkActive="bg-emerald-600 text-white shadow-md"
-          class="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
+          class="block px-3 py-1.5 rounded-lg text-m text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
         >
           Kalendarz
         </a>
         <a
           routerLink="/admin/reservations/confirmed"
           routerLinkActive="bg-emerald-600 text-white shadow-md"
-          class="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
+          class="block px-3 py-1.5 rounded-lg text-m text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
         >
           Potwierdzone
         </a>
         <a
           routerLink="/admin/reservations/pending"
           routerLinkActive="bg-emerald-600 text-white shadow-md"
-          class="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
+          class="block px-3 py-1.5 rounded-lg text-m text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
         >
           Do potwierdzenia
         </a>
         <a
           routerLink="/admin/reservations/request-cancellation"
           routerLinkActive="bg-emerald-600 text-white shadow-md"
-          class="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
+          class="block px-3 py-1.5 rounded-lg text-m text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
         >
           Do odwołania
         </a>
         <a
           routerLink="/admin/reservations/cancelled"
           routerLinkActive="bg-emerald-600 text-white shadow-md"
-          class="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
+          class="block px-3 py-1.5 rounded-lg text-m text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
         >
           Odwołane
         </a>
         <a
           routerLink="/admin/reservations/rejected"
           routerLinkActive="bg-emerald-600 text-white shadow-md"
-          class="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
+          class="block px-3 py-1.5 rounded-lg text-m text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
         >
           Odrzucone
         </a>
@@ -84,7 +83,7 @@
     <a
       routerLink="/admin/users"
       routerLinkActive="bg-emerald-600 text-white shadow-lg shadow-emerald-900/30"
-      class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/60 hover:text-white transition-all group"
+      class="font-bold flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/60 hover:text-white transition-all group"
     >
       <svg
         class="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition-colors"
@@ -102,11 +101,10 @@
       Użytkownicy
     </a>
 
-    <!-- Cennik -->
     <a
       routerLink="/admin/pricing"
       routerLinkActive="bg-emerald-600 text-white shadow-lg shadow-emerald-900/30"
-      class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/60 hover:text-white transition-all group"
+      class="font-bold flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/60 hover:text-white transition-all group"
     >
       <svg
         class="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition-colors"
@@ -121,15 +119,14 @@
           d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         ></path>
       </svg>
-      Cennik
+      Salki i Cennik
     </a>
 
-    <!-- Zespoły -->
     <div class="space-y-1">
       <a
         routerLink="/admin/organizations"
         routerLinkActive="bg-emerald-600 text-white shadow-lg shadow-emerald-900/30"
-        class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/60 hover:text-white transition-all group"
+        class="font-bold flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/60 hover:text-white transition-all group"
       >
         <svg
           class="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition-colors"
@@ -157,27 +154,5 @@
         </button>
       </div>
     </div>
-
-    <!-- Salki -->
-    <a
-      routerLink="/admin/rooms"
-      routerLinkActive="bg-emerald-600 text-white shadow-lg shadow-emerald-900/30"
-      class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/60 hover:text-white transition-all group"
-    >
-      <svg
-        class="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition-colors"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h5m0 0v-5a2 2 0 012-2h2a2 2 0 012 2v5 border-slate-700"
-        ></path>
-      </svg>
-      Salki
-    </a>
   </nav>
 </aside>
