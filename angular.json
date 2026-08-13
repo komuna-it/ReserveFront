@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "vipsoundfront": {
+    "reserve": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -59,10 +59,10 @@
           "builder": "@ngx-env/builder:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "vipsoundfront:build:production"
+              "buildTarget": "reserve:build:production"
             },
             "development": {
-              "buildTarget": "vipsoundfront:build:development"
+              "buildTarget": "reserve:build:development"
             }
           },
           "options": {

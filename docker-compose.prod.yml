@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: .
+      args:
+        MODE: production
+    container_name: reserve-frontend
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - /etc/letsencrypt/live/yourdomain.com:/etc/nginx/certs:ro
+    networks:
+      - reserve_net
+networks:
+  reserve_net:
+    external: true

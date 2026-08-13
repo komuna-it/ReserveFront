@@ -2,23 +2,24 @@
   <div class="w-96 bg-slate-800 p-8 rounded-lg shadow-lg">
     <h1 class="text-2xl font-bold mb-6 text-center">{{ 'NAVBAR.REGISTER' | transloco }}</h1>
 
-    <form (ngSubmit)="register()" class="space-y-4">
+    <form (ngSubmit)="register()" class="space-y-4" autocomplete="on">
+      <!-- Username / Nick -->
       <div>
-        <label for="register-name" class="block"> {{ 'USERS_TABLE.NICK' | transloco }} </label>
+        <label for="username" class="block">{{ 'USERS_TABLE.NICK' | transloco }}</label>
         <input
-          id="nick"
+          id="username"
           type="text"
           [(ngModel)]="name"
-          name="name"
+          name="username"
           autocomplete="username"
           class="w-full p-2 rounded text-white border border-slate-700"
           required
         />
       </div>
+
+      <!-- Email -->
       <div>
-        <label for="register-email" class="block mb-1">
-          {{ 'USERS_TABLE.EMAIL' | transloco }}</label
-        >
+        <label for="email" class="block mb-1">{{ 'USERS_TABLE.EMAIL' | transloco }}</label>
         <input
           id="email"
           type="email"
@@ -29,21 +30,22 @@
           required
         />
       </div>
+
+      <!-- Password -->
       <div>
-        <label for="register-password" class="block mb-1">
-          {{ 'BUTTONS.PASSWORD' | transloco }}</label
-        >
+        <label for="new-password" class="block mb-1">{{ 'BUTTONS.PASSWORD' | transloco }}</label>
         <input
-          id="password"
+          id="new-password"
           type="password"
           [(ngModel)]="password"
-          name="password"
+          name="new-password"
           autocomplete="new-password"
           class="w-full p-2 rounded text-white border border-slate-700"
           required
         />
       </div>
 
+      <!-- Privacy Policy -->
       <div class="flex items-start gap-3 mt-4">
         <input
           id="acceptPrivacyPolicyCheckbox"
@@ -67,6 +69,7 @@
         </label>
       </div>
 
+      <!-- Errors -->
       @if (getFieldErrors('password').length > 0) {
         <div class="mt-1 space-y-1">
           @for (err of getFieldErrors('password'); track err) {
@@ -75,6 +78,7 @@
         </div>
       }
 
+      <!-- Submit -->
       <button
         type="submit"
         [disabled]="!policyAccepted"
@@ -90,37 +94,6 @@
       }
     </form>
 
-    @if (registerSuccess()) {
-      <app-success-popup
-        [titleText]="'REGISTER.SUCCESS_TITLE' | transloco"
-        [bodyText]="'REGISTER.SUCCESS_DESC' | transloco"
-        [buttonText]="'BUTTONS.NAVIGATE_TO_LOGIN' | transloco"
-        (ok)="handleCloseSuccessPopup()"
-      ></app-success-popup>
-    }
-
-    <!-- 
-    @if (registerSuccess()) {
-      <div
-        class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50"
-      >
-        <div
-          class="bg-emerald-600 text-white p-6 rounded-xl shadow-lg border border-emerald-400 text-center max-w-xs w-full"
-        >
-          <h2 class="text-xl font-bold tracking-tight mb-2">
-            {{ 'REGISTER.SUCCESS_TITLE' | transloco }}
-          </h2>
-          <p class="text-sm text-emerald-100 mb-4">{{ 'REGISTER.SUCCESS_DESC' | transloco }}</p>
-          <button
-            (click)="registerSuccess.set(false)"
-            class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-white text-emerald-600 hover:bg-gray-100 transition-colors shadow-md"
-          >
-            {{ 'REGISTER.CLOSE' | transloco }}
-          </button>
-        </div>
-      </div>
-    } -->
-
     <div class="mt-4">
       <a class="flex justify-center text-gray-200 hover:text-white underline" href="/login">
         {{ 'COMMON.ALREADY_HAVE_ACCOUNT_LOGIN' | transloco }}
@@ -128,27 +101,3 @@
     </div>
   </div>
 </div>
-
-@if (settingsStore.isPrivacyPolicyOpen()) {
-  <div
-    class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
-  >
-    <div
-      class="bg-slate-800 text-white p-6 rounded-xl shadow-lg border border-slate-600 w-full max-w-2xl max-h-[80vh] flex flex-col"
-    >
-      <h2 class="text-xl font-bold mb-4">{{ 'SETTINGS.VIEW_POLICY' | transloco }}</h2>
-
-      <div
-        class="overflow-y-auto flex-1 p-4 bg-slate-900 rounded mb-4 text-sm text-slate-300"
-        [innerHTML]="settingsStore.privacyPolicy()"
-      ></div>
-
-      <button
-        (click)="settingsStore.isPrivacyPolicyOpen.set(false)"
-        class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors shadow-md"
-      >
-        {{ 'COMMON.CLOSE' | transloco }}
-      </button>
-    </div>
-  </div>
-}

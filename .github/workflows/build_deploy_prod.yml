@@ -1,0 +1,48 @@
+name: Build and Deploy Angular
+
+on:
+  push:
+    tags:
+      - '*'
+
+env:
+  WORK_DIR: ${{ secrets.WORK_DIR }}/docker-frontend
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH keys
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_AWS_LMT }}
+
+      - name: Add Host to Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT_AWS_LMT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync Docker Files to Server
+        run: |
+          ssh ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_AWS_LMT }} "mkdir -p '$WORK_DIR'"
+
+          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT_AWS_LMT }}" \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            --exclude 'dist' \
+            ./ \
+            ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }}:$WORK_DIR/
+
+      - name: Deploy via Docker Compose
+        run: |
+          ssh ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_AWS_LMT }} "
+            cd $WORK_DIR && \
+            docker-compose -f docker-compose.prod.yml down && \
+            docker-compose -f docker-compose.prod.yml up -d --build --remove-orphans
+          "
+
+      - name: Cleanup
+        run: rm -rf ~/.ssh
