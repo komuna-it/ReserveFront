@@ -3,15 +3,17 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
 import { Organization } from '../../model/organization';
-import { TableReservationsAdmin } from '../../components/tables/table-reservations-admin/table-reservations-admin';
+import {} from '../../components/tables/table-reservations/table-reservations';
 import { User } from '../../model/user';
 import { AuthService } from '../../auth/authService';
 import { NgClass } from '@angular/common';
+import { TableReservations } from '../../components/tables/table-reservations/table-reservations';
+import { ReservationTableType } from '../../model/reservationTableType';
 
 @Component({
   selector: 'app-organization-details-modal',
   standalone: true,
-  imports: [TranslocoPipe, TableReservationsAdmin, NgClass],
+  imports: [TranslocoPipe, TableReservations, NgClass],
   templateUrl: './organization-details-modal.html',
   styleUrl: './organization-details-modal.css',
 })
@@ -37,7 +39,8 @@ export class OrganizationDetailsModal {
 
   readonly canManageMembers = computed(() => this.isAdmin() || this.isOwner());
 
-  isDeleteOwnerButtonActive = computed(() => this.owners().length >= 2);
+  readonly isDeleteOwnerButtonActive = computed(() => this.owners().length >= 2);
+  readonly resTableType = ReservationTableType.ADMIN_ORG_DETAILS;
 
   constructor() {
     effect(() => {

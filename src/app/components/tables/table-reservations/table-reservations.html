@@ -1,0 +1,141 @@
+<div class="bg-slate-800 rounded-m border border-slate-700 shadow-xl overflow-hidden">
+  <div class="overflow-x-auto">
+    @if (store.reservations().length > 0) {
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr
+            class="bg-slate-900/50 border-b border-slate-700 text-slate-400 text-xs font-semibold uppercase tracking-wider"
+          >
+            @if (type() === ReservationTableType.ADMIN_BY_STATUS) {
+              <th class="py-3.5 px-2 font-semibold text-center border-r border-slate-700/60 w-[5%]">
+                <label
+                  class="inline-flex items-center justify-center p-2.5 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    (change)="toggleMasterCheckbox()"
+                    [checked]="areAllSelected()"
+                    [indeterminate]="isIndeterminate()"
+                    class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+                  />
+                </label>
+              </th>
+            }
+            <th class="border border-r border-slate-700/60 py-3 px-6">
+              {{ 'PROFILE.TABLE_INDEX' | transloco }}
+            </th>
+
+            <th
+              (click)="toggleSort('r')"
+              class="py-3.5 px-4 font-semibold text-center w-[14%] cursor-pointer hover:bg-slate-700/50 transition-colors select-none"
+            >
+              <div class="flex items-center justify-center gap-1.5">
+                {{ 'ADMIN_RESERVATIONS.RESERVED_BY' | transloco }}
+                <span
+                  class="text-lg leading-none"
+                  [class.text-emerald-500]="store.currentSortBy() === 'r'"
+                >
+                  @if (store.currentSortBy() === 'r') {
+                    {{ store.currentSortDir() === 'asc' ? '↑' : '↓' }}
+                  } @else {
+                    <span class="text-slate-600 opacity-50">↕</span>
+                  }
+                </span>
+              </div>
+            </th>
+
+            <th class="py-3 px-6">{{ 'PROFILE.TABLE_ROOM' | transloco }}</th>
+            <th class="py-3 px-6">{{ 'PROFILE.TABLE_DATE' | transloco }}</th>
+            <th class="py-3 px-6">{{ 'CALENDAR.RESERVATION_TYPE' | transloco }}</th>
+            <th class="py-3 px-6">{{ 'PROFILE.PRICE' | transloco }} (zł)</th>
+            @if (type() != ReservationTableType.ADMIN_BY_STATUS) {
+              <th class="py-3 px-6">{{ 'PROFILE.STATUS' | transloco }}</th>
+              @if (type() === ReservationTableType.USER_PROFILE) {
+                <th class="py-3 px-6">{{ 'PROFILE.TABLE_CANCEL' | transloco }}</th>
+              }
+            }
+            <th class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]">
+              {{ 'PROFILE.IS_PAID' | transloco }}
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-700 text-sm">
+          @for (res of store.reservations(); track res.id; let idx = $index) {
+            <tr class="hover:bg-slate-700/30 transition">
+              @if (type() === ReservationTableType.ADMIN_BY_STATUS) {
+                <td class="p-1.5 border-r border-slate-700/60 align-middle text-center">
+                  <label
+                    class="inline-flex items-center justify-center p-2.5 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      [checked]="store.toolbarSelectedIds().has(res.id)"
+                      (change)="toggleSelection(res.id)"
+                      class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+                    />
+                  </label>
+                </td>
+              }
+              <td class="border border-r border-slate-700/60 py-4 px-6 text-slate-500 font-mono">
+                {{ idx + 1 }}
+              </td>
+
+              <!-- Reserved by column -->
+              <td class="py-4 px-6 font-mono text-slate-300 text-xs">
+                {{ textFormatingTool.reservedByText(res) }}
+              </td>
+
+              <td class="py-4 px-6">
+                <span class="px-2 py-1 rounded text-slate-300 text-s border border-slate-700">
+                  {{ textFormatingTool.getRoomName(res) }}
+                </span>
+              </td>
+              <td class="py-4 px-6 font-mono text-slate-300 text-s">
+                {{ textFormatingTool.formatDuration(res) }}
+              </td>
+
+              <td class="py-4 px-6 font-mono text-slate-300 text-xs">
+                {{ 'CALENDAR.' + res.type | transloco }}
+              </td>
+
+              <td class="py-4 px-6 font-mono text-slate-300 text-xs">
+                {{ textFormatingTool.getPrice(res) }}
+              </td>
+              @if (type() === ReservationTableType.USER_PROFILE) {
+                <td class="py-4 px-6 text-slate-400">{{ textFormatingTool.getStatusText(res) }}</td>
+
+                <td class="py-4 px-6">
+                  <button
+                    (click)="
+                      facade.updateReservationsStatus(ReservationStatus.REQUESTED_CANCELLATION)
+                    "
+                    [disabled]="!isCancellationPossible(res)"
+                    class="text-white text-s bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
+                    [ngClass]="{
+                      'opacity-50 cursor-not-allowed': !isCancellationPossible(res),
+                    }"
+                  >
+                    {{ getCancelButtonLabel(res) }}
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <div class="p-12 text-center text-slate-500">
+        <p class="text-lg">{{ 'PROFILE.NO_RESERVATIONS' | transloco }}</p>
+      </div>
+    }
+  </div>
+</div>
+
+<app-pagination
+  [totalElements]="store.reservationsPage().totalElements"
+  [currentPage]="store.reservationsPage().number"
+  [pageSize]="store.currentReservationsSize()"
+  [totalPages]="store.reservationsPage().totalPages"
+  (pageChange)="facade.changeReservationsPage($event)"
+  (sizeChange)="facade.changeReservationsSize($event)"
+></app-pagination>

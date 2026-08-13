@@ -85,11 +85,11 @@ export class ProfilePage implements OnInit, OnDestroy {
   ngOnInit(): void {
     const user = this.authService.currentUser();
     if (user) {
+      this.facade.getRooms();
+      this.facade.getAllReservationsForUserAndTheirOrganization();
+      this.facade.connectToReservationStream();
       this.facade.getOrganizationsOfUser(true, user.id);
     }
-    this.facade.getRooms();
-    this.facade.getAllReservationsForUserAndTheirOrganization();
-    this.facade.connectToReservationStream();
   }
 
   handleClickCreateTeam(): void {

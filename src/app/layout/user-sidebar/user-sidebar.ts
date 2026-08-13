@@ -11,7 +11,7 @@ import { UserSettings } from '../../components/user-settings/user-settings';
 @Component({
   selector: 'app-user-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, TranslocoPipe, UserSettings],
+  imports: [RouterLink, RouterLinkActive, TranslocoPipe],
   templateUrl: './user-sidebar.html',
   styleUrl: './user-sidebar.css',
 })

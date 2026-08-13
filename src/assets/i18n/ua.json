@@ -60,7 +60,8 @@
     "IS_PAID": "Оплачено?",
     "BANNED_UNTIL": "Блокування до:",
     "YES": "Так",
-    "NO": "Ні"
+    "NO": "Ні",
+    "IN_DAYS": "(in days)"
   },
   "PROFILE": {
     "TITLE": "Ваш профіль",

@@ -17,13 +17,7 @@ import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 @Component({
   selector: 'app-organization-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    TranslocoPipe,
-    AddUserIntoOrganizationModal,
-    AddOrganizationModal,
-    Pagination,
-  ],
+  imports: [CommonModule, TranslocoPipe, Pagination],
   templateUrl: './organization-list.html',
   styleUrl: './organization-list.css',
 })

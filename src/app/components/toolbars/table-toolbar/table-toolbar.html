@@ -14,44 +14,54 @@
 
     <!-- RESERVATION BY STATUS -->
 
-    @if (showAcceptButton()) {
-      <button
-        (click)="facade.updateReservationsStatus(ReservationStatus.CONFIRMED)"
-        [disabled]="isNoneSelected()"
-        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-green-500/10 hover:border-green-200/30 hover:text-green-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
-      >
-        <svg
-          class="h-3.5 w-3.5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
+    @if (type() === ToolbarType.RESERVATION_BY_STATUS) {
+      @if (showAcceptButton()) {
+        <button
+          (click)="facade.updateReservationsStatus(ReservationStatus.CONFIRMED)"
+          [disabled]="isNoneSelected()"
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
         >
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-        </svg>
-        {{ 'ADMIN_RESERVATIONS.ACCEPT' | transloco }}
-      </button>
-    }
+          <!-- ZIELONY PTASZEK (CHECKMARK) -->
+          <svg
+            class="h-3.5 w-3.5 text-emerald-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+          </svg>
+          @if (this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION) {
+            {{ 'ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON' | transloco }}
+          } @else {
+            {{ 'ADMIN_RESERVATIONS.ACCEPT' | transloco }}
+          }
+        </button>
+      }
 
-    @if (showCancelButton()) {
-      <button
-        (click)="facade.updateReservationsStatus(ReservationStatus.REJECTED)"
-        [disabled]="isNoneSelected()"
-        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
-      >
-        <svg
-          class="h-3.5 w-3.5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
+      @if (showCancelButton()) {
+        <button
+          (click)="facade.updateReservationsStatus(ReservationStatus.REJECTED)"
+          [disabled]="isNoneSelected()"
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
         >
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-        </svg>
-        {{ 'ADMIN_RESERVATIONS.REJECT' | transloco }}
-      </button>
+          <svg
+            class="h-3.5 w-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+          </svg>
+          @if (this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION) {
+            {{ 'ADMIN_RESERVATIONS.REJECT_CANCELLATION_REQUESTS' | transloco }}
+          } @else {
+            {{ 'ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON' | transloco }}
+          }
+        </button>
+      }
     }
 
     <!-- USERS -->
@@ -74,7 +84,7 @@
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
           </svg>
-          Ban
+          {{ 'USERS_TABLE.BAN' | transloco }}
         </button>
 
         <button
@@ -96,7 +106,7 @@
             ></path>
             <path stroke-linecap="round" stroke-linejoin="round" d="m9 12 2 2 4-4"></path>
           </svg>
-          Unban
+          {{ 'USERS_TABLE.UNBAN' | transloco }}
         </button>
       </div>
 
@@ -108,19 +118,18 @@
           [disabled]="isNoneSelected()"
           class="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:text-slate-300 transition-all"
         >
-          Zaufany
+          {{ 'USERS_TABLE.TRUSTED' | transloco }}
         </button>
         <button
           (click)="facade.markUsersUntrusted()"
           [disabled]="isNoneSelected()"
           class="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:text-slate-300 transition-all"
         >
-          Niezaufany
+          {{ 'USERS_TABLE.NOT_TRUSTED' | transloco }}
         </button>
       </div>
     }
 
-    <!-- ADMIN ORGANIZATIONS -->
     @if (type() === ToolbarType.ADMIN_ORGANIZATIONS) {
       <div class="inline-flex items-center gap-1.5">
         <button
@@ -128,20 +137,19 @@
           [disabled]="isNoneSelected()"
           class="px-3 py-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 text-xs font-medium text-purple-300 hover:bg-purple-500/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-purple-500/10 transition-all"
         >
-          Zaufany
+          {{ 'USERS_TABLE.TRUSTED' | transloco }}
         </button>
         <button
           (click)="facade.markOrganizationsAsUntrusted()"
           [disabled]="isNoneSelected()"
           class="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:text-slate-300 transition-all"
         >
-          Niezaufany
+          {{ 'USERS_TABLE.NOT_TRUSTED' | transloco }}
         </button>
       </div>
     }
   </div>
 
-  <!-- SEARCH BAR SLOT -->
   <div class="flex items-center gap-2">
     <app-search-bar></app-search-bar>
   </div>

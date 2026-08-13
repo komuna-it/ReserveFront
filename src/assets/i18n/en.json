@@ -52,6 +52,7 @@
     "NOT_TRUSTED": "Untrusted",
     "REASON": "Reason",
     "DURATION": "Duration",
+    "IN_DAYS": "(in days)",
     "BANNED_BY": "Banned by",
     "BANNED_AT": "Ban date",
     "ORGANIZATION": "Band",
@@ -61,7 +62,9 @@
     "IS_PAID": "Paid?",
     "BANNED_UNTIL": "Ban ends:",
     "YES": "Yes",
-    "NO": "No"
+    "NO": "No",
+    "BAN": "Ban",
+    "UNBAN": "Unban"
   },
   "PROFILE": {
     "TITLE": "Your Profile",
@@ -198,11 +201,12 @@
     "ORGANIZATION_ADDED": "Band created",
     "CONFIRM_DELETE_OWNER": "Confirm owner removal",
     "CONFIRM_DELETE_MEMBER": "Confirm band member removal",
-    "CONFIRM_BAN_TITLE": "Banning",
+    "CONFIRM_BAN_TITLE": "Ban",
     "CONFIRM_BAN_BODY": "Confirm ban",
     "SUCCESS": "Success"
   },
   "ADMIN_RESERVATIONS": {
+    "REJECT_CANCELLATION_REQUESTS": "Reject request",
     "IS_PRIVATE": "Yes",
     "IS_NOT_PRIVATE": "No",
     "ACCEPT": "Accept",

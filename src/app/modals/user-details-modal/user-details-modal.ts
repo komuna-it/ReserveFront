@@ -6,12 +6,13 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { TextFormatingTool } from '../../tools/textFormatingTool';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { User } from '../../model/user';
-import { UserReservations } from '../../pages/admin/components/user-reservations/user-reservations';
 import { AuthService } from '../../auth/authService';
+import { TableReservations } from '../../components/tables/table-reservations/table-reservations';
+import { ReservationTableType } from '../../model/reservationTableType';
 
 @Component({
   selector: 'app-user-details-modal',
-  imports: [TranslocoPipe, UserReservations],
+  imports: [TranslocoPipe, TableReservations],
   templateUrl: './user-details-modal.html',
   styleUrl: './user-details-modal.css',
 })
@@ -25,6 +26,7 @@ export class UserDetailsModal {
   readonly textFormatingTool = inject(TextFormatingTool);
 
   readonly user = input.required<User | null>();
+  resTableType = ReservationTableType.ADMIN_USER_DETAILS;
 
   constructor() {
     effect(() => {

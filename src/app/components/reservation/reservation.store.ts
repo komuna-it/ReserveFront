@@ -42,7 +42,7 @@ export class ReservationStore {
   readonly currentWeekStart = signal<Date>(this.helper.getStartOfWeek(new Date()));
   readonly currentMonthDate = signal<Date>(new Date());
   readonly testText = signal<string>('');
-  readonly reservationTypeBooking = signal<ReservationType | null>(null);
+  readonly selectedReservationType = signal<ReservationType | null>(null);
 
   //pricing
   readonly pricingLoadingState = signal<{ roomId: number; type: ReservationType } | null>(null);
@@ -95,7 +95,7 @@ export class ReservationStore {
     const room = this.rooms().find((r) => r.id === booking.roomId);
     if (!room?.pricing) return 0;
 
-    const type = booking.reservationType ?? this.reservationTypeBooking();
+    const type = booking.reservationType ?? this.selectedReservationType();
 
     const pricePerHour = room.pricing[type] ?? 0;
 

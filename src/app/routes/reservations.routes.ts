@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
 import { ReservationStatus } from '../model/reservationStatus';
+import { ReservationTableType } from '../model/reservationTableType';
+import { TableReservations } from '../components/tables/table-reservations/table-reservations';
+import { ToolbarType } from '../components/toolbars/toolbarType';
 
 export const RESERVATIONS_ROUTES: Routes = [
   {
@@ -17,7 +20,11 @@ export const RESERVATIONS_ROUTES: Routes = [
       import('../pages/admin/components/reservations-by-status/reservations-by-status').then(
         (m) => m.ReservationsByStatus,
       ),
-    data: { status: ReservationStatus.CONFIRMED },
+    data: {
+      status: ReservationStatus.CONFIRMED,
+      type: ReservationTableType.ADMIN_BY_STATUS,
+      toolbarType: ToolbarType.RESERVATION_BY_STATUS,
+    },
   },
   {
     path: 'pending',
@@ -25,7 +32,11 @@ export const RESERVATIONS_ROUTES: Routes = [
       import('../pages/admin/components/reservations-by-status/reservations-by-status').then(
         (m) => m.ReservationsByStatus,
       ),
-    data: { status: ReservationStatus.CREATED },
+    data: {
+      status: ReservationStatus.CREATED,
+      type: ReservationTableType.ADMIN_BY_STATUS,
+      toolbarType: ToolbarType.RESERVATION_BY_STATUS,
+    },
   },
   {
     path: 'cancelled',
@@ -33,7 +44,11 @@ export const RESERVATIONS_ROUTES: Routes = [
       import('../pages/admin/components/reservations-by-status/reservations-by-status').then(
         (m) => m.ReservationsByStatus,
       ),
-    data: { status: ReservationStatus.CANCELLED },
+    data: {
+      status: ReservationStatus.CANCELLED,
+      type: ReservationTableType.ADMIN_BY_STATUS,
+      toolbarType: ToolbarType.RESERVATION_BY_STATUS,
+    },
   },
   {
     path: 'request-cancellation',
@@ -41,7 +56,11 @@ export const RESERVATIONS_ROUTES: Routes = [
       import('../pages/admin/components/reservations-by-status/reservations-by-status').then(
         (m) => m.ReservationsByStatus,
       ),
-    data: { status: ReservationStatus.REQUESTED_CANCELLATION },
+    data: {
+      status: ReservationStatus.REQUESTED_CANCELLATION,
+      type: ReservationTableType.ADMIN_BY_STATUS,
+      toolbarType: ToolbarType.RESERVATION_BY_STATUS,
+    },
   },
   {
     path: 'rejected',
@@ -49,6 +68,10 @@ export const RESERVATIONS_ROUTES: Routes = [
       import('../pages/admin/components/reservations-by-status/reservations-by-status').then(
         (m) => m.ReservationsByStatus,
       ),
-    data: { status: ReservationStatus.REJECTED },
+    data: {
+      status: ReservationStatus.REJECTED,
+      type: ReservationTableType.ADMIN_BY_STATUS,
+      toolbarType: ToolbarType.RESERVATION_BY_STATUS,
+    },
   },
 ];
