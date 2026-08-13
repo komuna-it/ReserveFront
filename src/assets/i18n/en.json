@@ -52,6 +52,7 @@
     "NOT_TRUSTED": "Untrusted",
     "REASON": "Reason",
     "DURATION": "Duration",
+    "IN_DAYS": "(in days)",
     "BANNED_BY": "Banned by",
     "BANNED_AT": "Ban date",
     "ORGANIZATION": "Band",
@@ -198,7 +199,7 @@
     "ORGANIZATION_ADDED": "Band created",
     "CONFIRM_DELETE_OWNER": "Confirm owner removal",
     "CONFIRM_DELETE_MEMBER": "Confirm band member removal",
-    "CONFIRM_BAN_TITLE": "Banning",
+    "CONFIRM_BAN_TITLE": "Ban",
     "CONFIRM_BAN_BODY": "Confirm ban",
     "SUCCESS": "Success"
   },

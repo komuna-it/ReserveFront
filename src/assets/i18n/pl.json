@@ -51,6 +51,7 @@
     "NOT_TRUSTED": "Niezaufany",
     "REASON": "Powód",
     "DURATION": "Długość",
+    "IN_DAYS": "(w dniach)",
     "BANNED_BY": "Zbanowany przez",
     "BANNED_AT": "Data bana",
     "ORGANIZATION": "Zespół",

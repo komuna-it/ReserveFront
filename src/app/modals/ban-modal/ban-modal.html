@@ -1,15 +1,14 @@
 <div
   class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+  (click)="facade.closeModals()"
 >
   <div
+    (click)="$event.stopPropagation()"
     class="bg-slate-800 text-slate-100 p-6 rounded-2xl shadow-2xl border border-emerald-500/50 text-center max-w-sm w-full flex flex-col items-center"
   >
     <h2 class="text-lg font-bold tracking-tight mb-1 text-slate-100">
       {{ 'USER_MODALS.CONFIRM_BAN_TITLE' | transloco }}
     </h2>
-    <span class="text-xs text-slate-400 mb-4">
-      {{ 'USER_MODALS.CONFIRM_BAN_BODY' | transloco }}
-    </span>
 
     <div class="w-full max-h-36 overflow-y-auto space-y-2 mb-4 text-left">
       @for (user of users; track user.id) {
@@ -44,7 +43,7 @@
 
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">
-          {{ 'USERS_TABLE.DURATION' | transloco }} (w dniach)
+          {{ 'USERS_TABLE.DURATION' | transloco }} {{ 'USERS_TABLE.IN_DAYS' | transloco }}
         </label>
         <input
           type="number"
@@ -56,20 +55,19 @@
       </div>
     </div>
 
-    <div class="w-full space-y-2">
+    <div class="flex justify-between w-full">
+      <button
+        (click)="facade.closeModals()"
+        class="w-[45%] px-4 py-2 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-all shadow-md"
+      >
+        {{ 'USER_MODALS.CANCEL' | transloco }}
+      </button>
       <button
         (click)="handleBan()"
         [disabled]="!reason || !durationInput"
-        class="w-full px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-all shadow-md"
+        class="w-[45%] px-4 py-3 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-all shadow-md"
       >
         {{ 'USER_MODALS.CONFIRM' | transloco }}
-      </button>
-
-      <button
-        (click)="facade.closeModals()"
-        class="w-full px-4 py-2 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-all shadow-md"
-      >
-        {{ 'USER_MODALS.CANCEL' | transloco }}
       </button>
     </div>
   </div>
