@@ -7,10 +7,11 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TextFormatingTool } from '../../../tools/textFormatingTool';
 import { CalendarHelper } from '../../calendar/calendar.helper';
 import { CommonModule } from '@angular/common';
+import { Pagination } from '../../../layout/pagination/pagination';
 
 @Component({
   selector: 'app-table-reservations-user',
-  imports: [TranslocoPipe, CommonModule],
+  imports: [TranslocoPipe, CommonModule, Pagination],
   templateUrl: './table-reservations-user.html',
   styleUrl: './table-reservations-user.css',
 })
