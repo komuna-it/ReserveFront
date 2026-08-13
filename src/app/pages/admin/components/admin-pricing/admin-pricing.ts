@@ -11,7 +11,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
   selector: 'app-admin-pricing',
   standalone: true,
-  imports: [CommonModule, FormsModule, AddRoomModal, TranslocoPipe],
+  imports: [CommonModule, FormsModule, TranslocoPipe],
   templateUrl: './admin-pricing.html',
 })
 export class AdminPricing implements OnInit {

@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AddOrganizationModal } from '../add-organization-modal/add-organization-modal';
 import { ReservationType } from '../../../model/reservationType';
+import { Booking } from '../../../model/booking';
 
 @Component({
   selector: 'app-calendar-booking-modal',
@@ -44,7 +45,7 @@ export class CalendarBookingModal {
     });
 
     if (this.store.reservationTypeOptions().length > 0) {
-      this.store.reservationTypeBooking.set(this.store.reservationTypeOptions()[0]);
+      this.store.selectedReservationType.set(this.store.reservationTypeOptions()[0]);
     }
 
     console.log('opening CalendarBookingModal');

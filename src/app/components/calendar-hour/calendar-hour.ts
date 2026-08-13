@@ -6,7 +6,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-calendar-hour',
-  imports: [NgClass, TranslocoPipe],
+  imports: [NgClass],
   templateUrl: './calendar-hour.html',
   styleUrl: './calendar-hour.css',
 })

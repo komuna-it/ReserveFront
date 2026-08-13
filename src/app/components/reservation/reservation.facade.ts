@@ -161,7 +161,7 @@ export class ReservationFacade {
       roomId: booking.roomId,
       startAt,
       duration: `PT${booking.duration}H`,
-      type: this.store.reservationTypeBooking() ?? ReservationType.REHEARSAL,
+      type: booking.reservationType,
       organizationId: this.store.isPrivateReservationCheckboxActivated()
         ? null
         : booking.organizationId,
@@ -228,7 +228,7 @@ export class ReservationFacade {
       roomName: this.store.rooms().find((r) => r.id === roomId)?.name,
       organizationId: defaultOrg || 0,
       reservedByUserId: parseInt(rawUserId, 10),
-      reservationType: this.store.reservationTypeBooking() ?? ReservationType.REHEARSAL,
+      reservationType: this.store.selectedReservationType() ?? ReservationType.REHEARSAL,
     });
     console.log('booking debugging:');
     console.table(this.store.selectedBooking());
