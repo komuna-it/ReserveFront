@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { UserSettings } from '../components/user-settings/user-settings';
+import { ReservationTableType } from '../model/reservationTableType';
 
 export const PROFILE_ROUTES: Routes = [
   {
@@ -14,9 +15,10 @@ export const PROFILE_ROUTES: Routes = [
       {
         path: 'reservations',
         loadComponent: () =>
-          import('../components/tables/table-reservations-user/table-reservations-user').then(
-            (m) => m.TableReservationsUser,
+          import('../components/tables/table-reservations/table-reservations').then(
+            (m) => m.TableReservations,
           ),
+        data: { type: ReservationTableType.USER_PROFILE },
       },
       {
         path: 'organizations',

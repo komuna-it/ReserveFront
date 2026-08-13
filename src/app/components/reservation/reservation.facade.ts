@@ -94,8 +94,8 @@ export class ReservationFacade {
     this.api
       .getAllReservationsForUserAndTheirOrganization(
         userIdNumber,
-        this.store.currentOrganizationsPage(),
-        this.store.currentOrganizationsSize(),
+        this.store.currentReservationsPage(),
+        this.store.currentReservationsSize(),
       )
       .subscribe({
         next: (pageData) => {

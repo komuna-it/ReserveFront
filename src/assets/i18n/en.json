@@ -62,7 +62,9 @@
     "IS_PAID": "Paid?",
     "BANNED_UNTIL": "Ban ends:",
     "YES": "Yes",
-    "NO": "No"
+    "NO": "No",
+    "BAN": "Ban",
+    "UNBAN": "Unban"
   },
   "PROFILE": {
     "TITLE": "Your Profile",
@@ -204,6 +206,7 @@
     "SUCCESS": "Success"
   },
   "ADMIN_RESERVATIONS": {
+    "REJECT_CANCELLATION_REQUESTS": "Reject request",
     "IS_PRIVATE": "Yes",
     "IS_NOT_PRIVATE": "No",
     "ACCEPT": "Accept",
