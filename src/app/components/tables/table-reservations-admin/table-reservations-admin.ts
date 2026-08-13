@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, effect, inject, input } from '@angular/core';
 import { ReservationStatus } from '../../../model/reservationStatus';
 import { ReservationFacade } from '../../reservation/reservation.facade';
 import { ReservationStore } from '../../reservation/reservation.store';
@@ -7,10 +7,11 @@ import { TextFormatingTool } from '../../../tools/textFormatingTool';
 import { CalendarHelper } from '../../calendar/calendar.helper';
 import { CommonModule } from '@angular/common';
 import { Organization } from '../../../model/organization';
+import { Pagination } from '../../../layout/pagination/pagination';
 
 @Component({
   selector: 'app-table-reservations-admin',
-  imports: [TranslocoPipe, CommonModule],
+  imports: [TranslocoPipe, CommonModule, Pagination],
   standalone: true,
   templateUrl: './table-reservations-admin.html',
   styleUrl: './table-reservations-admin.css',
@@ -24,6 +25,8 @@ export class TableReservationsAdmin {
   readonly ReservationStatus = ReservationStatus;
 
   constructor() {
-    this.facade.getReservationsForOrganization();
+    effect(() => {
+      this.facade.getReservationsForOrganization();
+    });
   }
 }

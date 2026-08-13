@@ -9,5 +9,6 @@ export class User {
     public created: Date,
     public trusted: boolean,
     public banDto: BanDto,
+    public preferredLanguage: string,
   ) {}
 }

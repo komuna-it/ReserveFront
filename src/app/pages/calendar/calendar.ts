@@ -2,7 +2,6 @@ import { Component, OnInit, signal, computed, inject, OnDestroy } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarComponent } from '../../components/calendar/calendar';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ReservationDetailsModal } from '../../modals/reservation-details-modal/reservation-details-modal';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
@@ -14,10 +13,8 @@ import { CalendarHelper } from '../../components/calendar/calendar.helper';
   imports: [CalendarComponent, CommonModule, FormsModule, ReservationDetailsModal],
   templateUrl: './calendar.html',
 })
-export class CalendarPage implements OnInit {
+export class CalendarPage {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
   readonly helper = inject(CalendarHelper);
-
-  ngOnInit() {}
 }

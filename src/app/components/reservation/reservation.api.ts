@@ -10,6 +10,7 @@ import { Page } from '../../model/page';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { throwError } from 'rxjs';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
+import { ReservationType } from '../../model/reservationType';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationApi {
@@ -19,6 +20,10 @@ export class ReservationApi {
 
   getRooms(): Observable<Room[]> {
     return this.http.get<Room[]>(`${this.apiUrl}/rooms`);
+  }
+
+  postRoom(name: string) {
+    return this.http.post<Room>(`${this.apiUrl}/rooms/create/${name}`, {});
   }
 
   getReservationsByRoom(
@@ -90,6 +95,13 @@ export class ReservationApi {
 
   postReservation(payload: any): Observable<ReservationDto> {
     return this.http.post<ReservationDto>(`${this.apiUrl}/reservations`, payload);
+  }
+
+  postPriceForRoomId(roomId: number, resType: ReservationType, price: number) {
+    return this.http.post<Room>(
+      `${this.apiUrl}/rooms/${roomId}/setNewPrice/${resType}/${price}`,
+      {},
+    );
   }
 
   getMembersAndOwnersOfOrganization(organizationId: number): Observable<User[]> {
@@ -258,5 +270,13 @@ export class ReservationApi {
       .set('privateReservation', false)
       .set('organizationsId', organizationsId);
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
+  }
+
+  setPreferredLanguage(language: string) {
+    return this.http.patch<User>(`${this.apiUrl}/users/preferredLanguage/${language}`, {});
+  }
+
+  isRoomRecordable(roomId: number, recordable: boolean) {
+    return this.http.put<Room>(`${this.apiUrl}/room/isRecordable/${recordable}`, {});
   }
 }

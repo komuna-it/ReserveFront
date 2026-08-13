@@ -14,6 +14,7 @@ import { User } from '../../model/user';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { Booking } from '../../model/booking';
+import { finalize } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -49,6 +50,19 @@ export class ReservationFacade {
         console.table(rooms);
       },
       error: (e) => console.log('Error fetching rooms: ', e),
+    });
+  }
+
+  postRoom(name: string) {
+    return this.api.postRoom(name).subscribe({
+      next: () => {
+        console.log(`posted room ${name}`);
+        this.getRooms();
+      },
+      error: (e) => {
+        console.error(`error posting room ${name}`);
+        this.store.globalErrorKey.set(e);
+      },
     });
   }
 
@@ -194,7 +208,7 @@ export class ReservationFacade {
     }
     const day = this.store.daySelectedByUser();
     const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
-
+    const price = this.store.price();
     const userOrgs = this.store.userOrganizations();
     const allOrgs = this.store.allOrganizations();
     let defaultOrg = userOrgs[0]?.id;
@@ -209,6 +223,7 @@ export class ReservationFacade {
       date: dateStr,
       hour,
       roomId,
+      price: price ?? 9999,
       duration: 1,
       roomName: this.store.rooms().find((r) => r.id === roomId)?.name,
       organizationId: defaultOrg || 0,
@@ -259,7 +274,6 @@ export class ReservationFacade {
           const currentBooking = this.store.selectedBooking() ?? null;
           const isColizion = this.isSseReservationColiding(res, currentBooking);
 
-          // Wyświetl błąd tylko jeśli stworzona rezerwacja koliduje I pochodzi od innego użytkownika
           if (
             msg.event === 'RESERVATION_CREATED' &&
             isColizion &&
@@ -846,7 +860,7 @@ export class ReservationFacade {
     this.store.globalErrorKey.set(null);
     this.store.isAddOrganizationModalActive.set(false);
     this.store.popupConfirmationActive.set(false);
-
+    this.store.isModalAddRoomActive.set(false);
     this.store.confirmMarkReservationAsRequestCancel.set(false);
     this.store.globalErrorKey.set(null);
     this.store.isBanUsersModalActive.set(false);
@@ -1044,5 +1058,48 @@ export class ReservationFacade {
 
       return matchesRoom || matchesReservedBy;
     });
+  }
+
+  postPriceForRoomId(roomId: number, resType: ReservationType, price: number) {
+    this.store.pricingLoadingState.set({ roomId, type: resType });
+
+    this.api
+      .postPriceForRoomId(roomId, resType, price)
+      .pipe(finalize(() => this.store.pricingLoadingState.set(null)))
+      .subscribe({
+        next: () => {
+          this.getRooms();
+        },
+        error: (e) => {
+          console.error('Error postPriceForRoomId: ', e);
+        },
+      });
+  }
+
+  isRoomRecordable(roomId: number, recordable: boolean) {
+    this.api.isRoomRecordable(roomId, recordable).subscribe({
+      next: () => {
+        this.getRooms();
+      },
+      error: (e) => {
+        console.error('Error isRoomRecordable: ', e);
+      },
+    });
+  }
+
+  setPreferredLanguage(language: string) {
+    const user = this.authService.currentUser();
+
+    if (user && user.email) {
+      this.api.setPreferredLanguage(language).subscribe({
+        next: () => {
+          this.authService.updateUserLanguage(language);
+          console.log(`set language for ${user.email}: ${language}`);
+        },
+        error: (e) => {
+          console.error('Error setPreferredLanguage: ', e);
+        },
+      });
+    }
   }
 }

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { UserSettings } from '../components/user-settings/user-settings';
 
 export const PROFILE_ROUTES: Routes = [
   {
@@ -24,6 +25,11 @@ export const PROFILE_ROUTES: Routes = [
             (m) => m.OrganizationList,
           ),
         data: { mode: 'user' },
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('../components/user-settings/user-settings').then((m) => m.UserSettings),
       },
     ],
   },

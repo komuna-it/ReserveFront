@@ -7,6 +7,7 @@ import { ReservationStore } from '../../reservation/reservation.store';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AddOrganizationModal } from '../add-organization-modal/add-organization-modal';
+import { ReservationType } from '../../../model/reservationType';
 
 @Component({
   selector: 'app-calendar-booking-modal',
@@ -14,7 +15,7 @@ import { AddOrganizationModal } from '../add-organization-modal/add-organization
   templateUrl: './calendar-booking-modal.html',
   styleUrl: './calendar-booking-modal.css',
 })
-export class CalendarBookingModal implements OnInit {
+export class CalendarBookingModal {
   translocoService = inject(TranslocoService);
   readonly helper = inject(CalendarHelper);
   readonly store = inject(ReservationStore);
@@ -27,14 +28,12 @@ export class CalendarBookingModal implements OnInit {
       const booking = this.store.selectedBooking();
       const isAdmin = this.authService.isAdmin();
 
-      // Zwykły użytkownik bez organizacji ma wymuszoną rezerwację prywatną
       if (!isAdmin && orgs.length === 0) {
         this.store.isPrivateReservationCheckboxActivated.set(true);
       } else if (!isAdmin) {
         this.store.isPrivateReservationCheckboxActivated.set(false);
       }
 
-      // Preselekcja organizacji, jeśli dostępna i brak wyboru
       if (
         booking &&
         orgs.length > 0 &&
@@ -47,9 +46,7 @@ export class CalendarBookingModal implements OnInit {
     if (this.store.reservationTypeOptions().length > 0) {
       this.store.reservationTypeBooking.set(this.store.reservationTypeOptions()[0]);
     }
-  }
 
-  ngOnInit() {
     console.log('opening CalendarBookingModal');
     this.facade.refreshOrganizations();
 
@@ -78,10 +75,21 @@ export class CalendarBookingModal implements OnInit {
   }
 
   isPrivateReservationCheckboxDisabled() {
-    // Admin zawsze może przełączać checkbox
     if (this.authService.isAdmin()) {
       return false;
     }
     return this.store.organizations().length === 0;
+  }
+
+  updateDuration(duration: number): void {
+    this.store.selectedBooking.update((booking) =>
+      booking ? { ...booking, duration: Number(duration) } : null,
+    );
+  }
+
+  updateReservationType(type: ReservationType): void {
+    this.store.selectedBooking.update((booking) =>
+      booking ? { ...booking, reservationType: type } : null,
+    );
   }
 }

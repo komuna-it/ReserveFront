@@ -62,7 +62,7 @@ export class TextFormatingTool {
   }
 
   getPrice(res: ReservationDto): string {
-    return 'brak';
+    return `${res.price}`;
   }
 
   formatDuration(res: ReservationDto): string {

@@ -15,7 +15,7 @@
             <th class="py-3 px-6">{{ 'PROFILE.TABLE_INDEX' | transloco }}</th>
             <th class="py-3 px-6">{{ 'PROFILE.TABLE_ROOM' | transloco }}</th>
             <th class="py-3 px-6">{{ 'PROFILE.TABLE_DATE' | transloco }}</th>
-            <th class="py-3 px-6">{{ 'PROFILE.PRICE' | transloco }}</th>
+            <th class="py-3 px-6">{{ 'PROFILE.PRICE' | transloco }} (zł)</th>
             <th class="py-3 px-6">{{ 'PROFILE.STATUS' | transloco }}</th>
           </tr>
         </thead>
@@ -32,7 +32,7 @@
                 {{ textFormatingTool.formatDuration(res) }}
               </td>
               <td class="py-4 px-6 text-slate-400">
-                {{ '-' }}
+                {{ res.price }}
               </td>
               <td class="py-4 px-6 text-slate-400">
                 {{ 'STATUS.' + res.status | transloco }}
@@ -47,4 +47,13 @@
       </div>
     }
   </div>
+
+  <app-pagination
+    [totalElements]="store.reservationsPage().totalElements"
+    [currentPage]="store.reservationsPage().number"
+    [pageSize]="store.currentReservationsSize()"
+    [totalPages]="store.reservationsPage().totalPages"
+    (pageChange)="facade.changeReservationsPage($event)"
+    (sizeChange)="facade.changeReservationsSize($event)"
+  ></app-pagination>
 </div>

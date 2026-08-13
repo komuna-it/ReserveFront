@@ -3,11 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { User } from '../model/user';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private translocoService = inject(TranslocoService);
   private apiUrl = process.env['VSF_API_URL'] || '/api';
 
   private currentUserSignal = signal<User | null>(null);
@@ -21,7 +23,11 @@ export class AuthService {
   );
   readonly email = computed(() => this.currentUserSignal()?.email || null);
 
-  readonly isAdmin = computed(() => this.currentUserSignal()?.role === 'ADMIN');
+  readonly isAdmin = computed(() => {
+    return (
+      this.currentUserSignal()?.role === 'ADMIN' || this.currentUserSignal()?.role === 'MANAGER'
+    );
+  });
 
   constructor() {
     this.checkCurrentSession().subscribe();
@@ -44,6 +50,9 @@ export class AuthService {
         console.log('AuthService: Refreshed session user:', user);
         this.currentUserSignal.set(user);
         this.isLoadingSignal.set(false);
+        if (user.preferredLanguage) {
+          this.translocoService.setActiveLang(user.preferredLanguage);
+        }
         return true;
       }),
       catchError((e) => {
@@ -77,5 +86,9 @@ export class AuthService {
 
   handleSessionExpired() {
     this.executeLocalLogout();
+  }
+
+  updateUserLanguage(lang: string) {
+    this.currentUserSignal.update((user) => (user ? { ...user, preferredLanguage: lang } : null));
   }
 }

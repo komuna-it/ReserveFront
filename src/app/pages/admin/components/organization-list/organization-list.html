@@ -35,25 +35,26 @@
         <th
           class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 cursor-pointer"
         >
-          Zespół
+          {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.BAND_NAME' | transloco }}
         </th>
         <th
           class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 cursor-pointer"
         >
-          Właściciele
+          {{ 'ADMIN_RESERVATIONS.ORGANIZATION_OWNERS' | transloco }}
         </th>
         <th
           class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 cursor-pointer"
         >
-          Członkowie
+          {{ 'ADMIN_RESERVATIONS.ORGANIZATION_MEMBERS' | transloco }}
         </th>
-        <th class="py-3.5 px-4 font-semibold text-center w-[16%]">Zaufany zespół</th>
+        <th class="py-3.5 px-4 font-semibold text-center w-[16%]">
+          {{ 'USERS_TABLE.TRUSTED' | transloco }}
+        </th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-700/70 text-slate-300">
       @for (org of safeOrganizations(); track org.id) {
         <tr class="hover:bg-slate-700/30 transition-colors">
-          <!-- Wywołanie sygnału: mode() -->
           @if (mode() === 'admin') {
             <td class="p-1.5 border-r border-slate-700/60 align-middle text-center">
               <label

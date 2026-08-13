@@ -61,7 +61,6 @@
   }
 }
 
-<!-- Modal - confirm deleting owner from org -->
 @if (store.selectedOrganization(); as res) {
   @if (store.selectedUser(); as user) {
     @if (store.isModalDeleteOwnerActive()) {
@@ -95,4 +94,8 @@
 }
 @if (store.isAdminAddOrganizationSuccessPopupActive()) {
   <app-success-popup [titleText]="'USER_MODALS.SUCCESS | transloco '"></app-success-popup>
+}
+
+@if (store.isModalAddRoomActive()) {
+  <app-add-room-modal></app-add-room-modal>
 }

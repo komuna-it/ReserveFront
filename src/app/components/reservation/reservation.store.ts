@@ -44,11 +44,22 @@ export class ReservationStore {
   readonly testText = signal<string>('');
   readonly reservationTypeBooking = signal<ReservationType | null>(null);
 
+  //pricing
+  readonly pricingLoadingState = signal<{ roomId: number; type: ReservationType } | null>(null);
+  readonly isLoadingRooms = signal<boolean>(false);
+
   readonly reservationTypeOptions = computed(() => {
     const reherseal = ReservationType.REHEARSAL;
     const recording = ReservationType.RECORDING;
 
     return Array.of(reherseal, recording);
+  });
+
+  readonly allowedReservationTypes = computed(() => {
+    const rooms = this.rooms();
+    const room = rooms.find((r) => r.id === this.selectedBooking()?.roomId);
+    if (!room) return;
+    return room.isRecordable ? this.reservationTypeOptions() : Array.of(ReservationType.REHEARSAL);
   });
 
   readonly durationOptions = computed(() => {
@@ -77,6 +88,19 @@ export class ReservationStore {
   readonly displayBookingErrorPopup = signal<boolean>(false);
 
   readonly selectedBooking = signal<Booking | null>(null);
+  readonly price = computed(() => {
+    const booking = this.selectedBooking();
+    if (!booking) return 0;
+
+    const room = this.rooms().find((r) => r.id === booking.roomId);
+    if (!room?.pricing) return 0;
+
+    const type = booking.reservationType ?? this.reservationTypeBooking();
+
+    const pricePerHour = room.pricing[type] ?? 0;
+
+    return (Number(booking.duration) || 0) * pricePerHour;
+  });
 
   readonly userOrgsMap = computed(() => new Map(this.organizations().map((o) => [o.id, o.name])));
   readonly allOrgsMap = computed(() => new Map(this.allOrganizations().map((o) => [o.id, o.name])));
@@ -246,6 +270,7 @@ export class ReservationStore {
   readonly isModalDeleteOwnerSuccessActive = signal<boolean>(false);
   readonly isModalAddMemberActive = signal<boolean>(false);
   readonly isModalAddOwnerActive = signal<boolean>(false);
+  readonly isModalAddRoomActive = signal<boolean>(false);
   readonly isBanModalActive = signal<boolean>(false);
   readonly isBanUsersModalActive = signal<boolean>(false);
   readonly isBanUsersSuccessActive = signal<boolean>(false);
@@ -439,4 +464,8 @@ export class ReservationStore {
   readonly currentSortDir = computed(
     () => (this.queryParams()['sortDir'] as 'asc' | 'desc') ?? 'desc',
   );
+
+  // settings
+  readonly availableLanguages = signal<string[]>(['pl', 'en', 'ua']);
+  readonly selectedLanguage = signal<string>('');
 }
