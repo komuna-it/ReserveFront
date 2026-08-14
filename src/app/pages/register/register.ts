@@ -16,6 +16,7 @@ export class RegisterPage {
   email = '';
   name = '';
   password = '';
+  language = '';
   readonly errorString = signal<string>('');
   readonly registerSuccess = signal<boolean>(false);
 
@@ -26,16 +27,20 @@ export class RegisterPage {
   ) {}
 
   async register() {
+    
+  console.log('register page: transloco active language: ', this.translocoService.getActiveLang());
+
     console.log(
       'Attempting registration with email:',
       this.email,
       'and password:',
       this.password,
       'and name:',
-      this.name,
+      this.name, 'language: ',
+      this.language
     );
     this.errorString.set('');
-    this.authService.register(this.email, this.password, this.name).subscribe({
+    this.authService.register(this.email, this.password, this.name, this.language).subscribe({
       next: () => {
         this.registerSuccess.set(true);
         console.log('Registration successful');

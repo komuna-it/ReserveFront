@@ -18,6 +18,7 @@ export class AuthService {
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly isLoading = this.isLoadingSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.currentUserSignal() !== null);
+  
   readonly userId = computed(() =>
     this.currentUserSignal()?.id ? String(this.currentUserSignal()?.id) : null,
   );
@@ -39,8 +40,9 @@ export class AuthService {
       .pipe(tap((user) => this.currentUserSignal.set(user)));
   }
 
-  register(email: string, password: string, name: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/auth/register`, { email, password, name });
+  register(email: string, password: string, name: string, language:string): Observable<User> {
+    console.log('auth register: language: ', language)
+    return this.http.post<User>(`${this.apiUrl}/auth/register`, { email, password, name, preferredLanguage: language });
   }
 
   checkCurrentSession(): Observable<boolean> {

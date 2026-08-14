@@ -7,6 +7,7 @@ import { AuthService } from '../../auth/authService';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { ErrorResponse } from '../../model/error/errorResponse';
 import { ErrorType } from '../../model/error/errorType';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'login-page',
@@ -19,6 +20,7 @@ export class LoginPage {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly store = inject(ReservationStore);
+  readonly loco = inject(TranslocoService);
 
   email = '';
   password = '';
@@ -35,6 +37,10 @@ export class LoginPage {
     this.authService.login(this.email, this.password, this.rememberMe).subscribe({
       next: (user) => {
         this.isLoading = false;
+        const lang = user.preferredLanguage;
+        if (lang){
+          this.loco.setActiveLang(user.preferredLanguage);
+        }
 
         if (user.banDto) {
           console.log('detected user banned');
