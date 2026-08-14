@@ -119,7 +119,7 @@ getDatesToDisplay(): Date[] {
 
 
 
-generateCalendar = computed( () => {
+daysWithHours = computed( () => {
     const hoursRange = this.hoursRange;
     const daysToDisplay =  this.getDatesToDisplay();
     const rooms = this.store.rooms();
@@ -132,8 +132,8 @@ generateCalendar = computed( () => {
         daysWithHours.push(dateWithHour);
       });
     };
-    
-    return daysToDisplay;
+
+    return daysWithHours;
 }) ;
 
 
