@@ -3,6 +3,8 @@ import { NgClass } from '@angular/common';
 import { AuthService } from '../../auth/authService';
 import { ReservationStore } from '../reservation/reservation.store';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { Room } from '../../model/room';
+import { CalendarReservation } from '../calendar-reservation/calendar-reservation';
 
 @Component({
   selector: 'app-calendar-hour',
@@ -11,6 +13,11 @@ import { TranslocoPipe } from '@jsverse/transloco';
   styleUrl: './calendar-hour.css',
 })
 export class CalendarHour {
+ 
+  readonly date = input.required<Date>();
+  readonly room = input.required<Room>();
+  readonly reservation = input<CalendarReservation>();
+
   readonly authService = inject(AuthService);
   readonly store = inject(ReservationStore);
 
@@ -21,32 +28,5 @@ export class CalendarHour {
   readonly isLastHourOfReservation = input<boolean | null>(false);
   readonly isDisabled = input<boolean | null>(false);
   readonly isReserved = input<boolean | null>(false);
-  readonly reservationText = input<string | null>('');
-  readonly hour = input<string | number | null>('');
 
-  readonly canViewDetails = computed(() =>
-    Boolean(this.isForAdmin() || this.isMyOrganization() || this.isMyPrivate()),
-  );
-
-  readonly cellClasses = computed(() => {
-    const isFirst = Boolean(this.isFirstHourOfReservation());
-    const isLast = Boolean(this.isLastHourOfReservation());
-    const hasAccess = this.canViewDetails();
-
-    return {
-      'bg-blue-500/20 text-blue-400': hasAccess,
-      'bg-red-500/20 text-red-400': !hasAccess,
-
-      'text-blue-400/50 border-blue-500/20': hasAccess && !isFirst && !isLast,
-      'text-red-400/40 border-red-500/15': !hasAccess && !isFirst && !isLast,
-
-      'rounded-full border-0': isFirst && isLast,
-      'rounded-t-3xl': isFirst && !isLast,
-      'rounded-b-3xl': !isFirst && isLast,
-    };
-  });
-
-  readonly cellFill = computed(() => {
-    return { 'border-b border-slate-700/50': !this.isReserved() };
-  });
 }

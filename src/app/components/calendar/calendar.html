@@ -120,7 +120,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of store.tableRows(); track row.hour) {
+              @for (row of tableRows(); track row.hour) {
                 <tr class="h-14 hover:bg-slate-700/10 transition-colors">
                   <td
                     class="px-4 text-center font-bold text-slate-400 bg-slate-900/20 text-sm w-24 shrink-0 border-b border-slate-700/50 h-14"
@@ -137,7 +137,7 @@
                       }"
                     >
                       @if (cell.hourWrapper.isReserved) {
-                        <app-calendar-hour
+                        <app-calendar-reservation
                           [isForAdmin]="authService.isAdmin()"
                           [isMyPrivate]="cell.hourWrapper.isMyPrivateReservation"
                           [isMyOrganization]="cell.hourWrapper.isReservedByMyOrganization"
@@ -147,7 +147,7 @@
                           [isReserved]="cell.hourWrapper.isReserved"
                           [reservationText]="cell.hourWrapper.reservationText"
                           [hour]="row.hour"
-                        ></app-calendar-hour>
+                        ></app-calendar-reservation>
                       } @else if (cell.hourWrapper.isDisabled) {
                         <div></div>
                       } @else {
