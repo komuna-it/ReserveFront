@@ -77,10 +77,16 @@ export class AuthService {
     });
   }
 
-  private executeLocalLogout() {
-    this.currentUserSignal.set(null);
+private executeLocalLogout() {
+  this.currentUserSignal.set(null);
+
+  const publicRoutes = ['/', '/login', '/register'];
+  const currentUrl = this.router.url.split('?')[0];
+
+  if (!publicRoutes.includes(currentUrl)) {
     this.router.navigate(['/']);
   }
+}
 
   refreshToken(): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/auth/refresh`, {});

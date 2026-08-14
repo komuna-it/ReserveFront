@@ -93,7 +93,7 @@ function handle403Forbidden(error: HttpErrorResponse, injector: Injector): void 
 }
 
 function isAuthEndpoint(url: string): boolean {
-  return url.includes('/auth/login') || url.includes('/auth/refresh');
+  return url.includes('/auth/login') || url.includes('/auth/refresh') || url.includes('/auth/register') || url.includes('/auth/me');
 }
 
 // ============================================================================
