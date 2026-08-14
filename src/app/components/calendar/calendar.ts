@@ -91,18 +91,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
 
-getDatesToDisplay() {
-    const now = new Date();
-    const nowDayOfWeek = now.getDay();
-
-    const firstDayOfWeek = now.getDate() - nowDayOfWeek ;
-    const firstDateToFetch = new Date(now)
-
-
-
-}
-
-  getStartOfWeek(date: Date): Date {
+    getStartOfWeek(date: Date): Date {
     const d = new Date(date);
     const day = d.getDay();
     const diff = d.getDate() - (day === 0 ? 6 : day - 1);
@@ -110,14 +99,41 @@ getDatesToDisplay() {
     return new Date(d.setDate(diff));
   }
 
+    readonly hoursRange = Array.from({ length: 12 }, (_, i) => i + 10); // 10:00 - 21:00
+
+
+getDatesToDisplay(): Date[] {
+  const now = new Date();
+  const firstDayOfWeek = this.getStartOfWeek(now);
+  const weekOfDates: Date[] = [];
+
+  for (let i = 0; i < 7; i++) {
+    const newDate = new Date(firstDayOfWeek);
+    newDate.setDate(firstDayOfWeek.getDate() + i);
+
+    weekOfDates.push(newDate);
+  }
+
+  return weekOfDates;
+}
+
+
+
 generateCalendar = computed( () => {
-    const hoursRange = this.helper.hoursRange;
-    const days = 
+    const hoursRange = this.hoursRange;
+    const daysToDisplay =  this.getDatesToDisplay();
+    const rooms = this.store.rooms();
+    const daysWithHours : Date[] = [];
 
-    const calendarHours =  
-
-
-
+    daysToDisplay.forEach( d => {
+      hoursRange.forEach( h => {
+        const dateWithHour = new Date(d);
+        dateWithHour.setHours(h);
+        daysWithHours.push(dateWithHour);
+      });
+    };
+    
+    return daysToDisplay;
 }) ;
 
 

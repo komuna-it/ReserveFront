@@ -29,4 +29,5 @@ export class CalendarHour {
   readonly isDisabled = input<boolean | null>(false);
   readonly isReserved = input<boolean | null>(false);
 
+
 }
