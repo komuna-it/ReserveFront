@@ -17,6 +17,7 @@ import { OrganizationDetailsModal } from '../../modals/organization-details-moda
 import { AddUserIntoOrganizationModal } from '../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
 import { AddOrganizationModal } from '../../components/modals/add-organization-modal/add-organization-modal';
 import { AddRoomModal } from '../../modals/add-room-modal/add-room-modal';
+import { AuthService } from '../../auth/authService';
 
 @Component({
   selector: 'app-admin',
@@ -38,6 +39,7 @@ import { AddRoomModal } from '../../modals/add-room-modal/add-room-modal';
   styleUrl: './admin.css',
 })
 export class AdminPage implements OnInit {
+  readonly auth = inject(AuthService);
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
   readonly translocoService = inject(TranslocoService);

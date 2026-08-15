@@ -47,10 +47,6 @@ export class ProfilePage implements OnInit, OnDestroy {
   readonly reservationToDelete = signal<ReservationDto | null>(null);
   private sseController: AbortController | null = null;
 
-  constructor() {
-    this.authService.checkCurrentSession().subscribe();
-  }
-
   getTitleText(): string {
     if (this.store.confirmMarkReservationAsRequestCancel()) {
       return this.translocoService.translate('USER_MODALS.CONFIRM_REQUEST_CANCEL_TITLE');

@@ -42,7 +42,33 @@
     "NOT_MEMBER_OF_ANY_BAND": "Nie jesteś członkiem żadnego zespołu!",
     "CREATE_ONE": "Kliknij tutaj aby utworzyć zespół",
     "MODAL_RESERVED_FOR_USER": "Rezerwacja w imieniu",
-    "CALENDAR": "Kalendarz"
+    "CALENDAR": ",Kalendarz",
+    "FREE": "Wolne",
+    "PRIVATE": "Prywatna",
+    "MY_PRIVATE": "Moja prywatna",
+    "DAYS": {
+      "MON": "PN",
+      "TUE": "WT",
+      "WED": "ŚR",
+      "THU": "CZ",
+      "FRI": "PI",
+      "SAT": "SO",
+      "SUN": "NI"
+    },
+    "MONTHS": {
+      "JAN": "Styczeń",
+      "FEB": "Luty",
+      "MAR": "Marzec",
+      "APR": "Kwiecień",
+      "MAY": "Maj",
+      "JUN": "Czerwiec",
+      "JUL": "Lipiec",
+      "AUG": "Sierpień",
+      "SEP": "Wrzesień",
+      "OCT": "Październik",
+      "NOV": "Listopad",
+      "DEC": "Grudzień"
+    }
   },
   "USERS_TABLE": {
     "NICK": "Nick",

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CalendarHour } from './calendar-hour';
+import { CalendarHour } from '../calendar-reservation/calendar-hour';
 
 describe('CalendarHour', () => {
   let component: CalendarHour;

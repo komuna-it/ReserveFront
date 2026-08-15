@@ -13,6 +13,7 @@ export const authenticatedGuard: CanActivateFn = (route, state) => {
 
   if (!authService.isLoading()) {
     if (authService.isAuthenticated()) {
+      console.log('AuthenticatedGuard: OK');
       return true;
     }
     console.log('AuthenticatedGuard: User is not authenticated. Redirecting to login page.');
@@ -27,6 +28,7 @@ export const authenticatedGuard: CanActivateFn = (route, state) => {
       console.log('AuthenticatedGuard Async: Is authenticated:', authService.isAuthenticated());
 
       if (authService.isAuthenticated()) {
+        console.log('AuthenticatedGuard: OK');
         return true;
       }
 

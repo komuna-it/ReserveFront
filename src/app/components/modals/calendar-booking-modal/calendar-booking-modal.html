@@ -15,7 +15,8 @@
         class="space-y-2 text-sm text-slate-300 mb-6 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"
       >
         <p>
-          <strong>{{ 'CALENDAR.MODAL_DATE' | transloco }}:</strong> {{ booking.date }}
+          <strong>{{ 'CALENDAR.MODAL_DATE' | transloco }}:</strong>
+          {{ helper.generateDayLabel(booking.date.toString()) }}
         </p>
         <p>
           <strong>{{ 'CALENDAR.MODAL_START' | transloco }}:</strong> {{ booking.hour }}:00
@@ -35,11 +36,12 @@
           </label>
           <select
             id="userSelect"
-            [(ngModel)]="booking.reservedByUserId"
+            [ngModel]="booking.reservedByUserId"
+            (ngModelChange)="onUserIdSelected($event)"
             class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             @for (user of store.users(); track user.id) {
-              <option [value]="user.id">{{ user.nick }} - {{ user.email }}</option>
+              <option [ngValue]="user.id">{{ user.nick }} - {{ user.email }}</option>
             }
           </select>
         </div>
@@ -102,10 +104,7 @@
         <select
           id="bandSelect"
           [(ngModel)]="booking.organizationId"
-          [disabled]="
-            store.isPrivateReservationCheckboxActivated() ||
-            (!authService.isAdmin() && store.organizations().length === 0)
-          "
+          [disabled]="isPrivateReservationCheckboxDisabled()"
           class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
           @for (org of store.organizations(); track org.id) {
@@ -130,7 +129,7 @@
         <input
           id="privateReservationCheckbox"
           type="checkbox"
-          [ngModel]="store.isPrivateReservationCheckboxActivated()"
+          [ngModel]="isPrivateReservationCheckboxDisabled()"
           (click)="togglePrivateReservationCheckbox()"
           [disabled]="isPrivateReservationCheckboxDisabled()"
           class="w-4 h-4 text-emerald-600 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
@@ -160,7 +159,7 @@
       </div>
       <div class="my-2 flex gap-3 justify-end">
         <button
-          (click)="store.selectedBooking.set(null)"
+          (click)="facade.closeModals()"
           class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
         >
           {{ 'CALENDAR.CANCEL' | transloco }}

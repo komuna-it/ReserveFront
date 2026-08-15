@@ -95,8 +95,10 @@ export class ReservationStore {
     const room = this.rooms().find((r) => r.id === booking.roomId);
     if (!room?.pricing) return 0;
 
-    const type = booking.reservationType ?? this.selectedReservationType();
-
+    let type = booking.reservationType ?? this.selectedReservationType();
+    if (!type) {
+      type = ReservationType.REHEARSAL;
+    }
     const pricePerHour = room.pricing[type] ?? 0;
 
     return (Number(booking.duration) || 0) * pricePerHour;
@@ -139,8 +141,7 @@ export class ReservationStore {
   });
 
   readonly currentMonthLabel = computed(
-    () =>
-      `${this.helper.monthLabels[this.currentMonthDate().getMonth()]} ${this.currentMonthDate().getFullYear()}`,
+    () => `${this.helper.monthLabels[this.currentMonthDate().getMonth()]}`,
   );
 
   readonly currentWeekLabel = computed(() => {
@@ -152,7 +153,6 @@ export class ReservationStore {
     }
     return `${this.helper.monthLabels[start.getMonth()]} - ${this.helper.monthLabels[end.getMonth()]} ${start.getFullYear()}`;
   });
-
 
   // ================= modals control =================
 
@@ -176,7 +176,7 @@ export class ReservationStore {
   readonly isOrganizationDetailsModalActive = signal<boolean>(false);
   readonly isModalAddOwnerSuccessActive = signal<boolean>(false);
   readonly isModalAddMemberSuccessActive = signal<boolean>(false);
-
+  readonly isBookingModalActive = signal<boolean>(false);
   readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
   readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
   readonly confirmMarkReservationAsCanceled = signal<boolean>(false);
@@ -197,6 +197,8 @@ export class ReservationStore {
   readonly selectedOrganization = signal<Organization | null>(null);
   readonly selectedReservation = signal<ReservationDto | null>(null);
   readonly selectedUser = signal<User | null>(null);
+  readonly selectedRoom = signal<Room | null>(null);
+  readonly selectedHour = signal<number | null>(null);
   readonly selectedReservations = signal<ReservationDto[] | null>(null);
 
   readonly globalErrorKey = signal<string | null>(null);
@@ -362,7 +364,12 @@ export class ReservationStore {
     () => (this.queryParams()['sortDir'] as 'asc' | 'desc') ?? 'desc',
   );
 
+  currentYear = computed(() => {
+    const now = new Date();
+    return now.getFullYear();
+  });
+
   // settings
   readonly availableLanguages = signal<string[]>(['pl', 'en', 'ua']);
-  readonly selectedLanguage = signal<string>('');
+  readonly selectedLanguage = this.loco.activeLang();
 }

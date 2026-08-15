@@ -1,247 +1,264 @@
-import { Component, inject, Input, OnInit, OnDestroy, computed, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { CalendarHelper } from './calendar.helper';
+import { Component, inject, computed, Signal } from '@angular/core';
+import { CommonModule, DatePipe, NgClass } from '@angular/common';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+
 import { ReservationStore } from '../reservation/reservation.store';
 import { ReservationFacade } from '../reservation/reservation.facade';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../auth/authService';
+
 import { CalendarBookingModal } from '../modals/calendar-booking-modal/calendar-booking-modal';
 import { CalendarHour } from '../calendar-hour/calendar-hour';
 import { SuccessPopup } from '../../modals/success-popup/success-popup';
 import { ErrorPopup } from '../../modals/error-popup/error-popup';
-import { HourWrapper } from '../../model/hourWrapper';
-import { CalendarReservation } from '../calendar-reservation/calendar-reservation';
+
+import { ReservationDto } from '../../model/reservationDto';
+import { ReservationType } from '../../model/reservationType';
+import { CalendarHelper } from './calendar.helper';
+import { Booking } from '../../model/booking';
+import { User } from '../../model/user';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
   imports: [
+    CommonModule,
+    NgClass,
+    DatePipe,
+    TranslocoModule,
+    CalendarHour,
+    CalendarBookingModal,
     SuccessPopup,
     ErrorPopup,
-    CommonModule,
-    FormsModule,
-    TranslocoPipe,
-    CalendarBookingModal,
-    CalendarHour, CalendarReservation
   ],
   templateUrl: './calendar.html',
 })
-export class CalendarComponent implements OnInit, OnDestroy {
-  translocoService = inject(TranslocoService);
-  readonly helper = inject(CalendarHelper);
+export class CalendarComponent {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
-  readonly authService = inject(AuthService);
+  readonly auth = inject(AuthService);
   readonly loco = inject(TranslocoService);
+  public helper = inject(CalendarHelper);
 
-  ngOnInit() {
-    this.facade.getRoomsAndReservations();
-    this.facade.getAllUsers();
-
-    if (!this.authService.userId()) {
-      console.error('User id not loaded yet');
-      return;
-    }
-
-    console.log('Initializing calendar...');
-    this.facade.refreshOrganizations();
-    this.facade.connectToReservationStream();
-  }
-
-  ngOnDestroy() {
-    this.facade.disconnectStream();
-  }
-
-
-
-
-  // NEW CALENDAR
+  readonly currentDate = new Date();
 
   constructor() {
-
-
-    effect( () => {
-        this.store.reservations();
-        this.generateCalendar();
-    });
-
-
-
+    const user = this.auth.currentUser();
+    if (user) {
+      if (this.auth.isAdmin()) {
+        this.facade.getAllMembersAllOrganizations();
+      } else {
+        this.facade.getOrganizationsOfUser(false, user.id);
+      }
+    }
+    this.facade.getFutureReservations();
+    this.facade.getRooms();
   }
 
-  readonly activeLang = this.loco.activeLang(); 
+  readonly weekDayKeys: string[] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+  readonly hoursRange: number[] = Array.from({ length: 12 }, (_, i) => i + 10);
 
-  getDayNames(format: 'long' | 'short' | 'narrow' = 'long'): string[] {
-    const lang = this.loco.getActiveLang();
-    const formatter = new Intl.DateTimeFormat(lang, { weekday: format });
-    
-    return Array.from({ length: 7 }, (_, i) => {
-      return formatter.format(new Date(2024, 0, 1 + i));
-    });
-  }
-
-  getMonthNames(format: 'long' | 'short' | 'narrow' = 'long'): string[] {
-  const lang = this.loco.getActiveLang();
-  const formatter = new Intl.DateTimeFormat(lang, { month: format });
-  
-    return Array.from({ length: 12 }, (_, i) => {
-      return formatter.format(new Date(2024, 1 + i));
-    });
-  }
-
-
-    getStartOfWeek(date: Date): Date {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = d.getDate() - (day === 0 ? 6 : day - 1);
-    d.setHours(0, 0, 0, 0);
-    return new Date(d.setDate(diff));
-  }
-
-    readonly hoursRange = Array.from({ length: 12 }, (_, i) => i + 10); // 10:00 - 21:00
-
-
-getDatesToDisplay(): Date[] {
-  const now = new Date();
-  const firstDayOfWeek = this.getStartOfWeek(now);
-  const weekOfDates: Date[] = [];
-
-  for (let i = 0; i < 7; i++) {
-    const newDate = new Date(firstDayOfWeek);
-    newDate.setDate(firstDayOfWeek.getDate() + i);
-
-    weekOfDates.push(newDate);
-  }
-
-  return weekOfDates;
-}
-
-
-
-daysWithHours = computed( () => {
-    const hoursRange = this.hoursRange;
-    const daysToDisplay =  this.getDatesToDisplay();
-    const rooms = this.store.rooms();
-    const daysWithHours : Date[] = [];
-
-    daysToDisplay.forEach( d => {
-      hoursRange.forEach( h => {
-        const dateWithHour = new Date(d);
-        dateWithHour.setHours(h);
-        daysWithHours.push(dateWithHour);
-      });
-    };
-
-    return daysWithHours;
-}) ;
-
-
-
-  // OLD CALENDAR
-
-    readonly tableRows = computed(() => {
-    const isAdmin = this.authService.isAdmin();
-    const selectedDate = this.store.daySelectedByUser();
-    const reservationsToday = this.store.currentDayReservations();
-    const roomsList = this.store.rooms();
-    const userOrgs = this.store.userOrgsMap();
-    const allOrgs = this.store.allOrgsMap();
-    const hoursRange = this.helper.hoursRange;
-    const privateReservationText = this.loco.translate('ADMIN_RESERVATIONS.IS_PRIVATE');
-    const now = new Date();
-    const isPastDay =
-      new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate()) <
-      new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const isToday = this.helper.isSameDay(selectedDate, now);
-    const currentHour = now.getHours();
-
-    return hoursRange.map((hour) => {
-      const isPastHour = isPastDay || (isToday && hour <= currentHour);
-
-      const cells = roomsList.map((room) => {
-        const matchedReservation = reservationsToday.find((res) => {
-          if (res.room !== room.id) return false;
-          const startHour = new Date(res.startAt).getUTCHours();
-          const endHour = new Date(res.endAt).getUTCHours();
-          return hour >= startHour && hour < endHour;
-        });
-
-        const isReserved = !!matchedReservation;
-        let isFirst = false;
-        let isLast = false;
-        let isMyOrg = false;
-        let bandName = '';
-        let isPrivateReservation = false;
-        let privateReservationText = 'Moja prywatna';
-        let reservedByUserId: number | null = null;
-        let reservationText = '';
-        let isMyPrivateReservation = false;
-
-        if (matchedReservation) {
-          const startHour = new Date(matchedReservation.startAt).getUTCHours();
-          isFirst = hour === startHour;
-          isLast = hour === new Date(matchedReservation.endAt).getUTCHours() - 1;
-          reservedByUserId = matchedReservation.reservedBy;
-          if (matchedReservation.organization) {
-            if (isAdmin) {
-              bandName =
-                allOrgs.get(matchedReservation.organization) ||
-                `${matchedReservation.organization}`;
-              isMyOrg = false;
-              reservationText = bandName;
-            } else {
-              if (userOrgs.has(matchedReservation.organization)) {
-                isMyOrg = true;
-                bandName = userOrgs.get(matchedReservation.organization) || '';
-                reservationText = bandName;
-              } else {
-                isMyOrg = false;
-                bandName = '';
-                reservationText = bandName;
-              }
-            }
-          }
-
-          if (matchedReservation.organization === null) {
-            isPrivateReservation = true;
-            const loggedUserId = parseInt(this.authService.userId()!, 10);
-
-            if (this.authService.isAdmin()) {
-              const userText = this.store.users().find(
-                (u) => u.id === matchedReservation.reservedBy,
-              )?.nick;
-              reservationText = `${userText} (prywatna)`;
-            } else if (matchedReservation.reservedBy === loggedUserId) {
-              reservationText = privateReservationText;
-              isMyPrivateReservation = true;
-            } else {
-              reservationText = '';
-            }
-          }
-        }
-
-        return {
-          roomId: room.id ?? 0,
-          hourWrapper: new HourWrapper(
-            hour,
-            isReserved,
-            isFirst,
-            isLast,
-            isMyOrg,
-            isPastHour,
-            bandName,
-            isPrivateReservation,
-            privateReservationText,
-            reservedByUserId,
-            reservationText,
-            isMyPrivateReservation,
-          ),
-        };
-      });
-
-      return { hour, cells };
-    });
+  readonly datesToDisplay: Signal<Date[]> = computed(() => {
+    try {
+      const baseDate = this.store.currentWeekStart();
+      return this.getWeekDays(baseDate);
+    } catch {
+      return this.getWeekDays(new Date());
+    }
   });
 
+  get currentWeekInfo() {
+    // Pobieramy pierwszy dzień aktualnie przeglądanego tygodnia ze store
+    const baseDate = this.store.weekDays()[0];
+    return this.helper.getWeekInfo(baseDate);
+  }
+
+  isSameLocalDay(
+    d1: Date | string | null | undefined,
+    d2: Date | string | null | undefined,
+  ): boolean {
+    if (!d1 || !d2) return false;
+    const date1 = new Date(d1);
+    const date2 = new Date(d2);
+
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  }
+  getWeekDayIndex(date: Date): number {
+    const day = new Date(date).getUTCDay();
+    return day === 0 ? 6 : day - 1;
+  }
+
+  private getWeekDays(dateInput: Date | string | null | undefined): Date[] {
+    const base = dateInput ? new Date(dateInput) : new Date();
+    const current = isNaN(base.getTime()) ? new Date() : base;
+
+    const dayOfWeek = current.getDay(); // lokalnie
+    const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(current);
+    monday.setUTCDate(current.getUTCDate() + distanceToMonday);
+    monday.setHours(0, 0, 0, 0);
+
+    return Array.from({ length: 7 }, (_, i) => {
+      const day = new Date(monday);
+      day.setUTCDate(monday.getUTCDate() + i);
+      return day;
+    });
+  }
+
+  getReservationForSlot(roomId: number, hour: number): ReservationDto | undefined {
+    const selectedDate = this.store.daySelectedByUser();
+    if (!selectedDate) return undefined;
+
+    const reservations = this.store.reservations();
+    if (!Array.isArray(reservations)) return undefined;
+
+    return reservations.find((res) => {
+      if (!res) return false;
+      const resRoomId =
+        typeof res.room === 'object' && res.room !== null ? (res.room as any).id : res.room;
+      if (String(resRoomId) !== String(roomId)) return false;
+
+      if (!this.isSameLocalDay(res.startAt, selectedDate)) return false;
+
+      // Używamy lokalnego czasu (getHours), aby pasował do siatki godzin użytkownika
+      const startHour = new Date(res.startAt).getHours();
+      const endHour = new Date(res.endAt).getHours();
+
+      return hour >= startHour && hour < endHour;
+    });
+  }
+  selectRoomAndHour(roomId: number, hour: number): void {
+    let day = new Date();
+    if (this.store.daySelectedByUser()) {
+      day = this.store.daySelectedByUser();
+    } else {
+      this.store.daySelectedByUser.set(day);
+    }
+
+    day.setHours(hour);
+    console.log(
+      'selectRoomAndHour roomId',
+      roomId,
+      'hour:',
+      hour,
+      ' day: ',
+      day.getDate(),
+      ' ',
+      day.getMonth(),
+      ' testHour: ',
+      day.getHours(),
+      ' utcHours: ',
+      day.getUTCHours(),
+    );
+    if (this.isPastHour(hour)) return;
+
+    this.store.selectedHour.set(hour);
+    this.store.selectedRoom.set(
+      (this.store.rooms() || []).find((r) => String(r.id) === String(roomId)) ??
+        (this.store.rooms() || [])[0],
+    );
+    this.store.isBookingModalActive.set(true);
+
+    const booking = this.createBookingObject(roomId, hour);
+    console.log('createBookingObject:', booking);
+
+    this.store.selectedBooking.set(booking);
+  }
+
+  createBookingObject(roomId: number, hour: number): Booking {
+    const rooms = this.store.rooms() || [];
+    const foundRoom = rooms.find((r) => String(r.id) === String(roomId));
+
+    let selectedDate = this.store.daySelectedByUser()
+      ? new Date(this.store.daySelectedByUser()!)
+      : new Date();
+    selectedDate.setMinutes(0);
+    selectedDate.setSeconds(0);
+
+    return {
+      date: selectedDate,
+      hour,
+      roomId,
+      roomName: foundRoom ? foundRoom.name : '',
+      duration: 1,
+      reservationType: ReservationType.REHEARSAL,
+      reservedByUserId: this.auth.currentUser()?.id,
+    };
+  }
+
+  isReserved(roomId: number, hour: number): boolean {
+    return !!this.getReservationForSlot(roomId, hour);
+  }
+
+  isForAdmin(roomId: number, hour: number): boolean {
+    const res = this.getReservationForSlot(roomId, hour);
+    return res?.type === ('ADMIN' as unknown as ReservationType);
+  }
+
+  isMyPrivate(roomId: number, hour: number): boolean {
+    const res = this.getReservationForSlot(roomId, hour);
+    if (!res) return false;
+
+    const currentUserId = this.auth.currentUser?.()?.id;
+    const resUserId = res.reservedBy || (res as any).userId;
+    return resUserId === currentUserId && !res.organization;
+  }
+
+  isMyOrganization(roomId: number, hour: number): boolean {
+    const res = this.getReservationForSlot(roomId, hour);
+    if (!res || !res.organization) return false;
+
+    const userOrgsData = this.store.organizations();
+
+    if (Array.isArray(userOrgsData)) {
+      return userOrgsData.some(
+        (org: any) => String(org.id) === String(res.organization) || org.name === res.organization,
+      );
+    }
+
+    if (userOrgsData && typeof userOrgsData === 'object' && 'organizations' in userOrgsData) {
+      const orgs = (userOrgsData as any).organizations;
+      if (Array.isArray(orgs)) {
+        return orgs.some(
+          (org: any) =>
+            String(org.id) === String(res.organization) || org.name === res.organization,
+        );
+      }
+    }
+
+    return false;
+  }
+
+  isFirstHourOfReservation(roomId: number, hour: number): boolean {
+    const res = this.getReservationForSlot(roomId, hour);
+    if (!res?.startAt) return false;
+
+    const startDate = new Date(res.startAt);
+    // Jeśli zapisujesz godziny w czasie lokalnym, użyj getHours(), jeśli w UTC – getUTCHours()
+    const startHour = startDate.getHours();
+    return startHour === hour;
+  }
+
+  isLastHourOfReservation(roomId: number, hour: number): boolean {
+    const res = this.getReservationForSlot(roomId, hour);
+    if (!res?.endAt) return false;
+
+    const endDate = new Date(res.endAt);
+    const endHour = endDate.getHours();
+    // Ostatnia godzina bloku to endHour - 1 (np. rezerwacja do 17:00 kończy się o 16:59, czyli slot 16)
+    return endHour - 1 === hour;
+  }
+
+  isPastHour(hour: number): boolean {
+    const selectedDate = this.store.daySelectedByUser();
+    if (!selectedDate) return false;
+
+    const dateObj = new Date(selectedDate);
+    dateObj.setHours(hour, 0, 0, 0);
+
+    return dateObj.getTime() < Date.now();
+  }
 }

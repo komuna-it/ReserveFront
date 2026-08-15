@@ -66,6 +66,17 @@ export class ReservationFacade {
     });
   }
 
+  getFutureReservations() {
+    this.api.getFutureReservations(this.store.currentReservationsPage(), 252).subscribe({
+      next: (pageData) => {
+        this.store.reservationsPage.set(pageData);
+        console.log('Get reservations data:');
+        console.table(pageData.content);
+      },
+      error: (e) => console.log('Error fetching res: ', e),
+    });
+  }
+
   getRoomsAndReservations() {
     this.api.getRooms().subscribe({
       next: (rooms) => {
@@ -154,19 +165,19 @@ export class ReservationFacade {
     const booking = this.store.selectedBooking();
     if (!booking) return;
 
-    const [year, month, day] = booking.date.split('-').map(Number);
-    const startAt = new Date(Date.UTC(year, month - 1, day, booking.hour)).toISOString();
+    const startAt = new Date(booking.date).toISOString();
 
     const req: CreateReservationRequest = {
       roomId: booking.roomId,
       startAt,
       duration: `PT${booking.duration}H`,
-      type: booking.reservationType,
+      type: booking.reservationType ?? ReservationType.REHEARSAL,
       organizationId: this.store.isPrivateReservationCheckboxActivated()
         ? null
         : booking.organizationId,
       reservedByUserId: booking.reservedByUserId,
     };
+    console.log('CreateReservationRequest:', req);
 
     this.api.postReservation(req).subscribe({
       next: () => {
@@ -220,7 +231,7 @@ export class ReservationFacade {
     const rawUserId = (this.authService.userId() || '0').toString().replace(/['"]/g, '');
 
     this.store.selectedBooking.set({
-      date: dateStr,
+      date: day,
       hour,
       roomId,
       price: price ?? 9999,
@@ -306,6 +317,8 @@ export class ReservationFacade {
     bookingStartDate.setUTCHours(b.hour, 0, 0, 0);
 
     const bookingEndDate = new Date(bookingStartDate);
+
+    if (!b.duration) b.duration = 1;
     bookingEndDate.setUTCHours(b.hour + b.duration, 0, 0, 0);
 
     const isTimeOverlapping =
@@ -469,6 +482,8 @@ export class ReservationFacade {
 
           console.log('getOrganizationsOfUser(): ');
           console.table(pageData.content);
+          console.log('content of organizations(): ');
+          console.table(this.store.organizations());
         },
         error: (e) => console.error('Error in getOrganizationsOfUser: ', e),
       });
@@ -868,6 +883,7 @@ export class ReservationFacade {
     this.store.isUserDetailsModalActive.set(false);
     this.store.displayBookingSuccesfulPopup.set(false);
     this.store.isOrganizationDetailsModalActive.set(false);
+    this.store.isBookingModalActive.set(false);
   }
 
   handleClickBanUsers() {
