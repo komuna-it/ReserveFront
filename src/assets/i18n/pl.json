@@ -251,7 +251,8 @@
     "CONFIRM_DELETE_MEMBER": "Potwierdź usunięcie członka zespołu",
     "CONFIRM_BAN_TITLE": "Banowanie",
     "CONFIRM_BAN_BODY": "Potwierdź ban",
-    "SUCCESS": "Sukces"
+    "SUCCESS": "Sukces",
+    "LOGIN_TO_CREATE_RESERVATION": "Zaloguj się, aby utworzyć rezerwację"
   },
 
   "ADMIN_RESERVATIONS": {

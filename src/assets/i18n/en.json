@@ -250,7 +250,8 @@
     "CONFIRM_DELETE_MEMBER": "Confirm band member removal",
     "CONFIRM_BAN_TITLE": "Ban user",
     "CONFIRM_BAN_BODY": "Confirm ban",
-    "SUCCESS": "Success"
+    "SUCCESS": "Success",
+    "LOGIN_TO_CREATE_RESERVATION": "Please login to make a reservation"
   },
   "ADMIN_RESERVATIONS": {
     "IS_PRIVATE": "Yes",

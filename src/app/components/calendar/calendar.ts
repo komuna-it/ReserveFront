@@ -202,6 +202,10 @@ export class CalendarComponent {
   }
 
   selectRoomAndHour(roomId: number, hour: number): void {
+    if (!this.auth.currentUser()) {
+      this.store.isLoginOrRegisterModalActive.set(true);
+      return;
+    }
     let day = new Date();
     if (this.store.daySelectedByUser()) {
       day = this.store.daySelectedByUser();

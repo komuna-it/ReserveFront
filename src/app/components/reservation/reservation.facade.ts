@@ -872,6 +872,7 @@ export class ReservationFacade {
     this.store.displayBookingSuccesfulPopup.set(false);
     this.store.isOrganizationDetailsModalActive.set(false);
     this.store.isBookingModalActive.set(false);
+    this.store.isLoginOrRegisterModalActive.set(false);
   }
 
   handleClickBanUsers() {

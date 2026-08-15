@@ -249,7 +249,8 @@
     "CONFIRM_DELETE_MEMBER": "Підтвердити видалення учасника гурту",
     "CONFIRM_BAN_TITLE": "Блокування",
     "CONFIRM_BAN_BODY": "Підтвердити блокування",
-    "SUCCESS": "Успішно"
+    "SUCCESS": "Успішно",
+    "LOGIN_TO_CREATE_RESERVATION": "Щоб створити бронювання, вам потрібно увійти"
   },
   "ADMIN_RESERVATIONS": {
     "IS_PRIVATE": "Так",

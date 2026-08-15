@@ -5,11 +5,18 @@ import { CalendarComponent } from '../../components/calendar/calendar';
 import { ReservationDetailsModal } from '../../modals/reservation-details-modal/reservation-details-modal';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { UnauthenticatedModal } from '../../components/modals/unauthenticated-modal/unauthenticated-modal';
 
 @Component({
   selector: 'calendar-page',
   standalone: true,
-  imports: [CalendarComponent, CommonModule, FormsModule, ReservationDetailsModal],
+  imports: [
+    CalendarComponent,
+    CommonModule,
+    FormsModule,
+    ReservationDetailsModal,
+    UnauthenticatedModal,
+  ],
   templateUrl: './calendar.html',
 })
 export class CalendarPage {
