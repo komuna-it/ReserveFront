@@ -1,6 +1,6 @@
 import { Component, DestroyRef, HostListener, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router'; // <- USUNIĘTO RouterOutlet
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { filter } from 'rxjs';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';

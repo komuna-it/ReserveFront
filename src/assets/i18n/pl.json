@@ -142,7 +142,21 @@
     "REQUEST_CANCEL": "Poproś o odwołanie",
     "TOO_LATE_TO_CANCEL": "Za późno na odwołanie",
     "ALLOWED": "Zezwolone",
-    "NOT_ALLOWED": "Zabronione"
+    "NOT_ALLOWED": "Zabronione",
+    "FORGOT_PASSWORD_QUESTION": "Nie pamiętasz hasła",
+    "REMEMBER_ME": "Zapamiętaj mnie",
+    "PASSWORD": "Hasło",
+    "NO_ACCOUNT_REGISTER": "Nie masz konta? Zarejestruj się!",
+    "SEND": "Wyślij"
+  },
+  "FORGOT_PASSWORD": {
+    "PUT_EMAIL": "Wpisz swój adres email",
+    "FORGOT_PASSWORD": "Zresetuj hasło",
+    "CANCELLED": "Odwołana",
+    "REQUESTED_CANCELLATION": "Do odwołania",
+    "REJECTED": "Odrzucona",
+    "SUCCESS_MESSAGE": "Sprawdź swój email aby zresetować email",
+    "ERROR_GENERIC": "Niepoprawny email lub konto nie istnieje"
   },
   "STATUS": {
     "CREATED": "Do potwierdzenia",
@@ -309,6 +323,7 @@
     "ADD_BAND": "Dodaj zespół",
     "NOT_AVAILABLE_FOR_THIS_ROOM": "Niedostępne dla tej sali",
     "NO_ROOMS_TO_DISPLAY": "Brak sal do wyświetlenia",
-    "ROOM": "Sala"
+    "ROOM": "Sala",
+    "LOADING": "Ładowanie..."
   }
 }

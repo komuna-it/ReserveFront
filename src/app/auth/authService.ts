@@ -106,4 +106,8 @@ export class AuthService {
   updateUserLanguage(lang: string) {
     this.currentUserSignal.update((user) => (user ? { ...user, preferredLanguage: lang } : null));
   }
+
+  handleForgotPassword(email: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/users/forgotPassword`, { email: email });
+  }
 }

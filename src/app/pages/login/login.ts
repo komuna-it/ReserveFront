@@ -7,12 +7,12 @@ import { AuthService } from '../../auth/authService';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { ErrorResponse } from '../../model/error/errorResponse';
 import { ErrorType } from '../../model/error/errorType';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'login-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslocoPipe],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
 })
@@ -20,7 +20,7 @@ export class LoginPage {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly store = inject(ReservationStore);
-  readonly loco = inject(TranslocoService);
+  private readonly loco = inject(TranslocoService);
 
   email = '';
   password = '';
@@ -38,7 +38,7 @@ export class LoginPage {
       next: (user) => {
         this.isLoading = false;
         const lang = user.preferredLanguage;
-        if (lang){
+        if (lang) {
           this.loco.setActiveLang(user.preferredLanguage);
         }
 

@@ -56,19 +56,15 @@ export class CalendarHour {
     let borderClasses = '';
 
     if (isFirst && isLast) {
-      // Pojedyncza godzina: 2px odstępu z góry i dołu
       shapeClasses = 'rounded-xl h-[calc(100%-4px)]  ';
       borderClasses = 'border';
     } else if (isFirst && !isLast) {
-      // Pierwsza godzina: 2px odstępu TYLKO od góry, dół idealnie na krawędzi (0px)
       shapeClasses = 'rounded-t-xl h-[calc(100%-2px)] ';
       borderClasses = 'border-t border-x border-b-0';
     } else if (!isFirst && isLast) {
-      // Ostatnia godzina: 2px odstępu TYLKO od dołu, góra idealnie na krawędzi (0px)
       shapeClasses = 'rounded-b-xl h-[calc(100%-2px)] mb-0.5 mt-0';
       borderClasses = 'border-b border-x border-t-0';
     } else {
-      // ŚRODEK REZERWACJI: 100% wysokości komórki, ZERO marginesów
       shapeClasses = 'rounded-none h-full my-0';
       borderClasses = 'border-x border-t-0 border-b-0';
     }

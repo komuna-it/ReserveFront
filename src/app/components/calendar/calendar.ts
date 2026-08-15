@@ -67,7 +67,6 @@ export class CalendarComponent {
   });
 
   get currentWeekInfo() {
-    // Pobieramy pierwszy dzień aktualnie przeglądanego tygodnia ze store
     const baseDate = this.store.weekDays()[0];
     return this.helper.getWeekInfo(baseDate);
   }
@@ -95,7 +94,7 @@ export class CalendarComponent {
     const base = dateInput ? new Date(dateInput) : new Date();
     const current = isNaN(base.getTime()) ? new Date() : base;
 
-    const dayOfWeek = current.getDay(); // lokalnie
+    const dayOfWeek = current.getDay();
     const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     const monday = new Date(current);
     monday.setUTCDate(current.getUTCDate() + distanceToMonday);
@@ -123,7 +122,6 @@ export class CalendarComponent {
 
       if (!this.isSameLocalDay(res.startAt, selectedDate)) return false;
 
-      // Używamy lokalnego czasu (getHours), aby pasował do siatki godzin użytkownika
       const startHour = new Date(res.startAt).getHours();
       const endHour = new Date(res.endAt).getHours();
 
@@ -237,7 +235,6 @@ export class CalendarComponent {
     if (!res?.startAt) return false;
 
     const startDate = new Date(res.startAt);
-    // Jeśli zapisujesz godziny w czasie lokalnym, użyj getHours(), jeśli w UTC – getUTCHours()
     const startHour = startDate.getHours();
     return startHour === hour;
   }
@@ -248,7 +245,6 @@ export class CalendarComponent {
 
     const endDate = new Date(res.endAt);
     const endHour = endDate.getHours();
-    // Ostatnia godzina bloku to endHour - 1 (np. rezerwacja do 17:00 kończy się o 16:59, czyli slot 16)
     return endHour - 1 === hour;
   }
 

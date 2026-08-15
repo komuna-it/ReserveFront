@@ -30,15 +30,10 @@ export class CalendarHelper {
   ];
 
   getIsoWeekNumber(date: Date): number {
-    // Kopiujemy datę i ustawiamy czas na UTC, aby uniknąć problemów ze strefami czasowymi
     const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    // Ustawiamy dzień tygodnia (Niedziela to 7 zamiast 0)
     const dayNum = d.getUTCDay() || 7;
-    // Przesuwamy datę do najbliższego czwartku (wymóg standardu ISO)
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-    // Obliczamy pierwszy dzień roku dla zaktualizowanej daty
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    // Obliczamy numer tygodnia
     return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
   }
 
@@ -49,7 +44,7 @@ export class CalendarHelper {
   } {
     const startOfWeek = this.getStartOfWeek(date);
     const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(endOfWeek.getDate() + 6); // Niedziela
+    endOfWeek.setDate(endOfWeek.getDate() + 6);
 
     const startMonthKey = this.monthLabels[startOfWeek.getMonth()];
     const endMonthKey = this.monthLabels[endOfWeek.getMonth()];
@@ -57,7 +52,6 @@ export class CalendarHelper {
     return {
       weekNumber: this.getIsoWeekNumber(date),
       startMonthKey: startMonthKey,
-      // Jeśli miesiąc początku i końca jest inny, zwracamy klucz drugiego miesiąca
       endMonthKey: startMonthKey !== endMonthKey ? endMonthKey : null,
     };
   }
@@ -113,7 +107,7 @@ export class CalendarHelper {
     const day = dateStart.getDate();
     const year = dateStart.getFullYear();
     const month = String(dateStart.getMonth() + 1).padStart(2, '0');
-    const startAt = dateStart.getHours(); // Zmieniono na czas lokalny
+    const startAt = dateStart.getHours();
     const endAt = startAt + this.parseDurationToHours(duration);
 
     return `${day}.${month}.${year} ${startAt}:00 - ${endAt}:00`;
@@ -124,13 +118,13 @@ export class CalendarHelper {
     const day = date.getDate();
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
-    const startAt = date.getHours(); // Zmieniono na czas lokalny
+    const startAt = date.getHours();
     return `${day}.${month}.${year} ${startAt}:00`;
   }
 
   generateHourLabel(dateString: string): string {
     const date = new Date(dateString);
-    const hour = date.getHours(); // Zmieniono na czas lokalny
+    const hour = date.getHours();
     let minute = date.getMinutes();
     let minuteString = '';
     if (minute === 0) {
