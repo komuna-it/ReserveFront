@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { UserSettings } from '../components/user-settings/user-settings';
 import { ReservationTableType } from '../model/reservationTableType';
+import { UpdatePassword } from '../components/update-password/update-password';
 
 export const PROFILE_ROUTES: Routes = [
   {
@@ -32,6 +33,11 @@ export const PROFILE_ROUTES: Routes = [
         path: 'settings',
         loadComponent: () =>
           import('../components/user-settings/user-settings').then((m) => m.UserSettings),
+      },
+      {
+        path: 'update-password',
+        loadComponent: () =>
+          import('../components/update-password/update-password').then((m) => m.UpdatePassword),
       },
     ],
   },

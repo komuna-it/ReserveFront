@@ -324,6 +324,13 @@
     "NOT_AVAILABLE_FOR_THIS_ROOM": "Niedostępne dla tej sali",
     "NO_ROOMS_TO_DISPLAY": "Brak sal do wyświetlenia",
     "ROOM": "Sala",
-    "LOADING": "Ładowanie..."
+    "LOADING": "Ładowanie...",
+    "UPDATE_PASSWORD": "Zmień hasło",
+    "OLD_PASSWORD": "Stare hasło",
+    "FIRST_NEW_PASSWORD": "Nowe hasło",
+    "SECOND_NEW_PASSWORD": "Powtórz nowe hasło",
+    "SUCCESS_UPDATING_PASSWORD": "Hasło zmienione!",
+    "ERROR_MATCHING_PASSWORD": "Hasła nie pasują do siebie",
+    "ERROR_UPDATING_PASSWORD": "Nie udało się zmienić hasła, spróbuj ponownie później"
   }
 }

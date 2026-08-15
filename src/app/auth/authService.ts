@@ -110,4 +110,11 @@ export class AuthService {
   handleForgotPassword(email: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/users/forgotPassword`, { email: email });
   }
+
+  handleUpdatePassword(currentPassword: string, newPassword: string): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/users/updatePassword`, {
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    });
+  }
 }
