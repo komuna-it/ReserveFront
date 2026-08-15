@@ -109,6 +109,19 @@
           </button>
         }
       </div>
+      <div class="mx-4 flex items-center gap-3">
+        <label
+          class="inline-flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer select-none"
+        >
+          <input
+            type="checkbox"
+            [checked]="onlyFuture()"
+            (change)="toggleOnlyFuture()"
+            class="rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/20 focus:ring-offset-slate-900 h-4 w-4 cursor-pointer"
+          />
+          {{ 'ADMIN_RESERVATIONS.ONLY_FUTURE' | transloco }}
+        </label>
+      </div>
     }
 
     <!-- USERS -->
@@ -196,9 +209,5 @@
         </button>
       </div>
     }
-  </div>
-
-  <div class="flex items-center gap-2">
-    <app-search-bar></app-search-bar>
   </div>
 </div>

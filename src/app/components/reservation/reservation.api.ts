@@ -50,11 +50,6 @@ export class ReservationApi {
     );
   }
 
-  getReservations(page: number, size: number): Observable<Page<ReservationDto>> {
-    const params = new HttpParams().set('page', page).set('size', size);
-    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
-  }
-
   getAllReservationsForUserAndTheirOrganization(
     userId: number,
     page = 0,
@@ -285,5 +280,27 @@ export class ReservationApi {
     return this.http.patch<ReservationDto[]>(`${this.apiUrl}/reservations/paid/${paid}`, {
       reservationIds: array,
     });
+  }
+
+  getReservations(
+    status: ReservationStatus | null,
+    future: boolean,
+    page: number,
+    size: number,
+    userId: number | null,
+    organizationId: number | null,
+  ): Observable<Page<ReservationDto>> {
+    let params = new HttpParams().set('page', page).set('size', size).set('future', future);
+
+    if (status !== null) {
+      params = params.set('status', status);
+    }
+    if (userId !== null) {
+      params = params.set('userId', userId);
+    }
+    if (organizationId !== null) {
+      params = params.set('organizationId', organizationId);
+    }
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 }

@@ -305,7 +305,8 @@
     "PRICES_MANAGEMENT": "Pricing and recording management",
     "ADMIN_PANEL": "Admin Panel",
     "CONFIRM_PAID": "Paid",
-    "CONFIRM_UNPAID": "Unpaid"
+    "CONFIRM_UNPAID": "Unpaid",
+    "ONLY_FUTURE": "Only future"
   },
   "PAGINATION": {
     "PREVIOUS": "Previous",

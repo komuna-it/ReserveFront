@@ -1,8 +1,7 @@
-import { Component, computed, inject, input, effect } from '@angular/core';
+import { Component, computed, inject, input, effect, signal } from '@angular/core';
 import { ReservationStore } from '../../reservation/reservation.store';
 import { ReservationFacade } from '../../reservation/reservation.facade';
 import { ToolbarType } from '../toolbarType';
-import { SearchBar } from '../search-bar/search-bar';
 import { ReservationStatus } from '../../../model/reservationStatus';
 import { TranslocoPipe } from '@jsverse/transloco';
 
@@ -12,7 +11,7 @@ interface Identifiable {
 
 @Component({
   selector: 'app-table-toolbar',
-  imports: [SearchBar, TranslocoPipe],
+  imports: [TranslocoPipe],
   templateUrl: './table-toolbar.html',
   styleUrl: './table-toolbar.css',
 })
@@ -96,5 +95,39 @@ export class TableToolbar {
   handlePaid(paid: boolean) {
     const selectedRes = this.store.toolbarSelectedIds();
     this.facade.isReservationPaid(selectedRes, paid);
+  }
+
+  onlyFuture = signal<boolean>(false);
+
+  toggleOnlyFuture() {
+    this.onlyFuture.update((v) => !v);
+
+    const future = this.onlyFuture();
+    const status = this.store.statusForAdminPage();
+
+    switch (this.type()) {
+      case ToolbarType.RESERVATION_BY_STATUS: {
+        this.facade.getReservations(status, future, null, null);
+        break;
+      }
+
+      case ToolbarType.ADMIN_ORGANIZATIONS: {
+        this.facade.getAllMembersAllOrganizations();
+        break;
+      }
+
+      case ToolbarType.USERS: {
+        this.facade.getAllUsers();
+        break;
+      }
+
+      case ToolbarType.USER_ORGANIZATIONS: {
+        const user = this.store.selectedUser();
+        if (user) {
+          this.facade.getOrganizationsOfUser(future, user.id);
+        }
+        break;
+      }
+    }
   }
 }

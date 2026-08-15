@@ -7,7 +7,7 @@ import { ToolbarType } from '../components/toolbars/toolbarType';
 export const RESERVATIONS_ROUTES: Routes = [
   {
     path: '',
-    redirectTo: 'calendar',
+    redirectTo: 'pending',
     pathMatch: 'full',
   },
   {

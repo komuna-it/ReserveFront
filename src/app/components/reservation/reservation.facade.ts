@@ -86,14 +86,7 @@ export class ReservationFacade {
     });
 
     // get reservations for a week, 12*3*7=252
-    this.api.getReservations(this.store.currentReservationsPage(), 252).subscribe({
-      next: (pageData) => {
-        this.store.reservationsPage.set(pageData);
-        console.log('Get reservations data:');
-        console.table(pageData.content);
-      },
-      error: (e) => console.log('Error fetching res: ', e),
-    });
+    this.getReservations(null, false, null, null);
   }
 
   getAllReservationsForUserAndTheirOrganization() {
@@ -1125,6 +1118,25 @@ export class ReservationFacade {
       error: (e) => {
         console.error('Error updating reservation paid status: ', e);
       },
+    });
+  }
+
+  getReservations(
+    status: ReservationStatus | null,
+    future: boolean,
+    userId: number | null,
+    organizationId: number | null,
+  ) {
+    const page = this.store.currentReservationsPage();
+    const size = this.store.currentReservationsSize();
+
+    this.api.getReservations(status, future, page, size, userId, organizationId).subscribe({
+      next: (pageData) => {
+        this.store.reservationsPage.set(pageData);
+        console.log('Get reservations data:');
+        console.table(pageData.content);
+      },
+      error: (e) => console.log('Error fetching res: ', e),
     });
   }
 }
