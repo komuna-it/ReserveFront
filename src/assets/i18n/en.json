@@ -329,5 +329,11 @@
     "SUCCESS_UPDATING_PASSWORD": "Password changed!",
     "ERROR_MATCHING_PASSWORD": "Passwords do not match",
     "ERROR_UPDATING_PASSWORD": "Failed to change the password, please try again later"
+  },
+  "COOKIES": {
+    "TITLE": "We care about your privacy",
+    "DESCRIPTION": "We use cookies to ensure the proper functioning of the website, remember your preferences, and analyze traffic.",
+    "NECESSARY_ONLY": "Only necessary",
+    "ACCEPT_ALL": "Accept all"
   }
 }

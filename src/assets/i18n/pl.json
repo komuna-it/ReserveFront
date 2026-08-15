@@ -332,5 +332,11 @@
     "SUCCESS_UPDATING_PASSWORD": "Hasło zmienione!",
     "ERROR_MATCHING_PASSWORD": "Hasła nie pasują do siebie",
     "ERROR_UPDATING_PASSWORD": "Nie udało się zmienić hasła, spróbuj ponownie później"
+  },
+  "COOKIES": {
+    "TITLE": "Dbamy o Twoją prywatność",
+    "DESCRIPTION": "Używamy plików cookie, aby zapewnić prawidłowe działanie serwisu, zapamiętać Twoje preferencje oraz analizować ruch.",
+    "NECESSARY_ONLY": "Tylko niezbędne",
+    "ACCEPT_ALL": "Akceptuj wszystkie"
   }
 }
