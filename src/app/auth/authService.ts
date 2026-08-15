@@ -62,8 +62,6 @@ export class AuthService {
         if (user.preferredLanguage) {
           this.translocoService.setActiveLang(user.preferredLanguage);
         }
-        console.log('is loding ', this.isLoadingSignal());
-
         return true;
       }),
       catchError((e) => {

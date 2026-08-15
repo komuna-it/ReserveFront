@@ -277,6 +277,13 @@ export class ReservationApi {
   }
 
   isRoomRecordable(roomId: number, recordable: boolean) {
-    return this.http.put<Room>(`${this.apiUrl}/room/isRecordable/${recordable}`, {});
+    return this.http.patch<Room>(`${this.apiUrl}/rooms/${roomId}/setRecordable/${recordable}`, {});
+  }
+
+  isReservationPaid(reservationId: Set<number>, paid: boolean) {
+    const array = Array.from(reservationId);
+    return this.http.patch<ReservationDto[]>(`${this.apiUrl}/reservations/paid/${paid}`, {
+      reservationIds: array,
+    });
   }
 }

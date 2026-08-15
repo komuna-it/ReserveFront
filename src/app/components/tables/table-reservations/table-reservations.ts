@@ -43,15 +43,10 @@ export class TableReservations {
   }
 
   isCancellationPossible(res: ReservationDto): boolean {
-    if (
-      res.status === ReservationStatus.CANCELLED ||
-      res.status === ReservationStatus.REJECTED ||
-      res.status === ReservationStatus.REQUESTED_CANCELLATION
-    ) {
+    if (res.status === ReservationStatus.REQUESTED_CANCELLATION) {
       return false;
     }
-
-    return !this.isTooLateToCancel(res);
+    return true;
   }
 
   isTooLateToCancel(res: ReservationDto) {
@@ -62,21 +57,25 @@ export class TableReservations {
     return hoursDifference <= 24;
   }
 
+  requestCancellation(res: ReservationDto) {
+    const id = new Set<number>();
+    id.add(res.id);
+    this.store.toolbarSelectedIds.set(id);
+    this.facade.updateReservationsStatus(ReservationStatus.REQUESTED_CANCELLATION);
+  }
+
   getCancelButtonLabel(res: ReservationDto): string {
-    if (this.isTooLateToCancel(res)) {
-      return this.translocoService.translate('BUTTONS.TOO_LATE_TO_CANCEL');
-    }
     switch (res.status) {
       case ReservationStatus.CREATED:
         return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
       case ReservationStatus.CONFIRMED:
         return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
       case ReservationStatus.CANCELLED:
-        return this.translocoService.translate('BUTTONS.CANCELLATION_NOT_POSSIBLE');
+        return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
       case ReservationStatus.REJECTED:
-        return this.translocoService.translate('BUTTONS.CANCELLATION_NOT_POSSIBLE');
+        return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
       case ReservationStatus.REQUESTED_CANCELLATION:
-        return this.translocoService.translate('BUTTONS.CANCELLATION_NOT_POSSIBLE');
+        return this.translocoService.translate('BUTTONS.ASKED_FOR_CANCELLATION');
 
       default:
         return '';

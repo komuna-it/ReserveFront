@@ -101,14 +101,40 @@
               <td class="py-4 px-6 font-mono text-slate-300 text-xs">
                 {{ textFormatingTool.getPrice(res) }}
               </td>
+
+              <td class="py-4 px-6 font-mono text-slate-300 text-xs">
+                @if (res.paid) {
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="m4.5 12.75 6 6 9-13.5"
+                    />
+                  </svg>
+                } @else {
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                  </svg>
+                }
+              </td>
               @if (type() === ReservationTableType.USER_PROFILE) {
                 <td class="py-4 px-6 text-slate-400">{{ textFormatingTool.getStatusText(res) }}</td>
 
                 <td class="py-4 px-6">
                   <button
-                    (click)="
-                      facade.updateReservationsStatus(ReservationStatus.REQUESTED_CANCELLATION)
-                    "
+                    (click)="requestCancellation(res)"
                     [disabled]="!isCancellationPossible(res)"
                     class="text-white text-s bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
                     [ngClass]="{

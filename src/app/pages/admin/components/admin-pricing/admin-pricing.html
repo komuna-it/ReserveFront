@@ -38,22 +38,39 @@
             <td class="p-4">
               <button
                 (click)="toggleRecordable(room.id, room.isRecordable)"
-                class="px-3 py-1.5 text-xs font-semibold rounded-full transition flex items-center gap-1.5"
-                [ngClass]="
-                  room.isRecordable
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/30'
-                    : 'bg-slate-700 text-slate-400 border border-slate-600 hover:bg-slate-600'
-                "
+                class="cursor-pointer border border-rounded-lg px-3 py-1.5 text-xs font-semibold rounded-full transition flex items-center gap-1.5"
+                [ngClass]="{
+                  'hover:bg-green-400': room.isRecordable,
+                  'hover:bg-red-400': !room.isRecordable,
+                }"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
+                @if (room.isRecordable) {
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="m4.5 12.75 6 6 9-13.5"
+                    />
+                  </svg>
+                  {{ 'BUTTONS.ALLOWED' | transloco }}
+                } @else {
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                  </svg>
+                  {{ 'BUTTONS.NOT_ALLOWED' | transloco }}
+                }
               </button>
             </td>
 

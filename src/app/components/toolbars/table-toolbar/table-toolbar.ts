@@ -84,4 +84,17 @@ export class TableToolbar {
         this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION)
     );
   }
+
+  showPaidButton() {
+    return this.type() === ToolbarType.RESERVATION_BY_STATUS;
+  }
+
+  showUnpaidButton() {
+    return this.type() === ToolbarType.RESERVATION_BY_STATUS;
+  }
+
+  handlePaid(paid: boolean) {
+    const selectedRes = this.store.toolbarSelectedIds();
+    this.facade.isReservationPaid(selectedRes, paid);
+  }
 }

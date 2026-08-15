@@ -46,8 +46,6 @@ export class ReservationFacade {
     this.api.getRooms().subscribe({
       next: (rooms) => {
         this.store.rooms.set(rooms);
-        console.log('Get rooms data:');
-        console.table(rooms);
       },
       error: (e) => console.log('Error fetching rooms: ', e),
     });
@@ -110,11 +108,6 @@ export class ReservationFacade {
       )
       .subscribe({
         next: (pageData) => {
-          console.log(
-            'getAllReservationsForUserAndTheirOrganization: Fetched reservations for user and their organization:',
-          );
-          console.table(pageData.content);
-
           this.store.reservationsPage.set(pageData);
         },
 
@@ -479,11 +472,6 @@ export class ReservationFacade {
       .subscribe({
         next: (pageData) => {
           this.store.organizationsPage.set(pageData);
-
-          console.log('getOrganizationsOfUser(): ');
-          console.table(pageData.content);
-          console.log('content of organizations(): ');
-          console.table(this.store.organizations());
         },
         error: (e) => console.error('Error in getOrganizationsOfUser: ', e),
       });
@@ -1117,5 +1105,25 @@ export class ReservationFacade {
         },
       });
     }
+  }
+
+  isReservationPaid(reservationId: Set<number>, paid: boolean) {
+    return this.api.isReservationPaid(reservationId, paid).subscribe({
+      next: (updatedReservations) => {
+        const updatedMap = new Map(updatedReservations.map((r) => [r.id, r]));
+
+        this.store.reservationsPage.update((page) => {
+          if (!page?.content) return page;
+
+          return {
+            ...page,
+            content: page.content.map((item) => updatedMap.get(item.id) ?? item),
+          };
+        });
+      },
+      error: (e) => {
+        console.error('Error updating reservation paid status: ', e);
+      },
+    });
   }
 }
