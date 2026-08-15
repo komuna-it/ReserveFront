@@ -1,12 +1,19 @@
 <div class="p-6 bg-slate-900 text-slate-100 min-h-screen antialiased">
   <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <div class="lg:col-span-4 bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-700 h-fit">
+    <div
+      class="hidden lg:block lg:col-span-4 bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-700 h-fit"
+    >
       <div class="flex items-center justify-between mb-4 px-2">
         <h3 class="text-md font-bold text-emerald-200 tracking-wide uppercase">
-          <!-- Dodano transloco -->
           {{ store.currentMonthLabel() | transloco }}
         </h3>
-        <div class="flex gap-2">
+        <div class="flex items-center gap-2">
+          <button
+            (click)="goToToday()"
+            class="px-3 py-1 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 font-bold tracking-wide uppercase rounded text-[10px] border border-emerald-500/50 transition-colors"
+          >
+            {{ 'CALENDAR.TODAY' | transloco }}
+          </button>
           <button
             (click)="facade.navigateMonth('prev')"
             class="p-1 bg-slate-700 hover:bg-slate-600 rounded text-xs px-2 border border-slate-600"
@@ -24,7 +31,6 @@
 
       <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 mb-2">
         @for (label of helper.weekDayLabels; track label) {
-          <!-- Dodano transloco -->
           <div class="py-1">{{ label | transloco }}</div>
         }
       </div>
@@ -32,7 +38,7 @@
       <div class="grid grid-cols-7 gap-1">
         @for (day of store.monthGridDays(); track day.getTime()) {
           <button
-            (click)="facade.selectDay(day)"
+            (click)="onDaySelect(day)"
             class="aspect-square flex items-center justify-center text-xs font-medium rounded-lg transition-colors"
             [ngClass]="{
               'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400': helper.isSameDay(
@@ -53,7 +59,7 @@
       </div>
     </div>
 
-    <div class="lg:col-span-8 space-y-4">
+    <div class="col-span-1 lg:col-span-8 space-y-4">
       <div
         class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-700"
       >
@@ -63,15 +69,23 @@
         >
           {{ 'CALENDAR.PREVIOUS_WEEK' | transloco }}
         </button>
-        <span class="text-md font-bold tracking-tight text-emerald-200 uppercase">
-          {{ 'CALENDAR.WEEK' | transloco }} {{ currentWeekInfo.weekNumber }}:
-          {{ currentWeekInfo.startMonthKey | transloco }}
 
-          <!-- Jeśli tydzień zahacza o drugi miesiąc, wyświetlamy myślnik i drugi miesiąc -->
-          @if (currentWeekInfo.endMonthKey) {
-            - {{ currentWeekInfo.endMonthKey | transloco }}
-          }
-        </span>
+        <div class="flex flex-col items-center justify-center text-center">
+          <span class="text-md font-bold tracking-tight text-emerald-200 uppercase">
+            {{ 'CALENDAR.WEEK' | transloco }} {{ currentWeekInfo.weekNumber }}:
+            {{ currentWeekInfo.startMonthKey | transloco }}
+            @if (currentWeekInfo.endMonthKey) {
+              - {{ currentWeekInfo.endMonthKey | transloco }}
+            }
+          </span>
+          <button
+            (click)="goToToday()"
+            class="mt-1.5 text-[10px] px-3 py-1 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 font-bold uppercase tracking-wider rounded-lg border border-emerald-600/30 transition-colors lg:hidden"
+          >
+            {{ 'CALENDAR.TODAY' | transloco }}
+          </button>
+        </div>
+
         <button
           (click)="facade.navigateWeek('next')"
           class="w-full sm:w-auto bg-slate-700 hover:bg-slate-600 text-xs px-4 py-2 font-medium rounded-lg border border-slate-600"
@@ -85,7 +99,7 @@
       >
         @for (day of store.weekDays(); track day.getTime()) {
           <button
-            (click)="facade.selectDay(day)"
+            (click)="onDaySelect(day)"
             class="flex flex-col items-center p-2 rounded-lg transition-all"
             [ngClass]="{
               'bg-emerald-600 text-white font-bold shadow': helper.isSameDay(
@@ -102,7 +116,6 @@
               class="text-xs text-slate-400 block uppercase"
               [class.text-emerald-100]="helper.isSameDay(day, store.daySelectedByUser())"
             >
-              <!-- Dodano transloco -->
               {{ helper.weekDayLabels[day.getDay() === 0 ? 6 : day.getDay() - 1] | transloco }}
             </span>
             <span class="text-lg font-bold">{{ day.getDate() }}</span>
@@ -110,15 +123,58 @@
         }
       </div>
 
-      <!-- Tabela godzinowa z pokojami -->
+      <div class="lg:hidden relative">
+        <label class="block text-xs font-bold text-slate-400 mb-2 uppercase"
+          >{{ 'COMMON.RESERVATIONS' | transloco }} - Wybierz Salę</label
+        >
+        <button
+          (click)="isMobileRoomMenuOpen.set(!isMobileRoomMenuOpen())"
+          class="w-full flex justify-between items-center bg-slate-800 border border-slate-700 p-3 rounded-xl text-white font-medium shadow-lg"
+        >
+          <span>{{ mobileSelectedRoom()?.name || 'Wybierz salę' }}</span>
+          <svg
+            class="w-5 h-5 transition-transform"
+            [class.rotate-180]="isMobileRoomMenuOpen()"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            ></path>
+          </svg>
+        </button>
+
+        @if (isMobileRoomMenuOpen()) {
+          <div
+            class="absolute z-10 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden"
+          >
+            @for (room of store.rooms(); track room.id) {
+              <button
+                (click)="onRoomSelect(room)"
+                class="block w-full text-left px-4 py-3 text-sm transition-colors border-b border-slate-700/50 last:border-0"
+                [class.bg-emerald-600]="mobileSelectedRoom()?.id === room.id"
+                [class.text-white]="mobileSelectedRoom()?.id === room.id"
+                [class.text-slate-300]="mobileSelectedRoom()?.id !== room.id"
+                [class.hover:bg-slate-700]="mobileSelectedRoom()?.id !== room.id"
+              >
+                {{ room.name }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+
       <div class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
-        <h2 class="text-xl font-bold text- hcenter text-emerald-200 mb-6">
+        <h2 class="text-xl font-bold text-center text-emerald-200 mb-6">
           {{ 'CALENDAR.SCHEDULE_FOR_DAY' | transloco }}
           {{ store.daySelectedByUser() || currentDate | date: 'dd.MM.yyyy' }}
         </h2>
 
         @if (!store.rooms() || store.rooms().length === 0) {
-          <!-- Stan ładowania / braku pokoi -->
           <div class="text-center py-8 text-slate-400">Pobieranie listy pokoi...</div>
         } @else {
           <div class="overflow-x-auto">
@@ -129,7 +185,10 @@
                     {{ 'CALENDAR.HOUR' | transloco }}
                   </th>
                   @for (room of store.rooms(); track room.id || $index) {
-                    <th class="py-3 px-2 font-semibold text-center">
+                    <th
+                      class="py-3 px-2 font-semibold text-center"
+                      [ngClass]="{ 'hidden lg:table-cell': mobileSelectedRoom()?.id !== room.id }"
+                    >
                       {{ room.name }}
                     </th>
                   }
@@ -144,7 +203,10 @@
                       {{ hour }}:00
                     </td>
                     @for (room of store.rooms(); track room.id || $index) {
-                      <td class="p-0 px-1 h-10 align-top">
+                      <td
+                        class="p-0 px-1 h-10 align-top"
+                        [ngClass]="{ 'hidden lg:table-cell': mobileSelectedRoom()?.id !== room.id }"
+                      >
                         <app-calendar-hour
                           [date]="store.daySelectedByUser() || currentDate"
                           [room]="room"

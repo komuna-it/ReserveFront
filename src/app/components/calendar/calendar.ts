@@ -1,5 +1,6 @@
-import { Component, inject, computed, Signal } from '@angular/core';
+import { Component, inject, computed, Signal, signal, effect } from '@angular/core';
 import { CommonModule, DatePipe, NgClass } from '@angular/common';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 import { ReservationStore } from '../reservation/reservation.store';
@@ -15,7 +16,6 @@ import { ReservationDto } from '../../model/reservationDto';
 import { ReservationType } from '../../model/reservationType';
 import { CalendarHelper } from './calendar.helper';
 import { Booking } from '../../model/booking';
-import { User } from '../../model/user';
 
 @Component({
   selector: 'app-calendar',
@@ -39,7 +39,13 @@ export class CalendarComponent {
   readonly loco = inject(TranslocoService);
   public helper = inject(CalendarHelper);
 
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
   readonly currentDate = new Date();
+
+  readonly mobileSelectedRoom = signal<any | null>(null);
+  readonly isMobileRoomMenuOpen = signal<boolean>(false);
 
   constructor() {
     const user = this.auth.currentUser();
@@ -52,6 +58,31 @@ export class CalendarComponent {
     }
     this.facade.getFutureReservations();
     this.facade.getRooms();
+
+    const params = this.route.snapshot.queryParams;
+    if (params['date']) {
+      const parsedDate = new Date(params['date']);
+      if (!isNaN(parsedDate.getTime())) {
+        this.facade.selectDay(parsedDate);
+      }
+    }
+
+    effect(
+      () => {
+        const rooms = this.store.rooms();
+        if (rooms && rooms.length > 0 && !this.mobileSelectedRoom()) {
+          const queryParams = this.route.snapshot.queryParams;
+          let roomToSelect = rooms[0];
+
+          if (queryParams['roomId']) {
+            const found = rooms.find((r: any) => String(r.id) === String(queryParams['roomId']));
+            if (found) roomToSelect = found;
+          }
+          this.mobileSelectedRoom.set(roomToSelect);
+        }
+      },
+      { allowSignalWrites: true },
+    );
   }
 
   readonly weekDayKeys: string[] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
@@ -71,6 +102,46 @@ export class CalendarComponent {
     return this.helper.getWeekInfo(baseDate);
   }
 
+  onDaySelect(day: Date): void {
+    this.facade.selectDay(day);
+    this.updateUrl(day, this.mobileSelectedRoom()?.id);
+  }
+
+  onRoomSelect(room: any): void {
+    this.mobileSelectedRoom.set(room);
+    this.isMobileRoomMenuOpen.set(false);
+    this.updateUrl(this.store.daySelectedByUser(), room.id);
+  }
+
+  goToToday(): void {
+    const today = new Date();
+    this.onDaySelect(today);
+  }
+
+  private updateUrl(
+    day: Date | null | undefined,
+    roomId: string | number | null | undefined,
+  ): void {
+    const queryParams: any = {};
+
+    if (day) {
+      const year = day.getFullYear();
+      const month = String(day.getMonth() + 1).padStart(2, '0');
+      const d = String(day.getDate()).padStart(2, '0');
+      queryParams.date = `${year}-${month}-${d}`;
+    }
+    if (roomId) {
+      queryParams.roomId = roomId;
+    }
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
   isSameLocalDay(
     d1: Date | string | null | undefined,
     d2: Date | string | null | undefined,
@@ -85,6 +156,7 @@ export class CalendarComponent {
       date1.getDate() === date2.getDate()
     );
   }
+
   getWeekDayIndex(date: Date): number {
     const day = new Date(date).getUTCDay();
     return day === 0 ? 6 : day - 1;
@@ -128,6 +200,7 @@ export class CalendarComponent {
       return hour >= startHour && hour < endHour;
     });
   }
+
   selectRoomAndHour(roomId: number, hour: number): void {
     let day = new Date();
     if (this.store.daySelectedByUser()) {
@@ -137,20 +210,6 @@ export class CalendarComponent {
     }
 
     day.setHours(hour);
-    console.log(
-      'selectRoomAndHour roomId',
-      roomId,
-      'hour:',
-      hour,
-      ' day: ',
-      day.getDate(),
-      ' ',
-      day.getMonth(),
-      ' testHour: ',
-      day.getHours(),
-      ' utcHours: ',
-      day.getUTCHours(),
-    );
     if (this.isPastHour(hour)) return;
 
     this.store.selectedHour.set(hour);
@@ -161,8 +220,6 @@ export class CalendarComponent {
     this.store.isBookingModalActive.set(true);
 
     const booking = this.createBookingObject(roomId, hour);
-    console.log('createBookingObject:', booking);
-
     this.store.selectedBooking.set(booking);
   }
 

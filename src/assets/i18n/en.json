@@ -46,6 +46,9 @@
     "FREE": "Available",
     "PRIVATE": "Private",
     "MY_PRIVATE": "My private",
+    "DOWNLOADING_ROOMS": "Downloading rooms...",
+    "TODAY": "Today",
+
     "DAYS": {
       "MON": "MON",
       "TUE": "TUE",

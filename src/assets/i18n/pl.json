@@ -46,6 +46,8 @@
     "FREE": "Wolne",
     "PRIVATE": "Prywatna",
     "MY_PRIVATE": "Moja prywatna",
+    "DOWNLOADING_ROOMS": "Pobieranie listy pokoi...",
+    "TODAY": "Dzisiaj",
     "DAYS": {
       "MON": "PN",
       "TUE": "WT",
@@ -331,7 +333,8 @@
     "SECOND_NEW_PASSWORD": "Powtórz nowe hasło",
     "SUCCESS_UPDATING_PASSWORD": "Hasło zmienione!",
     "ERROR_MATCHING_PASSWORD": "Hasła nie pasują do siebie",
-    "ERROR_UPDATING_PASSWORD": "Nie udało się zmienić hasła, spróbuj ponownie później"
+    "ERROR_UPDATING_PASSWORD": "Nie udało się zmienić hasła, spróbuj ponownie później",
+    "COMMON.SELECT_ROOM": "Wybierz salę"
   },
   "COOKIES": {
     "TITLE": "Dbamy o Twoją prywatność",
