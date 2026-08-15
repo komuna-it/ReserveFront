@@ -67,22 +67,19 @@ export class CalendarComponent {
       }
     }
 
-    effect(
-      () => {
-        const rooms = this.store.rooms();
-        if (rooms && rooms.length > 0 && !this.mobileSelectedRoom()) {
-          const queryParams = this.route.snapshot.queryParams;
-          let roomToSelect = rooms[0];
+    effect(() => {
+      const rooms = this.store.rooms();
+      if (rooms && rooms.length > 0 && !this.mobileSelectedRoom()) {
+        const queryParams = this.route.snapshot.queryParams;
+        let roomToSelect = rooms[0];
 
-          if (queryParams['roomId']) {
-            const found = rooms.find((r: any) => String(r.id) === String(queryParams['roomId']));
-            if (found) roomToSelect = found;
-          }
-          this.mobileSelectedRoom.set(roomToSelect);
+        if (queryParams['roomId']) {
+          const found = rooms.find((r: any) => String(r.id) === String(queryParams['roomId']));
+          if (found) roomToSelect = found;
         }
-      },
-      { allowSignalWrites: true },
-    );
+        this.mobileSelectedRoom.set(roomToSelect);
+      }
+    });
   }
 
   readonly weekDayKeys: string[] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];

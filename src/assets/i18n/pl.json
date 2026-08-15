@@ -21,7 +21,7 @@
     "MODAL_START": "Start",
     "MODAL_LOCATION": "Sala",
     "MODAL_DURATION": "Czas trwania",
-    "RESERVATION_TYPE": "Nagrywanie?",
+    "RESERVATION_TYPE": "Rodzaj rezerwacji",
     "HOUR_SINGULAR": "godzina",
     "HOUR_PLURAL": "godziny",
     "MODAL_BAND": "Zespół",
@@ -243,7 +243,7 @@
     "MODAL_CONFIRM_TITLE": "Potwierdź akcję",
     "CANCEL": "Anuluj",
     "CONFIRM": "Potwierdź",
-    "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz poprosić o odwołanmie rezerwacji {{organization}}, {{date}} {{startHour}} - {{endHour}}? Prośba trafi do pracownika.",
+    "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz poprosić o odwołanie rezerwacji {{organization}}, {{date}} {{startHour}} - {{endHour}}? Prośba trafi do pracownika.",
     "CONFIRM_REQUEST_CANCEL_TITLE": "Odwołanie rezerwacji",
     "PRIVATE": "Prywatna",
     "ORGANIZATION_ADDED": "Zespół utworzony",
@@ -308,7 +308,9 @@
     "ADMIN_PANEL": "Panel Admina",
     "CONFIRM_PAID": "Opłacone",
     "CONFIRM_UNPAID": "Nieopłacone",
-    "ONLY_FUTURE": "Tylko przyszłe"
+    "ONLY_FUTURE": "Tylko przyszłe",
+    "CONFIRM_REJECT_TITLE": "Potwierdź odrzucenie rezerwacji  {{organization}}, {{date}} {{startHour}}",
+    "FILTER_STATUS": "Filtruj status"
   },
   "PAGINATION": {
     "PREVIOUS": "Poprzednia",

@@ -45,15 +45,17 @@
             </div>
           }
         </div>
+        <!-- Desktop -->
         @if (authService.isAdmin()) {
           <a
-            routerLink="/admin"
+            routerLink="/admin/reservations/confirmed"
             routerLinkActive="underline decoration-green-600 decoration-4 underline-offset-4 text-white shadow-md"
             class="text-sm font-medium text-slate-300 hover:text-white transition-colors"
           >
             {{ 'NAVBAR.ADMIN' | transloco }}
           </a>
         }
+
         <a
           routerLink="/calendar"
           routerLinkActive="underline decoration-green-600 decoration-4 underline-offset-4 text-white shadow-md"
@@ -136,9 +138,11 @@
   @if (isMobileMenuOpen()) {
     <div class="md:hidden border-t border-slate-800 bg-slate-900 shadow-xl">
       <div class="px-4 pt-2 pb-6 space-y-2 flex flex-col">
+        <!-- Mobile -->
         @if (authService.isAdmin()) {
           <a
-            routerLink="/admin"
+            routerLink="/admin/reservations/confirmed"
+            (click)="closeMobileMenu()"
             class="active:bg-green block px-3 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg"
             routerLinkActive="underline decoration-green-600 decoration-4 underline-offset-4 text-white shadow-md"
           >

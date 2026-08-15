@@ -306,7 +306,8 @@
     "ADMIN_PANEL": "Admin Panel",
     "CONFIRM_PAID": "Paid",
     "CONFIRM_UNPAID": "Unpaid",
-    "ONLY_FUTURE": "Only future"
+    "ONLY_FUTURE": "Only future",
+    "FILTER_STATUS": "Стан фільтра"
   },
   "PAGINATION": {
     "PREVIOUS": "Previous",

@@ -147,4 +147,15 @@ export class TableReservations {
       queryParamsHandling: 'merge',
     });
   }
+
+  openReservationDetails(res: ReservationDto): void {
+    this.store.selectedReservation.set(res);
+    if (this.type() === ReservationTableType.ADMIN_BY_STATUS) {
+      const idSet = new Set<number>();
+      idSet.add(res.id);
+      this.store.toolbarSelectedIds.set(idSet);
+
+      this.store.isReservationDetailsModalActive.set(true);
+    }
+  }
 }

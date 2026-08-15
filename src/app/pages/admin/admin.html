@@ -8,15 +8,27 @@
   </main>
 </div>
 
-@if (store.confirmMarkReservationAsAccepted() && store.selectedReservation(); as res) {
-  <app-confirmation-popup
-    [titleText]="'ADMIN_RESERVATIONS.CONFIRM_ACCEPT_TITLE' | transloco"
-    [bodyText]="getBodyText()"
-    (ok)="facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.CONFIRMED)"
-    (cancel)="facade.closeModals()"
-  ></app-confirmation-popup>
+@if (store.confirmMarkReservationAsAccepted()) {
+  @if (store.selectedReservation(); as res) {
+    <app-confirmation-popup
+      [titleText]="'ADMIN_RESERVATIONS.CONFIRM_ACCEPT_TITLE' | transloco"
+      [bodyText]="getBodyText()"
+      (ok)="facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.CONFIRMED)"
+      (cancel)="facade.closeModals()"
+    ></app-confirmation-popup>
+  }
 }
 
+@if (store.confirmMarkReservationAsRejected()) {
+  @if (store.selectedReservation(); as res) {
+    <app-confirmation-popup
+      [titleText]="'ADMIN_RESERVATIONS.CONFIRM_REJECT_TITLE' | transloco"
+      [bodyText]="getBodyText()"
+      (ok)="facade.updateReservationsStatus(ReservationStatus.REJECTED)"
+      (cancel)="facade.closeModals()"
+    ></app-confirmation-popup>
+  }
+}
 @if (store.confirmMarkReservationAsCanceled()) {
   <app-confirmation-popup
     [titleText]="'ADMIN_RESERVATIONS.CONFIRM_CANCEL_TITLE' | transloco"
@@ -98,4 +110,8 @@
 
 @if (store.isModalAddRoomActive()) {
   <app-add-room-modal></app-add-room-modal>
+}
+
+@if (store.isReservationDetailsModalActive()) {
+  <app-reservation-details-modal></app-reservation-details-modal>
 }

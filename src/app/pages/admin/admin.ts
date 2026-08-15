@@ -18,6 +18,7 @@ import { AddUserIntoOrganizationModal } from '../../components/modals/add-user-i
 import { AddOrganizationModal } from '../../components/modals/add-organization-modal/add-organization-modal';
 import { AddRoomModal } from '../../modals/add-room-modal/add-room-modal';
 import { AuthService } from '../../auth/authService';
+import { ReservationDetailsModal } from '../../modals/reservation-details-modal/reservation-details-modal';
 
 @Component({
   selector: 'app-admin',
@@ -34,6 +35,7 @@ import { AuthService } from '../../auth/authService';
     AddUserIntoOrganizationModal,
     AddOrganizationModal,
     AddRoomModal,
+    ReservationDetailsModal,
   ],
   templateUrl: './admin.html',
   styleUrl: './admin.css',

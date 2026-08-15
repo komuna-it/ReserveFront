@@ -366,7 +366,13 @@ export class ReservationFacade {
   }
 
   updateReservationsStatus(targetStatus: ReservationStatus): void {
-    const ids = this.store.toolbarSelectedIds();
+    this.closeModals();
+    let ids = this.store.toolbarSelectedIds();
+
+    if (ids.size === 0) {
+      const singleId = this.store.selectedReservation()?.id;
+      if (singleId) ids.add(singleId);
+    }
 
     if (!ids || ids.size === 0) {
       console.error('No reservation IDs selected for status update');
@@ -866,6 +872,10 @@ export class ReservationFacade {
     this.store.isOrganizationDetailsModalActive.set(false);
     this.store.isBookingModalActive.set(false);
     this.store.isLoginOrRegisterModalActive.set(false);
+    this.store.isReservationDetailsModalActive.set(false);
+    this.store.confirmMarkReservationAsAccepted.set(false);
+    this.store.confirmMarkReservationAsRejected.set(false);
+    this.store.confirmMarkReservationAsCanceled.set(false);
   }
 
   handleClickBanUsers() {
@@ -916,7 +926,7 @@ export class ReservationFacade {
   ) {
     const res = new Set<number>(this.store.selectedReservations()?.map((r) => r.id));
     this.store.selectedReservations.set(reservations);
-
+    this.closeModals();
     switch (status) {
       case ReservationStatus.CONFIRMED: {
         this.store.confirmMarkReservationAsAccepted.set(true);

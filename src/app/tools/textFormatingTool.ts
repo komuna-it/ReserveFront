@@ -6,6 +6,7 @@ import { CalendarHelper } from '../components/calendar/calendar.helper';
 import { ReservationFacade } from '../components/reservation/reservation.facade';
 import { ReservationStatus } from '../model/reservationStatus';
 import { User } from '../model/user';
+import { AuthService } from '../auth/authService';
 
 @Injectable({ providedIn: 'root' })
 export class TextFormatingTool {
@@ -13,6 +14,8 @@ export class TextFormatingTool {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
   readonly calendarHelper = inject(CalendarHelper);
+  readonly authService = inject(AuthService);
+  readonly loco = inject(TranslocoService);
 
   // reservation modals & popups texts
 
@@ -30,12 +33,41 @@ export class TextFormatingTool {
   }
 
   reservedByText(res: ReservationDto): string {
-    const privateText = this.translocoService.translate('USER_MODALS.PRIVATE');
-    const userText = `${res.reservedByText} (${privateText})`;
+    if (res?.organization) {
+      const orgsData = this.store.organizations();
+      let foundName = '';
 
-    if (res.organization) return res.reservedByText;
+      if (Array.isArray(orgsData)) {
+        const found = orgsData.find(
+          (org: any) =>
+            String(org.id) === String(res.organization) || org.name === res.organization,
+        );
+        if (found?.name) foundName = found.name;
+      } else if (orgsData && typeof orgsData === 'object' && 'organizations' in orgsData) {
+        const orgs = (orgsData as any).organizations;
+        if (Array.isArray(orgs)) {
+          const found = orgs.find(
+            (org: any) =>
+              String(org.id) === String(res.organization) || org.name === res.organization,
+          );
+          if (found?.name) foundName = found.name;
+        }
+      }
 
-    return userText;
+      return foundName || (res as any).organizationName || `${res.organization}`;
+    }
+
+    const nick = res?.reservedByText;
+    const privateText = this.loco.translate('CALENDAR.PRIVATE') || 'prywatna';
+    const myPrivateText = this.loco.translate('CALENDAR.MY_PRIVATE') || 'prywatna';
+
+    if (this.authService.isAdmin()) {
+      return nick ? `${nick} (${privateText})` : `(${privateText})`;
+    } else if (this.authService.currentUser()?.id === res?.reservedBy) {
+      return `${myPrivateText}`;
+    }
+
+    return nick ? `${nick} (${privateText})` : `(${privateText})`;
   }
 
   dateColumnText(res: ReservationDto): string {

@@ -62,14 +62,12 @@
           </button>
         }
 
-        <!-- Separator dla odróżnienia akcji statusu od płatności (opcjonalny) -->
         @if (
           (showAcceptButton() || showCancelButton()) && (showPaidButton() || showUnpaidButton())
         ) {
           <div class="h-4 w-[1px] bg-slate-800 mx-1"></div>
         }
 
-        <!-- PAID / UNPAID -->
         @if (showPaidButton()) {
           <button
             (click)="handlePaid(true)"
