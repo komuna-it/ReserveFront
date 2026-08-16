@@ -1,8 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { CalendarHelper } from '../calendar/calendar.helper';
 import { OrganizationFront } from '../../model/organizationFront';
-import { HourWrapper } from '../../model/hourWrapper';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../auth/authService';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
