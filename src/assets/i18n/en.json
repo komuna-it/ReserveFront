@@ -1,7 +1,7 @@
 {
   "NAVBAR": {
     "ADMIN": "Admin Panel",
-    "BOOK": "Booking",
+    "BOOK": "Book",
     "CONTACT": "Contact",
     "LOGIN": "Log in",
     "REGISTER": "Register",
@@ -15,20 +15,20 @@
     "WEEK": "Week",
     "SCHEDULE_FOR_DAY": "Schedule for the day",
     "HOUR": "Hour",
-    "FREE_SLOT": "Free",
+    "FREE_SLOT": "Available",
     "MODAL_CONFIRM_TITLE": "Confirm reservation",
     "MODAL_DATE": "Date",
     "MODAL_START": "Start",
     "MODAL_LOCATION": "Room",
     "MODAL_DURATION": "Duration",
-    "RESERVATION_TYPE": "Reservation type",
+    "RESERVATION_TYPE": "Recording?",
     "HOUR_SINGULAR": "hour",
     "HOUR_PLURAL": "hours",
     "MODAL_BAND": "Band",
     "CANCEL": "Cancel",
     "BOOK_NOW": "Book now",
     "SUCCESS_TITLE": "Success!",
-    "SUCCESS_DESC": "Reservation successfully created.",
+    "SUCCESS_DESC": "Reservation booked successfully.",
     "CLOSE": "Close",
     "ERROR_TITLE": "Reservation error",
     "ERROR_DESC": "The selected time slot is no longer available or a network error occurred.",
@@ -43,16 +43,46 @@
     "CREATE_ONE": "Click here to create a band",
     "MODAL_RESERVED_FOR_USER": "Reservation on behalf of",
     "CALENDAR": "Calendar",
-    "NO_USERS_TO_ADD": "No users to add"
+    "FREE": "Available",
+    "PRIVATE": "Private",
+    "MY_PRIVATE": "My private",
+    "DOWNLOADING_ROOMS": "Downloading rooms...",
+    "TODAY": "Today",
+
+    "DAYS": {
+      "MON": "MON",
+      "TUE": "TUE",
+      "WED": "WED",
+      "THU": "THU",
+      "FRI": "FRI",
+      "SAT": "SAT",
+      "SUN": "SUN"
+    },
+    "MONTHS": {
+      "JAN": "January",
+      "FEB": "February",
+      "MAR": "March",
+      "APR": "April",
+      "MAY": "May",
+      "JUN": "June",
+      "JUL": "July",
+      "AUG": "August",
+      "SEP": "September",
+      "OCT": "October",
+      "NOV": "November",
+      "DEC": "December"
+    }
   },
   "USERS_TABLE": {
     "NICK": "Nickname",
     "EMAIL": "Email",
     "TRUSTED": "Trusted",
-    "NOT_TRUSTED": "Untrusted",
+    "NOT_TRUSTED": "Not trusted",
     "REASON": "Reason",
     "DURATION": "Duration",
     "IN_DAYS": "(in days)",
+    "BAN": "Ban",
+    "UNBAN": "Unban",
     "BANNED_BY": "Banned by",
     "BANNED_AT": "Ban date",
     "ORGANIZATION": "Band",
@@ -63,8 +93,7 @@
     "BANNED_UNTIL": "Ban ends:",
     "YES": "Yes",
     "NO": "No",
-    "BAN": "Ban",
-    "UNBAN": "Unban"
+    "NO_USERS_TO_ADD": "No users to add"
   },
   "PROFILE": {
     "TITLE": "Your Profile",
@@ -106,13 +135,32 @@
     "PREFERRED_LANGUAGE": "Default language",
     "IS_PAID": "Paid?",
     "USERS": "Users",
-    "ROOMS_AND_PRICING": "Rooms and pricing"
+    "ROOMS_AND_PRICING": "Rooms and pricing",
+    "MEMBER": "Member",
+    "OWNER": "Owner"
   },
   "BUTTONS": {
-    "CANCELLATION_NOT_POSSIBLE": "Cancellation not possible",
+    "ASKED_FOR_CANCELLATION": "Cancellation requested",
     "CANCEL": "Cancel",
     "REQUEST_CANCEL": "Request cancellation",
-    "TOO_LATE_TO_CANCEL": "Za późno na odwołanie"
+    "TOO_LATE_TO_CANCEL": "Too late to cancel",
+    "ALLOWED": "Allowed",
+    "NOT_ALLOWED": "Not allowed",
+    "FORGOT_PASSWORD_QUESTION": "Forgot your password",
+    "REMEMBER_ME": "Remember me",
+    "PASSWORD": "Password",
+    "NO_ACCOUNT_REGISTER": "Don't have an account? Register!",
+    "SEND": "Send",
+    "REJECT": "Reject"
+  },
+  "FORGOT_PASSWORD": {
+    "PUT_EMAIL": "Enter your email address",
+    "FORGOT_PASSWORD": "Reset password",
+    "CANCELLED": "Cancelled",
+    "REQUESTED_CANCELLATION": "Pending cancellation",
+    "REJECTED": "Rejected",
+    "SUCCESS_MESSAGE": "Check your email to reset your password",
+    "ERROR_GENERIC": "Invalid email or account does not exist"
   },
   "STATUS": {
     "CREATED": "Pending confirmation",
@@ -161,21 +209,21 @@
     "TITLE": "Remove band owner",
     "CONFIRMATION": "Are you sure you want to remove the band owner?",
     "CANCEL": "Cancel",
-    "ACCEPT": "Usuń właściciela",
+    "ACCEPT": "Remove owner",
     "SUCCESS_TITLE": "Owner removed",
     "SUCCESS_DESC": "The owner was successfully removed.",
     "CLOSE": "Close"
   },
   "ORGANIZATION_LIST": {
     "MARK_AS_TRUSTED": "Mark as trusted",
-    "MARK_AS_NOT_TRUSTED": "Mark as untrusted",
+    "MARK_AS_NOT_TRUSTED": "Mark as not trusted",
     "TRUSTED": "Trusted",
-    "NOT_TRUSTED": "Untrusted"
+    "NOT_TRUSTED": "Not trusted"
   },
   "ORGANIZATION_LIST.ERRORS": {
     "DELETE_ORG_FAILED": "Failed to delete the band. Please try again later.",
     "REMOVE_USER_FAILED": "Failed to remove the user. Please try again later.",
-    "REMOVE_OWNER_FAILED": "Nie udało się usunąć właściciela. Spróbuj ponownie później.",
+    "REMOVE_OWNER_FAILED": "Failed to remove the owner. Please try again later.",
     "STATUS_UPDATE_FAILED": "Failed to update the reservation status"
   },
   "ERROR": {
@@ -186,7 +234,7 @@
   },
   "ADD_USER_INTO_ORGANIZATION": {
     "MODAL_CONFIRM_TITLE": "Add user",
-    "ORG_NAME": "Organization name",
+    "ORG_NAME": "Band name",
     "SELECT_USER": "Select user",
     "CANCEL": "Cancel",
     "CONFIRM": "Confirm"
@@ -201,20 +249,21 @@
     "ORGANIZATION_ADDED": "Band created",
     "CONFIRM_DELETE_OWNER": "Confirm owner removal",
     "CONFIRM_DELETE_MEMBER": "Confirm band member removal",
-    "CONFIRM_BAN_TITLE": "Ban",
+    "CONFIRM_BAN_TITLE": "Ban user",
     "CONFIRM_BAN_BODY": "Confirm ban",
-    "SUCCESS": "Success"
+    "SUCCESS": "Success",
+    "LOGIN_TO_CREATE_RESERVATION": "Please login to make a reservation"
   },
   "ADMIN_RESERVATIONS": {
-    "REJECT_CANCELLATION_REQUESTS": "Reject request",
     "IS_PRIVATE": "Yes",
     "IS_NOT_PRIVATE": "No",
     "ACCEPT": "Accept",
     "REJECT": "Cancel",
-    "NO_RESERVATIONS": "Brak rezerwacji do wyświetlenia",
+    "NO_RESERVATIONS": "No reservations to display",
     "ACCEPTED": "Reservation accepted",
     "REJECTED": "Reservation rejected",
-    "SEND_ACCEPT": "Idea ?",
+    "REJECT_CANCELLATION_REQUESTS": "Reject request",
+    "SEND_ACCEPT": "Idea?",
     "SEND_CANCEL": "Cancel",
     "OK": "OK",
     "PENDING": "Pending",
@@ -224,7 +273,7 @@
     "CONFIRM_ACCEPT_BODY": "Are you sure you want to accept the reservation of the band {organization}, {date} {startHour} - {endHour}?",
     "CONFIRM_ACCEPT_TITLE": "Confirm reservation acceptance",
     "CONFIRM_REQUEST_CANCEL_BODY": "Are you sure you want to accept the cancellation request for the reservation of the band {organization}, {date} {startHour} - {endHour}?",
-    "CONFIRM_REQUEST_CANCEL_TITLE": "Confirm cancellation request acceptance",
+    "CONFIRM_REQUEST_CANCEL_TITLE": "Confirm acceptance of cancellation request",
     "CONFIRM_CANCEL_BODY": "Are you sure you want to reject the reservation of the band {organization}, {date} {startHour} - {endHour}?",
     "CONFIRM_CANCEL_TITLE": "Confirm reservation rejection",
     "ORGANIZATION": "Band",
@@ -254,8 +303,12 @@
     "ADD_ROOM": "Add room",
     "ROOM_NAME": "Room name",
     "IS_RECORDABLE": "Recording?",
-    "PRICES_MANAGEMENT": "Pricing and Recording Management",
-    "ADMIN_PANEL": "Admin Panel"
+    "PRICES_MANAGEMENT": "Pricing and recording management",
+    "ADMIN_PANEL": "Admin Panel",
+    "CONFIRM_PAID": "Paid",
+    "CONFIRM_UNPAID": "Unpaid",
+    "ONLY_FUTURE": "Only future",
+    "FILTER_STATUS": "Status"
   },
   "PAGINATION": {
     "PREVIOUS": "Previous",
@@ -264,7 +317,7 @@
     "TOTAL": "Total"
   },
   "COMMON": {
-    "DELETE": "Remove",
+    "DELETE": "Delete",
     "CLOSE": "Close",
     "SELECT": "Select",
     "PRICE": "Total",
@@ -274,6 +327,25 @@
     "ADD_BAND": "Add band",
     "NOT_AVAILABLE_FOR_THIS_ROOM": "Not available for this room",
     "NO_ROOMS_TO_DISPLAY": "No rooms to display",
-    "ROOM": "Room"
+    "ROOM": "Room",
+    "LOADING": "Loading...",
+    "UPDATE_PASSWORD": "Change password",
+    "OLD_PASSWORD": "Old password",
+    "FIRST_NEW_PASSWORD": "New password",
+    "SECOND_NEW_PASSWORD": "Repeat new password",
+    "SUCCESS_UPDATING_PASSWORD": "Password changed!",
+    "ERROR_MATCHING_PASSWORD": "Passwords do not match",
+    "ERROR_UPDATING_PASSWORD": "Failed to change the password, please try again later"
+  },
+  "COOKIES": {
+    "TITLE": "We care about your privacy",
+    "DESCRIPTION": "We use cookies to ensure the proper functioning of the website, remember your preferences, and analyze traffic.",
+    "NECESSARY_ONLY": "Only necessary",
+    "ACCEPT_ALL": "Accept all"
+  },
+  "SETTINGS": {
+    "KEY": "Parameter",
+    "VALUE": "Old Value",
+    "NEW_VALUE": "New Value"
   }
 }

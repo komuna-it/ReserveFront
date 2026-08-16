@@ -1,8 +1,7 @@
-import { Component, computed, inject, input, effect } from '@angular/core';
+import { Component, computed, inject, input, effect, signal } from '@angular/core';
 import { ReservationStore } from '../../reservation/reservation.store';
 import { ReservationFacade } from '../../reservation/reservation.facade';
 import { ToolbarType } from '../toolbarType';
-import { SearchBar } from '../search-bar/search-bar';
 import { ReservationStatus } from '../../../model/reservationStatus';
 import { TranslocoPipe } from '@jsverse/transloco';
 
@@ -12,7 +11,7 @@ interface Identifiable {
 
 @Component({
   selector: 'app-table-toolbar',
-  imports: [SearchBar, TranslocoPipe],
+  imports: [TranslocoPipe],
   templateUrl: './table-toolbar.html',
   styleUrl: './table-toolbar.css',
 })
@@ -28,7 +27,7 @@ export class TableToolbar {
 
   readonly activeItems = computed<Identifiable[]>(() => {
     switch (this.type()) {
-      case ToolbarType.RESERVATION_BY_STATUS:
+      case ToolbarType.RESERVATIONS:
         return this.store.reservations();
       case ToolbarType.USERS:
         return this.store.allUsers();
@@ -70,7 +69,7 @@ export class TableToolbar {
 
   showCancelButton() {
     return (
-      this.type() === ToolbarType.RESERVATION_BY_STATUS &&
+      this.type() === ToolbarType.RESERVATIONS &&
       (this.store.statusForAdminPage() === ReservationStatus.CREATED ||
         this.store.statusForAdminPage() === ReservationStatus.CONFIRMED ||
         this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION)
@@ -79,9 +78,61 @@ export class TableToolbar {
 
   showAcceptButton() {
     return (
-      this.type() === ToolbarType.RESERVATION_BY_STATUS &&
+      this.type() === ToolbarType.RESERVATIONS &&
       (this.store.statusForAdminPage() === ReservationStatus.CREATED ||
         this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION)
     );
+  }
+
+  showPaidButton() {
+    return this.type() === ToolbarType.RESERVATIONS;
+  }
+
+  showUnpaidButton() {
+    return this.type() === ToolbarType.RESERVATIONS;
+  }
+
+  handlePaid(paid: boolean) {
+    const selectedRes = this.store.toolbarSelectedIds();
+    this.facade.isReservationPaid(selectedRes, paid);
+  }
+
+  toggleOnlyFuture() {
+    this.store.toolbarOnlyFuture.update((v) => !v);
+    const future = this.store.toolbarOnlyFuture();
+
+    const status = this.store.statusForAdminPage();
+    if (!status) return;
+    switch (this.type()) {
+      case ToolbarType.RESERVATIONS: {
+        this.facade.getReservations(
+          new Set<ReservationStatus>([status]),
+          future,
+          null,
+          null,
+          null,
+          null,
+        );
+        break;
+      }
+
+      case ToolbarType.ADMIN_ORGANIZATIONS: {
+        this.facade.getOrganizations(true, null);
+        break;
+      }
+
+      case ToolbarType.USERS: {
+        this.facade.getAllUsers();
+        break;
+      }
+
+      case ToolbarType.USER_ORGANIZATIONS: {
+        const user = this.store.selectedUser();
+        if (user) {
+          this.facade.getOrganizations(future, user.id);
+        }
+        break;
+      }
+    }
   }
 }

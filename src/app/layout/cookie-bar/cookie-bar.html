@@ -1,0 +1,53 @@
+@if (isVisible()) {
+  <div
+    class="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-4xl rounded-2xl border border-slate-700/80 bg-slate-900/95 p-4 shadow-2xl backdrop-blur-md transition-all sm:p-6"
+  >
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div class="space-y-1 pr-2">
+        <div class="flex items-center gap-2">
+          <svg
+            class="h-5 w-5 text-amber-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 21a9 9 0 100-18 9 9 0 000 18z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 10h.01M15 10h.01M12 15h.01"
+            />
+          </svg>
+          <h3 class="text-sm font-bold text-slate-100">
+            {{ 'COOKIES.TITLE' | transloco }}
+          </h3>
+        </div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          {{ 'COOKIES.DESCRIPTION' | transloco }}
+        </p>
+      </div>
+
+      <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+        <button
+          type="button"
+          (click)="acceptNecessary()"
+          class="w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors"
+        >
+          {{ 'COOKIES.NECESSARY_ONLY' | transloco }}
+        </button>
+        <button
+          type="button"
+          (click)="acceptAll()"
+          class="w-full sm:w-auto px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition-colors"
+        >
+          {{ 'COOKIES.ACCEPT_ALL' | transloco }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

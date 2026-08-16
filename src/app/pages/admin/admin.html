@@ -8,20 +8,45 @@
   </main>
 </div>
 
-@if (store.confirmMarkReservationAsAccepted() && store.selectedReservation(); as res) {
-  <app-confirmation-popup
-    [titleText]="'ADMIN_RESERVATIONS.CONFIRM_ACCEPT_TITLE' | transloco"
-    [bodyText]="getBodyText()"
-    (ok)="facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.CONFIRMED)"
-    (cancel)="facade.closeModals()"
-  ></app-confirmation-popup>
+@if (store.confirmMarkReservationAsAccepted()) {
+  @if (store.selectedReservation(); as res) {
+    <app-confirmation-popup
+      [titleText]="'ADMIN_RESERVATIONS.CONFIRM_ACCEPT_TITLE' | transloco"
+      [bodyText]="getBodyText()"
+      (ok)="facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.CONFIRMED)"
+      (cancel)="facade.closeModals()"
+    ></app-confirmation-popup>
+  }
 }
 
-@if (store.confirmMarkReservationAsCanceled()) {
+@if (store.confirmMarkReservationAsRejected()) {
+  @if (store.selectedReservation(); as res) {
+    <app-confirmation-popup
+      [titleText]="
+        'ADMIN_RESERVATIONS.CONFIRM_REJECT_TITLE'
+          | transloco
+            : {
+                reservedBy: tool.reservedByText(res),
+                date: tool.formatDuration(res),
+                room: tool.getRoomName(res),
+              }
+      "
+      (cancel)="facade.closeModals()"
+    ></app-confirmation-popup>
+  }
+}
+@if (store.confirmMarkReservationAsCanceled() && store.selectedReservation(); as res) {
   <app-confirmation-popup
-    [titleText]="'ADMIN_RESERVATIONS.CONFIRM_CANCEL_TITLE' | transloco"
-    [bodyText]="'ADMIN_RESERVATIONS.CONFIRM_CANCEL_BODY' | transloco"
-    (ok)="facade.handleCancelReservations()"
+    [titleText]="
+      'ADMIN_RESERVATIONS.CONFIRM_CANCEL_TITLE'
+        | transloco
+          : {
+              reservedBy: tool.reservedByText(res),
+              date: tool.formatDuration(res),
+              room: tool.getRoomName(res),
+            }
+    "
+    (ok)="facade.updateReservationsStatus(ReservationStatus.CANCELLED)"
     (cancel)="facade.closeModals()"
   ></app-confirmation-popup>
 }
@@ -98,4 +123,8 @@
 
 @if (store.isModalAddRoomActive()) {
   <app-add-room-modal></app-add-room-modal>
+}
+
+@if (store.isReservationDetailsModalActive()) {
+  <app-reservation-details-modal></app-reservation-details-modal>
 }

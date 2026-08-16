@@ -1,16 +1,23 @@
 <div
-  class="w-full h-full min-h-[1.5rem] flex items-center justify-center text-xs font-medium truncate transition-all border-0"
+  class="w-full h-full flex items-center justify-center text-xs font-semibold select-none"
   [ngClass]="cellClasses()"
+  (click)="onCellClick()"
 >
-  @if (canViewDetails()) {
-    <button type="button" (click)="store.isReservationDetailsModalActive.set(true)">
-      <span
-        class="font-bold text-[10px] tracking-wide uppercase block truncate w-full px-1 text-center"
-        [class.text-emerald-300]="isForAdmin()"
-        [class.text-blue-300]="!isForAdmin()"
-      >
-        {{ reservationText() }}
-      </span>
-    </button>
+  @if (!isPast()) {
+    @if (!isReserved()) {
+      <button type="button" class="w-full h-full p-1 flex items-center justify-center">
+        <span
+          class="cursor-pointer w-full h-full flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold tracking-wide uppercase text-[11px] rounded-3xl transition-all"
+        >
+          {{ 'CALENDAR.FREE' | transloco }}
+        </span>
+      </button>
+    } @else if (canViewDetails()) {
+      <button type="button" class="w-full h-full flex items-center justify-center px-1">
+        <span class="font-bold text-[10px] tracking-wide block truncate text-blue-300">
+          {{ reservationText() }}
+        </span>
+      </button>
+    }
   }
 </div>

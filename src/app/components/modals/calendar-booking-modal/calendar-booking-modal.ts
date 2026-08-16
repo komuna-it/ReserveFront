@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, OnInit } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { CalendarHelper } from '../../calendar/calendar.helper';
 import { AuthService } from '../../../auth/authService';
@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { AddOrganizationModal } from '../add-organization-modal/add-organization-modal';
 import { ReservationType } from '../../../model/reservationType';
 import { Booking } from '../../../model/booking';
+import { User } from '../../../model/user';
 
 @Component({
   selector: 'app-calendar-booking-modal',
@@ -22,12 +23,14 @@ export class CalendarBookingModal {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
   readonly authService = inject(AuthService);
+  readonly booking = this.store.selectedBooking();
 
   constructor() {
     effect(() => {
       const orgs = this.store.organizations();
       const booking = this.store.selectedBooking();
       const isAdmin = this.authService.isAdmin();
+      const user = this.store.selectedUser();
 
       if (!isAdmin && orgs.length === 0) {
         this.store.isPrivateReservationCheckboxActivated.set(true);
@@ -56,17 +59,47 @@ export class CalendarBookingModal {
     }
   }
 
+  onUserIdSelected(userId: User): void {
+    const id = Number(userId);
+    const user = this.store.users().find((u) => u.id === id);
+    if (!user) return;
+    this.store.selectedUser.set(user);
+    if (this.isAdminOrManagerSelected()) {
+      this.facade.getOrganizations(true, null);
+    } else {
+      this.facade.getOrganizations(false, user.id);
+    }
+    if (this.booking) {
+      this.booking.reservedByUserId = user.id;
+    }
+  }
+
+  isAdminOrManagerSelected = computed(() => {
+    const adminAndManagersUserIds = new Set<number>();
+    const userAndManagers = this.store
+      .users()
+      .filter((u) => u.role === 'ADMIN' || u.role === 'MANAGER')
+      .every((u) => adminAndManagersUserIds.add(u.id));
+
+    const user = this.store.selectedUser();
+    if (!user) return false;
+    if (adminAndManagersUserIds.has(user.id)) {
+      return true;
+    }
+    return false;
+  });
+
   handleAddOrganizationModal() {
     this.store.isAddOrganizationModalActive.set(true);
   }
 
   togglePrivateReservationCheckbox() {
-    if (this.isPrivateReservationCheckboxDisabled()) {
+    if (this.isPrivateReservationForced()) {
       return;
     }
 
-    const isPrivateNow = !this.store.isPrivateReservationCheckboxActivated();
-    this.store.isPrivateReservationCheckboxActivated.set(isPrivateNow);
+    const isPrivateNow = this.store.isPrivateReservationCheckboxActivated();
+    this.store.isPrivateReservationCheckboxActivated.set(!isPrivateNow);
 
     const booking = this.store.selectedBooking();
     const orgs = this.store.organizations();
@@ -75,10 +108,7 @@ export class CalendarBookingModal {
     }
   }
 
-  isPrivateReservationCheckboxDisabled() {
-    if (this.authService.isAdmin()) {
-      return false;
-    }
+  isPrivateReservationForced() {
     return this.store.organizations().length === 0;
   }
 

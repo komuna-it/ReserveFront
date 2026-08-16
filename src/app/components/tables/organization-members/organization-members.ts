@@ -20,7 +20,7 @@ export class OrganizationMembers implements OnInit {
 
   ngOnInit() {
     if (this.auth.currentUser()) {
-      this.facade.getOrganizationsOfUser(true, this.auth.currentUser()?.id ?? 0);
+      this.facade.getOrganizations(true, this.auth.currentUser()?.id ?? 0);
     }
   }
 

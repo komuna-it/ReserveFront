@@ -6,18 +6,23 @@ import { CalendarHelper } from '../components/calendar/calendar.helper';
 import { ReservationFacade } from '../components/reservation/reservation.facade';
 import { ReservationStatus } from '../model/reservationStatus';
 import { User } from '../model/user';
+import { AuthService } from '../auth/authService';
+import { Organization } from '../model/organization';
 
 @Injectable({ providedIn: 'root' })
 export class TextFormatingTool {
   readonly translocoService = inject(TranslocoService);
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
-  readonly calendarHelper = inject(CalendarHelper);
+  readonly helper = inject(CalendarHelper);
+  readonly authService = inject(AuthService);
+  readonly loco = inject(TranslocoService);
 
   // reservation modals & popups texts
 
   constructor() {
     this.facade.getRooms();
+    this.facade.getAllUsers();
   }
 
   bandText(res: ReservationDto): string {
@@ -30,24 +35,55 @@ export class TextFormatingTool {
   }
 
   reservedByText(res: ReservationDto): string {
-    const privateText = this.translocoService.translate('USER_MODALS.PRIVATE');
-    const userText = `${res.reservedByText} (${privateText})`;
+    // console.log('loaded orgs');
+    // console.table(this.store.organizations());
 
-    if (res.organization) return res.reservedByText;
+    // console.log('loaded res');
+    // console.table(this.store.reservations());
 
-    return userText;
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return 'no user';
+
+    if (res.organization != null) {
+      const orgs = this.store.organizations();
+      const foundOrg = orgs.find((org) => Number(org.id) === Number(res.organization));
+      return foundOrg?.name || 'no org';
+    }
+
+    const privateText = this.loco.translate('CALENDAR.PRIVATE') || 'prywatna';
+    const myPrivateText = this.loco.translate('CALENDAR.MY_PRIVATE') || 'Moja prywatna';
+
+    const users = this.store.users();
+    const reservedByUser = users.find((u) => u.id === res.reservedBy);
+    const nick = reservedByUser?.nick || 'No nick found';
+
+    const currentUserId = currentUser.id;
+
+    if (this.authService.isAdmin()) {
+      return nick ? `${nick} (${privateText})` : `(${privateText})`;
+    }
+
+    const userOrgs = this.store.organizations().map((o) => o.id);
+
+    const isMyReservation = currentUserId === res.reservedBy;
+    const isMyTeamReservation = userOrgs.includes(res.organization ?? -1);
+
+    if (isMyReservation) return myPrivateText;
+    if (isMyTeamReservation) return nick ? `${nick} (${privateText})` : `(${privateText})`;
+
+    return 'others';
   }
 
   dateColumnText(res: ReservationDto): string {
-    return this.calendarHelper.generateDayLabel(res.startAt);
+    return this.helper.generateDayLabel(res.startAt);
   }
 
   startAtText(res: ReservationDto) {
-    return this.calendarHelper.generateHourLabel(res.startAt);
+    return this.helper.generateHourLabel(res.startAt);
   }
 
   endAtText(res: ReservationDto) {
-    return this.calendarHelper.generateHourLabel(res.endAt);
+    return this.helper.generateHourLabel(res.endAt);
   }
 
   privateReservationText(res: ReservationDto) {
@@ -66,7 +102,7 @@ export class TextFormatingTool {
   }
 
   formatDuration(res: ReservationDto): string {
-    return this.calendarHelper.generateDurationLabel(res.startAt, res.duration);
+    return this.helper.generateDurationLabel(res.startAt, res.duration);
   }
 
   reservedByLabel(reservation: ReservationDto): string {
@@ -102,5 +138,15 @@ export class TextFormatingTool {
     return user.banDto
       ? this.translocoService.translate('USERS_TABLE.YES')
       : this.translocoService.translate('USERS_TABLE.NO');
+  }
+
+  getResParams(res: ReservationDto) {
+    const date = this.helper.generateDurationLabel(res.startAt, res.duration);
+    const reservedBy = this.reservedByText(res);
+    console.log('getResParams date: ', date, ' reservedBy ', reservedBy);
+    return {
+      reservedBy: reservedBy,
+      date: date,
+    };
   }
 }

@@ -3,3 +3,7 @@
 @if (store.isReservationDetailsModalActive()) {
   <app-reservation-details-modal></app-reservation-details-modal>
 }
+
+@if (store.isLoginOrRegisterModalActive()) {
+  <app-unauthenticated-modal></app-unauthenticated-modal>
+}

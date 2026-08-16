@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
@@ -18,6 +18,13 @@ export class AdminPricing implements OnInit {
   readonly facade = inject(ReservationFacade);
   readonly store = inject(ReservationStore);
   readonly ResType = ReservationType;
+
+  constructor() {
+    effect(() => {
+      this.store.rooms();
+    });
+    this.facade.getRooms();
+  }
 
   ngOnInit(): void {
     this.facade.getRooms();

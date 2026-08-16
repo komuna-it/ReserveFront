@@ -13,6 +13,8 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ToolbarType } from '../../toolbars/toolbarType';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TableToolbar } from '../../toolbars/table-toolbar/table-toolbar';
+import { AuthService } from '../../../auth/authService';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-table-reservations',
@@ -27,56 +29,56 @@ export class TableReservations {
   readonly calendarHelper = inject(CalendarHelper);
   readonly ReservationStatus = ReservationStatus;
   readonly ReservationTableType = ReservationTableType;
-  readonly type = input.required<ReservationTableType>();
+  readonly type = input<ReservationTableType>();
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly auth = inject(AuthService);
 
   readonly status = input<ReservationStatus | null>();
   readonly toolbarType = input<ToolbarType | null>();
 
   readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} as Params });
 
-  deleteReservation(reservationId: number) {
-    console.log(`Trying to delete reservation with id ${reservationId}`);
-    this.facade.deleteReservation(reservationId);
-    this.facade.getAllReservationsForUserAndTheirOrganization();
-  }
-
   isCancellationPossible(res: ReservationDto): boolean {
     if (
-      res.status === ReservationStatus.CANCELLED ||
-      res.status === ReservationStatus.REJECTED ||
-      res.status === ReservationStatus.REQUESTED_CANCELLATION
+      res.status === ReservationStatus.REQUESTED_CANCELLATION ||
+      res.status === ReservationStatus.CANCELLED
     ) {
       return false;
     }
-
-    return !this.isTooLateToCancel(res);
+    return true;
   }
 
-  isTooLateToCancel(res: ReservationDto) {
+  canCancelWithoutAsking(res: ReservationDto) {
     const startDate = new Date(res.startAt);
     const now = new Date();
     const timeDifference = startDate.getTime() - now.getTime();
     const hoursDifference = timeDifference / (1000 * 60 * 60);
-    return hoursDifference <= 24;
+    return hoursDifference >= 24;
+  }
+
+  requestCancellation(res: ReservationDto) {
+    const id = new Set<number>();
+    id.add(res.id);
+    this.store.toolbarSelectedIds.set(id);
+    this.facade.updateReservationsStatus(ReservationStatus.REQUESTED_CANCELLATION);
   }
 
   getCancelButtonLabel(res: ReservationDto): string {
-    if (this.isTooLateToCancel(res)) {
-      return this.translocoService.translate('BUTTONS.TOO_LATE_TO_CANCEL');
-    }
     switch (res.status) {
-      case ReservationStatus.CREATED:
-        return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
-      case ReservationStatus.CONFIRMED:
-        return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
+      case ReservationStatus.CREATED || ReservationStatus.CONFIRMED: {
+        if (this.canCancelWithoutAsking(res)) {
+          return this.translocoService.translate('BUTTONS.CANCEL');
+        } else {
+          return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
+        }
+      }
       case ReservationStatus.CANCELLED:
-        return this.translocoService.translate('BUTTONS.CANCELLATION_NOT_POSSIBLE');
+        return this.translocoService.translate('STATUS.CANCELLED');
       case ReservationStatus.REJECTED:
-        return this.translocoService.translate('BUTTONS.CANCELLATION_NOT_POSSIBLE');
+        return this.translocoService.translate('STATUS.REJECTED');
       case ReservationStatus.REQUESTED_CANCELLATION:
-        return this.translocoService.translate('BUTTONS.CANCELLATION_NOT_POSSIBLE');
+        return this.translocoService.translate('BUTTONS.ASKED_FOR_CANCELLATION');
 
       default:
         return '';
@@ -110,27 +112,72 @@ export class TableReservations {
     this.store.toggleSelection(id);
   }
 
-  // BY STATUS SORTING
-
   constructor() {
-    this.store.toolbarType.set(ToolbarType.RESERVATION_BY_STATUS);
+    const loggedUser = this.auth.currentUser();
 
-    effect(() => {
-      const currentStatus = this.status();
+    if (this.auth.isAdmin()) {
+      this.facade.getOrganizations(true, null);
+    } else if (loggedUser) {
+      this.facade.getOrganizations(false, loggedUser.id);
+    }
 
-      this.store.currentSortBy();
-      this.store.currentSortDir();
-      this.store.currentReservationsPage();
-      this.store.currentReservationsSize();
+    effect(() => this.initializeTable());
+  }
 
-      if (this.type() === ReservationTableType.USER_PROFILE) {
-        this.facade.getAllReservationsForUserAndTheirOrganization();
-      }
+  initializeTable() {
+    const tableType = this.type();
+    const loggedUser = this.auth.currentUser();
+    const selectedUser = this.store.selectedUser();
+    const currentStatus = this.status();
 
-      if (!currentStatus) return;
-      this.store.statusForAdminPage.set(currentStatus);
-      this.facade.getReservationsByStatus(currentStatus);
-    });
+    if (tableType == null) return;
+    // console.log('res table: tableType ', tableType);
+
+    switch (tableType) {
+      case ReservationTableType.USER_PROFILE:
+        if (loggedUser) this.facade.getReservations(null, false, loggedUser.id, null, null, null);
+        break;
+
+      case ReservationTableType.ADMIN_BY_STATUS:
+        this.store.toolbarType.set(ToolbarType.RESERVATIONS);
+        if (currentStatus)
+          this.facade.getReservations(
+            new Set<ReservationStatus>([currentStatus]),
+            this.store.toolbarOnlyFuture(),
+            null,
+            null,
+            null,
+            null,
+          );
+        break;
+
+      case ReservationTableType.ADMIN_ORG_DETAILS:
+        this.store.toolbarType.set(ToolbarType.RESERVATIONS);
+        const selectedOrg = this.store.selectedOrganization();
+        if (selectedOrg)
+          this.facade.getReservations(
+            null,
+            this.store.toolbarOnlyFuture(),
+            null,
+            new Set([selectedOrg.id]),
+            null,
+            null,
+          );
+        break;
+
+      case ReservationTableType.ADMIN_USER_DETAILS:
+        this.store.toolbarType.set(ToolbarType.RESERVATIONS);
+        if (currentStatus && selectedUser)
+          this.facade.getReservations(
+            new Set<ReservationStatus>([currentStatus]),
+            this.store.toolbarOnlyFuture(),
+            selectedUser.id,
+            null,
+            null,
+            null,
+          );
+        break;
+    }
   }
 
   toggleSort(column: string): void {
@@ -147,5 +194,16 @@ export class TableReservations {
       },
       queryParamsHandling: 'merge',
     });
+  }
+
+  openReservationDetails(res: ReservationDto): void {
+    this.store.selectedReservation.set(res);
+    if (this.type() === ReservationTableType.ADMIN_BY_STATUS) {
+      const idSet = new Set<number>();
+      idSet.add(res.id);
+      this.store.toolbarSelectedIds.set(idSet);
+
+      this.store.isReservationDetailsModalActive.set(true);
+    }
   }
 }

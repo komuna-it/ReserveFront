@@ -13,4 +13,5 @@ export interface ReservationDto {
   duration: string;
   status: ReservationStatus;
   price: number;
+  paid: boolean;
 }

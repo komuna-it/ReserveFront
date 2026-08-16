@@ -17,6 +17,8 @@ import { OrganizationDetailsModal } from '../../modals/organization-details-moda
 import { AddUserIntoOrganizationModal } from '../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
 import { AddOrganizationModal } from '../../components/modals/add-organization-modal/add-organization-modal';
 import { AddRoomModal } from '../../modals/add-room-modal/add-room-modal';
+import { AuthService } from '../../auth/authService';
+import { ReservationDetailsModal } from '../../modals/reservation-details-modal/reservation-details-modal';
 
 @Component({
   selector: 'app-admin',
@@ -33,20 +35,30 @@ import { AddRoomModal } from '../../modals/add-room-modal/add-room-modal';
     AddUserIntoOrganizationModal,
     AddOrganizationModal,
     AddRoomModal,
+    ReservationDetailsModal,
   ],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
 export class AdminPage implements OnInit {
+  readonly auth = inject(AuthService);
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
   readonly translocoService = inject(TranslocoService);
   readonly textFormatingTool = inject(TextFormatingTool);
   readonly ReservationStatus = ReservationStatus;
   readonly reservation = input<any | null>(null);
+  readonly tool = inject(TextFormatingTool);
 
   ngOnInit(): void {
-    this.facade.getReservationsByStatus(ReservationStatus.CREATED);
+    this.facade.getReservations(
+      new Set<ReservationStatus>([ReservationStatus.CREATED]),
+      this.store.toolbarOnlyFuture(),
+      null,
+      null,
+      null,
+      null,
+    );
     this.facade.getAllUsers();
   }
 

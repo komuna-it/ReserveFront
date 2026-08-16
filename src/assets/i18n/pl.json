@@ -42,7 +42,35 @@
     "NOT_MEMBER_OF_ANY_BAND": "Nie jesteś członkiem żadnego zespołu!",
     "CREATE_ONE": "Kliknij tutaj aby utworzyć zespół",
     "MODAL_RESERVED_FOR_USER": "Rezerwacja w imieniu",
-    "CALENDAR": "Kalendarz"
+    "CALENDAR": "Kalendarz",
+    "FREE": "Wolne",
+    "PRIVATE": "Prywatna",
+    "MY_PRIVATE": "Moja prywatna",
+    "DOWNLOADING_ROOMS": "Pobieranie listy pokoi...",
+    "TODAY": "Dzisiaj",
+    "DAYS": {
+      "MON": "PN",
+      "TUE": "WT",
+      "WED": "ŚR",
+      "THU": "CZ",
+      "FRI": "PI",
+      "SAT": "SO",
+      "SUN": "NI"
+    },
+    "MONTHS": {
+      "JAN": "Styczeń",
+      "FEB": "Luty",
+      "MAR": "Marzec",
+      "APR": "Kwiecień",
+      "MAY": "Maj",
+      "JUN": "Czerwiec",
+      "JUL": "Lipiec",
+      "AUG": "Sierpień",
+      "SEP": "Wrzesień",
+      "OCT": "Październik",
+      "NOV": "Listopad",
+      "DEC": "Grudzień"
+    }
   },
   "USERS_TABLE": {
     "NICK": "Nick",
@@ -111,10 +139,28 @@
     "OWNER": "Właściciel"
   },
   "BUTTONS": {
-    "CANCELLATION_NOT_POSSIBLE": "Odwołanie niemożliwe",
+    "ASKED_FOR_CANCELLATION": "Poproszono o odwołanie",
     "CANCEL": "Odwołaj",
     "REQUEST_CANCEL": "Poproś o odwołanie",
-    "TOO_LATE_TO_CANCEL": "Za późno na odwołanie"
+    "TOO_LATE_TO_CANCEL": "Za późno na odwołanie",
+    "ALLOWED": "Zezwolone",
+    "NOT_ALLOWED": "Zabronione",
+    "FORGOT_PASSWORD_QUESTION": "Nie pamiętasz hasła",
+    "REMEMBER_ME": "Zapamiętaj mnie",
+    "PASSWORD": "Hasło",
+    "NO_ACCOUNT_REGISTER": "Nie masz konta? Zarejestruj się!",
+    "SEND": "Wyślij",
+    "REJECT": "Odrzuć",
+    "SAVE": "Zapisz"
+  },
+  "FORGOT_PASSWORD": {
+    "PUT_EMAIL": "Wpisz swój adres email",
+    "FORGOT_PASSWORD": "Zresetuj hasło",
+    "CANCELLED": "Odwołana",
+    "REQUESTED_CANCELLATION": "Do odwołania",
+    "REJECTED": "Odrzucona",
+    "SUCCESS_MESSAGE": "Sprawdź swój email aby zresetować email",
+    "ERROR_GENERIC": "Niepoprawny email lub konto nie istnieje"
   },
   "STATUS": {
     "CREATED": "Do potwierdzenia",
@@ -199,7 +245,7 @@
     "MODAL_CONFIRM_TITLE": "Potwierdź akcję",
     "CANCEL": "Anuluj",
     "CONFIRM": "Potwierdź",
-    "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz poprosić o odwołanmie rezerwacji {{organization}}, {{date}} {{startHour}} - {{endHour}}? Prośba trafi do pracownika.",
+    "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz poprosić o odwołanie rezerwacji {{organization}}, {{date}} {{startHour}} - {{endHour}}? Prośba trafi do pracownika.",
     "CONFIRM_REQUEST_CANCEL_TITLE": "Odwołanie rezerwacji",
     "PRIVATE": "Prywatna",
     "ORGANIZATION_ADDED": "Zespół utworzony",
@@ -207,7 +253,8 @@
     "CONFIRM_DELETE_MEMBER": "Potwierdź usunięcie członka zespołu",
     "CONFIRM_BAN_TITLE": "Banowanie",
     "CONFIRM_BAN_BODY": "Potwierdź ban",
-    "SUCCESS": "Sukces"
+    "SUCCESS": "Sukces",
+    "LOGIN_TO_CREATE_RESERVATION": "Zaloguj się, aby utworzyć rezerwację"
   },
 
   "ADMIN_RESERVATIONS": {
@@ -227,11 +274,11 @@
     "CANCELLED": "Anulowane",
     "REQUESTED_CANCELLATION": "Prośby o anulowanie",
     "CONFIRM_ACCEPT_BODY": "Czy na pewno chcesz zaakceptować rezerwację zespołu {organization}, {date} {startHour} - {endHour}?",
-    "CONFIRM_ACCEPT_TITLE": "Potwierdź akceptację rezerwacji",
+    "CONFIRM_ACCEPT_TITLE": "Potwierdź akceptację rezerwacji {{reservedBy}}, {{date}}, Sala {{room}}",
     "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz zaakceptować prośbę o anulowanie rezerwacji zespołu {organization}, {date} {startHour} - {endHour}?",
-    "CONFIRM_REQUEST_CANCEL_TITLE": "Potwierdź akceptację prośby o anulowanie rezerwacji",
-    "CONFIRM_CANCEL_BODY": "Czy na pewno chcesz odrzucić rezerwację zespołu {organization}, {date} {startHour} - {endHour}?",
-    "CONFIRM_CANCEL_TITLE": "Potwierdź odrzucenie rezerwacji",
+    "CONFIRM_REQUEST_CANCEL_TITLE": "Potwierdź akceptację prośby o anulowanie rezerwacji {{reservedBy}}, {{date}}, Sala {{room}}",
+    "CONFIRM_CANCEL_BODY": "Czy na pewno chcesz odrzucić rezerwację zespołu ?",
+    "CONFIRM_CANCEL_TITLE": "Potwierdź odwołanie rezerwacji {{reservedBy}}, {{date}}, Sala {{room}}",
     "ORGANIZATION": "Zespół",
     "RESERVED_BY": "Rezerwujący",
     "DATE": "Data",
@@ -260,7 +307,12 @@
     "ROOM_NAME": "Nazwa sali",
     "IS_RECORDABLE": "Nagrywanie?",
     "PRICES_MANAGEMENT": "Zarządzanie Cennikiem i Nagraniami",
-    "ADMIN_PANEL": "Panel Admina"
+    "ADMIN_PANEL": "Panel Admina",
+    "CONFIRM_PAID": "Opłacone",
+    "CONFIRM_UNPAID": "Nieopłacone",
+    "ONLY_FUTURE": "Tylko przyszłe",
+    "CONFIRM_REJECT_TITLE": "Potwierdź odrzucenie rezerwacji {{reservedBy}}, {{date}}, Sala {{room}} ",
+    "FILTER_STATUS": "Status"
   },
   "PAGINATION": {
     "PREVIOUS": "Poprzednia",
@@ -279,6 +331,26 @@
     "ADD_BAND": "Dodaj zespół",
     "NOT_AVAILABLE_FOR_THIS_ROOM": "Niedostępne dla tej sali",
     "NO_ROOMS_TO_DISPLAY": "Brak sal do wyświetlenia",
-    "ROOM": "Sala"
+    "ROOM": "Sala",
+    "LOADING": "Ładowanie...",
+    "UPDATE_PASSWORD": "Zmień hasło",
+    "OLD_PASSWORD": "Stare hasło",
+    "FIRST_NEW_PASSWORD": "Nowe hasło",
+    "SECOND_NEW_PASSWORD": "Powtórz nowe hasło",
+    "SUCCESS_UPDATING_PASSWORD": "Hasło zmienione!",
+    "ERROR_MATCHING_PASSWORD": "Hasła nie pasują do siebie",
+    "ERROR_UPDATING_PASSWORD": "Nie udało się zmienić hasła, spróbuj ponownie później",
+    "COMMON.SELECT_ROOM": "Wybierz salę"
+  },
+  "COOKIES": {
+    "TITLE": "Dbamy o Twoją prywatność",
+    "DESCRIPTION": "Używamy plików cookie, aby zapewnić prawidłowe działanie serwisu, zapamiętać Twoje preferencje oraz analizować ruch.",
+    "NECESSARY_ONLY": "Tylko niezbędne",
+    "ACCEPT_ALL": "Akceptuj wszystkie"
+  },
+  "SETTINGS": {
+    "KEY": "Parametr",
+    "VALUE": "Wartość",
+    "NEW_VALUE": "Nowa wartość"
   }
 }

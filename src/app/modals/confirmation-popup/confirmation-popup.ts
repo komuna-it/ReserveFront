@@ -1,5 +1,6 @@
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { ReservationFacade } from '../../components/reservation/reservation.facade';
 
 @Component({
   selector: 'app-confirmation-popup',
@@ -10,6 +11,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 export class ConfirmationPopup {
   readonly titleText = input.required<string>();
   readonly bodyText = input<string>('');
+  readonly facade = inject(ReservationFacade);
 
   readonly ok = output<void>();
   readonly cancel = output<void | null>();

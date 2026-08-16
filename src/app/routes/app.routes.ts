@@ -24,6 +24,11 @@ export const routes: Routes = [
     loadComponent: () => import('../pages/register/register').then((m) => m.RegisterPage),
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('../pages/forgot-password/forgot-password').then((m) => m.ForgotPassword),
+  },
+  {
     path: 'profile',
     loadChildren: () => import('./profile.routes').then((m) => m.PROFILE_ROUTES),
     canActivate: [authenticatedGuard],

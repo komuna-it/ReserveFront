@@ -7,6 +7,6 @@
     "outDir": "./out-tsc/app",
     "types": []
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/app/settings/settingsServicets"],
   "exclude": ["src/**/*.spec.ts"]
 }

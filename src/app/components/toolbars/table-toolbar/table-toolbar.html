@@ -13,55 +13,128 @@
     }
 
     <!-- RESERVATION BY STATUS -->
-
-    @if (type() === ToolbarType.RESERVATION_BY_STATUS) {
-      @if (showAcceptButton()) {
-        <button
-          (click)="facade.updateReservationsStatus(ReservationStatus.CONFIRMED)"
-          [disabled]="isNoneSelected()"
-          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
-        >
-          <!-- ZIELONY PTASZEK (CHECKMARK) -->
-          <svg
-            class="h-3.5 w-3.5 text-emerald-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2.5"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-          </svg>
+    @if (type() === ToolbarType.RESERVATIONS) {
+      <div class="inline-flex items-center gap-2 flex-wrap">
+        @if (showAcceptButton()) {
           @if (this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION) {
-            {{ 'ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON' | transloco }}
+            <button
+              (click)="facade.updateReservationsStatus(ReservationStatus.CANCELLED)"
+              [disabled]="isNoneSelected()"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
+            >
+              <svg
+                class="h-3.5 w-3.5 text-emerald-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+              {{ 'ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON' | transloco }}
+            </button>
           } @else {
-            {{ 'ADMIN_RESERVATIONS.ACCEPT' | transloco }}
+            <button
+              (click)="facade.updateReservationsStatus(ReservationStatus.CONFIRMED)"
+              [disabled]="isNoneSelected()"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
+            >
+              <svg
+                class="h-3.5 w-3.5 text-emerald-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+              {{ 'ADMIN_RESERVATIONS.ACCEPT' | transloco }}
+            </button>
           }
-        </button>
-      }
+        }
 
-      @if (showCancelButton()) {
-        <button
-          (click)="facade.updateReservationsStatus(ReservationStatus.REJECTED)"
-          [disabled]="isNoneSelected()"
-          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
-        >
-          <svg
-            class="h-3.5 w-3.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
+        @if (showCancelButton()) {
+          <button
+            (click)="facade.updateReservationsStatus(ReservationStatus.REJECTED)"
+            [disabled]="isNoneSelected()"
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
           >
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-          </svg>
-          @if (this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION) {
-            {{ 'ADMIN_RESERVATIONS.REJECT_CANCELLATION_REQUESTS' | transloco }}
-          } @else {
-            {{ 'ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON' | transloco }}
-          }
-        </button>
-      }
+            <svg
+              class="h-3.5 w-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+            </svg>
+            @if (this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION) {
+              {{ 'ADMIN_RESERVATIONS.REJECT_CANCELLATION_REQUESTS' | transloco }}
+            } @else {
+              {{ 'ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON' | transloco }}
+            }
+          </button>
+        }
+
+        @if (
+          (showAcceptButton() || showCancelButton()) && (showPaidButton() || showUnpaidButton())
+        ) {
+          <div class="h-4 w-[1px] bg-slate-800 mx-1"></div>
+        }
+
+        @if (showPaidButton()) {
+          <button
+            (click)="handlePaid(true)"
+            [disabled]="isNoneSelected()"
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
+          >
+            <svg
+              class="h-3.5 w-3.5 text-emerald-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+            {{ 'ADMIN_RESERVATIONS.CONFIRM_PAID' | transloco }}
+          </button>
+        }
+
+        @if (showUnpaidButton()) {
+          <button
+            (click)="handlePaid(false)"
+            [disabled]="isNoneSelected()"
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
+          >
+            <svg
+              class="h-3.5 w-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+            </svg>
+            {{ 'ADMIN_RESERVATIONS.CONFIRM_UNPAID' | transloco }}
+          </button>
+        }
+      </div>
+      <div class="mx-4 flex items-center gap-3">
+        <label
+          class="inline-flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer select-none"
+        >
+          <input
+            type="checkbox"
+            [checked]="this.store.toolbarOnlyFuture()"
+            (change)="toggleOnlyFuture()"
+            class="rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/20 focus:ring-offset-slate-900 h-4 w-4 cursor-pointer"
+          />
+          {{ 'ADMIN_RESERVATIONS.ONLY_FUTURE' | transloco }}
+        </label>
+      </div>
     }
 
     <!-- USERS -->
@@ -130,6 +203,7 @@
       </div>
     }
 
+    <!-- ADMIN ORGANIZATIONS -->
     @if (type() === ToolbarType.ADMIN_ORGANIZATIONS) {
       <div class="inline-flex items-center gap-1.5">
         <button
@@ -148,9 +222,5 @@
         </button>
       </div>
     }
-  </div>
-
-  <div class="flex items-center gap-2">
-    <app-search-bar></app-search-bar>
   </div>
 </div>

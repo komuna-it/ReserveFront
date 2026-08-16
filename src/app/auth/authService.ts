@@ -18,6 +18,7 @@ export class AuthService {
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly isLoading = this.isLoadingSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.currentUserSignal() !== null);
+
   readonly userId = computed(() =>
     this.currentUserSignal()?.id ? String(this.currentUserSignal()?.id) : null,
   );
@@ -39,17 +40,25 @@ export class AuthService {
       .pipe(tap((user) => this.currentUserSignal.set(user)));
   }
 
-  register(email: string, password: string, name: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/auth/register`, { email, password, name });
+  register(email: string, password: string, name: string, language: string): Observable<User> {
+    console.log('auth register: language: ', language);
+    return this.http.post<User>(`${this.apiUrl}/auth/register`, {
+      email,
+      password,
+      name,
+      preferredLanguage: language,
+    });
   }
 
   checkCurrentSession(): Observable<boolean> {
     this.isLoadingSignal.set(true);
+    console.log('checking current session');
     return this.http.get<User>(`${this.apiUrl}/auth/me`).pipe(
       map((user) => {
         console.log('AuthService: Refreshed session user:', user);
         this.currentUserSignal.set(user);
         this.isLoadingSignal.set(false);
+        console.log('checking current session done');
         if (user.preferredLanguage) {
           this.translocoService.setActiveLang(user.preferredLanguage);
         }
@@ -77,7 +86,13 @@ export class AuthService {
 
   private executeLocalLogout() {
     this.currentUserSignal.set(null);
-    this.router.navigate(['/']);
+
+    const publicRoutes = ['/', '/login', '/register'];
+    const currentUrl = this.router.url.split('?')[0];
+
+    if (!publicRoutes.includes(currentUrl)) {
+      this.router.navigate(['/']);
+    }
   }
 
   refreshToken(): Observable<void> {
@@ -90,5 +105,16 @@ export class AuthService {
 
   updateUserLanguage(lang: string) {
     this.currentUserSignal.update((user) => (user ? { ...user, preferredLanguage: lang } : null));
+  }
+
+  handleForgotPassword(email: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/users/forgotPassword`, { email: email });
+  }
+
+  handleUpdatePassword(currentPassword: string, newPassword: string): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/users/updatePassword`, {
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    });
   }
 }

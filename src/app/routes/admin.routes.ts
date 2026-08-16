@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { UsersTable } from '../pages/admin/components/users-table/users-table';
+import { AdminSettings } from '../pages/admin/components/admin-settings/admin-settings';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -38,6 +39,13 @@ export const ADMIN_ROUTES: Routes = [
         path: 'users',
         loadComponent: () =>
           import('../pages/admin/components/users-table/users-table').then((m) => m.UsersTable),
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('../pages/admin/components/admin-settings/admin-settings').then(
+            (m) => m.AdminSettings,
+          ),
       },
     ],
   },

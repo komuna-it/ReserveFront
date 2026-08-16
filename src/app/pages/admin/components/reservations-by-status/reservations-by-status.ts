@@ -8,10 +8,12 @@ import { ReservationStatus } from '../../../../model/reservationStatus';
 import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 import { TableReservations } from '../../../../components/tables/table-reservations/table-reservations';
 import { ReservationTableType } from '../../../../model/reservationTableType';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-reservations-by-status',
-  imports: [TableToolbar, TableReservations],
+  imports: [TableToolbar, TableReservations, TranslocoPipe],
   templateUrl: './reservations-by-status.html',
   styleUrl: './reservations-by-status.css',
 })
@@ -21,14 +23,34 @@ export class ReservationsByStatus {
   readonly authService = inject(AuthService);
   readonly status = input.required<ReservationStatus>();
   readonly resTableType = ReservationTableType.ADMIN_BY_STATUS;
-
-  readonly toolbarType = ToolbarType.RESERVATION_BY_STATUS;
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  readonly toolbarType = ToolbarType.RESERVATIONS;
 
   constructor() {
     effect(() => {
       const currentStatus = this.status();
       this.store.statusForAdminPage.set(currentStatus);
-      this.facade.getReservationsByStatus(currentStatus);
+      this.facade.getReservations(
+        new Set<ReservationStatus>([currentStatus]),
+        this.store.toolbarOnlyFuture(),
+        null,
+        null,
+        null,
+        null,
+      );
     });
+  }
+  onStatusChange(event: Event): void {
+    const newStatus = (event.target as HTMLSelectElement).value as ReservationStatus;
+    this.store.statusForAdminPage.set(newStatus);
+    this.facade.getReservations(
+      new Set<ReservationStatus>([newStatus]),
+      this.store.toolbarOnlyFuture(),
+      null,
+      null,
+      null,
+      null,
+    );
   }
 }

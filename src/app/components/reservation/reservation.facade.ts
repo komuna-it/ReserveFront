@@ -28,11 +28,11 @@ export class ReservationFacade {
 
   refreshOrganizations() {
     if (this.authService.isAdmin()) {
-      this.getAllMembersAllOrganizations();
+      this.getOrganizations(true, null);
       console.log('refreshed admin organizations:');
     } else {
       if (this.authService.currentUser()) {
-        this.getOrganizationsOfUser(true, this.authService.currentUser()?.id ?? 0);
+        this.getOrganizations(true, this.authService.currentUser()?.id ?? 0);
       }
       console.log(
         "refreshed user's organizations (count): ",
@@ -46,8 +46,6 @@ export class ReservationFacade {
     this.api.getRooms().subscribe({
       next: (rooms) => {
         this.store.rooms.set(rooms);
-        console.log('Get rooms data:');
-        console.table(rooms);
       },
       error: (e) => console.log('Error fetching rooms: ', e),
     });
@@ -76,97 +74,26 @@ export class ReservationFacade {
       error: (e) => console.log('Error fetching rooms: ', e),
     });
 
-    // get reservations for a week, 12*3*7=252
-    this.api.getReservations(this.store.currentReservationsPage(), 252).subscribe({
-      next: (pageData) => {
-        this.store.reservationsPage.set(pageData);
-        console.log('Get reservations data:');
-        console.table(pageData.content);
-      },
-      error: (e) => console.log('Error fetching res: ', e),
-    });
-  }
-
-  getAllReservationsForUserAndTheirOrganization() {
-    const userId = (this.authService.userId() || '').toString().replace(/['"]/g, '');
-    const userIdNumber = parseInt(userId, 10);
-
-    this.api
-      .getAllReservationsForUserAndTheirOrganization(
-        userIdNumber,
-        this.store.currentReservationsPage(),
-        this.store.currentReservationsSize(),
-      )
-      .subscribe({
-        next: (pageData) => {
-          console.log(
-            'getAllReservationsForUserAndTheirOrganization: Fetched reservations for user and their organization:',
-          );
-          console.table(pageData.content);
-
-          this.store.reservationsPage.set(pageData);
-        },
-
-        error: (e) => console.log('Error: ', e),
-      });
-  }
-
-  getReservationsForOrganization() {
-    const page = this.store.currentReservationsPage();
-    const size = this.store.currentReservationsSize();
-    const sortBy = this.store.currentSortBy();
-    const sortDir = this.store.currentSortDir();
-    const sortParam = `${sortBy},${sortDir}`;
-
-    const orgId = this.store.selectedOrganization()?.id ?? 0;
-    this.api.getReservationsForOrganization(page, size, sortParam, orgId).subscribe({
-      next: (pageData) => {
-        this.store.reservationsPage.set(pageData);
-      },
-      error: (e) => console.error('Error getReservationsForOrganization: ', e),
-    });
-  }
-
-  getAllReservationsForUserAndTheirOrganizationsByUser(user: User) {
-    const userIdNumber = user.id;
-
-    this.api
-      .getAllReservationsForUserAndTheirOrganization(
-        userIdNumber,
-        this.store.currentOrganizationsPage(),
-        this.store.currentOrganizationsSize(),
-      )
-      .subscribe({
-        next: (pageData) => {
-          console.log(
-            'getAllReservationsForUserAndTheirOrganization: Fetched reservations for user and their organization:',
-          );
-          console.table(pageData.content);
-
-          this.store.reservationsPage.set(pageData);
-        },
-
-        error: (e) => console.log('Error: ', e),
-      });
+    this.getReservations(null, false, null, null, null, null);
   }
 
   confirmBooking(): void {
     const booking = this.store.selectedBooking();
     if (!booking) return;
 
-    const [year, month, day] = booking.date.split('-').map(Number);
-    const startAt = new Date(Date.UTC(year, month - 1, day, booking.hour)).toISOString();
+    const startAt = new Date(booking.date).toISOString();
 
     const req: CreateReservationRequest = {
       roomId: booking.roomId,
       startAt,
       duration: `PT${booking.duration}H`,
-      type: booking.reservationType,
+      type: booking.reservationType ?? ReservationType.REHEARSAL,
       organizationId: this.store.isPrivateReservationCheckboxActivated()
         ? null
         : booking.organizationId,
       reservedByUserId: booking.reservedByUserId,
     };
+    console.log('CreateReservationRequest:', req);
 
     this.api.postReservation(req).subscribe({
       next: () => {
@@ -220,7 +147,7 @@ export class ReservationFacade {
     const rawUserId = (this.authService.userId() || '0').toString().replace(/['"]/g, '');
 
     this.store.selectedBooking.set({
-      date: dateStr,
+      date: day,
       hour,
       roomId,
       price: price ?? 9999,
@@ -306,6 +233,8 @@ export class ReservationFacade {
     bookingStartDate.setUTCHours(b.hour, 0, 0, 0);
 
     const bookingEndDate = new Date(bookingStartDate);
+
+    if (!b.duration) b.duration = 1;
     bookingEndDate.setUTCHours(b.hour + b.duration, 0, 0, 0);
 
     const isTimeOverlapping =
@@ -343,31 +272,29 @@ export class ReservationFacade {
     }
   }
 
-  getReservationsByStatus(status: ReservationStatus): void {
-    const sortBy = this.store.currentSortBy();
-    const sortDir = this.store.currentSortDir();
-    const page = this.store.currentReservationsPage();
-    const size = this.store.currentReservationsSize();
-
-    const sortParam = `${sortBy},${sortDir}`;
-
-    this.api.getReservationsByStatus(page, size, status, sortParam).subscribe({
-      next: (pageData) => {
-        this.store.reservationsPage.set(pageData);
-      },
-      error: (e) => console.error('Error fetching reservations by status: ', e),
-    });
-  }
-
   changeReservationsByStatusSize() {
     const currentStatus = this.store.statusForAdminPage();
     if (currentStatus) {
-      this.getReservationsByStatus(currentStatus);
+      this.getReservations(
+        new Set<ReservationStatus>([currentStatus]),
+        this.store.toolbarOnlyFuture(),
+        null,
+        null,
+        null,
+        null,
+      );
     }
   }
 
   updateReservationsStatus(targetStatus: ReservationStatus): void {
-    const ids = this.store.toolbarSelectedIds();
+    console.log('facade updateReservationsStatus ', targetStatus);
+    this.closeModals();
+    let ids = this.store.toolbarSelectedIds();
+
+    if (ids.size === 0) {
+      const singleId = this.store.selectedReservation()?.id;
+      if (singleId) ids.add(singleId);
+    }
 
     if (!ids || ids.size === 0) {
       console.error('No reservation IDs selected for status update');
@@ -376,8 +303,23 @@ export class ReservationFacade {
 
     this.api.updateReservationsStatus(ids, targetStatus).subscribe({
       next: () => {
-        const currentStatus = this.store.statusForAdminPage() ?? ReservationStatus.CREATED;
-        this.getReservationsByStatus(currentStatus);
+        const user = this.authService.currentUser();
+        if (this.authService.isAdmin()) {
+          const currentStatus = this.store.statusForAdminPage();
+          if (!currentStatus) return;
+          this.getReservations(
+            new Set<ReservationStatus>([currentStatus]),
+
+            this.store.toolbarOnlyFuture(),
+            null,
+            null,
+            null,
+            null,
+          );
+        } else {
+          if (user)
+            this.getReservations(null, this.store.toolbarOnlyFuture(), user.id, null, null, null);
+        }
         this.store.clearSelection();
       },
       error: (err: unknown) => {
@@ -427,24 +369,6 @@ export class ReservationFacade {
     });
   }
 
-  getAllMembersAllOrganizations() {
-    this.api
-      .getAllMembersAllOrganizations(
-        this.store.currentOrganizationsPage(),
-        this.store.currentOrganizationsSize(),
-      )
-      .subscribe({
-        next: (pageData) => {
-          this.store.allOrganizations.set(pageData.content);
-
-          if (this.authService.isAdmin()) {
-            this.store.organizationsPage.set(pageData);
-          }
-        },
-        error: () => console.error('Error in getAllMembersAllOrganizations'),
-      });
-  }
-
   createOrganization(name: string) {
     this.api.createOrganization(name).subscribe({
       next: () => {
@@ -453,25 +377,6 @@ export class ReservationFacade {
       },
       error: (e) => console.error(`Failed to create organization ${name}`, e),
     });
-  }
-
-  getOrganizationsOfUser(withMembers: boolean, userId: number) {
-    this.api
-      .getOrganizationsOfUser(
-        this.store.currentOrganizationsPage(),
-        this.store.currentOrganizationsSize(),
-        withMembers,
-        userId,
-      )
-      .subscribe({
-        next: (pageData) => {
-          this.store.organizationsPage.set(pageData);
-
-          console.log('getOrganizationsOfUser(): ');
-          console.table(pageData.content);
-        },
-        error: (e) => console.error('Error in getOrganizationsOfUser: ', e),
-      });
   }
 
   removeOwnerFromOrganization(ownerId: number, organizationId: number): void {
@@ -868,6 +773,12 @@ export class ReservationFacade {
     this.store.isUserDetailsModalActive.set(false);
     this.store.displayBookingSuccesfulPopup.set(false);
     this.store.isOrganizationDetailsModalActive.set(false);
+    this.store.isBookingModalActive.set(false);
+    this.store.isLoginOrRegisterModalActive.set(false);
+    this.store.isReservationDetailsModalActive.set(false);
+    this.store.confirmMarkReservationAsAccepted.set(false);
+    this.store.confirmMarkReservationAsRejected.set(false);
+    this.store.confirmMarkReservationAsCanceled.set(false);
   }
 
   handleClickBanUsers() {
@@ -899,25 +810,14 @@ export class ReservationFacade {
 
   // ==================================
 
-  handleCancelReservations() {
-    const res = new Set<number>(this.store.selectedReservations()?.map((r) => r.id));
-    console.log('handleCancelReservations: ');
-    console.table(res);
-
-    if (!res) {
-      return;
-    }
-    this.updateReservationsStatus(ReservationStatus.CANCELLED);
-    this.store.confirmMarkReservationAsCanceled.set(false);
-    this.store.popupMarkedReservationAsCanceled.set(true);
-  }
-
   openConfirmationUpdateReservationsStatus(
     reservations: ReservationDto[],
     status: ReservationStatus,
   ) {
     const res = new Set<number>(this.store.selectedReservations()?.map((r) => r.id));
+
     this.store.selectedReservations.set(reservations);
+    this.closeModals();
 
     switch (status) {
       case ReservationStatus.CONFIRMED: {
@@ -940,8 +840,11 @@ export class ReservationFacade {
         break;
       }
       case ReservationStatus.REJECTED_CANCELLATION: {
+        this.store.confirmMarkReservationAsRejected.set(true);
+        break;
+      }
+      case ReservationStatus.REQUESTED_CANCELLATION: {
         this.store.confirmMarkReservationAsRequestCancel.set(true);
-
         break;
       }
       default: {
@@ -1017,6 +920,7 @@ export class ReservationFacade {
 
   // ==================================
 
+  // not implemented
   searchReservations(): ReservationDto[] {
     const query = (this.store.searchBarQuery() ?? '').trim().toLowerCase();
     const reservations = this.store.reservations();
@@ -1101,5 +1005,90 @@ export class ReservationFacade {
         },
       });
     }
+  }
+
+  isReservationPaid(reservationId: Set<number>, paid: boolean) {
+    return this.api.isReservationPaid(reservationId, paid).subscribe({
+      next: (updatedReservations) => {
+        const updatedMap = new Map(updatedReservations.map((r) => [r.id, r]));
+
+        this.store.reservationsPage.update((page) => {
+          if (!page?.content) return page;
+
+          return {
+            ...page,
+            content: page.content.map((item) => updatedMap.get(item.id) ?? item),
+          };
+        });
+      },
+      error: (e) => {
+        console.error('Error updating reservation paid status: ', e);
+      },
+    });
+  }
+
+  loadCalendarReservationsForDay(selectedDate: Date): void {
+    const allowedStatuses = new Set<ReservationStatus>([
+      ReservationStatus.CREATED,
+      ReservationStatus.CONFIRMED,
+      ReservationStatus.REQUESTED_CANCELLATION,
+      ReservationStatus.REJECTED_CANCELLATION,
+    ]);
+    const startOfDay = new Date(selectedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(selectedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    this.getReservations(
+      allowedStatuses,
+      false,
+      null,
+      null,
+      startOfDay.toISOString(),
+      endOfDay.toISOString(),
+    );
+  }
+
+  getReservations(
+    statuses: Set<ReservationStatus> | null,
+    future: boolean = false,
+    userId: number | null = null,
+    organizationIds: Set<number> | null = null,
+    startAtAfter: string | null,
+    startAtBefore: string | null,
+  ) {
+    const page = this.store.currentReservationsPage();
+    const size = this.store.currentReservationsSize();
+
+    this.api
+      .getReservations(
+        statuses,
+        future,
+        page,
+        size,
+        userId,
+        organizationIds,
+        startAtAfter,
+        startAtBefore,
+      )
+      .subscribe({
+        next: (pageData) => {
+          this.store.reservationsPage.set(pageData);
+        },
+        error: (e) => console.log('Error fetching res: ', e),
+      });
+  }
+
+  getOrganizations(withMembers: boolean, userId: number | null) {
+    const page = this.store.currentOrganizationsPage();
+    const size = this.store.currentOrganizationsSize();
+
+    this.api.getOrganizations(page, size, withMembers, userId).subscribe({
+      next: (pageData) => {
+        this.store.organizationsPage.set(pageData);
+      },
+      error: (e) => console.error('Error in getOrganizations: ', e),
+    });
   }
 }

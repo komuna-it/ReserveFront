@@ -21,17 +21,17 @@
     "MODAL_START": "Початок",
     "MODAL_LOCATION": "Зала",
     "MODAL_DURATION": "Тривалість",
-    "RESERVATION_TYPE": "Тип бронювання",
+    "RESERVATION_TYPE": "Запис?",
     "HOUR_SINGULAR": "година",
     "HOUR_PLURAL": "години",
     "MODAL_BAND": "Гурт",
     "CANCEL": "Скасувати",
     "BOOK_NOW": "Забронювати зараз",
-    "SUCCESS_TITLE": "Успіх!",
+    "SUCCESS_TITLE": "Успішно!",
     "SUCCESS_DESC": "Бронювання успішно створено.",
     "CLOSE": "Закрити",
     "ERROR_TITLE": "Помилка бронювання",
-    "ERROR_DESC": "Обраний час уже недоступний або сталася помилка мережі.",
+    "ERROR_DESC": "Вибраний час уже недоступний або сталася помилка мережі.",
     "BACK_TO_CALENDAR": "Повернутися до календаря",
     "PRIVATE_RESERVATION": "Забронювати приватно (без гурту)",
     "MY_PRIVATE_RESERVATION": "Моє приватне бронювання",
@@ -42,7 +42,35 @@
     "NOT_MEMBER_OF_ANY_BAND": "Ви не є учасником жодного гурту!",
     "CREATE_ONE": "Натисніть тут, щоб створити гурт",
     "MODAL_RESERVED_FOR_USER": "Бронювання від імені",
-    "CALENDAR": "Календар"
+    "CALENDAR": "Календар",
+    "FREE": "Вільно",
+    "PRIVATE": "Приватне",
+    "MY_PRIVATE": "Моє приватне",
+    "DOWNLOADING_ROOMS": "Завантаження кімнат...",
+    "TODAY": "Сьогодні",
+    "DAYS": {
+      "MON": "ПН",
+      "TUE": "ВТ",
+      "WED": "СР",
+      "THU": "ЧТ",
+      "FRI": "ПТ",
+      "SAT": "СБ",
+      "SUN": "НД"
+    },
+    "MONTHS": {
+      "JAN": "Січень",
+      "FEB": "Лютий",
+      "MAR": "Березень",
+      "APR": "Квітень",
+      "MAY": "Травень",
+      "JUN": "Червень",
+      "JUL": "Липень",
+      "AUG": "Серпень",
+      "SEP": "Вересень",
+      "OCT": "Жовтень",
+      "NOV": "Листопад",
+      "DEC": "Грудень"
+    }
   },
   "USERS_TABLE": {
     "NICK": "Нікнейм",
@@ -51,24 +79,27 @@
     "NOT_TRUSTED": "Недовірений",
     "REASON": "Причина",
     "DURATION": "Тривалість",
-    "BANNED_BY": "Заблокував",
+    "IN_DAYS": "(у днях)",
+    "BAN": "Бан",
+    "UNBAN": "Розбанити",
+    "BANNED_BY": "Заблоковано користувачем",
     "BANNED_AT": "Дата блокування",
     "ORGANIZATION": "Гурт",
     "ROOM": "Зала",
     "IS_TRUESTED": "Довірений?",
     "IS_BANNED": "Заблокований?",
     "IS_PAID": "Оплачено?",
-    "BANNED_UNTIL": "Блокування до:",
+    "BANNED_UNTIL": "Кінець блокування:",
     "YES": "Так",
     "NO": "Ні",
-    "IN_DAYS": "(in days)"
+    "NO_USERS_TO_ADD": "Немає користувачів для додавання"
   },
   "PROFILE": {
     "TITLE": "Ваш профіль",
     "SUBTITLE": "Керуйте своїми бронюваннями, гуртами та даними облікового запису",
     "YES": "Так",
     "NO": "Ні",
-    "UNAUTHENTICATED": "Не авторизований",
+    "UNAUTHENTICATED": "Не авторизовано",
     "TAB_RESERVATIONS": "Мої бронювання",
     "CREATE_TEAM_TITLE": "Створити новий гурт",
     "TEAM_NAME_LABEL": "Назва гурту",
@@ -89,13 +120,13 @@
     "CONFIRM_CANCEL_TITLE": "Ви впевнені, що хочете скасувати?",
     "TEAM_MEMBERS_TITLE": "Учасники гурту",
     "MEMBER_NICK": "Псевдонім",
-    "MEMBER_EMAIL": "Адреса Email",
+    "MEMBER_EMAIL": "Email",
     "REMOVE_BTN": "Видалити учасника",
     "NO_RESERVATIONS": "Немає зареєстрованих бронювань.",
     "PRICE": "Ціна",
     "TABLE_WHO": "ХТО",
     "STATUS": "СТАТУС",
-    "REQUESTED_CANCELLATION_BUTTON": "Запит на скасування надіслано",
+    "REQUESTED_CANCELLATION_BUTTON": "Надіслано запит на скасування",
     "ROLE": "Роль",
     "ROLE_MEMBER": "Учасник",
     "ROLE_OWNER": "Власник",
@@ -103,13 +134,31 @@
     "PREFERRED_LANGUAGE": "Мова за замовчуванням",
     "IS_PAID": "Оплачено?",
     "USERS": "Користувачі",
-    "ROOMS_AND_PRICING": "Зали та ціни"
+    "ROOMS_AND_PRICING": "Зали та ціни",
+    "MEMBER": "Учасник",
+    "OWNER": "Власник"
   },
   "BUTTONS": {
-    "CANCELLATION_NOT_POSSIBLE": "Скасування неможливе",
+    "ASKED_FOR_CANCELLATION": "Запит на скасування надіслано",
     "CANCEL": "Скасувати",
     "REQUEST_CANCEL": "Запросити скасування",
-    "TOO_LATE_TO_CANCEL": "Za późno na odwołanie"
+    "TOO_LATE_TO_CANCEL": "Занадто пізно для скасування",
+    "ALLOWED": "Дозволено",
+    "NOT_ALLOWED": "Заборонено",
+    "FORGOT_PASSWORD_QUESTION": "Забули пароль",
+    "REMEMBER_ME": "Запам'ятати мене",
+    "PASSWORD": "Пароль",
+    "NO_ACCOUNT_REGISTER": "Немає облікового запису? Зареєструйтеся!",
+    "SEND": "Надіслати"
+  },
+  "FORGOT_PASSWORD": {
+    "PUT_EMAIL": "Введіть свою email-адресу",
+    "FORGOT_PASSWORD": "Скинути пароль",
+    "CANCELLED": "Скасовано",
+    "REQUESTED_CANCELLATION": "Очікує скасування",
+    "REJECTED": "Відхилено",
+    "SUCCESS_MESSAGE": "Перевірте свою електронну пошту, щоб скинути пароль",
+    "ERROR_GENERIC": "Неправильна email-адреса або обліковий запис не існує"
   },
   "STATUS": {
     "CREATED": "Очікує підтвердження",
@@ -125,7 +174,7 @@
     "ERROR_TITLE": "Помилка реєстрації",
     "ERROR_CONFLICT": "Під час реєстрації сталася помилка. Спробуйте ще раз пізніше.",
     "INVALID_DATA": "Неправильні реєстраційні дані. Перевірте свої дані та спробуйте ще раз.",
-    "EMAIL_EXISTS": "Обліковий запис із цією адресою електронної пошти вже існує."
+    "EMAIL_EXISTS": "Обліковий запис із цією email-адресою вже існує."
   },
   "ORGANIZATION_LIST.ADD_ORGANIZATION": {
     "TITLE": "Додати гурт",
@@ -158,7 +207,7 @@
     "TITLE": "Видалити власника гурту",
     "CONFIRMATION": "Ви впевнені, що хочете видалити власника гурту?",
     "CANCEL": "Скасувати",
-    "ACCEPT": "Usuń właściciela",
+    "ACCEPT": "Видалити власника",
     "SUCCESS_TITLE": "Власника видалено",
     "SUCCESS_DESC": "Власника успішно видалено.",
     "CLOSE": "Закрити"
@@ -172,7 +221,7 @@
   "ORGANIZATION_LIST.ERRORS": {
     "DELETE_ORG_FAILED": "Не вдалося видалити гурт. Спробуйте ще раз пізніше.",
     "REMOVE_USER_FAILED": "Не вдалося видалити користувача. Спробуйте ще раз пізніше.",
-    "REMOVE_OWNER_FAILED": "Nie udało się usunąć właściciela. Spróbuj ponownie później.",
+    "REMOVE_OWNER_FAILED": "Не вдалося видалити власника. Спробуйте ще раз пізніше.",
     "STATUS_UPDATE_FAILED": "Не вдалося оновити статус бронювання"
   },
   "ERROR": {
@@ -183,34 +232,36 @@
   },
   "ADD_USER_INTO_ORGANIZATION": {
     "MODAL_CONFIRM_TITLE": "Додати користувача",
-    "ORG_NAME": "Назва організації",
+    "ORG_NAME": "Назва гурту",
     "SELECT_USER": "Виберіть користувача",
     "CANCEL": "Скасувати",
     "CONFIRM": "Підтвердити"
   },
   "USER_MODALS": {
-    "MODAL_CONFIRM_TITLE": "Підтвердження дії",
+    "MODAL_CONFIRM_TITLE": "Підтвердити дію",
     "CANCEL": "Скасувати",
     "CONFIRM": "Підтвердити",
-    "CONFIRM_REQUEST_CANCEL_BODY": "Ви впевнені, що хочете запросити скасування бронювання {{organization}}, {{date}} {{startHour}} - {{endHour}}? Запит буде передано працівнику.",
+    "CONFIRM_REQUEST_CANCEL_BODY": "Ви впевнені, що хочете запросити скасування бронювання {{organization}}, {{date}} {{startHour}} - {{endHour}}? Запит буде надіслано працівнику.",
     "CONFIRM_REQUEST_CANCEL_TITLE": "Скасування бронювання",
     "PRIVATE": "Приватне",
     "ORGANIZATION_ADDED": "Гурт створено",
-    "CONFIRM_DELETE_OWNER": "Підтвердіть видалення власника",
-    "CONFIRM_DELETE_MEMBER": "Підтвердіть видалення учасника гурту",
+    "CONFIRM_DELETE_OWNER": "Підтвердити видалення власника",
+    "CONFIRM_DELETE_MEMBER": "Підтвердити видалення учасника гурту",
     "CONFIRM_BAN_TITLE": "Блокування",
     "CONFIRM_BAN_BODY": "Підтвердити блокування",
-    "SUCCESS": "Успіх"
+    "SUCCESS": "Успішно",
+    "LOGIN_TO_CREATE_RESERVATION": "Щоб створити бронювання, вам потрібно увійти"
   },
   "ADMIN_RESERVATIONS": {
     "IS_PRIVATE": "Так",
     "IS_NOT_PRIVATE": "Ні",
     "ACCEPT": "Прийняти",
     "REJECT": "Скасувати",
-    "NO_RESERVATIONS": "Brak rezerwacji do wyświetlenia",
+    "NO_RESERVATIONS": "Немає бронювань для відображення",
     "ACCEPTED": "Бронювання прийнято",
     "REJECTED": "Бронювання відхилено",
-    "SEND_ACCEPT": "Ідея ?",
+    "REJECT_CANCELLATION_REQUESTS": "Відхилити запит",
+    "SEND_ACCEPT": "Ідея?",
     "SEND_CANCEL": "Скасувати",
     "OK": "OK",
     "PENDING": "Очікує",
@@ -218,11 +269,11 @@
     "CANCELLED": "Скасовано",
     "REQUESTED_CANCELLATION": "Запити на скасування",
     "CONFIRM_ACCEPT_BODY": "Ви впевнені, що хочете прийняти бронювання гурту {organization}, {date} {startHour} - {endHour}?",
-    "CONFIRM_ACCEPT_TITLE": "Підтвердіть прийняття бронювання",
+    "CONFIRM_ACCEPT_TITLE": "Підтвердити прийняття бронювання",
     "CONFIRM_REQUEST_CANCEL_BODY": "Ви впевнені, що хочете прийняти запит на скасування бронювання гурту {organization}, {date} {startHour} - {endHour}?",
-    "CONFIRM_REQUEST_CANCEL_TITLE": "Підтвердіть прийняття запиту на скасування",
+    "CONFIRM_REQUEST_CANCEL_TITLE": "Підтвердити прийняття запиту на скасування",
     "CONFIRM_CANCEL_BODY": "Ви впевнені, що хочете відхилити бронювання гурту {organization}, {date} {startHour} - {endHour}?",
-    "CONFIRM_CANCEL_TITLE": "Підтвердіть відхилення бронювання",
+    "CONFIRM_CANCEL_TITLE": "Підтвердити відхилення бронювання",
     "ORGANIZATION": "Гурт",
     "RESERVED_BY": "Забронював",
     "DATE": "Дата",
@@ -236,7 +287,7 @@
     "ACTION_COLUMN": "Дія",
     "ORG": "Гурт",
     "USER_DETAILS": "Деталі користувача",
-    "USERS_ORGANIZATIONS": "Гурти, до яких належить",
+    "USERS_ORGANIZATIONS": "Гурти, до яких він належить",
     "USERS_OR_THEIR_ORGS_RESERVATIONS": "Бронювання користувача або його гуртів",
     "ORGANIZATION_DETAILS": "Деталі гурту",
     "ORGANIZATION_MEMBERS": "Учасники гурту",
@@ -251,25 +302,46 @@
     "ROOM_NAME": "Назва зали",
     "IS_RECORDABLE": "Запис?",
     "PRICES_MANAGEMENT": "Керування цінами та записами",
-    "ADMIN_PANEL": "Панель адміністратора"
+    "ADMIN_PANEL": "Панель адміністратора",
+    "CONFIRM_PAID": "Оплачено",
+    "CONFIRM_UNPAID": "Не оплачено"
   },
   "PAGINATION": {
     "PREVIOUS": "Попередня",
     "NEXT": "Наступна",
     "PAGE": "Сторінка",
-    "TOTAL": "Усього"
+    "TOTAL": "Всього"
   },
   "COMMON": {
     "DELETE": "Видалити",
     "CLOSE": "Закрити",
     "SELECT": "Вибрати",
-    "PRICE": "Усього",
+    "PRICE": "Разом",
     "BANDS": "Гурти",
     "RESERVATIONS": "Бронювання",
     "SETTINGS": "Налаштування",
     "ADD_BAND": "Додати гурт",
     "NOT_AVAILABLE_FOR_THIS_ROOM": "Недоступно для цієї зали",
     "NO_ROOMS_TO_DISPLAY": "Немає зал для відображення",
-    "ROOM": "Зала"
+    "ROOM": "Зала",
+    "LOADING": "Завантаження...",
+    "UPDATE_PASSWORD": "Змінити пароль",
+    "OLD_PASSWORD": "Старий пароль",
+    "FIRST_NEW_PASSWORD": "Новий пароль",
+    "SECOND_NEW_PASSWORD": "Повторіть новий пароль",
+    "SUCCESS_UPDATING_PASSWORD": "Пароль змінено!",
+    "ERROR_MATCHING_PASSWORD": "Паролі не збігаються",
+    "ERROR_UPDATING_PASSWORD": "Не вдалося змінити пароль, спробуйте ще раз пізніше"
+  },
+  "COOKIES": {
+    "TITLE": "Ми дбаємо про вашу конфіденційність",
+    "DESCRIPTION": "Ми використовуємо файли cookie, щоб забезпечити належне функціонування веб-сайту, запам'ятати ваші налаштування та проаналізувати трафік.",
+    "NECESSARY_ONLY": "Тільки необхідні",
+    "ACCEPT_ALL": "Прийняти все"
+  },
+  "НАЛАШТУВАННЯ": {
+    "КЛЮЧ": "Параметр",
+    "ЗНАЧЕННЯ": "Старе значення",
+    "НОВЕ_ЗНАЧЕННЯ": "Нове значення"
   }
 }

@@ -1,8 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { CalendarHelper } from '../calendar/calendar.helper';
 import { OrganizationFront } from '../../model/organizationFront';
-import { HourWrapper } from '../../model/hourWrapper';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../auth/authService';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
@@ -95,8 +93,10 @@ export class ReservationStore {
     const room = this.rooms().find((r) => r.id === booking.roomId);
     if (!room?.pricing) return 0;
 
-    const type = booking.reservationType ?? this.selectedReservationType();
-
+    let type = booking.reservationType ?? this.selectedReservationType();
+    if (!type) {
+      type = ReservationType.REHEARSAL;
+    }
     const pricePerHour = room.pricing[type] ?? 0;
 
     return (Number(booking.duration) || 0) * pricePerHour;
@@ -139,8 +139,7 @@ export class ReservationStore {
   });
 
   readonly currentMonthLabel = computed(
-    () =>
-      `${this.helper.monthLabels[this.currentMonthDate().getMonth()]} ${this.currentMonthDate().getFullYear()}`,
+    () => `${this.helper.monthLabels[this.currentMonthDate().getMonth()]}`,
   );
 
   readonly currentWeekLabel = computed(() => {
@@ -151,110 +150,6 @@ export class ReservationStore {
       return `${this.helper.monthLabels[start.getMonth()]} ${start.getFullYear()}`;
     }
     return `${this.helper.monthLabels[start.getMonth()]} - ${this.helper.monthLabels[end.getMonth()]} ${start.getFullYear()}`;
-  });
-
-  readonly tableRows = computed(() => {
-    const isAdmin = this.authService.isAdmin();
-    const selectedDate = this.daySelectedByUser();
-    const reservationsToday = this.currentDayReservations();
-    const roomsList = this.rooms();
-    const userOrgs = this.userOrgsMap();
-    const allOrgs = this.allOrgsMap();
-    const hoursRange = this.helper.hoursRange;
-    const privateReservationText = this.loco.translate('ADMIN_RESERVATIONS.IS_PRIVATE');
-    const now = new Date();
-    const isPastDay =
-      new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate()) <
-      new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const isToday = this.helper.isSameDay(selectedDate, now);
-    const currentHour = now.getHours();
-
-    return hoursRange.map((hour) => {
-      const isPastHour = isPastDay || (isToday && hour <= currentHour);
-
-      const cells = roomsList.map((room) => {
-        const matchedReservation = reservationsToday.find((res) => {
-          if (res.room !== room.id) return false;
-          const startHour = new Date(res.startAt).getUTCHours();
-          const endHour = new Date(res.endAt).getUTCHours();
-          return hour >= startHour && hour < endHour;
-        });
-
-        const isReserved = !!matchedReservation;
-        let isFirst = false;
-        let isLast = false;
-        let isMyOrg = false;
-        let bandName = '';
-        let isPrivateReservation = false;
-        let privateReservationText = 'Moja prywatna';
-        let reservedByUserId: number | null = null;
-        let reservationText = '';
-        let isMyPrivateReservation = false;
-
-        if (matchedReservation) {
-          const startHour = new Date(matchedReservation.startAt).getUTCHours();
-          isFirst = hour === startHour;
-          isLast = hour === new Date(matchedReservation.endAt).getUTCHours() - 1;
-          reservedByUserId = matchedReservation.reservedBy;
-          if (matchedReservation.organization) {
-            if (isAdmin) {
-              bandName =
-                allOrgs.get(matchedReservation.organization) ||
-                `${matchedReservation.organization}`;
-              isMyOrg = false;
-              reservationText = bandName;
-            } else {
-              if (userOrgs.has(matchedReservation.organization)) {
-                isMyOrg = true;
-                bandName = userOrgs.get(matchedReservation.organization) || '';
-                reservationText = bandName;
-              } else {
-                isMyOrg = false;
-                bandName = '';
-                reservationText = bandName;
-              }
-            }
-          }
-
-          if (matchedReservation.organization === null) {
-            isPrivateReservation = true;
-            const loggedUserId = parseInt(this.authService.userId()!, 10);
-
-            if (this.authService.isAdmin()) {
-              const userText = this.users().find(
-                (u) => u.id === matchedReservation.reservedBy,
-              )?.nick;
-              reservationText = `${userText} (prywatna)`;
-            } else if (matchedReservation.reservedBy === loggedUserId) {
-              reservationText = privateReservationText;
-              isMyPrivateReservation = true;
-            } else {
-              reservationText = '';
-            }
-          }
-        }
-
-        return {
-          roomId: room.id ?? 0,
-          hourWrapper: new HourWrapper(
-            hour,
-            isReserved,
-            isFirst,
-            isLast,
-            isMyOrg,
-            isPastHour,
-            bandName,
-            isPrivateReservation,
-            privateReservationText,
-            reservedByUserId,
-            reservationText,
-            isMyPrivateReservation,
-          ),
-        };
-      });
-
-      return { hour, cells };
-    });
   });
 
   // ================= modals control =================
@@ -279,27 +174,26 @@ export class ReservationStore {
   readonly isOrganizationDetailsModalActive = signal<boolean>(false);
   readonly isModalAddOwnerSuccessActive = signal<boolean>(false);
   readonly isModalAddMemberSuccessActive = signal<boolean>(false);
-
+  readonly isBookingModalActive = signal<boolean>(false);
+  readonly isLoginOrRegisterModalActive = signal<boolean>(false);
   readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
   readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
   readonly confirmMarkReservationAsCanceled = signal<boolean>(false);
   readonly confirmMarkReservationAsRejected = signal<boolean>(false);
-
   readonly popupMarkedReservationAsAccepted = signal<boolean>(false);
   readonly popupMarkedReservationAsRequestCancel = signal<boolean>(false);
   readonly popupMarkedReservationAsCanceled = signal<boolean>(false);
   readonly isPrivateReservationCheckboxActivated = signal<boolean>(false);
-
-  readonly statusForAdminPage = signal<ReservationStatus | null>(null);
-
   readonly isAddOrganizationModalActive = signal<boolean | null>(null);
-
   readonly popupConfirmationActive = signal<boolean | null>(null);
 
+  readonly statusForAdminPage = signal<ReservationStatus | null>(null);
   readonly organizationListSelectedUser = signal<User | null>(null);
   readonly selectedOrganization = signal<Organization | null>(null);
   readonly selectedReservation = signal<ReservationDto | null>(null);
   readonly selectedUser = signal<User | null>(null);
+  readonly selectedRoom = signal<Room | null>(null);
+  readonly selectedHour = signal<number | null>(null);
   readonly selectedReservations = signal<ReservationDto[] | null>(null);
 
   readonly globalErrorKey = signal<string | null>(null);
@@ -346,8 +240,9 @@ export class ReservationStore {
   );
 
   // Toolbar
-
   readonly toolbarSelectedIds = signal<Set<number>>(new Set());
+
+  readonly toolbarOnlyFuture = signal<boolean>(false);
 
   toggleSelection(id: number): void {
     this.toolbarSelectedIds.update((current) => {
@@ -454,7 +349,7 @@ export class ReservationStore {
     switch (this.toolbarType()) {
       case ToolbarType.USERS:
         return (this.queryParams()['sortBy'] as string) ?? 'nick';
-      case ToolbarType.RESERVATION_BY_STATUS:
+      case ToolbarType.RESERVATIONS:
         return (this.queryParams()['sortBy'] as string) ?? 'id';
       default:
         return (this.queryParams()['sortBy'] as string) ?? 'id';
@@ -465,7 +360,12 @@ export class ReservationStore {
     () => (this.queryParams()['sortDir'] as 'asc' | 'desc') ?? 'desc',
   );
 
+  currentYear = computed(() => {
+    const now = new Date();
+    return now.getFullYear();
+  });
+
   // settings
   readonly availableLanguages = signal<string[]>(['pl', 'en', 'ua']);
-  readonly selectedLanguage = signal<string>('');
+  readonly selectedLanguage = this.loco.activeLang();
 }

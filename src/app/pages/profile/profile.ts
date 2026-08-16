@@ -47,10 +47,6 @@ export class ProfilePage implements OnInit, OnDestroy {
   readonly reservationToDelete = signal<ReservationDto | null>(null);
   private sseController: AbortController | null = null;
 
-  constructor() {
-    this.authService.checkCurrentSession().subscribe();
-  }
-
   getTitleText(): string {
     if (this.store.confirmMarkReservationAsRequestCancel()) {
       return this.translocoService.translate('USER_MODALS.CONFIRM_REQUEST_CANCEL_TITLE');
@@ -86,9 +82,9 @@ export class ProfilePage implements OnInit, OnDestroy {
     const user = this.authService.currentUser();
     if (user) {
       this.facade.getRooms();
-      this.facade.getAllReservationsForUserAndTheirOrganization();
+      this.facade.getReservations(null, this.store.toolbarOnlyFuture(), user.id, null, null, null);
       this.facade.connectToReservationStream();
-      this.facade.getOrganizationsOfUser(true, user.id);
+      this.facade.getOrganizations(true, user.id);
     }
   }
 

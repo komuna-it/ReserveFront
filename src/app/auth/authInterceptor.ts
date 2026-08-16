@@ -93,7 +93,9 @@ function handle403Forbidden(error: HttpErrorResponse, injector: Injector): void 
 }
 
 function isAuthEndpoint(url: string): boolean {
-  return url.includes('/auth/login') || url.includes('/auth/refresh');
+  return (
+    url.includes('/auth/login') || url.includes('/auth/refresh') || url.includes('/auth/register')
+  );
 }
 
 // ============================================================================
@@ -106,6 +108,8 @@ function handle401Unauthorized(
   authService: AuthService,
   originalError: HttpErrorResponse,
 ): Observable<any> {
+  console.info('Catched 401 unauthorized, trying to refresh acess token...');
+
   if (isRefreshing) {
     return waitForTokenRefresh(req, next, originalError);
   }
@@ -120,7 +124,7 @@ function executeTokenRefresh(
 ): Observable<any> {
   isRefreshing = true;
   refreshTokenSubject.next(null);
-
+  console.log('refreshing access token...');
   return authService.refreshToken().pipe(
     switchMap(() => {
       isRefreshing = false;
@@ -129,6 +133,7 @@ function executeTokenRefresh(
     }),
     catchError((refreshErr) => {
       isRefreshing = false;
+      console.error('failed to refresh access token');
       refreshTokenSubject.next(false);
       authService.handleSessionExpired();
       return throwError(() => refreshErr);

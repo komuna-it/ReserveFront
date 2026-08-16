@@ -4,7 +4,7 @@
 >
   <div
     (click)="$event.stopPropagation()"
-    class="bg-slate-800 text-slate-100 p-6 rounded-2xl shadow-2xl border border-emerald-500/50 text-center max-w-sm w-full flex flex-col items-center"
+    class="border border-red-500 border-2 bg-slate-800 text-slate-100 p-6 rounded-2xl shadow-2xl text-center max-w-sm w-full flex flex-col items-center"
   >
     <h2 class="text-lg font-bold tracking-tight mb-1 text-slate-100">
       {{ 'USER_MODALS.CONFIRM_BAN_TITLE' | transloco }}
@@ -35,7 +35,7 @@
         <input
           type="text"
           [(ngModel)]="reason"
-          placeholder="reason..."
+          placeholder=" {{ 'USERS_TABLE.REASON' | transloco }}..."
           class="w-full bg-slate-700 text-white text-xs border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           required
         />
@@ -47,6 +47,7 @@
         </label>
         <input
           type="number"
+          oninput="if (this.value.length > 4) this.value = this.value.slice(0, 4);"
           [(ngModel)]="durationInput"
           placeholder="7"
           class="w-full bg-slate-700 text-white text-xs border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -65,7 +66,7 @@
       <button
         (click)="handleBan()"
         [disabled]="!reason || !durationInput"
-        class="w-[45%] px-4 py-3 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-all shadow-md"
+        class="w-[45%] px-4 py-3 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-all shadow-md"
       >
         {{ 'USER_MODALS.CONFIRM' | transloco }}
       </button>

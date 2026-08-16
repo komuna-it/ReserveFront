@@ -1,9 +1,43 @@
-<app-table-toolbar [type]="toolbarType"></app-table-toolbar>
-<div
-  class="w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
->
-  <app-table-reservations
-    [status]="store.statusForAdminPage()"
-    [type]="resTableType"
-  ></app-table-reservations>
+<div class="hidden md:block">
+  <app-table-toolbar [type]="toolbarType"></app-table-toolbar>
+</div>
+
+<div class="w-full mb-4 px-2">
+  <label class="block text-slate-400 text-sm mb-1 font-semibold">{{
+    'ADMIN_RESERVATIONS.FILTER_STATUS' | transloco
+  }}</label>
+  <div class="w-full mb-4 px-2 block md:hidden mt-2">
+    <select
+      (change)="onStatusChange($event)"
+      class="w-full bg-slate-900 border border-slate-700 text-slate-300 rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+    >
+      <option value="CREATED" [selected]="store.statusForAdminPage() === 'CREATED'">
+        {{ 'STATUS.CREATED' | transloco }}
+      </option>
+      <option value="CONFIRMED" [selected]="store.statusForAdminPage() === 'CONFIRMED'">
+        {{ 'STATUS.CONFIRMED' | transloco }}
+      </option>
+      <option value="CANCELLED" [selected]="store.statusForAdminPage() === 'CANCELLED'">
+        {{ 'STATUS.CANCELLED' | transloco }}
+      </option>
+      <option value="REJECTED" [selected]="store.statusForAdminPage() === 'REJECTED'">
+        {{ 'STATUS.REJECTED' | transloco }}
+      </option>
+      <option
+        value="REQUESTED_CANCELLATION"
+        [selected]="store.statusForAdminPage() === 'REQUESTED_CANCELLATION'"
+      >
+        {{ 'STATUS.REQUESTED_CANCELLATION' | transloco }}
+      </option>
+    </select>
+  </div>
+
+  <div
+    class="w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
+  >
+    <app-table-reservations
+      [status]="store.statusForAdminPage()"
+      [type]="resTableType"
+    ></app-table-reservations>
+  </div>
 </div>
