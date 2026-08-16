@@ -2,7 +2,7 @@
   <div class="hidden md:block overflow-x-auto">
     <div class="overflow-x-auto">
       @if (store.reservations().length > 0) {
-        <table class="w-full text-left border-collapse">
+        <table class="w-full text-center border-collapse">
           <thead>
             <tr
               class="bg-slate-900/50 border-b border-slate-700 text-slate-400 text-xs font-semibold uppercase tracking-wider"
@@ -24,7 +24,7 @@
                   </label>
                 </th>
               }
-              <th class="border border-r border-slate-700/60 py-3 px-6">
+              <th class="border border-r border-slate-700/60 py-3 px-2 text-center">
                 {{ 'PROFILE.TABLE_INDEX' | transloco }}
               </th>
 
@@ -47,26 +47,24 @@
                 </div>
               </th>
 
-              <th class="py-3 px-6">{{ 'PROFILE.TABLE_ROOM' | transloco }}</th>
-              <th class="py-3 px-6">{{ 'PROFILE.TABLE_DATE' | transloco }}</th>
-              <th class="py-3 px-6">{{ 'CALENDAR.RESERVATION_TYPE' | transloco }}</th>
-              <th class="py-3 px-6">{{ 'PROFILE.PRICE' | transloco }} (zł)</th>
-              @if (type() != ReservationTableType.ADMIN_BY_STATUS) {
-                <th class="py-3 px-6">{{ 'PROFILE.STATUS' | transloco }}</th>
-                @if (type() === ReservationTableType.USER_PROFILE) {
-                  <th class="py-3 px-6">{{ 'PROFILE.TABLE_CANCEL' | transloco }}</th>
-                }
-              }
-              <th
-                class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 w-[14%]"
-              >
+              <th class="py-3 px-6 text-center">{{ 'PROFILE.TABLE_ROOM' | transloco }}</th>
+              <th class="py-3 px-6 text-center">{{ 'PROFILE.TABLE_DATE' | transloco }}</th>
+              <th class="py-3 px-6 text-center">{{ 'CALENDAR.RESERVATION_TYPE' | transloco }}</th>
+              <th class="py-3 px-6 text-center">{{ 'PROFILE.PRICE' | transloco }} (zł)</th>
+              <th class="py-3.5 px-4 font-semibold text-center w-[14%]">
                 {{ 'PROFILE.IS_PAID' | transloco }}
               </th>
+              @if (type() != ReservationTableType.ADMIN_BY_STATUS) {
+                <th class="py-3 px-6 text-center">{{ 'PROFILE.STATUS' | transloco }}</th>
+              }
+              @if (type() === ReservationTableType.USER_PROFILE) {
+                <th class="py-3 px-6 text-center">{{ 'PROFILE.TABLE_CANCEL' | transloco }}</th>
+              }
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-700 text-sm">
             @for (res of store.reservations(); track res.id; let idx = $index) {
-              <tr class="hover:bg-slate-700/30 transition">
+              <tr class="hover:bg-slate-700/30 transition text-center">
                 @if (type() === ReservationTableType.ADMIN_BY_STATUS) {
                   <td class="p-1.5 border-r border-slate-700/60 align-middle text-center">
                     <label
@@ -81,80 +79,90 @@
                     </label>
                   </td>
                 }
-                <td class="border border-r border-slate-700/60 py-4 px-6 text-slate-500 font-mono">
+                <td
+                  class="border border-r border-slate-700/60 py-4 px-2 text-slate-500 font-mono text-center"
+                >
                   {{ idx + 1 }}
                 </td>
 
                 <!-- Reserved by column -->
-                <td class="py-4 px-6 font-mono text-slate-300 text-xs">
+                <td class="py-4 px-6 font-mono text-slate-300 text-xs text-center">
                   {{ textFormatingTool.reservedByText(res) }}
                 </td>
 
-                <td class="py-4 px-6">
-                  <span class="px-2 py-1 rounded text-slate-300 text-s border border-slate-700">
+                <td class="py-4 px-6 text-center">
+                  <span
+                    class="inline-block px-2 py-1 rounded text-slate-300 text-s border border-slate-700"
+                  >
                     {{ textFormatingTool.getRoomName(res) }}
                   </span>
                 </td>
-                <td class="py-4 px-6 font-mono text-slate-300 text-s">
+                <td class="py-4 px-6 font-mono text-slate-300 text-s text-center">
                   {{ textFormatingTool.formatDuration(res) }}
                 </td>
 
-                <td class="py-4 px-6 font-mono text-slate-300 text-xs">
+                <td class="py-4 px-6 font-mono text-slate-300 text-xs text-center">
                   {{ 'CALENDAR.' + res.type | transloco }}
                 </td>
 
-                <td class="py-4 px-6 font-mono text-slate-300 text-xs">
+                <td class="py-4 px-6 font-mono text-slate-300 text-xs text-center">
                   {{ textFormatingTool.getPrice(res) }}
                 </td>
 
                 <td class="py-4 px-6 font-mono text-slate-300 text-xs">
-                  @if (res.paid) {
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="m4.5 12.75 6 6 9-13.5"
-                      />
-                    </svg>
-                  } @else {
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M6 18 18 6M6 6l12 12"
-                      />
-                    </svg>
-                  }
+                  <div class="flex justify-center items-center">
+                    @if (res.paid) {
+                      <svg
+                        class="w-4 h-4 text-emerald-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2.5"
+                          d="m4.5 12.75 6 6 9-13.5"
+                        />
+                      </svg>
+                    } @else {
+                      <svg
+                        class="w-4 h-4 text-rose-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2.5"
+                          d="M6 18 18 6M6 6l12 12"
+                        />
+                      </svg>
+                    }
+                  </div>
                 </td>
-                @if (type() === ReservationTableType.USER_PROFILE) {
-                  <td class="py-4 px-6 text-slate-400">
-                    {{ textFormatingTool.getStatusText(res) }}
+                @if (type() != ReservationTableType.ADMIN_BY_STATUS) {
+                  <td class="py-4 px-6 text-slate-400 text-center">
+                    {{ 'STATUS.' + res.status | transloco }}
                   </td>
 
-                  <td class="py-4 px-6">
-                    <button
-                      (click)="requestCancellation(res)"
-                      [disabled]="!isCancellationPossible(res)"
-                      class="text-white text-s bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
-                      [ngClass]="{
-                        'opacity-50 cursor-not-allowed': !isCancellationPossible(res),
-                      }"
-                    >
-                      {{ getCancelButtonLabel(res) }}
-                    </button>
-                  </td>
+                  @if (type() === ReservationTableType.USER_PROFILE) {
+                    <td class="py-4 px-6 text-center">
+                      <button
+                        (click)="requestCancellation(res)"
+                        [disabled]="!isCancellationPossible(res)"
+                        class="text-white text-s bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded transition"
+                        [ngClass]="{
+                          'opacity-50 cursor-not-allowed': !isCancellationPossible(res),
+                        }"
+                      >
+                        {{ getCancelButtonLabel(res) }}
+                      </button>
+                    </td>
+                  }
                 }
               </tr>
             }
@@ -168,52 +176,12 @@
     </div>
   </div>
 
-  <div class="block md:hidden p-3 space-y-3">
-    @if (store.reservations().length > 0) {
-      @for (res of store.reservations(); track res.id; let idx = $index) {
-        <div
-          (click)="openReservationDetails(res)"
-          class="bg-slate-900/60 p-4 rounded-xl border border-slate-700 shadow-md flex flex-col gap-3 active:scale-[0.98] transition-transform cursor-pointer"
-        >
-          <div class="flex justify-between items-start border-b border-slate-700/50 pb-2">
-            <div>
-              <span class="text-xs text-slate-500 font-mono block mb-0.5">#{{ idx + 1 }}</span>
-              <span class="text-sm font-semibold text-emerald-400">{{
-                textFormatingTool.reservedByText(res)
-              }}</span>
-            </div>
-            <div
-              class="bg-slate-800 border border-slate-700 px-2 py-1 rounded text-xs text-slate-300"
-            >
-              {{ textFormatingTool.getRoomName(res) }}
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2 text-xs text-slate-400">
-            <div>
-              <span class="block text-slate-500">{{ 'PROFILE.TABLE_DATE' | transloco }}</span>
-              <span class="text-slate-200">{{ textFormatingTool.formatDuration(res) }}</span>
-            </div>
-            <div>
-              <span class="block text-slate-500">{{ 'PROFILE.PRICE' | transloco }}</span>
-              <span class="text-slate-200">{{ textFormatingTool.getPrice(res) }} zł</span>
-            </div>
-          </div>
-        </div>
-      }
-    } @else {
-      <div class="p-8 text-center text-slate-500">
-        <p class="text-sm">{{ 'PROFILE.NO_RESERVATIONS' | transloco }}</p>
-      </div>
-    }
-  </div>
+  <app-pagination
+    [totalElements]="store.reservationsPage().totalElements"
+    [currentPage]="store.reservationsPage().number"
+    [pageSize]="store.currentReservationsSize()"
+    [totalPages]="store.reservationsPage().totalPages"
+    (pageChange)="facade.changeReservationsPage($event)"
+    (sizeChange)="facade.changeReservationsSize($event)"
+  ></app-pagination>
 </div>
-
-<app-pagination
-  [totalElements]="store.reservationsPage().totalElements"
-  [currentPage]="store.reservationsPage().number"
-  [pageSize]="store.currentReservationsSize()"
-  [totalPages]="store.reservationsPage().totalPages"
-  (pageChange)="facade.changeReservationsPage($event)"
-  (sizeChange)="facade.changeReservationsSize($event)"
-></app-pagination>

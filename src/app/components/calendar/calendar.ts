@@ -51,12 +51,12 @@ export class CalendarComponent {
     const user = this.auth.currentUser();
     if (user) {
       if (this.auth.isAdmin()) {
-        this.facade.getAllMembersAllOrganizations();
+        this.facade.getOrganizations(true, null);
       } else {
-        this.facade.getOrganizationsOfUser(false, user.id);
+        this.facade.getOrganizations(false, user.id);
       }
     }
-    this.facade.getFutureReservations();
+    this.facade.getReservations(null, true, null, null);
     this.facade.getRooms();
 
     const params = this.route.snapshot.queryParams;

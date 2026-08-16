@@ -50,7 +50,13 @@ export class AdminPage implements OnInit {
   readonly reservation = input<any | null>(null);
 
   ngOnInit(): void {
-    this.facade.getReservationsByStatus(ReservationStatus.CREATED);
+    this.facade.getReservations(
+      ReservationStatus.CREATED,
+      this.store.toolbarOnlyFuture(),
+      null,
+      null,
+    );
+
     this.facade.getAllUsers();
   }
 

@@ -13,6 +13,7 @@ import { SuccessPopup } from '../../../../modals/success-popup/success-popup';
 import { ErrorPopup } from '../../../../modals/error-popup/error-popup';
 import { ConfirmationPopup } from '../../../../modals/confirmation-popup/confirmation-popup';
 import { ToolbarType } from '../../../../components/toolbars/toolbarType';
+import { AuthService } from '../../../../auth/authService';
 
 @Component({
   selector: 'app-organization-list',
@@ -25,6 +26,7 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly mode = input<'admin' | 'user'>('user');
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
+  readonly auth = inject(AuthService);
 
   readonly safeOrganizations = computed(() => {
     const orgs = this.store.organizations();
@@ -50,22 +52,24 @@ export class OrganizationList implements OnInit, OnDestroy {
   });
 
   constructor() {
+    const user = this.auth.currentUser();
+
     effect(() => {
       this.store.currentSortBy();
       this.store.currentSortDir();
       this.store.currentOrganizationsPage();
       this.store.currentOrganizationsSize();
     });
-  }
-
-  ngOnInit(): void {
-    if (this.mode() === 'admin') {
+    if (this.mode() === 'admin' && this.auth.isAdmin()) {
       this.store.toolbarType.set(ToolbarType.ADMIN_ORGANIZATIONS);
       this.store.isAdminOrganizationModalActive.set(true);
+      this.facade.getOrganizations(true, null);
+    } else {
+      if (user) this.facade.getOrganizations(true, user.id);
     }
-    this.facade.getAllUsers();
-    this.facade.getAllMembersAllOrganizations();
   }
+
+  ngOnInit(): void {}
 
   ngOnDestroy(): void {
     if (this.mode() === 'admin') {
@@ -100,22 +104,7 @@ export class OrganizationList implements OnInit, OnDestroy {
   }
 
   selectOrganizationAndOpenDetailsModal(org: Organization): void {
-    this.store.selectedOrganization.set(
-      new Organization(
-        org.id,
-        org.name,
-        org.created,
-        org.trusted,
-        org.owners.map(
-          (o) =>
-            new OrganizationMemberDto(o.id, o.organizationId, o.userId, o.role, o.email, o.nick),
-        ),
-        org.members.map(
-          (m) =>
-            new OrganizationMemberDto(m.id, m.organizationId, m.userId, m.role, m.email, m.nick),
-        ),
-      ),
-    );
+    this.store.selectedOrganization.set(org);
 
     this.store.isOrganizationDetailsModalActive.set(true);
   }

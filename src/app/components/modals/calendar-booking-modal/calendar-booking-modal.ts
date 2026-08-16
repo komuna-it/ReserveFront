@@ -65,9 +65,9 @@ export class CalendarBookingModal {
     if (!user) return;
     this.store.selectedUser.set(user);
     if (this.isAdminOrManagerSelected()) {
-      this.facade.getAllMembersAllOrganizations();
+      this.facade.getOrganizations(true, null);
     } else {
-      this.facade.getOrganizationsOfUser(false, user.id);
+      this.facade.getOrganizations(false, user.id);
     }
     if (this.booking) {
       this.booking.reservedByUserId = user.id;
@@ -94,12 +94,12 @@ export class CalendarBookingModal {
   }
 
   togglePrivateReservationCheckbox() {
-    if (this.isPrivateReservationCheckboxDisabled()) {
+    if (this.isPrivateReservationForced()) {
       return;
     }
 
-    const isPrivateNow = !this.store.isPrivateReservationCheckboxActivated();
-    this.store.isPrivateReservationCheckboxActivated.set(isPrivateNow);
+    const isPrivateNow = this.store.isPrivateReservationCheckboxActivated();
+    this.store.isPrivateReservationCheckboxActivated.set(!isPrivateNow);
 
     const booking = this.store.selectedBooking();
     const orgs = this.store.organizations();
@@ -108,7 +108,7 @@ export class CalendarBookingModal {
     }
   }
 
-  isPrivateReservationCheckboxDisabled() {
+  isPrivateReservationForced() {
     return this.store.organizations().length === 0;
   }
 

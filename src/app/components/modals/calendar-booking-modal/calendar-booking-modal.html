@@ -104,7 +104,7 @@
         <select
           id="bandSelect"
           [(ngModel)]="booking.organizationId"
-          [disabled]="isPrivateReservationCheckboxDisabled()"
+          [disabled]="this.store.isPrivateReservationCheckboxActivated()"
           class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
           @for (org of store.organizations(); track org.id) {
@@ -129,16 +129,16 @@
         <input
           id="privateReservationCheckbox"
           type="checkbox"
-          [ngModel]="isPrivateReservationCheckboxDisabled()"
+          [ngModel]="isPrivateReservationForced()"
           (click)="togglePrivateReservationCheckbox()"
-          [disabled]="isPrivateReservationCheckboxDisabled()"
+          [disabled]="isPrivateReservationForced()"
           class="w-4 h-4 text-emerald-600 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         />
         <label
           for="privateReservationCheckbox"
           class="text-sm font-medium text-slate-300 cursor-pointer select-none"
-          [class.cursor-not-allowed]="isPrivateReservationCheckboxDisabled()"
-          [class.opacity-50]="isPrivateReservationCheckboxDisabled()"
+          [class.cursor-not-allowed]="isPrivateReservationForced()"
+          [class.opacity-50]="isPrivateReservationForced()"
         >
           {{ 'CALENDAR.PRIVATE_RESERVATION' | transloco }}
         </label>

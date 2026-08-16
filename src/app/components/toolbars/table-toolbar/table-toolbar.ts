@@ -27,7 +27,7 @@ export class TableToolbar {
 
   readonly activeItems = computed<Identifiable[]>(() => {
     switch (this.type()) {
-      case ToolbarType.RESERVATION_BY_STATUS:
+      case ToolbarType.RESERVATIONS:
         return this.store.reservations();
       case ToolbarType.USERS:
         return this.store.allUsers();
@@ -69,7 +69,7 @@ export class TableToolbar {
 
   showCancelButton() {
     return (
-      this.type() === ToolbarType.RESERVATION_BY_STATUS &&
+      this.type() === ToolbarType.RESERVATIONS &&
       (this.store.statusForAdminPage() === ReservationStatus.CREATED ||
         this.store.statusForAdminPage() === ReservationStatus.CONFIRMED ||
         this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION)
@@ -78,18 +78,18 @@ export class TableToolbar {
 
   showAcceptButton() {
     return (
-      this.type() === ToolbarType.RESERVATION_BY_STATUS &&
+      this.type() === ToolbarType.RESERVATIONS &&
       (this.store.statusForAdminPage() === ReservationStatus.CREATED ||
         this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION)
     );
   }
 
   showPaidButton() {
-    return this.type() === ToolbarType.RESERVATION_BY_STATUS;
+    return this.type() === ToolbarType.RESERVATIONS;
   }
 
   showUnpaidButton() {
-    return this.type() === ToolbarType.RESERVATION_BY_STATUS;
+    return this.type() === ToolbarType.RESERVATIONS;
   }
 
   handlePaid(paid: boolean) {
@@ -97,22 +97,20 @@ export class TableToolbar {
     this.facade.isReservationPaid(selectedRes, paid);
   }
 
-  onlyFuture = signal<boolean>(false);
-
   toggleOnlyFuture() {
-    this.onlyFuture.update((v) => !v);
+    this.store.toolbarOnlyFuture.update((v) => !v);
+    const future = this.store.toolbarOnlyFuture();
 
-    const future = this.onlyFuture();
     const status = this.store.statusForAdminPage();
 
     switch (this.type()) {
-      case ToolbarType.RESERVATION_BY_STATUS: {
+      case ToolbarType.RESERVATIONS: {
         this.facade.getReservations(status, future, null, null);
         break;
       }
 
       case ToolbarType.ADMIN_ORGANIZATIONS: {
-        this.facade.getAllMembersAllOrganizations();
+        this.facade.getOrganizations(true, null);
         break;
       }
 
@@ -124,7 +122,7 @@ export class TableToolbar {
       case ToolbarType.USER_ORGANIZATIONS: {
         const user = this.store.selectedUser();
         if (user) {
-          this.facade.getOrganizationsOfUser(future, user.id);
+          this.facade.getOrganizations(future, user.id);
         }
         break;
       }

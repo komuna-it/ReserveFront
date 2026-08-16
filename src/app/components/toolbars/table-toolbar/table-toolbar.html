@@ -13,7 +13,7 @@
     }
 
     <!-- RESERVATION BY STATUS -->
-    @if (type() === ToolbarType.RESERVATION_BY_STATUS) {
+    @if (type() === ToolbarType.RESERVATIONS) {
       <div class="inline-flex items-center gap-2 flex-wrap">
         @if (showAcceptButton()) {
           <button
@@ -113,7 +113,7 @@
         >
           <input
             type="checkbox"
-            [checked]="onlyFuture()"
+            [checked]="this.store.toolbarOnlyFuture()"
             (change)="toggleOnlyFuture()"
             class="rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/20 focus:ring-offset-slate-900 h-4 w-4 cursor-pointer"
           />

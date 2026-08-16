@@ -25,18 +25,18 @@ export class ReservationsByStatus {
   readonly resTableType = ReservationTableType.ADMIN_BY_STATUS;
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  readonly toolbarType = ToolbarType.RESERVATION_BY_STATUS;
+  readonly toolbarType = ToolbarType.RESERVATIONS;
 
   constructor() {
     effect(() => {
       const currentStatus = this.status();
       this.store.statusForAdminPage.set(currentStatus);
-      this.facade.getReservationsByStatus(currentStatus);
+      this.facade.getReservations(currentStatus, this.store.toolbarOnlyFuture(), null, null);
     });
   }
   onStatusChange(event: Event): void {
     const newStatus = (event.target as HTMLSelectElement).value as ReservationStatus;
     this.store.statusForAdminPage.set(newStatus);
-    this.facade.getReservationsByStatus(newStatus);
+    this.facade.getReservations(newStatus, this.store.toolbarOnlyFuture(), null, null);
   }
 }

@@ -242,8 +242,9 @@ export class ReservationStore {
   );
 
   // Toolbar
-
   readonly toolbarSelectedIds = signal<Set<number>>(new Set());
+
+  readonly toolbarOnlyFuture = signal<boolean>(false);
 
   toggleSelection(id: number): void {
     this.toolbarSelectedIds.update((current) => {
@@ -350,7 +351,7 @@ export class ReservationStore {
     switch (this.toolbarType()) {
       case ToolbarType.USERS:
         return (this.queryParams()['sortBy'] as string) ?? 'nick';
-      case ToolbarType.RESERVATION_BY_STATUS:
+      case ToolbarType.RESERVATIONS:
         return (this.queryParams()['sortBy'] as string) ?? 'id';
       default:
         return (this.queryParams()['sortBy'] as string) ?? 'id';

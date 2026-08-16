@@ -23,7 +23,7 @@ export const RESERVATIONS_ROUTES: Routes = [
     data: {
       status: ReservationStatus.CONFIRMED,
       type: ReservationTableType.ADMIN_BY_STATUS,
-      toolbarType: ToolbarType.RESERVATION_BY_STATUS,
+      toolbarType: ToolbarType.RESERVATIONS,
     },
   },
   {
@@ -35,7 +35,7 @@ export const RESERVATIONS_ROUTES: Routes = [
     data: {
       status: ReservationStatus.CREATED,
       type: ReservationTableType.ADMIN_BY_STATUS,
-      toolbarType: ToolbarType.RESERVATION_BY_STATUS,
+      toolbarType: ToolbarType.RESERVATIONS,
     },
   },
   {
@@ -47,7 +47,7 @@ export const RESERVATIONS_ROUTES: Routes = [
     data: {
       status: ReservationStatus.CANCELLED,
       type: ReservationTableType.ADMIN_BY_STATUS,
-      toolbarType: ToolbarType.RESERVATION_BY_STATUS,
+      toolbarType: ToolbarType.RESERVATIONS,
     },
   },
   {
@@ -59,7 +59,7 @@ export const RESERVATIONS_ROUTES: Routes = [
     data: {
       status: ReservationStatus.REQUESTED_CANCELLATION,
       type: ReservationTableType.ADMIN_BY_STATUS,
-      toolbarType: ToolbarType.RESERVATION_BY_STATUS,
+      toolbarType: ToolbarType.RESERVATIONS,
     },
   },
   {
@@ -71,7 +71,7 @@ export const RESERVATIONS_ROUTES: Routes = [
     data: {
       status: ReservationStatus.REJECTED,
       type: ReservationTableType.ADMIN_BY_STATUS,
-      toolbarType: ToolbarType.RESERVATION_BY_STATUS,
+      toolbarType: ToolbarType.RESERVATIONS,
     },
   },
 ];

@@ -307,7 +307,7 @@
     "CONFIRM_PAID": "Paid",
     "CONFIRM_UNPAID": "Unpaid",
     "ONLY_FUTURE": "Only future",
-    "FILTER_STATUS": "Стан фільтра"
+    "FILTER_STATUS": "Filter status"
   },
   "PAGINATION": {
     "PREVIOUS": "Previous",

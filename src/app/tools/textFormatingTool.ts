@@ -7,6 +7,7 @@ import { ReservationFacade } from '../components/reservation/reservation.facade'
 import { ReservationStatus } from '../model/reservationStatus';
 import { User } from '../model/user';
 import { AuthService } from '../auth/authService';
+import { Organization } from '../model/organization';
 
 @Injectable({ providedIn: 'root' })
 export class TextFormatingTool {
@@ -21,6 +22,7 @@ export class TextFormatingTool {
 
   constructor() {
     this.facade.getRooms();
+    this.facade.getAllUsers();
   }
 
   bandText(res: ReservationDto): string {
@@ -33,41 +35,61 @@ export class TextFormatingTool {
   }
 
   reservedByText(res: ReservationDto): string {
-    if (res?.organization) {
-      const orgsData = this.store.organizations();
-      let foundName = '';
+    console.log('loaded orgs');
+    console.table(this.store.organizations());
 
-      if (Array.isArray(orgsData)) {
-        const found = orgsData.find(
-          (org: any) =>
-            String(org.id) === String(res.organization) || org.name === res.organization,
-        );
-        if (found?.name) foundName = found.name;
-      } else if (orgsData && typeof orgsData === 'object' && 'organizations' in orgsData) {
-        const orgs = (orgsData as any).organizations;
-        if (Array.isArray(orgs)) {
-          const found = orgs.find(
-            (org: any) =>
-              String(org.id) === String(res.organization) || org.name === res.organization,
-          );
-          if (found?.name) foundName = found.name;
-        }
-      }
+    console.log('loaded res');
+    console.table(this.store.reservations());
 
-      return foundName || (res as any).organizationName || `${res.organization}`;
+    // 0. NIEZALOGOWANY → NIC NIE WIDZI
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return 'no user';
+
+    // 1. ORGANIZACJE → nazwa organizacji
+    if (res.organization != null) {
+      const orgs = this.store.organizations();
+      const foundOrg = orgs.find((org) => Number(org.id) === Number(res.organization));
+      return foundOrg?.name || 'no org';
     }
 
-    const nick = res?.reservedByText;
+    // 2. PRYWATNE
     const privateText = this.loco.translate('CALENDAR.PRIVATE') || 'prywatna';
-    const myPrivateText = this.loco.translate('CALENDAR.MY_PRIVATE') || 'prywatna';
+    const myPrivateText = this.loco.translate('CALENDAR.MY_PRIVATE') || 'Moja prywatna';
 
+    // 3. NICK ZAWSZE ZE STORE.ALLUSERS()
+    const users = this.store.users();
+    const reservedByUser = users.find((u) => u.id === res.reservedBy);
+    const nick = reservedByUser?.nick || 'No nick found';
+
+    const currentUserId = currentUser.id;
+
+    // 4. ADMIN → zawsze widzi nick + (prywatna)
     if (this.authService.isAdmin()) {
+      console.log(
+        'resId: ',
+        res.id,
+        'nick ? ',
+        nick,
+        ' reservedByUser ',
+        reservedByUser?.id,
+        ' res.reservedBy ',
+        res.reservedBy,
+      );
+      console.log('8 === res.reservedBy: ', 8 === res.reservedBy);
       return nick ? `${nick} (${privateText})` : `(${privateText})`;
-    } else if (this.authService.currentUser()?.id === res?.reservedBy) {
-      return `${myPrivateText}`;
     }
 
-    return nick ? `${nick} (${privateText})` : `(${privateText})`;
+    // 5. ZALOGOWANY USER → widzi tylko swoje lub swojej organizacji
+    const userOrgs = this.store.organizations().map((o) => o.id);
+
+    const isMyReservation = currentUserId === res.reservedBy;
+    const isMyTeamReservation = userOrgs.includes(res.organization ?? -1);
+
+    if (isMyReservation) return myPrivateText;
+    if (isMyTeamReservation) return nick ? `${nick} (${privateText})` : `(${privateText})`;
+
+    // 6. INNE PRYWATNE → NIC
+    return 'others';
   }
 
   dateColumnText(res: ReservationDto): string {
