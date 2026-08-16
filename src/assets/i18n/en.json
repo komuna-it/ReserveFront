@@ -342,5 +342,10 @@
     "DESCRIPTION": "We use cookies to ensure the proper functioning of the website, remember your preferences, and analyze traffic.",
     "NECESSARY_ONLY": "Only necessary",
     "ACCEPT_ALL": "Accept all"
+  },
+  "SETTINGS": {
+    "KEY": "Parameter",
+    "VALUE": "Old Value",
+    "NEW_VALUE": "New Value"
   }
 }

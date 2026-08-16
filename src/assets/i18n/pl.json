@@ -150,7 +150,8 @@
     "PASSWORD": "Hasło",
     "NO_ACCOUNT_REGISTER": "Nie masz konta? Zarejestruj się!",
     "SEND": "Wyślij",
-    "REJECT": "Odrzuć"
+    "REJECT": "Odrzuć",
+    "SAVE": "Zapisz"
   },
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Wpisz swój adres email",
@@ -346,5 +347,10 @@
     "DESCRIPTION": "Używamy plików cookie, aby zapewnić prawidłowe działanie serwisu, zapamiętać Twoje preferencje oraz analizować ruch.",
     "NECESSARY_ONLY": "Tylko niezbędne",
     "ACCEPT_ALL": "Akceptuj wszystkie"
+  },
+  "SETTINGS": {
+    "KEY": "Parametr",
+    "VALUE": "Wartość",
+    "NEW_VALUE": "Nowa wartość"
   }
 }

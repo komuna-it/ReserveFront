@@ -1,39 +1,56 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
+import { ReactiveFormsModule, NonNullableFormBuilder } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { ReservationStore } from '../../../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
-import { AuthService } from '../../../../auth/authService';
+
 import { SettingsStore } from '../../../../settings/settingsStore';
 import { SettingsFacade } from '../../../../settings/settingsFacade';
+import { Setting } from '../../../../settings/model/setting';
 
 @Component({
   selector: 'app-admin-settings',
-  imports: [TranslocoPipe],
+  standalone: true,
+  imports: [TranslocoPipe, ReactiveFormsModule],
   templateUrl: './admin-settings.html',
 })
-export class AdminSettings {
-  readonly store = inject(ReservationStore);
+export class AdminSettings implements OnInit {
   readonly settingsStore = inject(SettingsStore);
-  readonly facade = inject(ReservationFacade);
   readonly settingsFacade = inject(SettingsFacade);
-  readonly auth = inject(AuthService);
-  readonly transloco = inject(TranslocoService);
+  private readonly fb = inject(NonNullableFormBuilder);
 
-  readonly currentLanguage = computed(
-    () => this.auth.currentUser()?.preferredLanguage || this.transloco.getActiveLang(),
-  );
+  form = this.fb.record<string>({});
 
   constructor() {
+    effect(() => {
+      const settings = this.settingsStore.settings();
+
+      Object.keys(this.form.controls).forEach((key) => {
+        this.form.removeControl(key);
+      });
+
+      settings.forEach((s) => {
+        this.form.addControl(s.key, this.fb.control(s.value));
+      });
+    });
+  }
+
+  ngOnInit(): void {
     this.settingsFacade.getSettings(null, true);
   }
-  onLanguageSelect(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    const newLanguage = String(selectElement.value);
 
-    if (newLanguage) {
-      this.transloco.setActiveLang(newLanguage);
+  onSave(): void {
+    const formValues = this.form.value;
+    const settingsToUpdate = new Set<Setting>();
 
-      this.facade.setPreferredLanguage(newLanguage);
+    this.settingsStore.settings().forEach((originalSetting) => {
+      const newValue = formValues[originalSetting.key];
+
+      if (newValue !== undefined && newValue !== originalSetting.value) {
+        settingsToUpdate.add({ key: originalSetting.key, value: newValue });
+      }
+    });
+
+    if (settingsToUpdate.size > 0) {
+      this.settingsFacade.updateSettings(settingsToUpdate);
     }
   }
 }
