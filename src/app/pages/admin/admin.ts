@@ -48,15 +48,17 @@ export class AdminPage implements OnInit {
   readonly textFormatingTool = inject(TextFormatingTool);
   readonly ReservationStatus = ReservationStatus;
   readonly reservation = input<any | null>(null);
+  readonly tool = inject(TextFormatingTool);
 
   ngOnInit(): void {
     this.facade.getReservations(
-      ReservationStatus.CREATED,
+      new Set<ReservationStatus>([ReservationStatus.CREATED]),
       this.store.toolbarOnlyFuture(),
       null,
       null,
+      null,
+      null,
     );
-
     this.facade.getAllUsers();
   }
 

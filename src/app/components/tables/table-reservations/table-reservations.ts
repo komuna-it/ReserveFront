@@ -40,18 +40,21 @@ export class TableReservations {
   readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} as Params });
 
   isCancellationPossible(res: ReservationDto): boolean {
-    if (res.status === ReservationStatus.REQUESTED_CANCELLATION) {
+    if (
+      res.status === ReservationStatus.REQUESTED_CANCELLATION ||
+      res.status === ReservationStatus.CANCELLED
+    ) {
       return false;
     }
     return true;
   }
 
-  isTooLateToCancel(res: ReservationDto) {
+  canCancelWithoutAsking(res: ReservationDto) {
     const startDate = new Date(res.startAt);
     const now = new Date();
     const timeDifference = startDate.getTime() - now.getTime();
     const hoursDifference = timeDifference / (1000 * 60 * 60);
-    return hoursDifference <= 24;
+    return hoursDifference >= 24;
   }
 
   requestCancellation(res: ReservationDto) {
@@ -63,14 +66,17 @@ export class TableReservations {
 
   getCancelButtonLabel(res: ReservationDto): string {
     switch (res.status) {
-      case ReservationStatus.CREATED:
-        return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
-      case ReservationStatus.CONFIRMED:
-        return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
+      case ReservationStatus.CREATED || ReservationStatus.CONFIRMED: {
+        if (this.canCancelWithoutAsking(res)) {
+          return this.translocoService.translate('BUTTONS.CANCEL');
+        } else {
+          return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
+        }
+      }
       case ReservationStatus.CANCELLED:
-        return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
+        return this.translocoService.translate('STATUS.CANCELLED');
       case ReservationStatus.REJECTED:
-        return this.translocoService.translate('BUTTONS.REQUEST_CANCEL');
+        return this.translocoService.translate('STATUS.REJECTED');
       case ReservationStatus.REQUESTED_CANCELLATION:
         return this.translocoService.translate('BUTTONS.ASKED_FOR_CANCELLATION');
 
@@ -125,17 +131,24 @@ export class TableReservations {
     const currentStatus = this.status();
 
     if (tableType == null) return;
-    console.log('res table: tableType ', tableType);
+    // console.log('res table: tableType ', tableType);
 
     switch (tableType) {
       case ReservationTableType.USER_PROFILE:
-        if (loggedUser) this.facade.getReservations(null, false, loggedUser.id, null);
+        if (loggedUser) this.facade.getReservations(null, false, loggedUser.id, null, null, null);
         break;
 
       case ReservationTableType.ADMIN_BY_STATUS:
         this.store.toolbarType.set(ToolbarType.RESERVATIONS);
         if (currentStatus)
-          this.facade.getReservations(currentStatus, this.store.toolbarOnlyFuture(), null, null);
+          this.facade.getReservations(
+            new Set<ReservationStatus>([currentStatus]),
+            this.store.toolbarOnlyFuture(),
+            null,
+            null,
+            null,
+            null,
+          );
         break;
 
       case ReservationTableType.ADMIN_ORG_DETAILS:
@@ -147,6 +160,8 @@ export class TableReservations {
             this.store.toolbarOnlyFuture(),
             null,
             new Set([selectedOrg.id]),
+            null,
+            null,
           );
         break;
 
@@ -154,9 +169,11 @@ export class TableReservations {
         this.store.toolbarType.set(ToolbarType.RESERVATIONS);
         if (currentStatus && selectedUser)
           this.facade.getReservations(
-            currentStatus,
+            new Set<ReservationStatus>([currentStatus]),
             this.store.toolbarOnlyFuture(),
             selectedUser.id,
+            null,
+            null,
             null,
           );
         break;

@@ -16,26 +16,41 @@
     @if (type() === ToolbarType.RESERVATIONS) {
       <div class="inline-flex items-center gap-2 flex-wrap">
         @if (showAcceptButton()) {
-          <button
-            (click)="facade.updateReservationsStatus(ReservationStatus.CONFIRMED)"
-            [disabled]="isNoneSelected()"
-            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
-          >
-            <svg
-              class="h-3.5 w-3.5 text-emerald-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2.5"
+          @if (this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION) {
+            <button
+              (click)="facade.updateReservationsStatus(ReservationStatus.CANCELLED)"
+              [disabled]="isNoneSelected()"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
             >
-              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-            </svg>
-            @if (this.store.statusForAdminPage() === ReservationStatus.REQUESTED_CANCELLATION) {
+              <svg
+                class="h-3.5 w-3.5 text-emerald-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
               {{ 'ADMIN_RESERVATIONS.CONFIRM_CANCEL_BUTTON' | transloco }}
-            } @else {
+            </button>
+          } @else {
+            <button
+              (click)="facade.updateReservationsStatus(ReservationStatus.CONFIRMED)"
+              [disabled]="isNoneSelected()"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 text-xs font-medium text-slate-300 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800/80 disabled:hover:border-slate-700 disabled:hover:text-slate-300 transition-all"
+            >
+              <svg
+                class="h-3.5 w-3.5 text-emerald-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
               {{ 'ADMIN_RESERVATIONS.ACCEPT' | transloco }}
-            }
-          </button>
+            </button>
+          }
         }
 
         @if (showCancelButton()) {

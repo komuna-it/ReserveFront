@@ -23,6 +23,12 @@
       <option value="REJECTED" [selected]="store.statusForAdminPage() === 'REJECTED'">
         {{ 'STATUS.REJECTED' | transloco }}
       </option>
+      <option
+        value="REQUESTED_CANCELLATION"
+        [selected]="store.statusForAdminPage() === 'REQUESTED_CANCELLATION'"
+      >
+        {{ 'STATUS.REQUESTED_CANCELLATION' | transloco }}
+      </option>
     </select>
   </div>
 

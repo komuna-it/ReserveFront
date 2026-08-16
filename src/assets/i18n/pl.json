@@ -149,7 +149,8 @@
     "REMEMBER_ME": "Zapamiętaj mnie",
     "PASSWORD": "Hasło",
     "NO_ACCOUNT_REGISTER": "Nie masz konta? Zarejestruj się!",
-    "SEND": "Wyślij"
+    "SEND": "Wyślij",
+    "REJECT": "Odrzuć"
   },
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Wpisz swój adres email",
@@ -272,11 +273,11 @@
     "CANCELLED": "Anulowane",
     "REQUESTED_CANCELLATION": "Prośby o anulowanie",
     "CONFIRM_ACCEPT_BODY": "Czy na pewno chcesz zaakceptować rezerwację zespołu {organization}, {date} {startHour} - {endHour}?",
-    "CONFIRM_ACCEPT_TITLE": "Potwierdź akceptację rezerwacji",
+    "CONFIRM_ACCEPT_TITLE": "Potwierdź akceptację rezerwacji {{reservedBy}}, {{date}}, Sala {{room}}",
     "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz zaakceptować prośbę o anulowanie rezerwacji zespołu {organization}, {date} {startHour} - {endHour}?",
-    "CONFIRM_REQUEST_CANCEL_TITLE": "Potwierdź akceptację prośby o anulowanie rezerwacji",
-    "CONFIRM_CANCEL_BODY": "Czy na pewno chcesz odrzucić rezerwację zespołu {organization}, {date} {startHour} - {endHour}?",
-    "CONFIRM_CANCEL_TITLE": "Potwierdź odrzucenie rezerwacji",
+    "CONFIRM_REQUEST_CANCEL_TITLE": "Potwierdź akceptację prośby o anulowanie rezerwacji {{reservedBy}}, {{date}}, Sala {{room}}",
+    "CONFIRM_CANCEL_BODY": "Czy na pewno chcesz odrzucić rezerwację zespołu ?",
+    "CONFIRM_CANCEL_TITLE": "Potwierdź odwołanie rezerwacji {{reservedBy}}, {{date}}, Sala {{room}}",
     "ORGANIZATION": "Zespół",
     "RESERVED_BY": "Rezerwujący",
     "DATE": "Data",
@@ -309,8 +310,8 @@
     "CONFIRM_PAID": "Opłacone",
     "CONFIRM_UNPAID": "Nieopłacone",
     "ONLY_FUTURE": "Tylko przyszłe",
-    "CONFIRM_REJECT_TITLE": "Potwierdź odrzucenie rezerwacji  {{organization}}, {{date}} {{startHour}}",
-    "FILTER_STATUS": "Filtruj status"
+    "CONFIRM_REJECT_TITLE": "Potwierdź odrzucenie rezerwacji {{reservedBy}}, {{date}}, Sala {{room}} ",
+    "FILTER_STATUS": "Status"
   },
   "PAGINATION": {
     "PREVIOUS": "Poprzednia",

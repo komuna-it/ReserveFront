@@ -74,7 +74,7 @@ export class ReservationFacade {
       error: (e) => console.log('Error fetching rooms: ', e),
     });
 
-    this.getReservations(null, false, null, null);
+    this.getReservations(null, false, null, null, null, null);
   }
 
   confirmBooking(): void {
@@ -275,11 +275,19 @@ export class ReservationFacade {
   changeReservationsByStatusSize() {
     const currentStatus = this.store.statusForAdminPage();
     if (currentStatus) {
-      this.getReservations(currentStatus, this.store.toolbarOnlyFuture(), null, null);
+      this.getReservations(
+        new Set<ReservationStatus>([currentStatus]),
+        this.store.toolbarOnlyFuture(),
+        null,
+        null,
+        null,
+        null,
+      );
     }
   }
 
   updateReservationsStatus(targetStatus: ReservationStatus): void {
+    console.log('facade updateReservationsStatus ', targetStatus);
     this.closeModals();
     let ids = this.store.toolbarSelectedIds();
 
@@ -295,8 +303,23 @@ export class ReservationFacade {
 
     this.api.updateReservationsStatus(ids, targetStatus).subscribe({
       next: () => {
-        const currentStatus = this.store.statusForAdminPage() ?? ReservationStatus.CREATED;
-        this.getReservations(currentStatus, this.store.toolbarOnlyFuture(), null, null);
+        const user = this.authService.currentUser();
+        if (this.authService.isAdmin()) {
+          const currentStatus = this.store.statusForAdminPage();
+          if (!currentStatus) return;
+          this.getReservations(
+            new Set<ReservationStatus>([currentStatus]),
+
+            this.store.toolbarOnlyFuture(),
+            null,
+            null,
+            null,
+            null,
+          );
+        } else {
+          if (user)
+            this.getReservations(null, this.store.toolbarOnlyFuture(), user.id, null, null, null);
+        }
         this.store.clearSelection();
       },
       error: (err: unknown) => {
@@ -787,26 +810,15 @@ export class ReservationFacade {
 
   // ==================================
 
-  handleCancelReservations() {
-    const res = new Set<number>(this.store.selectedReservations()?.map((r) => r.id));
-    console.log('handleCancelReservations: ');
-    console.table(res);
-
-    if (!res) {
-      return;
-    }
-    this.updateReservationsStatus(ReservationStatus.CANCELLED);
-    this.store.confirmMarkReservationAsCanceled.set(false);
-    this.store.popupMarkedReservationAsCanceled.set(true);
-  }
-
   openConfirmationUpdateReservationsStatus(
     reservations: ReservationDto[],
     status: ReservationStatus,
   ) {
     const res = new Set<number>(this.store.selectedReservations()?.map((r) => r.id));
+
     this.store.selectedReservations.set(reservations);
     this.closeModals();
+
     switch (status) {
       case ReservationStatus.CONFIRMED: {
         this.store.confirmMarkReservationAsAccepted.set(true);
@@ -828,8 +840,11 @@ export class ReservationFacade {
         break;
       }
       case ReservationStatus.REJECTED_CANCELLATION: {
+        this.store.confirmMarkReservationAsRejected.set(true);
+        break;
+      }
+      case ReservationStatus.REQUESTED_CANCELLATION: {
         this.store.confirmMarkReservationAsRequestCancel.set(true);
-
         break;
       }
       default: {
@@ -1012,23 +1027,57 @@ export class ReservationFacade {
     });
   }
 
+  loadCalendarReservationsForDay(selectedDate: Date): void {
+    const allowedStatuses = new Set<ReservationStatus>([
+      ReservationStatus.CREATED,
+      ReservationStatus.CONFIRMED,
+      ReservationStatus.REQUESTED_CANCELLATION,
+      ReservationStatus.REJECTED_CANCELLATION,
+    ]);
+    const startOfDay = new Date(selectedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(selectedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    this.getReservations(
+      allowedStatuses,
+      false,
+      null,
+      null,
+      startOfDay.toISOString(),
+      endOfDay.toISOString(),
+    );
+  }
+
   getReservations(
-    status: ReservationStatus | null,
-    future: boolean,
-    userId: number | null,
-    organizationIds: Set<number> | null,
+    statuses: Set<ReservationStatus> | null,
+    future: boolean = false,
+    userId: number | null = null,
+    organizationIds: Set<number> | null = null,
+    startAtAfter: string | null,
+    startAtBefore: string | null,
   ) {
     const page = this.store.currentReservationsPage();
     const size = this.store.currentReservationsSize();
 
-    this.api.getReservations(status, future, page, size, userId, organizationIds).subscribe({
-      next: (pageData) => {
-        this.store.reservationsPage.set(pageData);
-        console.log('Get reservations data:');
-        console.table(pageData.content);
-      },
-      error: (e) => console.log('Error fetching res: ', e),
-    });
+    this.api
+      .getReservations(
+        statuses,
+        future,
+        page,
+        size,
+        userId,
+        organizationIds,
+        startAtAfter,
+        startAtBefore,
+      )
+      .subscribe({
+        next: (pageData) => {
+          this.store.reservationsPage.set(pageData);
+        },
+        error: (e) => console.log('Error fetching res: ', e),
+      });
   }
 
   getOrganizations(withMembers: boolean, userId: number | null) {

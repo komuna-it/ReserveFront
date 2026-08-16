@@ -60,7 +60,7 @@ export class OrganizationList implements OnInit, OnDestroy {
       this.store.currentOrganizationsPage();
       this.store.currentOrganizationsSize();
     });
-    if (this.mode() === 'admin' && this.auth.isAdmin()) {
+    if (this.auth.isAdmin()) {
       this.store.toolbarType.set(ToolbarType.ADMIN_ORGANIZATIONS);
       this.store.isAdminOrganizationModalActive.set(true);
       this.facade.getOrganizations(true, null);

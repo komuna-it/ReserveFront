@@ -21,6 +21,7 @@ export class ReservationDetailsModal {
   readonly tool = inject(TextFormatingTool);
   readonly loco = inject(TranslocoService);
   readonly ReservationStatus = ReservationStatus;
+  readonly helper = inject(CalendarHelper);
 
   readonly activeReservation = computed(() => {
     const explicitlySelected = this.store.selectedReservation();
@@ -54,12 +55,4 @@ export class ReservationDetailsModal {
     }
     return null;
   });
-
-  getResParams(res: ReservationDto) {
-    const startDate = new Date(res.startAt);
-    return {
-      reservedBy: this.tool.bandText(res) || '',
-      date: startDate.toLocaleDateString(),
-    };
-  }
 }

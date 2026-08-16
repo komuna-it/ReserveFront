@@ -150,7 +150,8 @@
     "REMEMBER_ME": "Remember me",
     "PASSWORD": "Password",
     "NO_ACCOUNT_REGISTER": "Don't have an account? Register!",
-    "SEND": "Send"
+    "SEND": "Send",
+    "REJECT": "Reject"
   },
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Enter your email address",
@@ -307,7 +308,7 @@
     "CONFIRM_PAID": "Paid",
     "CONFIRM_UNPAID": "Unpaid",
     "ONLY_FUTURE": "Only future",
-    "FILTER_STATUS": "Filter status"
+    "FILTER_STATUS": "Status"
   },
   "PAGINATION": {
     "PREVIOUS": "Previous",

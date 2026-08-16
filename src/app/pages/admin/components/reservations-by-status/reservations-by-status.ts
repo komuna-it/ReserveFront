@@ -31,12 +31,26 @@ export class ReservationsByStatus {
     effect(() => {
       const currentStatus = this.status();
       this.store.statusForAdminPage.set(currentStatus);
-      this.facade.getReservations(currentStatus, this.store.toolbarOnlyFuture(), null, null);
+      this.facade.getReservations(
+        new Set<ReservationStatus>([currentStatus]),
+        this.store.toolbarOnlyFuture(),
+        null,
+        null,
+        null,
+        null,
+      );
     });
   }
   onStatusChange(event: Event): void {
     const newStatus = (event.target as HTMLSelectElement).value as ReservationStatus;
     this.store.statusForAdminPage.set(newStatus);
-    this.facade.getReservations(newStatus, this.store.toolbarOnlyFuture(), null, null);
+    this.facade.getReservations(
+      new Set<ReservationStatus>([newStatus]),
+      this.store.toolbarOnlyFuture(),
+      null,
+      null,
+      null,
+      null,
+    );
   }
 }

@@ -49,6 +49,8 @@ export class CalendarComponent {
 
   constructor() {
     const user = this.auth.currentUser();
+    const selectedDay = this.store.daySelectedByUser() ?? new Date();
+
     if (user) {
       if (this.auth.isAdmin()) {
         this.facade.getOrganizations(true, null);
@@ -56,7 +58,7 @@ export class CalendarComponent {
         this.facade.getOrganizations(false, user.id);
       }
     }
-    this.facade.getReservations(null, true, null, null);
+    this.facade.loadCalendarReservationsForDay(selectedDay);
     this.facade.getRooms();
 
     const params = this.route.snapshot.queryParams;
@@ -102,6 +104,7 @@ export class CalendarComponent {
   onDaySelect(day: Date): void {
     this.facade.selectDay(day);
     this.updateUrl(day, this.mobileSelectedRoom()?.id);
+    this.facade.loadCalendarReservationsForDay(day);
   }
 
   onRoomSelect(room: any): void {

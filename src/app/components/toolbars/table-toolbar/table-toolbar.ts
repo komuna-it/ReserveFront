@@ -102,10 +102,17 @@ export class TableToolbar {
     const future = this.store.toolbarOnlyFuture();
 
     const status = this.store.statusForAdminPage();
-
+    if (!status) return;
     switch (this.type()) {
       case ToolbarType.RESERVATIONS: {
-        this.facade.getReservations(status, future, null, null);
+        this.facade.getReservations(
+          new Set<ReservationStatus>([status]),
+          future,
+          null,
+          null,
+          null,
+          null,
+        );
         break;
       }
 

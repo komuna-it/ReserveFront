@@ -189,17 +189,27 @@ export class ReservationApi {
   }
 
   getReservations(
-    status: ReservationStatus | null,
+    statuses: Set<ReservationStatus> | null,
     future: boolean,
     page: number,
     size: number,
     userId: number | null,
     organizationIds: Set<number> | null,
+    startAtAfter: string | null,
+    startAtBefore: string | null,
   ): Observable<Page<ReservationDto>> {
     let params = new HttpParams().set('page', page).set('size', size).set('future', future);
+    if (startAtAfter != null) {
+      params = params.set('startAtAfter', startAtAfter);
+    }
 
-    if (status != null) {
-      params = params.set('status', status);
+    if (startAtBefore != null) {
+      params = params.set('startAtBefore', startAtBefore);
+    }
+    if (statuses != null && statuses.size > 0) {
+      statuses.forEach((status) => {
+        params = params.append('status', status);
+      });
     }
 
     if (userId != null) {

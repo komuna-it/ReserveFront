@@ -1,4 +1,5 @@
 <div class="bg-slate-800 rounded-m border border-slate-700 shadow-xl overflow-hidden">
+  <!-- DESKTOP TABLE -->
   <div class="hidden md:block overflow-x-auto">
     <div class="overflow-x-auto">
       @if (store.reservations().length > 0) {
@@ -174,6 +175,47 @@
         </div>
       }
     </div>
+  </div>
+
+  <!-- MOBILE TABLE -->
+  <div class="block md:hidden p-3 space-y-3">
+    @if (store.reservations().length > 0) {
+      @for (res of store.reservations(); track res.id; let idx = $index) {
+        <div
+          (click)="openReservationDetails(res)"
+          class="bg-slate-900/60 p-4 rounded-xl border border-slate-700 shadow-md flex flex-col gap-3 active:scale-[0.98] transition-transform cursor-pointer"
+        >
+          <div class="flex justify-between items-start border-b border-slate-700/50 pb-2">
+            <div>
+              <span class="text-xs text-slate-500 font-mono block mb-0.5">#{{ idx + 1 }}</span>
+              <span class="text-sm font-semibold text-emerald-400">{{
+                textFormatingTool.reservedByText(res)
+              }}</span>
+            </div>
+            <div
+              class="bg-slate-800 border border-slate-700 px-2 py-1 rounded text-xs text-slate-300"
+            >
+              {{ textFormatingTool.getRoomName(res) }}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs text-slate-400">
+            <div>
+              <span class="block text-slate-500">{{ 'PROFILE.TABLE_DATE' | transloco }}</span>
+              <span class="text-slate-200">{{ textFormatingTool.formatDuration(res) }}</span>
+            </div>
+            <div>
+              <span class="block text-slate-500">{{ 'PROFILE.PRICE' | transloco }}</span>
+              <span class="text-slate-200">{{ textFormatingTool.getPrice(res) }} zł</span>
+            </div>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="p-8 text-center text-slate-500">
+        <p class="text-sm">{{ 'PROFILE.NO_RESERVATIONS' | transloco }}</p>
+      </div>
+    }
   </div>
 
   <app-pagination
