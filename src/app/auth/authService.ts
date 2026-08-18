@@ -4,6 +4,7 @@ import { Observable, tap, catchError, of, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { User } from '../model/user';
 import { TranslocoService } from '@jsverse/transloco';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -27,7 +28,7 @@ export class AuthService {
       this.currentUserSignal()?.role === 'ADMIN' || this.currentUserSignal()?.role === 'MANAGER'
     );
   });
-  private apiUrl = process.env['VSF_API_URL'] || 'https://api.vipsound.lmt.technology';
+  private apiUrl = environment.apiUrl;
   constructor() {
     this.checkCurrentSession().subscribe();
     console.log('AuthService apiUrl: ', this.apiUrl);

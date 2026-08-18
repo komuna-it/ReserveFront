@@ -32,11 +32,14 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Create .env file
-        env:
-          ENV_CONTENT: ${{ secrets.ENV_FILE }}
+      - name: Create environment.prod.ts
         run: |
-          echo "$ENV_CONTENT" > .env
+          cat > src/environments/environment.prod.ts <<EOF
+          export const environment = {
+            production: true,
+            apiUrl: '${{ secrets.ENV_FILE }}'
+          };
+          EOF
 
       - name: Build Angular App
         run: npm run build -- --configuration production

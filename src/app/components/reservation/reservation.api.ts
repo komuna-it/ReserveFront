@@ -11,12 +11,13 @@ import { ReservationStatus } from '../../model/reservationStatus';
 import { throwError } from 'rxjs';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { ReservationType } from '../../model/reservationType';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationApi {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
-  private apiUrl = process.env['VSF_API_URL'] || 'https://api.vipsound.lmt.technology';
+  private apiUrl = environment.apiUrl;
 
   getRooms(): Observable<Room[]> {
     return this.http.get<Room[]>(`${this.apiUrl}/rooms`);
