@@ -9,7 +9,8 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -31,7 +32,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Create .env locally
+      - name: Create .env file
         env:
           ENV_CONTENT: ${{ secrets.ENV_FILE }}
         run: |
@@ -51,9 +52,10 @@ jobs:
       - name: Deploy Build via Rsync and Update Symlink
         run: |
           VERSION=${{ steps.gitversion.outputs.fullSemVer }}
+          WORK_DIR="${{ secrets.WORK_DIR }}"
 
-          ssh ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_AWS_LMT }} "mkdir -p '${{ secrets.WORK_DIR }}/$VERSION'"
+          ssh ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_AWS_LMT }} "mkdir -p '$WORK_DIR/$VERSION'"
 
-          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT_AWS_LMT }}" dist/vipsoundfront/browser/ ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}/$VERSION/
+          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT_AWS_LMT }}" dist/vipsoundfront/browser/ ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }}:$WORK_DIR/$VERSION/
 
-          ssh ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_AWS_LMT }} "ln -sfn '$VERSION' '${{ secrets.WORK_DIR }}/latest'"
+          ssh ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_AWS_LMT }} "cd $WORK_DIR && ln -sfn '$VERSION' latest"
