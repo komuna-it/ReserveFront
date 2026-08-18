@@ -222,6 +222,8 @@ export class ReservationApi {
       });
     }
     console.info('calling /reservations with params:', params.toString());
+    console.log('getReservations: ', this.apiUrl);
+
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
@@ -237,6 +239,7 @@ export class ReservationApi {
       .set('page', page)
       .set('size', size);
     console.info('calling /organizations   with params:', params.toString());
+    console.log('getOrganizations: ', this.apiUrl);
 
     return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }

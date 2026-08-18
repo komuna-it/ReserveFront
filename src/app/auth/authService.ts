@@ -31,6 +31,7 @@ export class AuthService {
     (process.env as any)['VSF_API_URL'] || (process.env as any)['NG_APP_VSF_API_URL'] || '/api';
   constructor() {
     this.checkCurrentSession().subscribe();
+    console.log('AuthService apiUrl: ', this.apiUrl);
   }
 
   login(email: string, password: string, rememberMe: boolean): Observable<User> {
