@@ -10,8 +10,6 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private translocoService = inject(TranslocoService);
-  private apiUrl = process.env['VSF_API_URL'] || '/api';
-
   private currentUserSignal = signal<User | null>(null);
   private isLoadingSignal = signal<boolean>(true);
 
@@ -29,7 +27,8 @@ export class AuthService {
       this.currentUserSignal()?.role === 'ADMIN' || this.currentUserSignal()?.role === 'MANAGER'
     );
   });
-
+  private apiUrl =
+    (process.env as any)['VSF_API_URL'] || (process.env as any)['NG_APP_VSF_API_URL'] || '/api';
   constructor() {
     this.checkCurrentSession().subscribe();
   }
