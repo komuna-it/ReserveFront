@@ -228,12 +228,12 @@ export class ReservationApi {
   getOrganizations(
     page: number,
     size: number,
-    withMembers: boolean,
+    fetchMembers: boolean,
     userId: number | null,
   ): Observable<Page<Organization>> {
     const params = new HttpParams()
       .set('userId', userId ?? '')
-      .set('withMembers', withMembers)
+      .set('fetchMembers', fetchMembers)
       .set('page', page)
       .set('size', size);
     console.info('calling /organizations   with params:', params.toString());

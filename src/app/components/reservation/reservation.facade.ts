@@ -779,6 +779,8 @@ export class ReservationFacade {
     this.store.confirmMarkReservationAsAccepted.set(false);
     this.store.confirmMarkReservationAsRejected.set(false);
     this.store.confirmMarkReservationAsCanceled.set(false);
+    this.store.isModalAddMemberActive.set(false);
+    this.store.isAdminOrganizationModalActive.set(false);
   }
 
   handleClickBanUsers() {

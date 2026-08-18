@@ -40,33 +40,20 @@ jobs:
       - name: Build Angular App
         run: npm run build -- --configuration production
 
-      - name: Show build output
-        run: ls -R dist/
-
       - name: Install SSH keys
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_BETA  }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_AWS_LMT }}
 
       - name: Add Host to Known Hosts
-        run: ssh-keyscan -p ${{ secrets.SSH_PORT_BETA }} -H ${{ secrets.SSH_HOST }}  >> ~/.ssh/known_hosts
+        run: ssh-keyscan -p ${{ secrets.SSH_PORT_AWS_LMT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Upload Build via Rsync
+      - name: Deploy Build via Rsync and Update Symlink
         run: |
           VERSION=${{ steps.gitversion.outputs.fullSemVer }}
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_BETA }} "
-            mkdir -p '${{ secrets.WORK_DIR }}/$VERSION';
-            if [ -L '${{ secrets.WORK_DIR }}/latest' ]; then
-              unlink '${{ secrets.WORK_DIR }}/latest';
-            fi
-            ln -s '$VERSION' '${{ secrets.WORK_DIR }}/latest'
-          "
-          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT_BETA }}" dist/vipsoundfront/browser/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}/$VERSION/
 
-      - name: Restart Web Server
-        run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_BETA }} \
-            "sudo systemctl reload nginx"
+          ssh ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_AWS_LMT }} "mkdir -p '${{ secrets.WORK_DIR }}/$VERSION'"
 
-      - name: Cleanup
-        run: rm -rf ~/.ssh
+          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT_AWS_LMT }}" dist/vipsoundfront/browser/ ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}/$VERSION/
+
+          ssh ${{ secrets.SSH_USER_AWS_LMT }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT_AWS_LMT }} "ln -sfn '$VERSION' '${{ secrets.WORK_DIR }}/latest'"
