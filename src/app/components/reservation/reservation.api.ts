@@ -16,7 +16,7 @@ import { ReservationType } from '../../model/reservationType';
 export class ReservationApi {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
-  private apiUrl = process.env['VSF_API_URL'] || '/api';
+  private apiUrl = process.env['VSF_API_URL'] || 'https://api.vipsound.lmt.technology';
 
   getRooms(): Observable<Room[]> {
     return this.http.get<Room[]>(`${this.apiUrl}/rooms`);

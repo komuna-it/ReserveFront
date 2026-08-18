@@ -27,10 +27,7 @@ export class AuthService {
       this.currentUserSignal()?.role === 'ADMIN' || this.currentUserSignal()?.role === 'MANAGER'
     );
   });
-  private apiUrl =
-    (process.env as any)['VSF_API_URL'] ||
-    (process.env as any)['NG_APP_VSF_API_URL'] ||
-    'https://api.vipsound.lmt.technology';
+  private apiUrl = process.env['VSF_API_URL'] || 'https://api.vipsound.lmt.technology';
   constructor() {
     this.checkCurrentSession().subscribe();
     console.log('AuthService apiUrl: ', this.apiUrl);
