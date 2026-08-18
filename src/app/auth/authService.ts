@@ -28,7 +28,9 @@ export class AuthService {
     );
   });
   private apiUrl =
-    (process.env as any)['VSF_API_URL'] || (process.env as any)['NG_APP_VSF_API_URL'] || '/api';
+    (process.env as any)['VSF_API_URL'] ||
+    (process.env as any)['NG_APP_VSF_API_URL'] ||
+    'https://api.vipsound.lmt.technology';
   constructor() {
     this.checkCurrentSession().subscribe();
     console.log('AuthService apiUrl: ', this.apiUrl);
