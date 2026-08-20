@@ -1,6 +1,6 @@
 import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, of, map } from 'rxjs';
+import { Observable, tap, catchError, of, map, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { User } from '../model/user';
 import { TranslocoService } from '@jsverse/transloco';
@@ -117,5 +117,21 @@ export class AuthService {
       currentPassword: currentPassword,
       newPassword: newPassword,
     });
+  }
+
+  readonly isConfirmingEmail = signal<boolean>(false);
+
+  confirmEmail(verificationToken: string): Observable<void> {
+    this.isConfirmingEmail.set(true);
+
+    return this.http.get<void>(`${this.apiUrl}/auth/confirmEmail/${verificationToken}`).pipe(
+      tap(() => {
+        this.isConfirmingEmail.set(false);
+      }),
+      catchError((error) => {
+        this.isConfirmingEmail.set(false);
+        return throwError(() => error);
+      }),
+    );
   }
 }

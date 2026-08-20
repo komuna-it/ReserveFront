@@ -347,5 +347,17 @@
     "KEY": "Parameter",
     "VALUE": "Old Value",
     "NEW_VALUE": "New Value"
+  },
+  "CONFIRM_EMAIL": {
+    "VERIFYING": "Verifying your email address...",
+    "SUCCESS_TITLE": "Email Confirmed!",
+    "SUCCESS_DESC": "Your email has been successfully verified. You can now log into your account.",
+    "PROCEED_TO_LOGIN": "Proceed to Login",
+    "FAILED_TITLE": "Verification Failed",
+    "BACK_TO_LOGIN": "Back to Login",
+    "ERRORS": {
+      "MISSING_TOKEN": "Confirmation token is missing from the URL.",
+      "CONFIRMATION_FAILED": "Email confirmation failed or token has expired."
+    }
   }
 }

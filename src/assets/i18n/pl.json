@@ -357,5 +357,17 @@
     "VALUE": "Wartość",
     "NEW_VALUE": "Nowa wartość",
     "DELETE_ACCOUNT": "Usuń konto"
+  },
+  "CONFIRM_EMAIL": {
+    "VERIFYING": "Weryfikacja adresu e-mail...",
+    "SUCCESS_TITLE": "E-mail potwierdzony!",
+    "SUCCESS_DESC": "Twój adres e-mail został pomyślnie zweryfikowany. Możesz teraz zalogować się na swoje konto.",
+    "PROCEED_TO_LOGIN": "Przejdź do logowania",
+    "FAILED_TITLE": "Weryfikacja nie powiodła się",
+    "BACK_TO_LOGIN": "Wróć do logowania",
+    "ERRORS": {
+      "MISSING_TOKEN": "Brak tokena potwierdzającego w adresie URL.",
+      "CONFIRMATION_FAILED": "Potwierdzenie e-maila nie powiodło się lub token wygasł."
+    }
   }
 }
