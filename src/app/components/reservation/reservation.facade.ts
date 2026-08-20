@@ -137,7 +137,7 @@ export class ReservationFacade {
     const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
     const price = this.store.price();
     const userOrgs = this.store.userOrganizations();
-    const allOrgs = this.store.allOrganizations();
+    const allOrgs = this.store.organizations();
     let defaultOrg = userOrgs[0]?.id;
 
     if (!defaultOrg && this.authService.isAdmin()) {
@@ -616,9 +616,9 @@ export class ReservationFacade {
 
   prepareDeleteOrganization(orgId: number): void {
     if (!orgId) return;
-    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    const org = this.store.organizations().find((o) => o.id === orgId);
     if (!org) {
-      console.error(`Organization with ID ${orgId} not found in allOrganizations.`);
+      console.error(`Organization with ID ${orgId} not found in organizations.`);
       return;
     }
     this.store.selectedOrganization.set({
@@ -640,7 +640,8 @@ export class ReservationFacade {
 
   prepareAddMember(orgId: number): void {
     if (!orgId) return;
-    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    const org = this.store.organizations().find((o) => o.id === orgId);
+
     if (!org) return;
 
     this.store.selectedOrganization.set({
@@ -654,7 +655,7 @@ export class ReservationFacade {
 
   prepareAddOwner(orgId: number): void {
     if (!orgId) return;
-    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    const org = this.store.organizations().find((o) => o.id === orgId);
     if (!org) return;
 
     this.store.selectedOrganization.set({
@@ -793,6 +794,8 @@ export class ReservationFacade {
   }
 
   handleUserAddOrganization() {
+    console.log('handleUserAddOrganization ');
+
     this.store.isAdminAddOrganizationModalActive.set(true);
   }
 
@@ -947,7 +950,7 @@ export class ReservationFacade {
 
     const matchingOrgIds = new Set(
       this.store
-        .allOrganizations()
+        .organizations()
         .filter((o) => o.name?.toLowerCase().includes(query))
         .map((o) => o.id),
     );

@@ -4,7 +4,7 @@
 
     <form (ngSubmit)="register()" class="space-y-4">
       <div>
-        <label class="block">Name</label>
+        <label class="block"> {{ 'USERS_TABLE.NICK' | transloco }} </label>
         <input
           type="text"
           [(ngModel)]="name"
@@ -14,7 +14,7 @@
         />
       </div>
       <div>
-        <label class="block mb-1">Email</label>
+        <label class="block mb-1"> {{ 'USERS_TABLE.EMAIL' | transloco }}</label>
         <input
           type="text"
           [(ngModel)]="email"
@@ -24,7 +24,7 @@
         />
       </div>
       <div>
-        <label class="block mb-1">Password</label>
+        <label class="block mb-1"> {{ 'BUTTONS.PASSWORD' | transloco }}</label>
         <input
           type="password"
           [(ngModel)]="password"
@@ -34,21 +34,24 @@
         />
       </div>
 
-      <div class="mt-4 flex items-start gap-3">
+      <div class="flex items-start gap-3 mt-4">
         <input
           id="acceptPrivacyPolicyCheckbox"
           name="policyAccepted"
           type="checkbox"
           [(ngModel)]="policyAccepted"
           required
-          class="w-4 h-4 mt-1 text-emerald-600 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2 cursor-pointer"
+          class="w-4 h-4 mt-1 text-emerald-600 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2 cursor-pointer shrink-0"
         />
         <label
           for="acceptPrivacyPolicyCheckbox"
           class="text-sm font-medium text-slate-300 cursor-pointer select-none"
         >
           {{ 'COMMON.I_ACCEPT_PRIVACY_POLICY' | transloco }}
-          <a class="text-blue-400 hover:underline ml-1" (click)="viewPrivacyPolicy($event)">
+          <a
+            class="text-blue-400 hover:underline ml-1 cursor-pointer"
+            (click)="viewPrivacyPolicy($event)"
+          >
             {{ 'SETTINGS.VIEW_POLICY' | transloco }}
           </a>
         </label>
