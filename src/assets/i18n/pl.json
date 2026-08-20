@@ -40,22 +40,22 @@
     "RECORDING": "Nagranie",
     "TYPE": "Rodzaj",
     "NOT_MEMBER_OF_ANY_BAND": "Nie jesteś członkiem żadnego zespołu!",
-    "CREATE_ONE": "Kliknij tutaj aby utworzyć zespół",
+    "CREATE_ONE": "Kliknij tutaj, aby utworzyć zespół",
     "MODAL_RESERVED_FOR_USER": "Rezerwacja w imieniu",
     "CALENDAR": "Kalendarz",
     "FREE": "Wolne",
     "PRIVATE": "Prywatna",
     "MY_PRIVATE": "Moja prywatna",
-    "DOWNLOADING_ROOMS": "Pobieranie listy pokoi...",
+    "DOWNLOADING_ROOMS": "Pobieranie listy sal...",
     "TODAY": "Dzisiaj",
     "DAYS": {
       "MON": "PN",
       "TUE": "WT",
       "WED": "ŚR",
       "THU": "CZ",
-      "FRI": "PI",
-      "SAT": "SO",
-      "SUN": "NI"
+      "FRI": "PT",
+      "SAT": "SB",
+      "SUN": "ND"
     },
     "MONTHS": {
       "JAN": "Styczeń",
@@ -80,8 +80,8 @@
     "REASON": "Powód",
     "DURATION": "Długość",
     "IN_DAYS": "(w dniach)",
-    "BAN": "Ban",
-    "UNBAN": "Unban",
+    "BAN": "Banuj",
+    "UNBAN": "Odblokuj",
     "BANNED_BY": "Zbanowany przez",
     "BANNED_AT": "Data bana",
     "ORGANIZATION": "Zespół",
@@ -145,7 +145,7 @@
     "TOO_LATE_TO_CANCEL": "Za późno na odwołanie",
     "ALLOWED": "Zezwolone",
     "NOT_ALLOWED": "Zabronione",
-    "FORGOT_PASSWORD_QUESTION": "Nie pamiętasz hasła",
+    "FORGOT_PASSWORD_QUESTION": "Nie pamiętasz hasła?",
     "REMEMBER_ME": "Zapamiętaj mnie",
     "PASSWORD": "Hasło",
     "NO_ACCOUNT_REGISTER": "Nie masz konta? Zarejestruj się!",
@@ -155,13 +155,13 @@
     "DELETE": "Usuń"
   },
   "FORGOT_PASSWORD": {
-    "PUT_EMAIL": "Wpisz swój adres email",
+    "PUT_EMAIL": "Wpisz swój adres e-mail",
     "FORGOT_PASSWORD": "Zresetuj hasło",
     "CANCELLED": "Odwołana",
     "REQUESTED_CANCELLATION": "Do odwołania",
     "REJECTED": "Odrzucona",
-    "SUCCESS_MESSAGE": "Sprawdź swój email aby zresetować email",
-    "ERROR_GENERIC": "Niepoprawny email lub konto nie istnieje"
+    "SUCCESS_MESSAGE": "Sprawdź swój e-mail, aby zresetować hasło.",
+    "ERROR_GENERIC": "Niepoprawny e-mail lub konto nie istnieje"
   },
   "STATUS": {
     "CREATED": "Do potwierdzenia",
@@ -170,15 +170,14 @@
     "REQUESTED_CANCELLATION": "Do odwołania",
     "REJECTED": "Odrzucona"
   },
-
   "REGISTER": {
     "CLOSE": "Zamknij",
     "SUCCESS_TITLE": "Rejestracja zakończona sukcesem",
-    "SUCCESS_DESC": "Sprawdź swoją skrzynkę email i kliknij link w celu aktywacji konta.",
+    "SUCCESS_DESC": "Sprawdź swoją skrzynkę e-mail i kliknij link w celu aktywacji konta.",
     "ERROR_TITLE": "Błąd rejestracji",
     "ERROR_CONFLICT": "Wystąpił błąd podczas rejestracji. Spróbuj ponownie później.",
     "INVALID_DATA": "Nieprawidłowe dane rejestracyjne. Sprawdź swoje dane i spróbuj ponownie.",
-    "EMAIL_EXISTS": "Konto z tym adresem email już istnieje."
+    "EMAIL_EXISTS": "Konto z tym adresem e-mail już istnieje."
   },
   "ORGANIZATION_LIST.ADD_ORGANIZATION": {
     "TITLE": "Dodaj Zespół",
@@ -207,7 +206,6 @@
     "SUCCESS_DESC": "Członek został pomyślnie usunięty.",
     "CLOSE": "Zamknij"
   },
-
   "ORGANIZATION_LIST.DELETE_OWNER": {
     "TITLE": "Usuń właściciela zespołu",
     "CONFIRMATION": "Czy na pewno chcesz usunąć właściciela zespołu?",
@@ -221,7 +219,7 @@
     "MARK_AS_TRUSTED": "Oznacz jako zaufany",
     "MARK_AS_NOT_TRUSTED": "Oznacz jako niezaufany",
     "TRUSTED": "Zaufany",
-    "NOT_TRUSTED": "Nie zaufany"
+    "NOT_TRUSTED": "Niezaufany"
   },
   "ORGANIZATION_LIST.ERRORS": {
     "DELETE_ORG_FAILED": "Nie udało się usunąć zespołu. Spróbuj ponownie później.",
@@ -253,12 +251,11 @@
     "CONFIRM_DELETE_OWNER": "Potwierdź usunięcie właściciela",
     "CONFIRM_DELETE_MEMBER": "Potwierdź usunięcie członka zespołu",
     "CONFIRM_BAN_TITLE": "Banowanie",
-    "CONFIRM_BAN_BODY": "Potwierdź ban",
+    "CONFIRM_BAN_BODY": "Czy na pewno chcesz zbanować tego użytkownika?",
     "SUCCESS": "Sukces",
     "LOGIN_TO_CREATE_RESERVATION": "Zaloguj się, aby utworzyć rezerwację",
     "CONFIRM_DELETE_ACCOUNT": "Czy na pewno chcesz usunąć konto?"
   },
-
   "ADMIN_RESERVATIONS": {
     "IS_PRIVATE": "Tak",
     "IS_NOT_PRIVATE": "Nie",
@@ -268,18 +265,18 @@
     "ACCEPTED": "Rezerwacja zaakceptowana",
     "REJECTED": "Rezerwacja odrzucona",
     "REJECT_CANCELLATION_REQUESTS": "Odrzuć prośbę",
-    "SEND_ACCEPT": "Pomysł ?",
+    "SEND_ACCEPT": "Akceptuj",
     "SEND_CANCEL": "Odwołaj",
     "OK": "OK",
     "PENDING": "Oczekujące",
     "CONFIRMED": "Potwierdzone",
     "CANCELLED": "Anulowane",
     "REQUESTED_CANCELLATION": "Prośby o anulowanie",
-    "CONFIRM_ACCEPT_BODY": "Czy na pewno chcesz zaakceptować rezerwację zespołu {organization}, {date} {startHour} - {endHour}?",
+    "CONFIRM_ACCEPT_BODY": "Czy na pewno chcesz zaakceptować rezerwację zespołu {{organization}}, {{date}} {{startHour}} - {{endHour}}?",
     "CONFIRM_ACCEPT_TITLE": "Potwierdź akceptację rezerwacji {{reservedBy}}, {{date}}, Sala {{room}}",
-    "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz zaakceptować prośbę o anulowanie rezerwacji zespołu {organization}, {date} {startHour} - {endHour}?",
+    "CONFIRM_REQUEST_CANCEL_BODY": "Czy na pewno chcesz zaakceptować prośbę o anulowanie rezerwacji zespołu {{organization}}, {{date}} {{startHour}} - {{endHour}}?",
     "CONFIRM_REQUEST_CANCEL_TITLE": "Potwierdź akceptację prośby o anulowanie rezerwacji {{reservedBy}}, {{date}}, Sala {{room}}",
-    "CONFIRM_CANCEL_BODY": "Czy na pewno chcesz odrzucić rezerwację zespołu ?",
+    "CONFIRM_CANCEL_BODY": "Czy na pewno chcesz odwołać rezerwację zespołu?",
     "CONFIRM_CANCEL_TITLE": "Potwierdź odwołanie rezerwacji {{reservedBy}}, {{date}}, Sala {{room}}",
     "ORGANIZATION": "Zespół",
     "RESERVED_BY": "Rezerwujący",
@@ -294,7 +291,7 @@
     "ACTION_COLUMN": "Akcja",
     "ORG": "Zespół",
     "USER_DETAILS": "Szczegóły użytkownika",
-    "USERS_ORGANIZATIONS": "Zespoły do których należy",
+    "USERS_ORGANIZATIONS": "Zespoły, do których należy",
     "USERS_OR_THEIR_ORGS_RESERVATIONS": "Rezerwacje użytkownika lub jego zespołów",
     "ORGANIZATION_DETAILS": "Szczegóły zespołu",
     "ORGANIZATION_MEMBERS": "Członkowie zespołu",
@@ -313,7 +310,7 @@
     "CONFIRM_PAID": "Opłacone",
     "CONFIRM_UNPAID": "Nieopłacone",
     "ONLY_FUTURE": "Tylko przyszłe",
-    "CONFIRM_REJECT_TITLE": "Potwierdź odrzucenie rezerwacji {{reservedBy}}, {{date}}, Sala {{room}} ",
+    "CONFIRM_REJECT_TITLE": "Potwierdź odrzucenie rezerwacji {{reservedBy}}, {{date}}, Sala {{room}}",
     "FILTER_STATUS": "Status"
   },
   "PAGINATION": {
@@ -326,7 +323,7 @@
     "DELETE": "Usuń",
     "CLOSE": "Zamknij",
     "SELECT": "Wybierz",
-    "PRICE": "Razem",
+    "PRICE": "Cena",
     "BANDS": "Zespoły",
     "RESERVATIONS": "Rezerwacje",
     "SETTINGS": "Ustawienia",
@@ -342,7 +339,7 @@
     "SUCCESS_UPDATING_PASSWORD": "Hasło zmienione!",
     "ERROR_MATCHING_PASSWORD": "Hasła nie pasują do siebie",
     "ERROR_UPDATING_PASSWORD": "Nie udało się zmienić hasła, spróbuj ponownie później",
-    "COMMON.SELECT_ROOM": "Wybierz salę",
+    "SELECT_ROOM": "Wybierz salę",
     "I_ACCEPT_PRIVACY_POLICY": "Akceptuję politykę prywatności",
     "ALREADY_HAVE_ACCOUNT_LOGIN": "Masz już konto? Zaloguj się!"
   },

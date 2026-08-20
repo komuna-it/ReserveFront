@@ -88,7 +88,7 @@ export class AuthService {
   private executeLocalLogout() {
     this.currentUserSignal.set(null);
 
-    const publicRoutes = ['/', '/login', '/register', '/confirm-email'];
+    const publicRoutes = ['/', '/login', '/register', '/confirm-email', '/forgot-password'];
     const currentUrl = this.router.url.split('?')[0];
 
     if (!publicRoutes.includes(currentUrl)) {
