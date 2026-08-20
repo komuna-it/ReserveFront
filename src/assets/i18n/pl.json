@@ -356,7 +356,8 @@
     "KEY": "Parametr",
     "VALUE": "Wartość",
     "NEW_VALUE": "Nowa wartość",
-    "DELETE_ACCOUNT": "Usuń konto"
+    "DELETE_ACCOUNT": "Usuń konto",
+    "VIEW_POLICY": "Polityka Prywatności"
   },
   "CONFIRM_EMAIL": {
     "VERIFYING": "Weryfikacja adresu e-mail...",

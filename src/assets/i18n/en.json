@@ -346,7 +346,9 @@
   "SETTINGS": {
     "KEY": "Parameter",
     "VALUE": "Old Value",
-    "NEW_VALUE": "New Value"
+    "NEW_VALUE": "New Value",
+    "DELETE_ACCOUNT": "Delete account",
+    "VIEW_POLICY": "Privacy Policy"
   },
   "CONFIRM_EMAIL": {
     "VERIFYING": "Verifying your email address...",

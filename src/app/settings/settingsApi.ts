@@ -41,6 +41,6 @@ export class SettingsApi {
   }
 
   getPrivacyPolicy(): Observable<string> {
-    return this.http.get<string>(`${this.apiUrl}/settings`);
+    return this.http.get<string>(`${this.apiUrl}/policy/privacy`);
   }
 }
