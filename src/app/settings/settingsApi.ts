@@ -41,6 +41,8 @@ export class SettingsApi {
   }
 
   getPrivacyPolicy(): Observable<string> {
-    return this.http.get<string>(`${this.apiUrl}/policy/privacy`);
+    return this.http.get(`${this.apiUrl}/policy/privacy`, {
+      responseType: 'text',
+    });
   }
 }

@@ -38,5 +38,6 @@ export class UserSettings {
 
   handleDeleteAccount() {
     this.settingsStore.isDeleteAccountConfirmationModalActive.set(true);
+    this.auth.logout();
   }
 }

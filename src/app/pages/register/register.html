@@ -105,7 +105,7 @@
     <div
       class="bg-slate-800 text-white p-6 rounded-xl shadow-lg border border-slate-600 w-full max-w-2xl max-h-[80vh] flex flex-col"
     >
-      <h2 class="text-xl font-bold mb-4">Privacy Policy</h2>
+      <h2 class="text-xl font-bold mb-4">{{ 'SETTINGS.VIEW_POLICY' | transloco }}</h2>
 
       <div
         class="overflow-y-auto flex-1 p-4 bg-slate-900 rounded mb-4 text-sm text-slate-300"
@@ -116,7 +116,7 @@
         (click)="settingsStore.isPrivacyPolicyOpen.set(false)"
         class="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors shadow-md"
       >
-        Close
+        {{ 'COMMON.CLOSE' | transloco }}
       </button>
     </div>
   </div>
