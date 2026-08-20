@@ -52,6 +52,7 @@ export class AuthService {
 
   checkCurrentSession(): Observable<boolean> {
     this.isLoadingSignal.set(true);
+    console.log('apiUrl: ', environment.apiUrl);
     console.log('checking current session');
     return this.http.get<User>(`${this.apiUrl}/auth/me`).pipe(
       map((user) => {

@@ -52,6 +52,14 @@
   }
 }
 
+@if (settingsStore.isDeleteAccountConfirmationModalActive()) {
+  <app-confirmation-popup
+    [titleText]="'USER_MODALS.CONFIRM_DELETE_ACCOUNT' | transloco"
+    (ok)="settingsFacade.deleteAccount()"
+    (cancel)="settingsFacade.closeModals()"
+  ></app-confirmation-popup>
+}
+
 <!-- Popup - success -->
 @if (
   store.isModalDeleteMemberSuccessActive() ||

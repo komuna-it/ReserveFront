@@ -3,6 +3,8 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ReservationStore } from '../reservation/reservation.store';
 import { ReservationFacade } from '../reservation/reservation.facade';
 import { AuthService } from '../../auth/authService';
+import { SettingsFacade } from '../../settings/settingsFacade';
+import { SettingsStore } from '../../settings/settingsStore';
 
 @Component({
   selector: 'app-user-settings',
@@ -14,6 +16,8 @@ import { AuthService } from '../../auth/authService';
 export class UserSettings {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
+  readonly settingsFacade = inject(SettingsFacade);
+  readonly settingsStore = inject(SettingsStore);
   readonly auth = inject(AuthService);
   readonly transloco = inject(TranslocoService);
 
@@ -30,5 +34,9 @@ export class UserSettings {
 
       this.facade.setPreferredLanguage(newLanguage);
     }
+  }
+
+  handleDeleteAccount() {
+    this.settingsStore.isDeleteAccountConfirmationModalActive.set(true);
   }
 }

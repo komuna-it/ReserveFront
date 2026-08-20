@@ -16,6 +16,8 @@ import { RouterOutlet } from '@angular/router';
 import { AddUserIntoOrganizationModal } from '../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
 import { OrganizationDetailsModal } from '../../modals/organization-details-modal/organization-details-modal';
 import { ErrorPopup } from '../../modals/error-popup/error-popup';
+import { SettingsFacade } from '../../settings/settingsFacade';
+import { SettingsStore } from '../../settings/settingsStore';
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -38,7 +40,9 @@ import { ErrorPopup } from '../../modals/error-popup/error-popup';
 })
 export class ProfilePage implements OnInit, OnDestroy {
   readonly store = inject(ReservationStore);
+  readonly settingsStore = inject(SettingsStore);
   readonly facade = inject(ReservationFacade);
+  readonly settingsFacade = inject(SettingsFacade);
   readonly authService = inject(AuthService);
   readonly translocoService = inject(TranslocoService);
   readonly helper = inject(CalendarHelper);

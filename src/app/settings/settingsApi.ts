@@ -35,4 +35,8 @@ export class SettingsApi {
 
     return this.http.patch<Setting[]>(`${this.apiUrl}/settings`, { settings: payload });
   }
+
+  deleteAccount() {
+    return this.http.delete(`${this.apiUrl}/users`, {});
+  }
 }

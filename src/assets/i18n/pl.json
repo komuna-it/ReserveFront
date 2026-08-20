@@ -151,7 +151,8 @@
     "NO_ACCOUNT_REGISTER": "Nie masz konta? Zarejestruj się!",
     "SEND": "Wyślij",
     "REJECT": "Odrzuć",
-    "SAVE": "Zapisz"
+    "SAVE": "Zapisz",
+    "DELETE": "Usuń"
   },
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Wpisz swój adres email",
@@ -254,7 +255,8 @@
     "CONFIRM_BAN_TITLE": "Banowanie",
     "CONFIRM_BAN_BODY": "Potwierdź ban",
     "SUCCESS": "Sukces",
-    "LOGIN_TO_CREATE_RESERVATION": "Zaloguj się, aby utworzyć rezerwację"
+    "LOGIN_TO_CREATE_RESERVATION": "Zaloguj się, aby utworzyć rezerwację",
+    "CONFIRM_DELETE_ACCOUNT": "Czy na pewno chcesz usunąć konto?"
   },
 
   "ADMIN_RESERVATIONS": {
@@ -351,6 +353,7 @@
   "SETTINGS": {
     "KEY": "Parametr",
     "VALUE": "Wartość",
-    "NEW_VALUE": "Nowa wartość"
+    "NEW_VALUE": "Nowa wartość",
+    "DELETE_ACCOUNT": "Usuń konto"
   }
 }
