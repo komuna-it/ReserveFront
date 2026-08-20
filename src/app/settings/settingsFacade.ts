@@ -50,4 +50,18 @@ export class SettingsFacade {
     });
     this.settingsStore.isDeleteAccountConfirmationModalActive.set(false);
   }
+
+  getPrivacyPolicy() {
+    this.api.getPrivacyPolicy().subscribe({
+      next: (response) => {
+        this.settingsStore.privacyPolicy.set(response);
+        this.settingsStore.isPrivacyPolicyOpen.set(true);
+        console.log('getPrivacyPolicy:');
+        console.table(response);
+      },
+      error: (e) => {
+        console.error('error getPrivacyPolicy', e);
+      },
+    });
+  }
 }

@@ -342,7 +342,9 @@
     "SUCCESS_UPDATING_PASSWORD": "Hasło zmienione!",
     "ERROR_MATCHING_PASSWORD": "Hasła nie pasują do siebie",
     "ERROR_UPDATING_PASSWORD": "Nie udało się zmienić hasła, spróbuj ponownie później",
-    "COMMON.SELECT_ROOM": "Wybierz salę"
+    "COMMON.SELECT_ROOM": "Wybierz salę",
+    "I_ACCEPT_PRIVACY_POLICY": "Akceptuję politykę prywatności",
+    "ALREADY_HAVE_ACCOUNT_LOGIN": "Masz już konto? Zaloguj się!"
   },
   "COOKIES": {
     "TITLE": "Dbamy o Twoją prywatność",

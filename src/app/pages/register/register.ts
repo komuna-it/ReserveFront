@@ -1,9 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '../../auth/authService';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { SettingsStore } from '../../settings/settingsStore';
+import { SettingsFacade } from '../../settings/settingsFacade';
+// Import your API/Facade service here
+// import { ApiService } from '../../api.service';
 
 @Component({
   selector: 'app-register',
@@ -13,12 +17,23 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
   styleUrl: './register.css',
 })
 export class RegisterPage {
+  readonly settingsStore = inject(SettingsStore);
+  readonly settingsFacade = inject(SettingsFacade);
+
   email = '';
   name = '';
   password = '';
   language = '';
+
+  // State for the new checkbox
+  policyAccepted = false;
+
   readonly errorString = signal<string>('');
   readonly registerSuccess = signal<boolean>(false);
+
+  // State for the privacy policy modal & HTML content
+  readonly isPrivacyPolicyOpen = signal<boolean>(false);
+  readonly privacyPolicyHtml = signal<string>('Loading privacy policy...');
 
   constructor(
     private authService: AuthService,
@@ -27,8 +42,13 @@ export class RegisterPage {
   ) {}
 
   async register() {
-
     this.errorString.set('');
+
+    if (!this.policyAccepted) {
+      this.errorString.set('You must accept the privacy policy to register.');
+      return;
+    }
+
     this.authService.register(this.email, this.password, this.name, this.language).subscribe({
       next: () => {
         this.registerSuccess.set(true);
@@ -45,5 +65,12 @@ export class RegisterPage {
         }
       },
     });
+  }
+
+  viewPrivacyPolicy(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.settingsFacade.getPrivacyPolicy();
   }
 }

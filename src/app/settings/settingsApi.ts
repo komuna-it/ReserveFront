@@ -39,4 +39,8 @@ export class SettingsApi {
   deleteAccount() {
     return this.http.delete(`${this.apiUrl}/users`, {});
   }
+
+  getPrivacyPolicy(): Observable<string> {
+    return this.http.get<string>(`${this.apiUrl}/settings`);
+  }
 }
