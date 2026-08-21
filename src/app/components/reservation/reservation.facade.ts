@@ -1,4 +1,4 @@
-import { effect, inject, Injectable } from '@angular/core';
+import { effect, inject, Injectable, isDevMode } from '@angular/core';
 import { ReservationApi } from './reservation.api';
 import { ReservationStore } from './reservation.store';
 import { CalendarHelper } from '../calendar/calendar.helper';
@@ -176,14 +176,19 @@ export class ReservationFacade {
       },
       onopen: async (response) => {
         if (response.ok) {
-          console.log('SSE connection successfully opened!');
+          if (!isDevMode) {
+            console.log('SSE connection successfully opened!');
+          }
           return;
         }
-        console.error('SSE connection failed with status:', response.status);
+        if (!isDevMode) {
+          console.error('SSE connection failed with status:', response.status);
+        }
       },
       onmessage: (msg) => {
-        console.log(`Fetched SSE! Event: ${msg.event}`, msg.data);
-
+        if (!isDevMode) {
+          console.log(`Fetched SSE! Event: ${msg.event}`, msg.data);
+        }
         if (!msg.data) return;
 
         try {
