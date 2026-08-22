@@ -52,21 +52,15 @@ export class OrganizationList implements OnInit, OnDestroy {
   });
 
   constructor() {
-    const user = this.auth.currentUser();
+    const orgs = this.store.organizations();
 
+    if (this.auth.isAdmin()) {
+      this.facade.getOrganizations(true, null);
+    } else {
+      const user = this.auth.currentUser();
+      if (user) this.facade.getOrganizations(true, user.id);
+    }
     effect(() => {
-      const orgs = this.store.organizations();
-      const isActiveModal = this.store.isOrganizationDetailsModalActive();
-
-      if (!isActiveModal && orgs && orgs.length === 0) {
-        if (this.auth.isAdmin()) {
-          this.facade.getOrganizations(true, null);
-        } else {
-          const user = this.auth.currentUser();
-          if (user) this.facade.getOrganizations(true, user.id);
-        }
-      }
-
       this.store.currentSortBy();
       this.store.currentSortDir();
       this.store.currentOrganizationsPage();
@@ -75,9 +69,10 @@ export class OrganizationList implements OnInit, OnDestroy {
     if (this.auth.isAdmin()) {
       this.store.toolbarType.set(ToolbarType.ADMIN_ORGANIZATIONS);
       this.facade.getOrganizations(true, null);
-    } else {
-      if (user) this.facade.getOrganizations(true, user.id);
     }
+    // else {
+    //   if (user) this.facade.getOrganizations(true, user.id);
+    // }
   }
 
   ngOnInit(): void {}

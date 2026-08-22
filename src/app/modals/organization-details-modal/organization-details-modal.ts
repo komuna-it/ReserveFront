@@ -45,7 +45,6 @@ export class OrganizationDetailsModal {
   constructor() {
     effect(() => {
       const org = this.store.selectedOrganization();
-      console.log('Modal sees new organization', org);
     });
   }
 

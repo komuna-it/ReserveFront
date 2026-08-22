@@ -119,7 +119,7 @@ export class TableReservations {
     if (this.auth.isAdmin()) {
       this.facade.getOrganizations(true, null);
     } else if (loggedUser) {
-      this.facade.getOrganizations(false, loggedUser.id);
+      this.facade.getOrganizations(true, loggedUser.id);
     }
 
     effect(() => this.initializeTable());
