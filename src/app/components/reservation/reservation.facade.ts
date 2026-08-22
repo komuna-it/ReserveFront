@@ -294,37 +294,28 @@ export class ReservationFacade {
   updateReservationsStatus(targetStatus: ReservationStatus): void {
     console.log('facade updateReservationsStatus ', targetStatus);
     this.closeModals();
-    let ids = this.store.toolbarSelectedIds();
+    let selectedIds = this.store.toolbarSelectedIds();
+    const idsToProcess = new Set<number>(selectedIds);
 
-    if (ids.size === 0) {
+    if (idsToProcess.size === 0) {
       const singleId = this.store.selectedReservation()?.id;
-      if (singleId) ids.add(singleId);
+      if (singleId) idsToProcess.add(singleId);
     }
 
-    if (!ids || ids.size === 0) {
+    if (!selectedIds || idsToProcess.size === 0) {
       console.error('No reservation IDs selected for status update');
       return;
     }
 
-    this.api.updateReservationsStatus(ids, targetStatus).subscribe({
+    this.api.updateReservationsStatus(selectedIds, targetStatus).subscribe({
       next: () => {
-        const user = this.authService.currentUser();
-        if (this.authService.isAdmin()) {
-          const currentStatus = this.store.statusForAdminPage();
-          if (!currentStatus) return;
-          this.getReservations(
-            new Set<ReservationStatus>([currentStatus]),
+        this.store.reservationsPage.update((currentPage) => ({
+          ...currentPage,
+          content: currentPage.content.map((res) =>
+            idsToProcess.has(res.id) ? { ...res, status: targetStatus } : res,
+          ),
+        }));
 
-            this.store.toolbarOnlyFuture(),
-            null,
-            null,
-            null,
-            null,
-          );
-        } else {
-          if (user)
-            this.getReservations(null, this.store.toolbarOnlyFuture(), user.id, null, null, null);
-        }
         this.store.clearSelection();
       },
       error: (err: unknown) => {

@@ -138,24 +138,37 @@ export class ReservationApi {
     });
   }
 
-  updateReservationsStatus(resIds: Set<number>, status: ReservationStatus) {
+  updateReservationsStatus(
+    resIds: Set<number>,
+    status: ReservationStatus,
+  ): Observable<Page<ReservationDto>> {
     const reservationIds = Array.from(resIds);
 
     switch (status) {
       case ReservationStatus.CONFIRMED:
-        return this.http.post(`${this.apiUrl}/reservations/confirm`, { reservationIds });
+        return this.http.post<Page<ReservationDto>>(`${this.apiUrl}/reservations/confirm`, {
+          reservationIds,
+        });
 
       case ReservationStatus.REQUESTED_CANCELLATION:
-        return this.http.post(`${this.apiUrl}/reservations/requestCancel`, { reservationIds });
+        return this.http.post<Page<ReservationDto>>(`${this.apiUrl}/reservations/requestCancel`, {
+          reservationIds,
+        });
 
       case ReservationStatus.CANCELLED:
-        return this.http.post(`${this.apiUrl}/reservations/confirmCancel`, { reservationIds });
+        return this.http.post<Page<ReservationDto>>(`${this.apiUrl}/reservations/confirmCancel`, {
+          reservationIds,
+        });
 
       case ReservationStatus.REJECTED:
-        return this.http.post(`${this.apiUrl}/reservations/reject`, { reservationIds });
+        return this.http.post<Page<ReservationDto>>(`${this.apiUrl}/reservations/reject`, {
+          reservationIds,
+        });
 
       case ReservationStatus.REJECTED_CANCELLATION:
-        return this.http.post(`${this.apiUrl}/reservations/rejectCancel`, { reservationIds });
+        return this.http.post<Page<ReservationDto>>(`${this.apiUrl}/reservations/rejectCancel`, {
+          reservationIds,
+        });
 
       default:
         console.error('Unsupported status:', status);

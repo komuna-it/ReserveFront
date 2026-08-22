@@ -66,7 +66,8 @@ export class TableReservations {
 
   getCancelButtonLabel(res: ReservationDto): string {
     switch (res.status) {
-      case ReservationStatus.CREATED || ReservationStatus.CONFIRMED: {
+      case ReservationStatus.CREATED:
+      case ReservationStatus.CONFIRMED: {
         if (this.canCancelWithoutAsking(res)) {
           return this.translocoService.translate('BUTTONS.CANCEL');
         } else {
