@@ -55,6 +55,18 @@ export class OrganizationList implements OnInit, OnDestroy {
     const user = this.auth.currentUser();
 
     effect(() => {
+      const orgs = this.store.organizations();
+      const isActiveModal = this.store.isOrganizationDetailsModalActive();
+
+      if (!isActiveModal && orgs && orgs.length === 0) {
+        if (this.auth.isAdmin()) {
+          this.facade.getOrganizations(true, null);
+        } else {
+          const user = this.auth.currentUser();
+          if (user) this.facade.getOrganizations(true, user.id);
+        }
+      }
+
       this.store.currentSortBy();
       this.store.currentSortDir();
       this.store.currentOrganizationsPage();
@@ -62,7 +74,6 @@ export class OrganizationList implements OnInit, OnDestroy {
     });
     if (this.auth.isAdmin()) {
       this.store.toolbarType.set(ToolbarType.ADMIN_ORGANIZATIONS);
-      this.store.isAdminOrganizationModalActive.set(true);
       this.facade.getOrganizations(true, null);
     } else {
       if (user) this.facade.getOrganizations(true, user.id);
@@ -89,18 +100,6 @@ export class OrganizationList implements OnInit, OnDestroy {
 
   toggleSelection(id: number): void {
     this.store.toggleSelection(id);
-  }
-
-  closeModals(): void {
-    this.store.isAdminAddOrganizationModalActive.set(false);
-    this.store.isAdminAddOrganizationSuccessPopupActive.set(false);
-    this.store.isModalDeleteOwnerActive.set(false);
-    this.store.isModalDeleteMemberActive.set(false);
-    this.store.isModalDeleteOrganizationActive.set(false);
-    this.store.isModalDeleteOrganizationSuccessActive.set(false);
-    this.store.isModalDeleteMemberSuccessActive.set(false);
-    this.store.isModalDeleteOwnerSuccessActive.set(false);
-    this.store.globalErrorKey.set(null);
   }
 
   selectOrganizationAndOpenDetailsModal(org: Organization): void {

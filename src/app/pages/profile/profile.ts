@@ -18,6 +18,7 @@ import { OrganizationDetailsModal } from '../../modals/organization-details-moda
 import { ErrorPopup } from '../../modals/error-popup/error-popup';
 import { SettingsFacade } from '../../settings/settingsFacade';
 import { SettingsStore } from '../../settings/settingsStore';
+import { ReservationDetailsModal } from '../../modals/reservation-details-modal/reservation-details-modal';
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -34,6 +35,7 @@ import { SettingsStore } from '../../settings/settingsStore';
     AddOrganizationModal,
     SuccessPopup,
     ErrorPopup,
+    ReservationDetailsModal,
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.css',

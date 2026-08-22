@@ -32,7 +32,7 @@ export class TableReservations {
   readonly type = input<ReservationTableType>();
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly auth = inject(AuthService);
+  readonly auth = inject(AuthService);
 
   readonly status = input<ReservationStatus | null>();
   readonly toolbarType = input<ToolbarType | null>();
@@ -199,11 +199,14 @@ export class TableReservations {
 
   openReservationDetails(res: ReservationDto): void {
     this.store.selectedReservation.set(res);
-    if (this.type() === ReservationTableType.ADMIN_BY_STATUS) {
+
+    if (
+      this.type() === ReservationTableType.ADMIN_BY_STATUS ||
+      this.type() === ReservationTableType.USER_PROFILE
+    ) {
       const idSet = new Set<number>();
       idSet.add(res.id);
       this.store.toolbarSelectedIds.set(idSet);
-
       this.store.isReservationDetailsModalActive.set(true);
     }
   }

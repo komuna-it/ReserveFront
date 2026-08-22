@@ -15,16 +15,26 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { Booking } from '../../model/booking';
 import { finalize } from 'rxjs';
+import { TranslocoService } from '@jsverse/transloco';
+import { SettingsFacade } from '../../settings/settingsFacade';
+import { SettingsStore } from '../../settings/settingsStore';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
   private api = inject(ReservationApi);
+  private loco = inject(TranslocoService);
   private store = inject(ReservationStore);
   private helper = inject(CalendarHelper);
   private authService = inject(AuthService);
   private router = inject(Router);
   private sseController: AbortController | null = null;
+  public settingsFacade = inject(SettingsFacade);
+  public settingsStore = inject(SettingsStore);
   private readonly route = inject(ActivatedRoute);
+
+  constructor() {
+    this.settingsFacade.getSettings(null, true);
+  }
 
   refreshOrganizations() {
     if (this.authService.isAdmin()) {
@@ -309,6 +319,19 @@ export class ReservationFacade {
 
     this.api.updateReservationsStatus(selectedIds, targetStatus).subscribe({
       next: () => {
+        if (this.authService.isAdmin()) {
+          const status = this.store.statusForAdminPage();
+          if (status)
+            this.getReservations(
+              new Set<ReservationStatus>([status]),
+              this.store.toolbarOnlyFuture(),
+              null,
+              null,
+              null,
+              null,
+            );
+        }
+
         this.store.reservationsPage.update((currentPage) => ({
           ...currentPage,
           content: currentPage.content.map((res) =>
@@ -755,16 +778,15 @@ export class ReservationFacade {
     this.store.isModalDeleteMemberActive.set(false);
     this.store.isModalDeleteOrganizationActive.set(false);
     this.store.selectedBooking.set(null);
+    this.store.globalErrorKey.set(null);
     this.store.isModalDeleteOrganizationSuccessActive.set(false);
     this.store.isModalDeleteMemberSuccessActive.set(false);
     this.store.isModalDeleteOwnerSuccessActive.set(false);
     this.store.displayBookingErrorPopup.set(false);
-    this.store.globalErrorKey.set(null);
     this.store.isAddOrganizationModalActive.set(false);
     this.store.popupConfirmationActive.set(false);
     this.store.isModalAddRoomActive.set(false);
     this.store.confirmMarkReservationAsRequestCancel.set(false);
-    this.store.globalErrorKey.set(null);
     this.store.isBanUsersModalActive.set(false);
     this.store.isBanUsersSuccessActive.set(false);
     this.store.isUserDetailsModalActive.set(false);
@@ -1091,5 +1113,42 @@ export class ReservationFacade {
       },
       error: (e) => console.error('Error in getOrganizations: ', e),
     });
+  }
+
+  isCancellationPossible(res: ReservationDto): boolean {
+    return (
+      res.status !== ReservationStatus.REQUESTED_CANCELLATION &&
+      res.status !== ReservationStatus.CANCELLED
+    );
+  }
+
+  canCancelWithoutAsking(res: ReservationDto) {
+    const paramCanCancelWithoutAsking =
+      this.settingsStore
+        .settings()
+        .find((s) => s.key === 'RESERVATION_CANCELLATION_WITHOUT_APPROVAL_HOURS')?.value ?? '24';
+    const hourPeriod = parseInt(paramCanCancelWithoutAsking);
+    const startDate = new Date(res.startAt);
+    const now = new Date();
+    const timeDifference = startDate.getTime() - now.getTime();
+    return timeDifference / (1000 * 60 * 60) >= hourPeriod;
+  }
+
+  getCancelButtonLabel(res: ReservationDto): string {
+    switch (res.status) {
+      case ReservationStatus.CREATED:
+      case ReservationStatus.CONFIRMED:
+        return this.canCancelWithoutAsking(res)
+          ? this.loco.translate('BUTTONS.CANCEL')
+          : this.loco.translate('BUTTONS.REQUEST_CANCEL');
+      case ReservationStatus.CANCELLED:
+        return this.loco.translate('STATUS.CANCELLED');
+      case ReservationStatus.REJECTED:
+        return this.loco.translate('STATUS.REJECTED');
+      case ReservationStatus.REQUESTED_CANCELLATION:
+        return this.loco.translate('BUTTONS.ASKED_FOR_CANCELLATION');
+      default:
+        return '';
+    }
   }
 }

@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { SettingsStore } from '../../settings/settingsStore';
 import { SettingsFacade } from '../../settings/settingsFacade';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorResponse } from '../../model/error/errorResponse';
 // Import your API/Facade service here
 // import { ApiService } from '../../api.service';
 
@@ -28,7 +30,9 @@ export class RegisterPage {
   // State for the new checkbox
   policyAccepted = false;
 
-  readonly errorString = signal<string>('');
+  readonly fieldErrors = signal<Record<string, string[]>>({});
+  readonly generalError = signal<string>('');
+
   readonly registerSuccess = signal<boolean>(false);
 
   // State for the privacy policy modal & HTML content
@@ -39,32 +43,67 @@ export class RegisterPage {
     private authService: AuthService,
     private router: Router,
     private translocoService: TranslocoService,
-  ) {}
+  ) {
+    const lang = this.translocoService.getActiveLang();
+    if (lang) {
+      this.translocoService.setActiveLang(lang);
+    }
+  }
 
   async register() {
-    this.errorString.set('');
+    this.generalError.set('');
+    this.fieldErrors.set({});
 
     if (!this.policyAccepted) {
-      this.errorString.set('You must accept the privacy policy to register.');
+      this.generalError.set('You must accept the privacy policy to register.');
       return;
     }
 
-    this.authService.register(this.email, this.password, this.name, this.language).subscribe({
-      next: () => {
-        this.registerSuccess.set(true);
-      },
-      error: (error) => {
-        if (error.status === 409) {
-          this.errorString.set(this.translocoService.translate('REGISTER.EMAIL_EXISTS'));
-        } else if (error.status === 403 || error.status === 401 || error.status === 400) {
-          this.errorString.set(
-            error.error?.message || this.translocoService.translate('REGISTER.INVALID_DATA'),
-          );
-        } else {
-          this.errorString.set(this.translocoService.translate('REGISTER.ERROR_CONFLICT'));
-        }
-      },
-    });
+    this.authService
+      .register(this.email, this.password, this.name, this.translocoService.getActiveLang())
+      .subscribe({
+        next: () => {
+          this.registerSuccess.set(true);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.handleErrorResponse(error);
+        },
+      });
+  }
+
+  private handleErrorResponse(error: HttpErrorResponse): void {
+    const errorResponse = error.error as ErrorResponse;
+
+    if (error.status === 400 && errorResponse?.body?.errors) {
+      const backendErrors = errorResponse.body.errors;
+
+      const translatedErrors: Record<string, string[]> = {};
+
+      if ('password' in backendErrors) {
+        translatedErrors['password'] = [
+          this.translocoService.translate('ERRORS.PASSWORD_INSTRUCTIONS'),
+        ];
+      }
+
+      if ('email' in backendErrors) {
+        translatedErrors['email'] = [this.translocoService.translate('ERRORS.EMAIL_INSTRUCTIONS')];
+      }
+
+      this.fieldErrors.set(translatedErrors);
+      return;
+    }
+
+    if (error.status === 409) {
+      this.generalError.set(this.translocoService.translate('REGISTER.EMAIL_EXISTS'));
+    } else if (errorResponse?.message) {
+      this.generalError.set(errorResponse.message);
+    } else {
+      this.generalError.set(this.translocoService.translate('REGISTER.ERROR_CONFLICT'));
+    }
+  }
+
+  getFieldErrors(fieldName: string): string[] {
+    return this.fieldErrors()[fieldName] || [];
   }
 
   viewPrivacyPolicy(event: Event) {

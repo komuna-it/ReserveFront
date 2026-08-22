@@ -219,7 +219,8 @@
     "MARK_AS_TRUSTED": "Oznacz jako zaufany",
     "MARK_AS_NOT_TRUSTED": "Oznacz jako niezaufany",
     "TRUSTED": "Zaufany",
-    "NOT_TRUSTED": "Niezaufany"
+    "NOT_TRUSTED": "Niezaufany",
+    "NO_BANDS_TO_DISPLAY": "Brak zespołów"
   },
   "ORGANIZATION_LIST.ERRORS": {
     "DELETE_ORG_FAILED": "Nie udało się usunąć zespołu. Spróbuj ponownie później.",
@@ -361,11 +362,16 @@
     "SUCCESS_TITLE": "E-mail potwierdzony!",
     "SUCCESS_DESC": "Twój adres e-mail został pomyślnie zweryfikowany. Możesz teraz zalogować się na swoje konto.",
     "PROCEED_TO_LOGIN": "Przejdź do logowania",
+    "PROCEED_TO_CALENDAR": "Przejdź do kalendarza",
     "FAILED_TITLE": "Weryfikacja nie powiodła się",
     "BACK_TO_LOGIN": "Wróć do logowania",
     "ERRORS": {
       "MISSING_TOKEN": "Brak tokena potwierdzającego w adresie URL.",
       "CONFIRMATION_FAILED": "Potwierdzenie e-maila nie powiodło się lub token wygasł."
     }
+  },
+  "ERRORS": {
+    "PASSWORD_INSTRUCTIONS": "Hasło musi zawierać co najmniej jedną wielką literę, jedną małą literę i jedną cyfrę. Hasło musi mieć od 8 do 64 znaków.",
+    "EMAIL_INSTRUCTIONS": "Adres email wygląda na nieprawidłowy"
   }
 }

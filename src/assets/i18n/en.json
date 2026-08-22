@@ -361,11 +361,16 @@
     "SUCCESS_TITLE": "Email Confirmed!",
     "SUCCESS_DESC": "Your email address has been successfully verified. You can now log in to your account.",
     "PROCEED_TO_LOGIN": "Proceed to Login",
+    "PROCEED_TO_CALENDAR": "Proceed to calendar",
     "FAILED_TITLE": "Verification Failed",
     "BACK_TO_LOGIN": "Back to Login",
     "ERRORS": {
       "MISSING_TOKEN": "Missing verification token in the URL.",
       "CONFIRMATION_FAILED": "Email verification failed or the token has expired."
     }
+  },
+  "ERRORS": {
+    "PASSWORD_INSTRUCTIONS": "Password must contain at least one uppercase letter, one lowercase letter and one digit. Password must be between 8 and 64 characters",
+    "EMAIL_INSTRUCTIONS": "Email address looks invalid"
   }
 }

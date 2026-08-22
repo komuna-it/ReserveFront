@@ -86,3 +86,7 @@
 @if (store.isAdminOrganizationModalActive()) {
   <app-add-user-into-organization-modal [type]="'user'"></app-add-user-into-organization-modal>
 }
+
+@if (store.isReservationDetailsModalActive()) {
+  <app-reservation-details-modal></app-reservation-details-modal>
+}

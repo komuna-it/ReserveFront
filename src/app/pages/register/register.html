@@ -4,31 +4,41 @@
 
     <form (ngSubmit)="register()" class="space-y-4">
       <div>
-        <label class="block"> {{ 'USERS_TABLE.NICK' | transloco }} </label>
+        <label for="register-name" class="block"> {{ 'USERS_TABLE.NICK' | transloco }} </label>
         <input
+          id="nick"
           type="text"
           [(ngModel)]="name"
           name="name"
+          autocomplete="username"
           class="w-full p-2 rounded text-white border border-slate-700"
           required
         />
       </div>
       <div>
-        <label class="block mb-1"> {{ 'USERS_TABLE.EMAIL' | transloco }}</label>
+        <label for="register-email" class="block mb-1">
+          {{ 'USERS_TABLE.EMAIL' | transloco }}</label
+        >
         <input
-          type="text"
+          id="email"
+          type="email"
           [(ngModel)]="email"
           name="email"
+          autocomplete="email"
           class="w-full p-2 rounded text-white border border-slate-700"
           required
         />
       </div>
       <div>
-        <label class="block mb-1"> {{ 'BUTTONS.PASSWORD' | transloco }}</label>
+        <label for="register-password" class="block mb-1">
+          {{ 'BUTTONS.PASSWORD' | transloco }}</label
+        >
         <input
+          id="password"
           type="password"
           [(ngModel)]="password"
           name="password"
+          autocomplete="new-password"
           class="w-full p-2 rounded text-white border border-slate-700"
           required
         />
@@ -57,9 +67,11 @@
         </label>
       </div>
 
-      @if (errorString()) {
-        <div class="text-red-500 text-sm mt-1">
-          {{ errorString() }}
+      @if (getFieldErrors('password').length > 0) {
+        <div class="mt-1 space-y-1">
+          @for (err of getFieldErrors('password'); track err) {
+            <p class="text-red-400 text-xs">{{ err }}</p>
+          }
         </div>
       }
 
@@ -70,6 +82,12 @@
       >
         Register
       </button>
+
+      @if (generalError()) {
+        <div class="text-red-500 text-sm mt-1 p-2 bg-red-950/40 border border-red-800 rounded">
+          {{ generalError() }}
+        </div>
+      }
     </form>
 
     @if (registerSuccess()) {
