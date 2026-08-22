@@ -78,7 +78,7 @@ export class ReservationStore {
       }
     }
 
-    const maxDuration = limitHour - bookingStartHour;
+    const maxDuration = limitHour - bookingStartHour > 8 ? 8 : limitHour - bookingStartHour;
     return Array.from({ length: Math.max(0, maxDuration) }, (_, i) => i + 1);
   });
 
