@@ -25,6 +25,19 @@ export class SettingsFacade {
     });
   }
 
+  getSetting(keys: Set<string>) {
+    this.api.getSetting(keys).subscribe({
+      next: (response) => {
+        this.settingsStore.settings.set(response);
+        console.log('downloaded setting:');
+        console.table(response);
+      },
+      error: (e) => {
+        console.error('error downloading setting', e);
+      },
+    });
+  }
+
   updateSettings(settings: Set<Setting>) {
     this.api.updateSettings(settings).subscribe({
       next: (response) => {

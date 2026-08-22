@@ -2,11 +2,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Setting } from './model/setting';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class SettingsApi {
   private http = inject(HttpClient);
-  private apiUrl = process.env['VSF_API_URL'] || '/';
+  private apiUrl = environment.apiUrl;
 
   getSettings(keys: Set<string> | null, all: boolean | null): Observable<Setting[]> {
     let params = new HttpParams();
@@ -19,6 +20,18 @@ export class SettingsApi {
 
     if (all !== null && all !== undefined) {
       params = params.append('all', all);
+    }
+
+    return this.http.get<Setting[]>(`${this.apiUrl}/settings`, { params });
+  }
+
+  getSetting(keys: Set<string>): Observable<Setting[]> {
+    let params = new HttpParams();
+
+    if (keys != null && keys.size > 0) {
+      keys.forEach((key) => {
+        params = params.append('keys', key);
+      });
     }
 
     return this.http.get<Setting[]>(`${this.apiUrl}/settings`, { params });
