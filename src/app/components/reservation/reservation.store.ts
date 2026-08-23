@@ -84,6 +84,7 @@ export class ReservationStore {
 
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
   readonly displayBookingErrorPopup = signal<boolean>(false);
+  readonly displayErrorPopup = signal<boolean>(false);
 
   readonly selectedBooking = signal<Booking | null>(null);
   readonly price = computed(() => {

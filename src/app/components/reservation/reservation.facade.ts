@@ -1,4 +1,4 @@
-import { effect, inject, Injectable, isDevMode } from '@angular/core';
+import { effect, inject, Injectable, isDevMode, signal } from '@angular/core';
 import { ReservationApi } from './reservation.api';
 import { ReservationStore } from './reservation.store';
 import { CalendarHelper } from '../calendar/calendar.helper';
@@ -18,6 +18,8 @@ import { finalize } from 'rxjs';
 import { TranslocoService } from '@jsverse/transloco';
 import { SettingsFacade } from '../../settings/settingsFacade';
 import { SettingsStore } from '../../settings/settingsStore';
+import { environment } from '../../../environments/environment';
+import { ErrorType } from '../../model/error/errorType';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -31,6 +33,9 @@ export class ReservationFacade {
   public settingsFacade = inject(SettingsFacade);
   public settingsStore = inject(SettingsStore);
   private readonly route = inject(ActivatedRoute);
+  private apiUrl = environment.apiUrl;
+  readonly errorPopupTitle = signal<string>('');
+  readonly errorPopupBody = signal<string>('');
 
   constructor() {
     this.settingsFacade.getSettings(null, true);
@@ -170,13 +175,21 @@ export class ReservationFacade {
     console.log('booking debugging:');
     console.table(this.store.selectedBooking());
   }
+  disconnectStream() {
+    if (this.sseController) {
+      this.sseController.abort();
+      this.sseController = null;
+    }
+  }
 
   connectToReservationStream() {
-    console.log('Connecting to SSE');
     this.disconnectStream();
     this.sseController = new AbortController();
 
-    const url = `${process.env['VSF_API_URL'] || ''}/sse`;
+    const url = `${this.apiUrl}/sse`;
+    if (isDevMode()) {
+      console.log('Connecting to SSE at url: ', url);
+    }
 
     fetchEventSource(url, {
       method: 'GET',
@@ -186,17 +199,17 @@ export class ReservationFacade {
       },
       onopen: async (response) => {
         if (response.ok) {
-          if (!isDevMode) {
+          if (isDevMode()) {
             console.log('SSE connection successfully opened!');
           }
           return;
         }
-        if (!isDevMode) {
+        if (isDevMode()) {
           console.error('SSE connection failed with status:', response.status);
         }
       },
       onmessage: (msg) => {
-        if (!isDevMode) {
+        if (isDevMode()) {
           console.log(`Fetched SSE! Event: ${msg.event}`, msg.data);
         }
         if (!msg.data) return;
@@ -212,17 +225,17 @@ export class ReservationFacade {
             (this.authService.userId() || '').toString().replace(/['"]/g, ''),
             10,
           );
-          const isAdminLogged = this.authService.isAdmin();
           const currentBooking = this.store.selectedBooking() ?? null;
           const isColizion = this.isSseReservationColiding(res, currentBooking);
-
+          if (isDevMode()) {
+            console.log('isColizion? ', isColizion);
+          }
           if (
-            msg.event === 'RESERVATION_CREATED' &&
+            (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_CONFIRMED') &&
             isColizion &&
-            res.reservedBy !== safeUserId &&
-            !isAdminLogged
+            res.reservedBy !== safeUserId
           ) {
-            this.store.displayBookingErrorPopup.set(true);
+            this.showError(ErrorType.SOMEONE_WAS_FASTER, ErrorType.HOUR_ALREADY_RESERVED);
           }
         } catch (err) {
           console.error('Error parsing SSE message data:', err, 'Data was:', msg.data);
@@ -245,16 +258,24 @@ export class ReservationFacade {
     const resEndDate = new Date(res.endAt);
 
     const bookingStartDate = new Date(b.date);
-    bookingStartDate.setUTCHours(b.hour, 0, 0, 0);
+    bookingStartDate.setHours(b.hour, 0, 0, 0);
 
     const bookingEndDate = new Date(bookingStartDate);
 
     if (!b.duration) b.duration = 1;
-    bookingEndDate.setUTCHours(b.hour + b.duration, 0, 0, 0);
+    bookingEndDate.setHours(b.hour + b.duration, 0, 0, 0);
 
     const isTimeOverlapping =
       resStartDate.getTime() < bookingEndDate.getTime() &&
       resEndDate.getTime() > bookingStartDate.getTime();
+
+    if (isDevMode()) {
+      console.log('isSseReservationColiding: isTimeOverlapping', isTimeOverlapping);
+      console.log('bookingStartDate :', bookingStartDate);
+      console.log('bookingEndDate :', bookingEndDate);
+      console.log('resStartDate :', resStartDate);
+      console.log('resEndDate :', resEndDate);
+    }
 
     return isTimeOverlapping;
   }
@@ -278,13 +299,6 @@ export class ReservationFacade {
       next: (rooms) => this.store.rooms.set(rooms),
       error: (e) => console.error('Error fetching rooms: ', e),
     });
-  }
-
-  disconnectStream() {
-    if (this.sseController) {
-      this.sseController.abort();
-      this.sseController = null;
-    }
   }
 
   changeReservationsByStatusSize() {
@@ -1057,6 +1071,7 @@ export class ReservationFacade {
       ReservationStatus.REQUESTED_CANCELLATION,
       ReservationStatus.REJECTED_CANCELLATION,
     ]);
+
     const startOfDay = new Date(selectedDate);
     startOfDay.setHours(0, 0, 0, 0);
 
@@ -1150,5 +1165,13 @@ export class ReservationFacade {
       default:
         return '';
     }
+  }
+
+  showError(title: ErrorType, body: ErrorType) {
+    const titleTranslated = this.loco.translate(`ERRORS.${title}`);
+    const bodyTranslated = this.loco.translate(`ERRORS.${body}`);
+    this.errorPopupTitle.set(titleTranslated);
+    this.errorPopupBody.set(bodyTranslated);
+    this.store.displayErrorPopup.set(true);
   }
 }

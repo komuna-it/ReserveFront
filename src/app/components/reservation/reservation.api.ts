@@ -1,6 +1,5 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, isDevMode } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { AuthService } from '../../auth/authService';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
@@ -16,7 +15,6 @@ import { environment } from '../../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class ReservationApi {
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
   private apiUrl = environment.apiUrl;
 
   getRooms(): Observable<Room[]> {
@@ -235,9 +233,10 @@ export class ReservationApi {
         params = params.append('organizationsId', id);
       });
     }
-    console.info('calling /reservations with params:', params.toString());
-    console.log('getReservations: ', this.apiUrl);
-
+    if (isDevMode()) {
+      console.info('calling /reservations with params:', params.toString());
+      console.log('getReservations: ', this.apiUrl);
+    }
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
@@ -252,9 +251,10 @@ export class ReservationApi {
       .set('fetchMembers', fetchMembers)
       .set('page', page)
       .set('size', size);
-    console.info('calling /organizations   with params:', params.toString());
-    console.log('getOrganizations: ', this.apiUrl);
-
+    if (isDevMode()) {
+      console.info('calling /organizations   with params:', params.toString());
+      console.log('getOrganizations: ', this.apiUrl);
+    }
     return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 }

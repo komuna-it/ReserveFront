@@ -365,7 +365,9 @@
     "BACK_TO_LOGIN": "Повернутися до входу",
     "ERRORS": {
       "MISSING_TOKEN": "Токен підтвердження відсутній в URL-адресі.",
-      "CONFIRMATION_FAILED": "Не вдалося підтвердити email або токен закінчився."
+      "CONFIRMATION_FAILED": "Не вдалося підтвердити email або токен закінчився.",
+      "SOMEONE_WAS_FASTER": "Хтось був швидшим!",
+      "HOUR_ALREADY_RESERVED": "Ця година вже заброньована"
     }
   }
 }

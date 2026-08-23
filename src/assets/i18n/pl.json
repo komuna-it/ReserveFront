@@ -372,6 +372,8 @@
   },
   "ERRORS": {
     "PASSWORD_INSTRUCTIONS": "Hasło musi zawierać co najmniej jedną wielką literę, jedną małą literę i jedną cyfrę. Hasło musi mieć od 8 do 64 znaków.",
-    "EMAIL_INSTRUCTIONS": "Adres email wygląda na nieprawidłowy"
+    "EMAIL_INSTRUCTIONS": "Adres email wygląda na nieprawidłowy",
+    "SOMEONE_WAS_FASTER": "Ktoś cię ubiegł!",
+    "HOUR_ALREADY_RESERVED": "Ta godzina jest już zarezerwowana"
   }
 }

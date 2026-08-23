@@ -10,5 +10,6 @@ export class User {
     public trusted: boolean,
     public banDto: BanDto,
     public preferredLanguage: string,
+    public accessTokenExpiresAt: number,
   ) {}
 }

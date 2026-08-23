@@ -6,4 +6,12 @@
   </main>
 </div>
 
+@if (store.displayErrorPopup()) {
+  <app-error-popup
+    [titleText]="facade.errorPopupTitle()"
+    [bodyText]="facade.errorPopupBody()"
+    (ok)="store.displayErrorPopup.set(false)"
+  />
+}
+
 <app-cookie-bar></app-cookie-bar>

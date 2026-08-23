@@ -68,9 +68,22 @@ export class CalendarComponent {
   constructor() {
     this.getSettings();
 
-    const user = this.auth.currentUser();
-    const selectedDay = this.store.daySelectedByUser() ?? new Date();
+    const params = this.route.snapshot.queryParams;
+    let selectedDay = new Date();
 
+    if (params['date']) {
+      const parsed = new Date(params['date']);
+      if (!isNaN(parsed.getTime())) {
+        selectedDay = parsed;
+        this.facade.selectDay(parsed);
+      }
+    } else {
+      const stored = this.store.daySelectedByUser();
+      if (stored) selectedDay = stored;
+      else this.facade.selectDay(selectedDay);
+    }
+
+    const user = this.auth.currentUser();
     if (user) {
       if (this.auth.isAdmin()) {
         this.facade.getOrganizations(true, null);
@@ -78,10 +91,9 @@ export class CalendarComponent {
         this.facade.getOrganizations(false, user.id);
       }
     }
+
     this.facade.loadCalendarReservationsForDay(selectedDay);
     this.facade.getRooms();
-
-    const params = this.route.snapshot.queryParams;
     if (params['date']) {
       const parsedDate = new Date(params['date']);
       if (!isNaN(parsedDate.getTime())) {
@@ -105,6 +117,8 @@ export class CalendarComponent {
         this.mobileSelectedRoom.set(roomToSelect);
       }
     });
+
+    this.facade.connectToReservationStream();
   }
 
   getSettings() {
@@ -265,6 +279,10 @@ export class CalendarComponent {
     day.setHours(hour);
     if (this.isPastHour(hour)) return;
 
+    if (isDevMode()) {
+      console.log('selected roomId: ', roomId, ' hour: ', hour);
+      console.log('day: ', day);
+    }
     this.store.selectedHour.set(hour);
     this.store.selectedRoom.set(
       (this.store.rooms() || []).find((r) => String(r.id) === String(roomId)) ??
@@ -285,6 +303,12 @@ export class CalendarComponent {
       : new Date();
     selectedDate.setMinutes(0);
     selectedDate.setSeconds(0);
+
+    if (isDevMode()) {
+      console.log('creating booking object:');
+      console.log('selectedDate: ', selectedDate);
+      console.log('hour: ', hour);
+    }
 
     return {
       date: selectedDate,

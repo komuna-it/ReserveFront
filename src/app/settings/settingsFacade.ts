@@ -1,4 +1,4 @@
-import { Component, inject, Injectable } from '@angular/core';
+import { Component, inject, Injectable, isDevMode } from '@angular/core';
 import { SettingsApi } from './settingsApi';
 import { Setting } from './model/setting';
 import { SettingsStore } from './settingsStore';
@@ -16,8 +16,10 @@ export class SettingsFacade {
     this.api.getSettings(keys, all).subscribe({
       next: (response) => {
         this.settingsStore.settings.set(response);
-        console.log('downloaded settings:');
-        console.table(response);
+        if (isDevMode()) {
+          console.log('downloaded settings:');
+          console.table(response);
+        }
       },
       error: (e) => {
         console.error('error downloading settings', e);
