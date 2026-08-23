@@ -7,7 +7,8 @@
     "REGISTER": "Zarejestruj się",
     "PROFILE": "Profil",
     "LOGOUT": "Wyloguj się",
-    "RESERVATIONS_MOBILE": "Rezerwacje"
+    "RESERVATIONS_MOBILE": "Rezerwacje",
+    "LANGUAGE": "Język"
   },
   "CALENDAR": {
     "PREVIOUS_WEEK": "Poprzedni",
@@ -92,7 +93,8 @@
     "BANNED_UNTIL": "Koniec bana:",
     "YES": "Tak",
     "NO": "Nie",
-    "NO_USERS_TO_ADD": "Brak użytkowników do dodania"
+    "NO_USERS_TO_ADD": "Brak użytkowników do dodania",
+    "NO_USERS_TO_DISPLAY": "Brak użytkowników do wyświetlenia"
   },
   "PROFILE": {
     "TITLE": "Twój Profil",
@@ -326,7 +328,10 @@
     "SELECT": "Wybierz",
     "PRICE": "Cena",
     "BANDS": "Zespoły",
+    "MY_BANDS": "Moje zespoły",
     "RESERVATIONS": "Rezerwacje",
+    "MY_RESERVATIONS": "Moje rezerwacje",
+    "BOOK": "Zarezerwuj",
     "SETTINGS": "Ustawienia",
     "ADD_BAND": "Dodaj zespół",
     "NOT_AVAILABLE_FOR_THIS_ROOM": "Niedostępne dla tej sali",
@@ -342,7 +347,8 @@
     "ERROR_UPDATING_PASSWORD": "Nie udało się zmienić hasła, spróbuj ponownie później",
     "SELECT_ROOM": "Wybierz salę",
     "I_ACCEPT_PRIVACY_POLICY": "Akceptuję politykę prywatności",
-    "ALREADY_HAVE_ACCOUNT_LOGIN": "Masz już konto? Zaloguj się!"
+    "ALREADY_HAVE_ACCOUNT_LOGIN": "Masz już konto? Zaloguj się!",
+    "MAIN_PAGE": "Strona główna"
   },
   "COOKIES": {
     "TITLE": "Dbamy o Twoją prywatność",

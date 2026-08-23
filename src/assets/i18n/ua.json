@@ -7,7 +7,8 @@
     "REGISTER": "Зареєструватися",
     "PROFILE": "Профіль",
     "LOGOUT": "Вийти",
-    "RESERVATIONS_MOBILE": "Бронювання"
+    "RESERVATIONS_MOBILE": "Бронювання",
+    "LANGUAGE": "Мова"
   },
   "CALENDAR": {
     "PREVIOUS_WEEK": "Попередній",
@@ -92,7 +93,8 @@
     "BANNED_UNTIL": "Бан до:",
     "YES": "Так",
     "NO": "Ні",
-    "NO_USERS_TO_ADD": "Немає користувачів для додавання"
+    "NO_USERS_TO_ADD": "Немає користувачів для додавання",
+    "NO_USERS_TO_DISPLAY": "Немає користувачів для відображення"
   },
   "PROFILE": {
     "TITLE": "Ваш Профіль",
@@ -322,15 +324,18 @@
   "COMMON": {
     "DELETE": "Видалити",
     "CLOSE": "Закрити",
-    "SELECT": "Обрати",
+    "SELECT": "Вибрати",
     "PRICE": "Ціна",
-    "BANDS": "Групи",
+    "BANDS": "Гурти",
+    "MY_BANDS": "Мої гурти",
     "RESERVATIONS": "Бронювання",
+    "MY_RESERVATIONS": "Мої бронювання",
+    "BOOK": "Забронювати зараз",
     "SETTINGS": "Налаштування",
-    "ADD_BAND": "Додати групу",
-    "NOT_AVAILABLE_FOR_THIS_ROOM": "Недоступно для цього залу",
-    "NO_ROOMS_TO_DISPLAY": "Немає залів для відображення",
-    "ROOM": "Зал",
+    "ADD_BAND": "Додати гурт",
+    "NOT_AVAILABLE_FOR_THIS_ROOM": "Недоступно для цього номера",
+    "NO_ROOMS_TO_DISPLAY": "Немає номерів для відображення",
+    "ROOM": "Номер",
     "LOADING": "Завантаження...",
     "UPDATE_PASSWORD": "Змінити пароль",
     "OLD_PASSWORD": "Старий пароль",
@@ -338,10 +343,11 @@
     "SECOND_NEW_PASSWORD": "Повторіть новий пароль",
     "SUCCESS_UPDATING_PASSWORD": "Пароль успішно змінено!",
     "ERROR_MATCHING_PASSWORD": "Паролі не збігаються",
-    "ERROR_UPDATING_PASSWORD": "Не вдалося змінити пароль, спробуйте пізніше",
-    "SELECT_ROOM": "Оберіть зал",
+    "ERROR_UPDATING_PASSWORD": "Не вдалося оновити пароль. Спробуйте ще раз пізніше.",
+    "SELECT_ROOM": "Виберіть кімнату",
     "I_ACCEPT_PRIVACY_POLICY": "Я приймаю політику конфіденційності",
-    "ALREADY_HAVE_ACCOUNT_LOGIN": "Вже є акаунт? Увійдіть!"
+    "ALREADY_HAVE_ACCOUNT_LOGIN": "Вже маєте обліковий запис? Увійдіть!",
+    "MAIN_PAGE": "Головна сторінка"
   },
   "COOKIES": {
     "TITLE": "Ми дбаємо про вашу конфіденційність",

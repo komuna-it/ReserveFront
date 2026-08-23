@@ -7,6 +7,7 @@
     "REGISTER": "Register",
     "PROFILE": "Profile",
     "LOGOUT": "Log Out",
+    "LANGUAGE": "Language",
     "RESERVATIONS_MOBILE": "Reservations"
   },
   "CALENDAR": {
@@ -92,7 +93,8 @@
     "BANNED_UNTIL": "Banned until:",
     "YES": "Yes",
     "NO": "No",
-    "NO_USERS_TO_ADD": "No users to add"
+    "NO_USERS_TO_ADD": "No users to add",
+    "NO_USERS_TO_DISPLAY": "No users to display"
   },
   "PROFILE": {
     "TITLE": "Your Profile",
@@ -325,7 +327,10 @@
     "SELECT": "Select",
     "PRICE": "Price",
     "BANDS": "Bands",
+    "MY_BANDS": "My bands",
     "RESERVATIONS": "Reservations",
+    "MY_RESERVATIONS": "My reservations",
+    "BOOK": "Book Now",
     "SETTINGS": "Settings",
     "ADD_BAND": "Add band",
     "NOT_AVAILABLE_FOR_THIS_ROOM": "Not available for this room",
@@ -341,7 +346,8 @@
     "ERROR_UPDATING_PASSWORD": "Failed to update password. Please try again later.",
     "SELECT_ROOM": "Select room",
     "I_ACCEPT_PRIVACY_POLICY": "I accept the privacy policy",
-    "ALREADY_HAVE_ACCOUNT_LOGIN": "Already have an account? Log in!"
+    "ALREADY_HAVE_ACCOUNT_LOGIN": "Already have an account? Log in!",
+    "MAIN_PAGE": "Main Page"
   },
   "COOKIES": {
     "TITLE": "We value your privacy",
