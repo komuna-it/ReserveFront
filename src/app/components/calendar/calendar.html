@@ -240,7 +240,10 @@
   }
 
   @if (store.displayBookingSuccesfulPopup()) {
-    <app-success-popup [titleText]="'CALENDAR.SUCCESS_TITLE' | transloco"></app-success-popup>
+    <app-success-popup
+      [titleText]="'CALENDAR.SUCCESS_TITLE' | transloco"
+      (ok)="facade.closeModals()"
+    ></app-success-popup>
   }
 
   @if (store.displayBookingErrorPopup()) {

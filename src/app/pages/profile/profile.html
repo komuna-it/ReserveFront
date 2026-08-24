@@ -22,7 +22,7 @@
 }
 
 @if (store.popupConfirmationActive() && store.isAddOrganizationModalActive()) {
-  <app-success-popup [titleText]="getTitleText()"></app-success-popup>
+  <app-success-popup [titleText]="getTitleText()" (ok)="facade.closeModals()"></app-success-popup>
 }
 
 @if (store.selectedOrganization(); as org) {
@@ -67,7 +67,10 @@
   store.isModalDeleteOwnerSuccessActive() ||
   store.isAdminAddOrganizationSuccessPopupActive()
 ) {
-  <app-success-popup [titleText]="'USER_MODALS.SUCCESS' | transloco"></app-success-popup>
+  <app-success-popup
+    [titleText]="'USER_MODALS.SUCCESS' | transloco"
+    (ok)="facade.closeModals()"
+  ></app-success-popup>
 }
 
 <!-- Popup - error -->
@@ -80,7 +83,10 @@
   <app-add-organization-modal></app-add-organization-modal>
 }
 @if (store.isAdminAddOrganizationSuccessPopupActive()) {
-  <app-success-popup [titleText]="'USER_MODALS.SUCCESS' | transloco"></app-success-popup>
+  <app-success-popup
+    [titleText]="'USER_MODALS.SUCCESS' | transloco"
+    (ok)="facade.closeModals()"
+  ></app-success-popup>
 }
 
 @if (store.isAdminOrganizationModalActive()) {

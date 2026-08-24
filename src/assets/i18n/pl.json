@@ -182,48 +182,21 @@
     "INVALID_DATA": "Nieprawidłowe dane rejestracyjne. Sprawdź swoje dane i spróbuj ponownie.",
     "EMAIL_EXISTS": "Konto z tym adresem e-mail już istnieje."
   },
-  "ORGANIZATION_LIST.ADD_ORGANIZATION": {
+  "ORGANIZATION_LIST": {
     "TITLE": "Dodaj Zespół",
     "BAND_NAME": "Nazwa zespołu",
     "CANCEL": "Anuluj",
     "ACCEPT": "Dodaj zespół",
     "SUCCESS_TITLE": "Zespół dodany",
     "SUCCESS_DESC": "Zespół został pomyślnie dodany.",
-    "CLOSE": "Zamknij"
-  },
-  "ORGANIZATION_LIST.DELETE_ORGANIZATION": {
-    "TITLE": "Usuń zespół",
-    "CONFIRMATION": "Czy na pewno chcesz usunąć zespół?",
-    "CANCEL": "Anuluj",
-    "ACCEPT": "Usuń zespół",
-    "SUCCESS_TITLE": "Zespół usunięty",
-    "SUCCESS_DESC": "Zespół został pomyślnie usunięty.",
-    "CLOSE": "Zamknij"
-  },
-  "ORGANIZATION_LIST.DELETE_MEMBER": {
-    "TITLE": "Usuń członka zespołu",
-    "CONFIRMATION": "Czy na pewno chcesz usunąć członka zespołu?",
-    "CANCEL": "Anuluj",
-    "ACCEPT": "Usuń członka",
-    "SUCCESS_TITLE": "Członek usunięty",
-    "SUCCESS_DESC": "Członek został pomyślnie usunięty.",
-    "CLOSE": "Zamknij"
-  },
-  "ORGANIZATION_LIST.DELETE_OWNER": {
-    "TITLE": "Usuń właściciela zespołu",
-    "CONFIRMATION": "Czy na pewno chcesz usunąć właściciela zespołu?",
-    "CANCEL": "Anuluj",
-    "ACCEPT": "Usuń właściciela",
-    "SUCCESS_TITLE": "Właściciel usunięty",
-    "SUCCESS_DESC": "Właściciel został pomyślnie usunięty.",
-    "CLOSE": "Zamknij"
-  },
-  "ORGANIZATION_LIST": {
+    "CLOSE": "Zamknij",
     "MARK_AS_TRUSTED": "Oznacz jako zaufany",
     "MARK_AS_NOT_TRUSTED": "Oznacz jako niezaufany",
     "TRUSTED": "Zaufany",
     "NOT_TRUSTED": "Niezaufany",
-    "NO_BANDS_TO_DISPLAY": "Brak zespołów"
+    "NO_BANDS_TO_DISPLAY": "Brak zespołów",
+    "PROMOTE": "Awansuj",
+    "DEGRADE": "Degraduj"
   },
   "ORGANIZATION_LIST.ERRORS": {
     "DELETE_ORG_FAILED": "Nie udało się usunąć zespołu. Spróbuj ponownie później.",

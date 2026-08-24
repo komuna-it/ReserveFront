@@ -182,47 +182,22 @@
     "INVALID_DATA": "Некоректні дані. Перевірте введені дані та спробуйте знову.",
     "EMAIL_EXISTS": "Акаунт з цією електронною поштою вже існує."
   },
-  "ORGANIZATION_LIST.ADD_ORGANIZATION": {
-    "TITLE": "Додати Групу",
-    "BAND_NAME": "Назва групи",
-    "CANCEL": "Скасувати",
-    "ACCEPT": "Додати групу",
-    "SUCCESS_TITLE": "Групу додано",
-    "SUCCESS_DESC": "Групу успішно додано.",
-    "CLOSE": "Закрити"
-  },
-  "ORGANIZATION_LIST.DELETE_ORGANIZATION": {
-    "TITLE": "Видалити групу",
-    "CONFIRMATION": "Ви дійсно бажаєте видалити групу?",
-    "CANCEL": "Скасувати",
-    "ACCEPT": "Видалити групу",
-    "SUCCESS_TITLE": "Групу видалено",
-    "SUCCESS_DESC": "Групу успішно видалено.",
-    "CLOSE": "Закрити"
-  },
-  "ORGANIZATION_LIST.DELETE_MEMBER": {
-    "TITLE": "Видалити учасника групи",
-    "CONFIRMATION": "Ви дійсно бажаєте видалити учасника групи?",
-    "CANCEL": "Скасувати",
-    "ACCEPT": "Видалити учасника",
-    "SUCCESS_TITLE": "Учасника видалено",
-    "SUCCESS_DESC": "Учасника успішно видалено.",
-    "CLOSE": "Закрити"
-  },
-  "ORGANIZATION_LIST.DELETE_OWNER": {
-    "TITLE": "Видалити власника групи",
-    "CONFIRMATION": "Ви дійсно бажаєте видалити власника групи?",
-    "CANCEL": "Скасувати",
-    "ACCEPT": "Видалити власника",
-    "SUCCESS_TITLE": "Власника видалено",
-    "SUCCESS_DESC": "Власника успішно видалено.",
-    "CLOSE": "Закрити"
-  },
   "ORGANIZATION_LIST": {
-    "MARK_AS_TRUSTED": "Позначити як надійного",
-    "MARK_AS_NOT_TRUSTED": "Позначити як ненадійного",
-    "TRUSTED": "Надійний",
-    "NOT_TRUSTED": "Ненадійний"
+    "ADD_ORGANIZATION": "Dodaj zespół",
+    "TITLE": "Додати команду",
+    "BAND_NAME": "Назва команди",
+    "CANCEL": "Скасувати",
+    "ACCEPT": "Додати команду",
+    "SUCCESS_TITLE": "Команду додано",
+    "SUCCESS_DESC": "Команду успішно додано.",
+    "CLOSE": "Закрити",
+    "MARK_AS_TRUSTED": "Позначити як довірений",
+    "MARK_AS_NOT_TRUSTED": "Позначити як недовірений",
+    "TRUSTED": "Довірений",
+    "NOT_TRUSTED": "Недовірений",
+    "NO_BANDS_TO_DISPLAY": "Без груп",
+    "PROMOTE": "Підвищити",
+    "DEGRADE": "Понизити"
   },
   "ORGANIZATION_LIST.ERRORS": {
     "DELETE_ORG_FAILED": "Не вдалося видалити групу. Спробуйте пізніше.",

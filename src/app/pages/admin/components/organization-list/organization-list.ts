@@ -1,4 +1,13 @@
-import { Component, inject, OnInit, OnDestroy, computed, effect, input } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  computed,
+  effect,
+  input,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservationStore } from '../../../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
@@ -50,6 +59,10 @@ export class OrganizationList implements OnInit, OnDestroy {
     const selectedSize = this.store.toolbarSelectedIds().size;
     return selectedSize > 0 && !this.areAllSelected();
   });
+
+  readonly isReservationsExpanded = signal(true);
+  readonly isOwnersExpanded = signal(true);
+  readonly isMembersExpanded = signal(true);
 
   constructor() {
     const orgs = this.store.organizations();

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
@@ -41,6 +41,10 @@ export class OrganizationDetailsModal {
 
   readonly isDeleteOwnerButtonActive = computed(() => this.owners().length >= 2);
   readonly resTableType = ReservationTableType.ADMIN_ORG_DETAILS;
+
+  readonly isReservationsExpanded = signal(true);
+  readonly isOwnersExpanded = signal(true);
+  readonly isMembersExpanded = signal(true);
 
   constructor() {
     effect(() => {

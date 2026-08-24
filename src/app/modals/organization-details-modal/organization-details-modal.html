@@ -9,7 +9,7 @@
     (click)="$event.stopPropagation()"
   >
     <!-- Modal Header -->
-    <div class="mb-6 flex shrink-0 items-center justify-between border-b border-slate-800 pb-4">
+    <div class="mb-4 flex shrink-0 items-center justify-between border-b border-slate-800 pb-3">
       <div>
         <h2 class="text-lg font-semibold text-slate-100">
           {{ 'ADMIN_RESERVATIONS.ORGANIZATION_DETAILS' | transloco }}
@@ -66,7 +66,6 @@
               Niezaufany
             </button>
           </div>
-
           <div class="h-6 w-px bg-slate-800"></div>
         }
 
@@ -98,164 +97,259 @@
     <div class="custom-scrollbar overflow-y-auto pr-1.5 space-y-6 flex-1">
       <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
         <!-- Reservations Section -->
-        <div class="mt-4 md:col-span-2">
-          <h3
-            class="mt-2 mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400"
+        <div
+          class="flex flex-col justify-start rounded-xl p-4 bg-slate-800/20 border border-slate-700/30"
+        >
+          <!-- Accordion Header -->
+          <div
+            class="mb-3 flex items-center justify-between cursor-pointer group rounded-lg p-2 hover:bg-slate-800/40 transition-colors"
+            (click)="isReservationsExpanded.set(!isReservationsExpanded())"
           >
+            <h3
+              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 group-hover:text-slate-300 transition-colors"
+            >
+              <svg
+                class="h-4 w-4 text-slate-400 group-hover:text-slate-300 transition-colors"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                ></path>
+              </svg>
+              {{ 'ADMIN_RESERVATIONS.ORGANIZATION_RESERVATIONS' | transloco }}
+            </h3>
             <svg
-              class="h-4 w-4 text-slate-400"
+              class="w-4 h-4 text-slate-500 transition-transform duration-200"
+              [class.-rotate-90]="!isReservationsExpanded()"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              ></path>
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
-            {{ 'ADMIN_RESERVATIONS.ORGANIZATION_RESERVATIONS' | transloco }}
-          </h3>
-          <app-table-reservations [type]="resTableType"></app-table-reservations>
+          </div>
+
+          <!-- Accordion Content -->
+          @if (isReservationsExpanded()) {
+            <div
+              class="max-h-52 overflow-y-auto custom-scrollbar pr-1.5 rounded-lg border border-slate-700/50 bg-slate-900/40"
+            >
+              <app-table-reservations [type]="resTableType"></app-table-reservations>
+            </div>
+          }
         </div>
 
         <!-- Owners Section -->
-        <div class="flex flex-col justify-between rounded-xl p-4">
+        <div
+          class="flex flex-col justify-start rounded-xl p-4 bg-slate-800/20 border border-slate-700/30"
+        >
           <div>
-            <div class="mb-3 flex items-center justify-between">
-              <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                {{ 'ADMIN_RESERVATIONS.ORGANIZATION_OWNERS' | transloco }}
-              </h3>
-              <span
-                class="rounded border border-slate-700/40 bg-slate-800 px-2 py-0.5 text-xs text-slate-400"
+            <!-- Accordion Header -->
+            <div
+              class="mb-3 flex items-center justify-between cursor-pointer group rounded-lg p-1.5 -ml-1.5 hover:bg-slate-800/40 transition-colors"
+              (click)="isOwnersExpanded.set(!isOwnersExpanded())"
+            >
+              <div class="flex items-center gap-2">
+                <h3
+                  class="text-xs font-semibold uppercase tracking-wider text-slate-400 group-hover:text-slate-300 transition-colors"
+                >
+                  {{ 'ADMIN_RESERVATIONS.ORGANIZATION_OWNERS' | transloco }}
+                </h3>
+                <span
+                  class="rounded border border-slate-700/40 bg-slate-800 px-2 py-0.5 text-xs text-slate-400 group-hover:text-slate-300 transition-colors"
+                >
+                  {{ owners().length }}
+                </span>
+              </div>
+              <svg
+                class="w-4 h-4 text-slate-500 transition-transform duration-200"
+                [class.-rotate-90]="!isOwnersExpanded()"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                {{ owners().length }}
-              </span>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
             </div>
 
-            <div class="space-y-2">
-              @for (owner of owners(); track owner.id) {
-                @if (owner) {
-                  <div
-                    class="flex items-center justify-between rounded-lg border border-slate-800/80 bg-slate-900/60 p-2.5 transition-all"
-                  >
-                    <div class="flex min-w-0 items-center gap-2.5">
-                      <div
-                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700/50 bg-slate-800 text-xs font-medium uppercase text-slate-300"
-                      >
-                        {{ owner.nick.charAt(0) || 'U' }}
+            <!-- Accordion Content -->
+            @if (isOwnersExpanded()) {
+              <div class="space-y-2 max-h-52 overflow-y-auto custom-scrollbar pr-1.5">
+                @for (owner of owners(); track owner.id) {
+                  @if (owner) {
+                    <div
+                      class="flex items-center justify-between rounded-lg border border-slate-800/80 bg-slate-900/60 p-2.5 transition-all"
+                    >
+                      <div class="flex min-w-0 items-center gap-2.5">
+                        <div
+                          class="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700/50 bg-slate-800 text-xs font-medium uppercase text-slate-300"
+                        >
+                          {{ owner.nick.charAt(0) || 'U' }}
+                        </div>
+                        <div class="truncate">
+                          <span class="block text-[10px] uppercase tracking-wide text-slate-500">
+                            {{ 'USERS_TABLE.NICK' | transloco }}
+                          </span>
+                          <span class="block truncate text-sm font-medium text-slate-200">
+                            {{ owner.nick }}
+                          </span>
+                        </div>
                       </div>
-                      <div class="truncate">
-                        <span class="block text-[10px] uppercase tracking-wide text-slate-500">
-                          {{ 'USERS_TABLE.NICK' | transloco }}
-                        </span>
-                        <span class="block truncate text-sm font-medium text-slate-200">
-                          {{ owner.nick }}
-                        </span>
-                      </div>
+
+                      @if (canManageMembers()) {
+                        <div class="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            (click)="
+                              facade.prepareDemoteOwner(owner.userId, organization().id);
+                              $event.stopPropagation()
+                            "
+                            [disabled]="owners().length <= 1"
+                            class="rounded px-2 py-1 text-xs font-medium text-amber-400 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-amber-400"
+                            title="Degraduj do członka"
+                          >
+                            {{ 'ORGANIZATION_LIST.DEGRADE' | transloco }}
+                          </button>
+
+                          <button
+                            type="button"
+                            (click)="
+                              facade.prepareDeleteOwner(owner.userId, organization().id);
+                              $event.stopPropagation()
+                            "
+                            [disabled]="!isDeleteOwnerButtonActive()"
+                            class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400"
+                          >
+                            {{ 'COMMON.DELETE' | transloco }}
+                          </button>
+                        </div>
+                      }
                     </div>
-
-                    @if (canManageMembers()) {
-                      <div class="flex items-center gap-1.5 shrink-0">
-                        <button
-                          type="button"
-                          (click)="facade.prepareDemoteOwner(owner.userId, organization().id)"
-                          [disabled]="owners().length <= 1"
-                          class="rounded px-2 py-1 text-xs font-medium text-amber-400 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-amber-400"
-                          title="Degraduj do członka"
-                        >
-                          Degraduj
-                        </button>
-
-                        <button
-                          type="button"
-                          (click)="facade.prepareDeleteOwner(owner.userId, organization().id)"
-                          [disabled]="!isDeleteOwnerButtonActive()"
-                          class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400"
-                        >
-                          {{ 'COMMON.DELETE' | transloco }}
-                        </button>
-                      </div>
-                    }
-                  </div>
+                  }
                 }
-              }
-            </div>
+              </div>
+            }
           </div>
         </div>
 
         <!-- Members Section -->
-        <div class="flex flex-col justify-between rounded-xl p-4">
+        <div
+          class="flex flex-col justify-start rounded-xl p-4 bg-slate-800/20 border border-slate-700/30"
+        >
           <div>
-            <div class="mb-3 flex items-center justify-between">
-              <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                {{ 'ADMIN_RESERVATIONS.ORGANIZATION_MEMBERS' | transloco }}
-              </h3>
-              <span
-                class="rounded border border-slate-700/40 bg-slate-800 px-2 py-0.5 text-xs text-slate-400"
+            <!-- Accordion Header -->
+            <div
+              class="mb-3 flex items-center justify-between cursor-pointer group rounded-lg p-1.5 -ml-1.5 hover:bg-slate-800/40 transition-colors"
+              (click)="isMembersExpanded.set(!isMembersExpanded())"
+            >
+              <div class="flex items-center gap-2">
+                <h3
+                  class="text-xs font-semibold uppercase tracking-wider text-slate-400 group-hover:text-slate-300 transition-colors"
+                >
+                  {{ 'ADMIN_RESERVATIONS.ORGANIZATION_MEMBERS' | transloco }}
+                </h3>
+                <span
+                  class="rounded border border-slate-700/40 bg-slate-800 px-2 py-0.5 text-xs text-slate-400 group-hover:text-slate-300 transition-colors"
+                >
+                  {{ members().length }}
+                </span>
+              </div>
+              <svg
+                class="w-4 h-4 text-slate-500 transition-transform duration-200"
+                [class.-rotate-90]="!isMembersExpanded()"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                {{ members().length }}
-              </span>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
             </div>
 
-            <div class="space-y-2">
-              @for (member of members(); track member.id) {
-                @if (member) {
-                  <div
-                    class="flex items-center justify-between rounded-lg border border-slate-800/80 bg-slate-900/60 p-2.5 transition-all"
-                  >
-                    <div class="flex min-w-0 items-center gap-2.5">
-                      <div
-                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700/50 bg-slate-800 text-xs font-medium uppercase text-slate-300"
-                      >
-                        {{ member.nick.charAt(0) || 'U' }}
+            @if (isMembersExpanded()) {
+              <div class="space-y-2 max-h-52 overflow-y-auto custom-scrollbar pr-1.5">
+                @for (member of members(); track member.id) {
+                  @if (member) {
+                    <div
+                      class="flex items-center justify-between rounded-lg border border-slate-800/80 bg-slate-900/60 p-2.5 transition-all"
+                    >
+                      <div class="flex min-w-0 items-center gap-2.5">
+                        <div
+                          class="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700/50 bg-slate-800 text-xs font-medium uppercase text-slate-300"
+                        >
+                          {{ member.nick.charAt(0) || 'U' }}
+                        </div>
+                        <div class="truncate">
+                          <span class="block text-[10px] uppercase tracking-wide text-slate-500">
+                            {{ 'USERS_TABLE.NICK' | transloco }}
+                          </span>
+                          <span class="block truncate text-sm font-medium text-slate-200">
+                            {{ member.nick }}
+                          </span>
+                        </div>
                       </div>
-                      <div class="truncate">
-                        <span class="block text-[10px] uppercase tracking-wide text-slate-500">
-                          {{ 'USERS_TABLE.NICK' | transloco }}
-                        </span>
-                        <span class="block truncate text-sm font-medium text-slate-200">
-                          {{ member.nick }}
-                        </span>
-                      </div>
+
+                      @if (canManageMembers()) {
+                        <div class="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            (click)="
+                              facade.preparePromoteMember(member.userId, organization().id);
+                              $event.stopPropagation()
+                            "
+                            class="rounded px-2 py-1 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/10"
+                            title="Awansuj na właściciela"
+                          >
+                            Awansuj
+                          </button>
+
+                          <button
+                            type="button"
+                            (click)="
+                              facade.prepareDeleteMember(member.userId, organization().id);
+                              $event.stopPropagation()
+                            "
+                            class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
+                          >
+                            {{ 'COMMON.DELETE' | transloco }}
+                          </button>
+                        </div>
+                      }
                     </div>
-
-                    @if (canManageMembers()) {
-                      <div class="flex items-center gap-1.5 shrink-0">
-                        <button
-                          type="button"
-                          (click)="facade.preparePromoteMember(member.userId, organization().id)"
-                          class="rounded px-2 py-1 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/10"
-                          title="Awansuj na właściciela"
-                        >
-                          Awansuj
-                        </button>
-
-                        <button
-                          type="button"
-                          (click)="facade.prepareDeleteMember(member.userId, organization().id)"
-                          class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
-                        >
-                          {{ 'COMMON.DELETE' | transloco }}
-                        </button>
-                      </div>
-                    }
-                  </div>
+                  }
                 }
-              }
-            </div>
+              </div>
 
-            @if (canManageMembers()) {
-              <button
-                type="button"
-                (click)="facade.prepareAddMember(organization().id)"
-                class="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2 text-xs font-medium text-slate-300 transition-all hover:border-slate-600 hover:bg-slate-800 active:scale-[0.99]"
-              >
-                <span class="text-sm leading-none">+</span>
-                {{ 'ADMIN_RESERVATIONS.ADD_MEMBER' | transloco }}
-              </button>
+              @if (canManageMembers()) {
+                <button
+                  type="button"
+                  (click)="facade.prepareAddMember(organization().id)"
+                  class="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2 text-xs font-medium text-slate-300 transition-all hover:border-slate-600 hover:bg-slate-800 active:scale-[0.99]"
+                >
+                  <span class="text-sm leading-none">+</span>
+                  {{ 'ADMIN_RESERVATIONS.ADD_MEMBER' | transloco }}
+                </button>
+              }
             }
           </div>
         </div>
@@ -263,7 +357,7 @@
     </div>
 
     <!-- Footer Action -->
-    <div class="mt-6 flex w-full shrink-0 justify-end border-t border-slate-800 pt-4">
+    <div class="mt-5 flex w-full shrink-0 justify-end border-t border-slate-800 pt-4">
       <button
         type="button"
         (click)="store.isOrganizationDetailsModalActive.set(false)"

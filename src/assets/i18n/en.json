@@ -182,47 +182,22 @@
     "INVALID_DATA": "Invalid registration data. Please check your details and try again.",
     "EMAIL_EXISTS": "An account with this email address already exists."
   },
-  "ORGANIZATION_LIST.ADD_ORGANIZATION": {
-    "TITLE": "Add Band",
-    "BAND_NAME": "Band Name",
-    "CANCEL": "Cancel",
-    "ACCEPT": "Add Band",
-    "SUCCESS_TITLE": "Band Added",
-    "SUCCESS_DESC": "The band has been successfully added.",
-    "CLOSE": "Close"
-  },
-  "ORGANIZATION_LIST.DELETE_ORGANIZATION": {
-    "TITLE": "Delete Band",
-    "CONFIRMATION": "Are you sure you want to delete this band?",
-    "CANCEL": "Cancel",
-    "ACCEPT": "Delete Band",
-    "SUCCESS_TITLE": "Band Deleted",
-    "SUCCESS_DESC": "The band has been successfully deleted.",
-    "CLOSE": "Close"
-  },
-  "ORGANIZATION_LIST.DELETE_MEMBER": {
-    "TITLE": "Remove Band Member",
-    "CONFIRMATION": "Are you sure you want to remove this band member?",
-    "CANCEL": "Cancel",
-    "ACCEPT": "Remove Member",
-    "SUCCESS_TITLE": "Member Removed",
-    "SUCCESS_DESC": "The band member has been successfully removed.",
-    "CLOSE": "Close"
-  },
-  "ORGANIZATION_LIST.DELETE_OWNER": {
-    "TITLE": "Remove Band Owner",
-    "CONFIRMATION": "Are you sure you want to remove the band owner?",
-    "CANCEL": "Cancel",
-    "ACCEPT": "Remove Owner",
-    "SUCCESS_TITLE": "Owner Removed",
-    "SUCCESS_DESC": "The owner has been successfully removed.",
-    "CLOSE": "Close"
-  },
+
   "ORGANIZATION_LIST": {
-    "MARK_AS_TRUSTED": "Mark as trusted",
-    "MARK_AS_NOT_TRUSTED": "Mark as untrusted",
+    "TITLE": "Add Team",
+    "BAND_NAME": "Team Name",
+    "CANCEL": "Cancel",
+    "ACCEPT": "Add Team",
+    "SUCCESS_TITLE": "Team Added",
+    "SUCCESS_DESC": "Team successfully added.",
+    "CLOSE": "Close",
+    "MARK_AS_TRUSTED": "Mark as Trusted",
+    "MARK_AS_NOT_TRUSTED": "Mark as Untrusted",
     "TRUSTED": "Trusted",
-    "NOT_TRUSTED": "Untrusted"
+    "NOT_TRUSTED": "Untrusted",
+    "NO_BANDS_TO_DISPLAY": "No Bands",
+    "PROMOTE": "Promote",
+    "DEGRADE": "Degrade"
   },
   "ORGANIZATION_LIST.ERRORS": {
     "DELETE_ORG_FAILED": "Failed to delete the band. Please try again later.",
