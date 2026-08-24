@@ -154,7 +154,8 @@
     "SEND": "Wyślij",
     "REJECT": "Odrzuć",
     "SAVE": "Zapisz",
-    "DELETE": "Usuń"
+    "DELETE": "Usuń",
+    "NAVIGATE_TO_LOGIN": "Przejdź do logowania"
   },
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Wpisz swój adres e-mail",

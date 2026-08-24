@@ -8,12 +8,11 @@ import { SettingsStore } from '../../settings/settingsStore';
 import { SettingsFacade } from '../../settings/settingsFacade';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorResponse } from '../../model/error/errorResponse';
-// Import your API/Facade service here
-// import { ApiService } from '../../api.service';
+import { SuccessPopup } from '../../modals/success-popup/success-popup';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, FormsModule, TranslocoPipe],
+  imports: [CommonModule, FormsModule, TranslocoPipe, SuccessPopup],
   standalone: true,
   templateUrl: './register.html',
   styleUrl: './register.css',
@@ -111,5 +110,11 @@ export class RegisterPage {
     event.stopPropagation();
 
     this.settingsFacade.getPrivacyPolicy();
+  }
+
+  handleCloseSuccessPopup() {
+    console.log('handleCloseSuccessPopup');
+    this.registerSuccess.set(false);
+    this.router.navigate(['/login']);
   }
 }

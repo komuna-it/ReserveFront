@@ -154,7 +154,8 @@
     "SEND": "Send",
     "REJECT": "Reject",
     "SAVE": "Save",
-    "DELETE": "Delete"
+    "DELETE": "Delete",
+    "NAVIGATE_TO_LOGIN": "Go to login"
   },
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Enter your email address",

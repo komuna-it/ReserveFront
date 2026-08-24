@@ -91,6 +91,16 @@
     </form>
 
     @if (registerSuccess()) {
+      <app-success-popup
+        [titleText]="'REGISTER.SUCCESS_TITLE' | transloco"
+        [bodyText]="'REGISTER.SUCCESS_DESC' | transloco"
+        [buttonText]="'BUTTONS.NAVIGATE_TO_LOGIN' | transloco"
+        (ok)="handleCloseSuccessPopup()"
+      ></app-success-popup>
+    }
+
+    <!-- 
+    @if (registerSuccess()) {
       <div
         class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50"
       >
@@ -109,7 +119,7 @@
           </button>
         </div>
       </div>
-    }
+    } -->
 
     <div class="mt-4">
       <a class="flex justify-center text-gray-200 hover:text-white underline" href="/login">
