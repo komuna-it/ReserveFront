@@ -219,11 +219,11 @@
 
 <!-- MOBILE BOTTOM BAR (logged) -->
 @if (authService.isAuthenticated()) {
-  <div
-    class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 border-t border-slate-800 grid grid-cols-3 z-50 backdrop-blur-lg"
-  >
-    <!-- admin -->
-    @if (authService.isAdmin()) {
+  <!-- admin -->
+  @if (authService.isAdmin()) {
+    <div
+      class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 border-t border-slate-800 grid grid-cols-4 z-50 backdrop-blur-lg"
+    >
       <a
         routerLink="/admin/organizations"
         routerLinkActive="text-emerald-400 bg-slate-800/50"
@@ -289,9 +289,13 @@
         </svg>
         <span class="text-[10px] font-medium">{{ 'CALENDAR.CALENDAR' | transloco }}</span>
       </a>
-    }
-    <!-- user -->
-    @else {
+    </div>
+  }
+  <!-- user -->
+  @else {
+    <div
+      class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 border-t border-slate-800 grid grid-cols-3 z-50 backdrop-blur-lg"
+    >
       <a
         routerLink="/calendar"
         routerLinkActive="text-emerald-400 bg-slate-800/50"
@@ -337,6 +341,6 @@
         </svg>
         <span class="text-[10px] font-medium">{{ 'COMMON.MY_BANDS' | transloco }}</span>
       </a>
-    }
-  </div>
+    </div>
+  }
 }
