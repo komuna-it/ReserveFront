@@ -88,7 +88,10 @@ export class ProfilePage implements OnInit, OnDestroy {
     const user = this.authService.currentUser();
     if (user) {
       this.facade.getRooms();
-      this.facade.getReservations(null, this.store.toolbarOnlyFuture(), user.id, null, null, null);
+      this.facade.getReservations({
+        future: this.store.toolbarOnlyFuture(),
+        userId: user.id,
+      });
       this.facade.connectToReservationStream();
       this.facade.getOrganizations(true, user.id);
     }

@@ -51,14 +51,10 @@ export class AdminPage implements OnInit {
   readonly tool = inject(TextFormatingTool);
 
   ngOnInit(): void {
-    this.facade.getReservations(
-      new Set<ReservationStatus>([ReservationStatus.CREATED]),
-      this.store.toolbarOnlyFuture(),
-      null,
-      null,
-      null,
-      null,
-    );
+    this.facade.getReservations({
+      statuses: new Set<ReservationStatus>([ReservationStatus.CREATED]),
+      future: this.store.toolbarOnlyFuture(),
+    });
     this.facade.getAllUsers();
   }
 

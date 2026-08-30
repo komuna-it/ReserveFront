@@ -9,9 +9,6 @@ import { ReservationType } from '../../model/reservationType';
 import { CreateReservationRequest } from '../../model/CreateReservationRequest';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { ReservationDto } from '../../model/reservationDto';
-import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
-import { User } from '../../model/user';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { Booking } from '../../model/booking';
 import { finalize } from 'rxjs';
@@ -20,6 +17,7 @@ import { SettingsFacade } from '../../settings/settingsFacade';
 import { SettingsStore } from '../../settings/settingsStore';
 import { environment } from '../../../environments/environment';
 import { ErrorType } from '../../model/error/errorType';
+import { ReservationQueryParams } from '../../model/reservationQueryParams';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -88,8 +86,13 @@ export class ReservationFacade {
       },
       error: (e) => console.log('Error fetching rooms: ', e),
     });
-
-    this.getReservations(null, false, null, null, null, null);
+    const status = this.store.reservationTableStatus();
+    if (status) {
+      this.getReservations({
+        statuses: new Set<ReservationStatus>([status]),
+        future: this.store.toolbarOnlyFuture(),
+      });
+    }
   }
 
   confirmBooking(): void {
@@ -218,7 +221,14 @@ export class ReservationFacade {
           const res: ReservationDto = JSON.parse(msg.data);
 
           if (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_REMOVED') {
-            this.getRoomsAndReservations();
+            this.refreshCurrentReservations();
+            if (this.authService.isAdmin()) {
+              this.getReservationsCountByStatus();
+            }
+          }
+
+          if (msg.event === 'RESERVATION_CREATED') {
+            this.store.newReservationEvent.set(res);
           }
 
           const safeUserId = parseInt(
@@ -304,14 +314,10 @@ export class ReservationFacade {
   changeReservationsByStatusSize() {
     const currentStatus = this.store.statusForAdminPage();
     if (currentStatus) {
-      this.getReservations(
-        new Set<ReservationStatus>([currentStatus]),
-        this.store.toolbarOnlyFuture(),
-        null,
-        null,
-        null,
-        null,
-      );
+      this.getReservations({
+        statuses: new Set<ReservationStatus>([currentStatus]),
+        future: this.store.toolbarOnlyFuture(),
+      });
     }
   }
 
@@ -336,14 +342,10 @@ export class ReservationFacade {
         if (this.authService.isAdmin()) {
           const status = this.store.statusForAdminPage();
           if (status)
-            this.getReservations(
-              new Set<ReservationStatus>([status]),
-              this.store.toolbarOnlyFuture(),
-              null,
-              null,
-              null,
-              null,
-            );
+            this.getReservations({
+              statuses: new Set<ReservationStatus>([status]),
+              future: this.store.toolbarOnlyFuture(),
+            });
         }
 
         this.store.reservationsPage.update((currentPage) => ({
@@ -1078,44 +1080,55 @@ export class ReservationFacade {
     const endOfDay = new Date(selectedDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    this.getReservations(
-      allowedStatuses,
-      false,
-      null,
-      null,
-      startOfDay.toISOString(),
-      endOfDay.toISOString(),
-    );
+    this.getReservations({
+      statuses: allowedStatuses,
+      future: false,
+      startAtAfter: startOfDay.toISOString(),
+      startAtBefore: endOfDay.toISOString(),
+    });
   }
 
-  getReservations(
-    statuses: Set<ReservationStatus> | null,
-    future: boolean = false,
-    userId: number | null = null,
-    organizationIds: Set<number> | null = null,
-    startAtAfter: string | null,
-    startAtBefore: string | null,
-  ) {
-    const page = this.store.currentReservationsPage();
-    const size = this.store.currentReservationsSize();
+  getReservations(filters: ReservationQueryParams) {
+    this.store.lastReservationFilters.set(filters);
 
-    this.api
-      .getReservations(
-        statuses,
-        future,
-        page,
-        size,
-        userId,
-        organizationIds,
-        startAtAfter,
-        startAtBefore,
-      )
-      .subscribe({
-        next: (pageData) => {
-          this.store.reservationsPage.set(pageData);
-        },
-        error: (e) => console.log('Error fetching res: ', e),
-      });
+    const page = filters.page ? filters.page : this.store.currentReservationsPage();
+    const size = filters.size ? filters.size : this.store.currentReservationsSize();
+
+    const requestParams = { ...filters, page, size };
+
+    this.api.getReservations(requestParams).subscribe({
+      next: (pageData) => {
+        this.store.reservationsPage.set(pageData);
+      },
+      error: (e) => console.log('Error fetching res: ', e),
+    });
+  }
+
+  refreshCurrentReservations() {
+    const filters = this.store.lastReservationFilters();
+    if (filters) {
+      this.getReservations(filters);
+    }
+  }
+
+  getReservationsCountByStatus() {
+    this.store.isCountLoading.set(true);
+    this.api.getReservationsCountByStatus().subscribe({
+      next: (data: any) => {
+        if (isDevMode()) {
+          console.log('getReservationsCountByStatus data: ', data);
+        }
+        const statusMap = new Map<ReservationStatus, number>(
+          Object.entries(data || {}) as [ReservationStatus, number][],
+        );
+        this.store.reservationsCount.set(statusMap);
+        this.store.isCountLoading.set(false);
+      },
+      error: (e) => {
+        console.log('Error fetching res: ', e);
+        this.store.isCountLoading.set(false);
+      },
+    });
   }
 
   getOrganizations(withMembers: boolean, userId: number | null) {

@@ -29,12 +29,13 @@
     </button>
 
     <select
-      [value]="pageSize()"
       (change)="onSizeSelect($event)"
       class="bg-slate-800 border border-slate-700 text-white rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
     >
       @for (option of pageSizeOptions(); track option) {
-        <option [value]="option">{{ option }}</option>
+        <option [value]="option" [selected]="option == pageSize()">
+          {{ option }}
+        </option>
       }
     </select>
   </div>
@@ -78,12 +79,13 @@
   <!-- Page size -->
   <div class="flex justify-center">
     <select
-      [value]="pageSize()"
       (change)="onSizeSelect($event)"
       class="bg-slate-800 border border-slate-700 text-white rounded px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
     >
       @for (option of pageSizeOptions(); track option) {
-        <option [value]="option">{{ option }}</option>
+        <option [value]="option" [selected]="option == pageSize()">
+          {{ option }}
+        </option>
       }
     </select>
   </div>
