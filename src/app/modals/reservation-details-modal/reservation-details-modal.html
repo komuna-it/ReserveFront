@@ -28,27 +28,42 @@
     >
       @if (activeReservation(); as res) {
         <div class="grid grid-cols-2 gap-y-3 gap-x-2">
-          <div class="col-span-2 border-b border-slate-700/50 pb-2">
-            <span class="block text-xs text-slate-500 mb-0.5">{{
-              'CALENDAR.RESERVATION_TYPE' | transloco
-            }}</span>
-            <span class="font-medium">
-              {{ 'CALENDAR.' + res.type | transloco }}
-            </span>
+          <div
+            class="col-span-2 grid grid-cols-2 border-b border-slate-700/50 pb-2 flex justify-between"
+          >
+            <div>
+              <span class="block text-xs text-slate-500 mb-0.5">{{
+                'CALENDAR.RESERVATION_TYPE' | transloco
+              }}</span>
+              <span class="font-medium">
+                {{ 'CALENDAR.' + res.type | transloco }}
+              </span>
+            </div>
+
+            <div>
+              <span class="block text-xs text-slate-500 mb-0.5">{{
+                'PROFILE.STATUS' | transloco
+              }}</span>
+              <span class="text-slate-200"> {{ 'STATUS.' + res.status | transloco }} </span>
+            </div>
           </div>
 
-          <div class="col-span-2 border-b border-slate-700/50 pb-2">
-            <span class="block text-xs text-slate-500 mb-0.5">{{
-              'ADMIN_RESERVATIONS.RESERVED_BY' | transloco
-            }}</span>
-            <span class="text-slate-200"> {{ tool.reservedByText(res) }} </span>
-          </div>
+          <div
+            class="col-span-2 grid grid-cols-2 border-b border-slate-700/50 pb-2 flex justify-between"
+          >
+            <div>
+              <span class="block text-xs text-slate-500 mb-0.5">{{
+                'ADMIN_RESERVATIONS.RESERVED_BY' | transloco
+              }}</span>
+              <span class="text-slate-200"> {{ tool.reservedByText(res) }} </span>
+            </div>
 
-          <div class="col-span-2">
-            <span class="block text-xs text-slate-500 mb-0.5">{{
-              'ADMIN_RESERVATIONS.ORGANIZATION' | transloco
-            }}</span>
-            <span class="text-slate-200">{{ tool.bandText(res) }}</span>
+            <div>
+              <span class="block text-xs text-slate-500 mb-0.5">{{
+                'ADMIN_RESERVATIONS.ORGANIZATION' | transloco
+              }}</span>
+              <span class="text-slate-200">{{ tool.bandText(res) }}</span>
+            </div>
           </div>
 
           <div>
@@ -78,16 +93,16 @@
             }}</span>
             <span class="text-slate-200">
               @if (res.paid) {
-                <span class="text-emerald-400 font-medium">Tak</span>
+                <span class="text-emerald-400 font-medium">{{ 'PROFILE.YES' | transloco }}</span>
               } @else {
-                <span class="text-rose-400 font-medium">Nie</span>
+                <span class="text-rose-400 font-medium">{{ 'PROFILE.NO' | transloco }}</span>
               }
             </span>
           </div>
         </div>
       } @else {
         <div class="text-center py-4 text-slate-500 font-mono text-xs">
-          Trwa ładowanie danych...
+          {{ 'COMMON.LOADING' | transloco }}
         </div>
       }
     </div>

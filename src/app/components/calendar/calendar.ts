@@ -117,7 +117,6 @@ export class CalendarComponent {
         this.mobileSelectedRoom.set(roomToSelect);
       }
     });
-
     this.facade.connectToReservationStream();
   }
 
@@ -265,6 +264,7 @@ export class CalendarComponent {
   }
 
   selectRoomAndHour(roomId: number, hour: number): void {
+    console.log('selectRoomAndHour selected roomId: ', roomId, ' hour: ', hour);
     if (!this.auth.currentUser()) {
       this.store.isLoginOrRegisterModalActive.set(true);
       return;
