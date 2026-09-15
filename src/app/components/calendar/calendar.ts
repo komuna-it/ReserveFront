@@ -1,4 +1,4 @@
-import { Component, inject, computed, Signal, signal, effect } from '@angular/core';
+import { Component, inject, computed, Signal, signal, effect, isDevMode } from '@angular/core';
 import { CommonModule, DatePipe, NgClass } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
@@ -16,6 +16,9 @@ import { ReservationDto } from '../../model/reservationDto';
 import { ReservationType } from '../../model/reservationType';
 import { CalendarHelper } from './calendar.helper';
 import { Booking } from '../../model/booking';
+import { SettingsFacade } from '../../settings/settingsFacade';
+import { SettingsStore } from '../../settings/settingsStore';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-calendar',
@@ -38,6 +41,8 @@ export class CalendarComponent {
   readonly auth = inject(AuthService);
   readonly loco = inject(TranslocoService);
   public helper = inject(CalendarHelper);
+  public settingsFacade = inject(SettingsFacade);
+  public settingsStore = inject(SettingsStore);
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -47,10 +52,38 @@ export class CalendarComponent {
   readonly mobileSelectedRoom = signal<any | null>(null);
   readonly isMobileRoomMenuOpen = signal<boolean>(false);
 
-  constructor() {
-    const user = this.auth.currentUser();
-    const selectedDay = this.store.daySelectedByUser() ?? new Date();
+  readonly minAllowedHour = computed(() => {
+    const settings = this.settingsStore.settings();
+    const setting = settings?.find((s: any) => s.key === 'RESERVATION_OPENING_HOUR');
+    return setting ? parseInt(setting.value, 10) : 8;
+  });
 
+  readonly maxAllowedHour = computed(() => {
+    const settings = this.settingsStore.settings();
+    const setting = settings?.find((s: any) => s.key === 'RESERVATION_CLOSING_HOUR');
+    return setting ? parseInt(setting.value, 10) : 22;
+  });
+  maxReservationDuration = signal<number>(8);
+
+  constructor() {
+    this.getSettings();
+
+    const params = this.route.snapshot.queryParams;
+    let selectedDay = new Date();
+
+    if (params['date']) {
+      const parsed = new Date(params['date']);
+      if (!isNaN(parsed.getTime())) {
+        selectedDay = parsed;
+        this.facade.selectDay(parsed);
+      }
+    } else {
+      const stored = this.store.daySelectedByUser();
+      if (stored) selectedDay = stored;
+      else this.facade.selectDay(selectedDay);
+    }
+
+    const user = this.auth.currentUser();
     if (user) {
       if (this.auth.isAdmin()) {
         this.facade.getOrganizations(true, null);
@@ -58,10 +91,9 @@ export class CalendarComponent {
         this.facade.getOrganizations(false, user.id);
       }
     }
+
     this.facade.loadCalendarReservationsForDay(selectedDay);
     this.facade.getRooms();
-
-    const params = this.route.snapshot.queryParams;
     if (params['date']) {
       const parsedDate = new Date(params['date']);
       if (!isNaN(parsedDate.getTime())) {
@@ -70,6 +102,9 @@ export class CalendarComponent {
     }
 
     effect(() => {
+      this.minAllowedHour();
+      this.maxAllowedHour();
+      this.hoursRange();
       const rooms = this.store.rooms();
       if (rooms && rooms.length > 0 && !this.mobileSelectedRoom()) {
         const queryParams = this.route.snapshot.queryParams;
@@ -82,10 +117,37 @@ export class CalendarComponent {
         this.mobileSelectedRoom.set(roomToSelect);
       }
     });
+    this.facade.connectToReservationStream();
+  }
+
+  getSettings() {
+    const RESERVATION_CANCELLATION_WITHOUT_APPROVAL_HOURS =
+      'RESERVATION_CANCELLATION_WITHOUT_APPROVAL_HOURS';
+    const RESERVATION_CLOSING_HOUR = 'RESERVATION_CLOSING_HOUR';
+    const RESERVATION_OPENING_HOUR = 'RESERVATION_OPENING_HOUR';
+
+    const settingsKeys = new Set<string>([
+      RESERVATION_CANCELLATION_WITHOUT_APPROVAL_HOURS,
+      RESERVATION_CLOSING_HOUR,
+      RESERVATION_OPENING_HOUR,
+    ]);
+
+    this.settingsFacade.getSettings(settingsKeys, false);
   }
 
   readonly weekDayKeys: string[] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-  readonly hoursRange: number[] = Array.from({ length: 12 }, (_, i) => i + 10);
+
+  readonly hoursRange = computed(() => {
+    const range = [];
+    if (isDevMode()) {
+      console.log('hours range: min hour: ', this.minAllowedHour());
+      console.log('hours range: max hour: ', this.maxAllowedHour());
+    }
+    for (let i = this.minAllowedHour(); i < this.maxAllowedHour(); i++) {
+      range.push(i);
+    }
+    return range;
+  });
 
   readonly datesToDisplay: Signal<Date[]> = computed(() => {
     try {
@@ -202,6 +264,7 @@ export class CalendarComponent {
   }
 
   selectRoomAndHour(roomId: number, hour: number): void {
+    console.log('selectRoomAndHour selected roomId: ', roomId, ' hour: ', hour);
     if (!this.auth.currentUser()) {
       this.store.isLoginOrRegisterModalActive.set(true);
       return;
@@ -216,6 +279,10 @@ export class CalendarComponent {
     day.setHours(hour);
     if (this.isPastHour(hour)) return;
 
+    if (isDevMode()) {
+      console.log('selected roomId: ', roomId, ' hour: ', hour);
+      console.log('day: ', day);
+    }
     this.store.selectedHour.set(hour);
     this.store.selectedRoom.set(
       (this.store.rooms() || []).find((r) => String(r.id) === String(roomId)) ??
@@ -236,6 +303,12 @@ export class CalendarComponent {
       : new Date();
     selectedDate.setMinutes(0);
     selectedDate.setSeconds(0);
+
+    if (isDevMode()) {
+      console.log('creating booking object:');
+      console.log('selectedDate: ', selectedDate);
+      console.log('hour: ', hour);
+    }
 
     return {
       date: selectedDate,

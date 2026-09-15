@@ -52,6 +52,7 @@ export class AddUserIntoOrganizationModal implements OnInit, OnDestroy {
   cancel(): void {
     this.store.isModalAddMemberActive.set(false);
     this.store.isModalAddOwnerActive.set(false);
+    this.store.isModalAddOwnerActive.set(false);
     this.store.organizationListSelectedUser.set(null);
   }
 

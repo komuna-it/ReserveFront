@@ -1,15 +1,17 @@
-<div class="mb-4 pl-3 border-slate-700/80 space-y-1 pt-1">
+<div class="mb-3">
   <button
     (click)="facade.handleUserAddOrganization()"
-    class="text-left flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-emerald-400 hover:text-white hover:bg-emerald-600/20 border border-emerald-500/20 transition-all active:scale-95"
+    class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-emerald-400 hover:text-white hover:bg-emerald-600/20 border border-emerald-500/20 transition-all active:scale-95"
     [class.bg-emerald-600/20]="store.isAdminOrganizationModalActive()"
   >
-    <span class="text-emerald-400 text-sm font-bold">+ Dodaj zespół</span>
+    <span class="text-emerald-400 text-sm font-bold"
+      >+ {{ 'ORGANIZATION_LIST.TITLE' | transloco }}</span
+    >
   </button>
 </div>
 
 <div
-  class="w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
+  class="hidden md:block w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/90 shadow-xl backdrop-blur-sm"
 >
   <table class="w-full min-w-[768px] text-left border-collapse text-sm">
     <thead>
@@ -35,7 +37,7 @@
         <th
           class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 cursor-pointer"
         >
-          {{ 'ORGANIZATION_LIST.ADD_ORGANIZATION.BAND_NAME' | transloco }}
+          {{ 'ORGANIZATION_LIST.BAND_NAME' | transloco }}
         </th>
         <th
           class="py-3.5 px-4 font-semibold text-center border-r border-slate-700/60 cursor-pointer"
@@ -56,7 +58,7 @@
       @for (org of safeOrganizations(); track org.id) {
         <tr class="hover:bg-slate-700/30 transition-colors">
           @if (mode() === 'admin') {
-            <td class="p-1.5 border-r border-slate-700/60 align-middle text-center">
+            <td class="p-1.5 border-r border-slate-700/60 align-top text-center pt-3.5">
               <label
                 class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
               >
@@ -72,7 +74,7 @@
 
           <!-- Name Column -->
           <td
-            class="cursor-pointer p-3.5 border-r border-slate-700/60 align-middle"
+            class="cursor-pointer p-3.5 border-r border-slate-700/60 align-top"
             (click)="selectOrganizationAndOpenDetailsModal(org)"
           >
             <div class="flex items-center justify-between gap-1">
@@ -82,12 +84,12 @@
             </div>
           </td>
 
-          <!-- Owners Column -->
+          <!-- Owners ColumnScrollable -->
           <td
-            class="p-3.5 border-r border-slate-700/60 align-middle cursor-pointer"
+            class="p-3.5 border-r border-slate-700/60 align-top cursor-pointer"
             (click)="selectOrganizationAndOpenDetailsModal(org)"
           >
-            <div class="flex flex-col gap-1.5 justify-center">
+            <div class="flex flex-col gap-1.5 justify-start max-h-24 overflow-y-auto pr-1">
               @for (owner of org.owners; track owner.id) {
                 <div
                   class="flex items-center justify-between gap-2 bg-slate-900/40 px-2.5 py-1.5 rounded-lg border border-slate-700/30"
@@ -97,17 +99,19 @@
                   </span>
                 </div>
               } @empty {
-                <span class="text-slate-500 text-xs italic text-center py-1">Brak właściciela</span>
+                <span class="text-slate-500 text-xs italic text-center py-1">{{
+                  'ADMIN_RESERVATIONS.EMPTY_OWNERS' | transloco
+                }}</span>
               }
             </div>
           </td>
 
-          <!-- Members Column -->
+          <!-- Members Column Scrollable -->
           <td
-            class="p-3.5 border-r border-slate-700/60 align-middle cursor-pointer"
+            class="p-3.5 border-r border-slate-700/60 align-top cursor-pointer"
             (click)="selectOrganizationAndOpenDetailsModal(org)"
           >
-            <div class="flex flex-col gap-1.5 justify-center">
+            <div class="flex flex-col gap-1.5 justify-start max-h-24 overflow-y-auto pr-1">
               @for (user of org.members; track user.id) {
                 <div
                   class="flex items-center justify-between gap-2 bg-slate-900/40 px-2.5 py-1.5 rounded-lg border border-slate-700/30"
@@ -117,47 +121,55 @@
                   </span>
                 </div>
               } @empty {
-                <span class="text-slate-500 text-xs italic text-center py-1">Brak członków</span>
+                <span class="text-slate-500 text-xs italic text-center py-1">{{
+                  'ADMIN_RESERVATIONS.EMPTY_MEMBERS' | transloco
+                }}</span>
               }
             </div>
           </td>
 
           <!-- Trusted Column -->
           <td
-            class="px-4 py-3 text-center align-middle cursor-pointer"
+            class="px-4 py-3.5 text-center align-top cursor-pointer"
             (click)="selectOrganizationAndOpenDetailsModal(org)"
           >
-            @if (org.trusted) {
-              <span
-                class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
-                [title]="'USERS_TABLE.YES' | transloco"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2.5"
+            <div class="flex justify-center">
+              @if (org.trusted) {
+                <span
+                  class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                  [title]="'USERS_TABLE.YES' | transloco"
                 >
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
-              </span>
-            } @else {
-              <span
-                class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-800/60 text-slate-500 border border-slate-700/50"
-                [title]="'USERS_TABLE.NO' | transloco"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2.5"
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="m4.5 12.75 6 6 9-13.5"
+                    />
+                  </svg>
+                </span>
+              } @else {
+                <span
+                  class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-800/60 text-slate-500 border border-slate-700/50"
+                  [title]="'USERS_TABLE.NO' | transloco"
                 >
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-              </span>
-            }
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                  </svg>
+                </span>
+              }
+            </div>
           </td>
         </tr>
       } @empty {
@@ -166,20 +178,96 @@
             [attr.colspan]="mode() === 'admin' ? 5 : 4"
             class="p-8 text-center text-slate-400 italic"
           >
-            Brak zespołów do wyświetlenia
+            {{ 'ORGANIZATION_LIST.NO_BANDS_TO_DISPLAY' | transloco }}
           </td>
         </tr>
       }
     </tbody>
   </table>
-
-  <!-- Pagination -->
-  <app-pagination
-    [totalElements]="store.organizationsPage().totalElements"
-    [totalPages]="store.organizationsPage().totalPages"
-    [currentPage]="store.currentOrganizationsPage()"
-    [pageSize]="store.currentOrganizationsSize()"
-    (pageChange)="facade.changeOrganizationsPage($event)"
-    (sizeChange)="facade.changeOrganizationsSize($event)"
-  ></app-pagination>
 </div>
+
+<div class="block md:hidden space-y-3">
+  @for (org of safeOrganizations(); track org.id) {
+    <div
+      (click)="selectOrganizationAndOpenDetailsModal(org)"
+      class="bg-slate-800/90 p-4 rounded-xl border border-slate-700 shadow-md flex flex-col gap-3 active:scale-[0.98] transition-transform cursor-pointer"
+    >
+      <div class="flex justify-between items-start border-b border-slate-700/50 pb-2">
+        <span class="font-bold text-slate-100 text-base truncate">{{ org.name }}</span>
+        @if (org.trusted) {
+          <span
+            class="inline-flex items-center justify-center w-6 h-6 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+          </span>
+        }
+      </div>
+
+      <div class="text-sm text-slate-400">
+        <div class="mb-1">
+          <span class="text-slate-500 text-xs"
+            >{{ 'ADMIN_RESERVATIONS.ORGANIZATION_OWNERS' | transloco }}:</span
+          >
+        </div>
+        <!--  Scrollable -->
+        <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+          @for (owner of org.owners; track owner.id) {
+            <span
+              class="bg-slate-900/50 px-2 py-1 rounded-md border border-slate-700/50 text-xs text-emerald-400 font-mono"
+              >{{ owner.nick }}</span
+            >
+          } @empty {
+            <span class="text-slate-500 text-xs italic">{{
+              'ADMIN_RESERVATIONS.EMPTY_OWNERS' | transloco
+            }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="text-sm text-slate-400">
+        <div class="mb-1">
+          <span class="text-slate-500 text-xs"
+            >{{ 'ADMIN_RESERVATIONS.ORGANIZATION_MEMBERS' | transloco }}:</span
+          >
+        </div>
+        <!--  Scrollable -->
+        <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+          @for (user of org.members; track user.id) {
+            <span
+              class="bg-slate-900/50 px-2 py-1 rounded-md border border-slate-700/50 text-xs text-sky-400 font-mono"
+              >{{ user.nick }}</span
+            >
+          } @empty {
+            <span class="text-slate-500 text-xs italic">{{
+              'ADMIN_RESERVATIONS.EMPTY_MEMBERS' | transloco
+            }}</span>
+          }
+        </div>
+      </div>
+    </div>
+  } @empty {
+    <div
+      class="p-8 text-center text-slate-400 italic bg-slate-800/90 rounded-xl border border-slate-700"
+    >
+      {{ 'ORGANIZATION_LIST.NO_BANDS_TO_DISPLAY' | transloco }}
+    </div>
+  }
+</div>
+
+<!-- Pagination -->
+<app-pagination
+  [totalElements]="store.organizationsPage().totalElements"
+  [totalPages]="store.organizationsPage().totalPages"
+  [currentPage]="store.currentOrganizationsPage()"
+  [pageSize]="store.currentOrganizationsSize()"
+  (pageChange)="facade.changeOrganizationsPage($event)"
+  (sizeChange)="facade.changeOrganizationsSize($event)"
+></app-pagination>

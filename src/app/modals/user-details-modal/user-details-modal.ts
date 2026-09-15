@@ -33,14 +33,10 @@ export class UserDetailsModal {
       const currentUser = this.user();
 
       if (currentUser) {
-        this.facade.getReservations(
-          null,
-          this.store.toolbarOnlyFuture(),
-          currentUser.id,
-          null,
-          null,
-          null,
-        );
+        this.facade.getReservations({
+          future: this.store.toolbarOnlyFuture(),
+          userId: currentUser.id,
+        });
         this.facade.getOrganizations(true, currentUser.id);
       }
       console.table(currentUser);

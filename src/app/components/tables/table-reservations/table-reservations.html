@@ -177,7 +177,7 @@
     </div>
   </div>
 
-  <!-- MOBILE TABLE -->
+  <!-- USER PROFILE MOBILE TABLE -->
   <div class="block md:hidden p-3 space-y-3">
     @if (store.reservations().length > 0) {
       @for (res of store.reservations(); track res.id; let idx = $index) {
@@ -209,6 +209,13 @@
               <span class="text-slate-200">{{ textFormatingTool.getPrice(res) }} zł</span>
             </div>
           </div>
+
+          @if (type() === ReservationTableType.USER_PROFILE) {
+            <div class="grid grid-rows-2 gap-1 text-xs text-slate-400">
+              <span class="block text-slate-500">{{ 'PROFILE.STATUS' | transloco }}</span>
+              <span class="text-slate-200">{{ 'STATUS.' + res.status | transloco }}</span>
+            </div>
+          }
         </div>
       }
     } @else {

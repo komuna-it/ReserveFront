@@ -7,7 +7,7 @@ import { ToolbarType } from '../components/toolbars/toolbarType';
 export const RESERVATIONS_ROUTES: Routes = [
   {
     path: '',
-    redirectTo: 'pending',
+    redirectTo: 'created',
     pathMatch: 'full',
   },
   {
@@ -27,7 +27,7 @@ export const RESERVATIONS_ROUTES: Routes = [
     },
   },
   {
-    path: 'pending',
+    path: 'created',
     loadComponent: () =>
       import('../pages/admin/components/reservations-by-status/reservations-by-status').then(
         (m) => m.ReservationsByStatus,

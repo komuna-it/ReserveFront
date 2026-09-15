@@ -105,14 +105,10 @@ export class TableToolbar {
     if (!status) return;
     switch (this.type()) {
       case ToolbarType.RESERVATIONS: {
-        this.facade.getReservations(
-          new Set<ReservationStatus>([status]),
-          future,
-          null,
-          null,
-          null,
-          null,
-        );
+        this.facade.getReservations({
+          statuses: new Set<ReservationStatus>([status]),
+          future: this.store.toolbarOnlyFuture(),
+        });
         break;
       }
 

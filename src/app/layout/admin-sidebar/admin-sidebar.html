@@ -49,19 +49,41 @@
         >
           {{ 'STATUS.CONFIRMED' | transloco }}
         </a>
+
+        <!-- CREATED with COUNT -->
         <a
-          routerLink="/admin/reservations/pending"
+          routerLink="/admin/reservations/created"
           routerLinkActive="bg-emerald-600 text-white shadow-md"
-          class="block px-3 py-1.5 rounded-lg text-m text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
+          class="flex justify-between items-center px-3 py-1.5 rounded-lg text-m text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
         >
-          {{ 'STATUS.CREATED' | transloco }}
+          <span>{{ 'STATUS.CREATED' | transloco }}</span>
+
+          @if (store.isCountLoading()) {
+            <span class="border border-emerald-500/30 px-2 py-0.5 rounded-full">
+              {{ '?' }}
+            </span>
+          } @else if (store.reservationsCount() !== null) {
+            <span class="border border-emerald-500/30 px-2 py-0.5 rounded-full">
+              {{ getNumberOfReservationsByStatus(ReservationStatus.CREATED) }}
+            </span>
+          }
         </a>
         <a
           routerLink="/admin/reservations/request-cancellation"
           routerLinkActive="bg-emerald-600 text-white shadow-md"
-          class="block px-3 py-1.5 rounded-lg text-m text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
+          class="flex justify-between items-center px-3 py-1.5 rounded-lg text-m text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
         >
-          {{ 'STATUS.REQUESTED_CANCELLATION' | transloco }}
+          <span>{{ 'STATUS.REQUESTED_CANCELLATION' | transloco }}</span>
+
+          @if (store.isCountLoading()) {
+            <span class="border border-emerald-500/30 px-2 py-0.5 rounded-full">
+              {{ '?' }}
+            </span>
+          } @else if (store.reservationsCount() !== null) {
+            <span class="border border-emerald-500/30 px-2 py-0.5 rounded-full">
+              {{ getNumberOfReservationsByStatus(ReservationStatus.REQUESTED_CANCELLATION) }}
+            </span>
+          }
         </a>
         <a
           routerLink="/admin/reservations/cancelled"

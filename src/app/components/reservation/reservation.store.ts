@@ -16,22 +16,33 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ToolbarType } from '../toolbars/toolbarType';
 import { Booking } from '../../model/booking';
+import { ReservationTableType } from '../../model/reservationTableType';
+import { ReservationQueryParams } from '../../model/reservationQueryParams';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
   private helper = inject(CalendarHelper);
-  private authService = inject(AuthService);
   readonly loco = inject(TranslocoService);
   private readonly route = inject(ActivatedRoute);
 
   readonly allUsers = signal<User[]>([]);
 
   readonly rooms = signal<Room[]>([]);
-  readonly reservations = computed(() => this.reservationsPage().content);
 
+  // reservations
+  readonly reservations = computed(() => this.reservationsPage().content);
+  readonly reservationsCount = signal<Map<ReservationStatus, number> | null>(null);
+  readonly isCountLoading = signal<boolean>(false);
+  readonly newReservationEvent = signal<ReservationDto | null>(null);
+  readonly lastReservationFilters = signal<ReservationQueryParams | null>(null);
+  readonly reservationTableType = signal<ReservationTableType | null>(null);
+  readonly reservationTableStatus = signal<ReservationStatus | null>(null);
+
+  // users
   readonly users = computed(() => this.usersPage().content);
   readonly userOrganizations = signal<Organization[]>([]);
 
+  // orgs
   readonly organizations = computed(() => this.organizationsPage().content);
   readonly allOrganizations = signal<Organization[]>([]);
   readonly orgAndMembersMap = signal<Map<Organization, User[]>>(new Map());
@@ -78,12 +89,13 @@ export class ReservationStore {
       }
     }
 
-    const maxDuration = limitHour - bookingStartHour;
+    const maxDuration = limitHour - bookingStartHour > 8 ? 8 : limitHour - bookingStartHour;
     return Array.from({ length: Math.max(0, maxDuration) }, (_, i) => i + 1);
   });
 
   readonly displayBookingSuccesfulPopup = signal<boolean>(false);
   readonly displayBookingErrorPopup = signal<boolean>(false);
+  readonly displayErrorPopup = signal<boolean>(false);
 
   readonly selectedBooking = signal<Booking | null>(null);
   readonly price = computed(() => {

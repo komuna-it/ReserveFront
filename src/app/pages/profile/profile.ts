@@ -16,6 +16,9 @@ import { RouterOutlet } from '@angular/router';
 import { AddUserIntoOrganizationModal } from '../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
 import { OrganizationDetailsModal } from '../../modals/organization-details-modal/organization-details-modal';
 import { ErrorPopup } from '../../modals/error-popup/error-popup';
+import { SettingsFacade } from '../../settings/settingsFacade';
+import { SettingsStore } from '../../settings/settingsStore';
+import { ReservationDetailsModal } from '../../modals/reservation-details-modal/reservation-details-modal';
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -32,13 +35,16 @@ import { ErrorPopup } from '../../modals/error-popup/error-popup';
     AddOrganizationModal,
     SuccessPopup,
     ErrorPopup,
+    ReservationDetailsModal,
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
 export class ProfilePage implements OnInit, OnDestroy {
   readonly store = inject(ReservationStore);
+  readonly settingsStore = inject(SettingsStore);
   readonly facade = inject(ReservationFacade);
+  readonly settingsFacade = inject(SettingsFacade);
   readonly authService = inject(AuthService);
   readonly translocoService = inject(TranslocoService);
   readonly helper = inject(CalendarHelper);
@@ -82,7 +88,10 @@ export class ProfilePage implements OnInit, OnDestroy {
     const user = this.authService.currentUser();
     if (user) {
       this.facade.getRooms();
-      this.facade.getReservations(null, this.store.toolbarOnlyFuture(), user.id, null, null, null);
+      this.facade.getReservations({
+        future: this.store.toolbarOnlyFuture(),
+        userId: user.id,
+      });
       this.facade.connectToReservationStream();
       this.facade.getOrganizations(true, user.id);
     }

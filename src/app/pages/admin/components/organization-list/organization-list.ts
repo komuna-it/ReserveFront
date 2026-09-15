@@ -1,4 +1,13 @@
-import { Component, inject, OnInit, OnDestroy, computed, effect, input } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  computed,
+  effect,
+  input,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservationStore } from '../../../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
@@ -51,9 +60,19 @@ export class OrganizationList implements OnInit, OnDestroy {
     return selectedSize > 0 && !this.areAllSelected();
   });
 
-  constructor() {
-    const user = this.auth.currentUser();
+  readonly isReservationsExpanded = signal(true);
+  readonly isOwnersExpanded = signal(true);
+  readonly isMembersExpanded = signal(true);
 
+  constructor() {
+    const orgs = this.store.organizations();
+
+    if (this.auth.isAdmin()) {
+      this.facade.getOrganizations(true, null);
+    } else {
+      const user = this.auth.currentUser();
+      if (user) this.facade.getOrganizations(true, user.id);
+    }
     effect(() => {
       this.store.currentSortBy();
       this.store.currentSortDir();
@@ -62,11 +81,11 @@ export class OrganizationList implements OnInit, OnDestroy {
     });
     if (this.auth.isAdmin()) {
       this.store.toolbarType.set(ToolbarType.ADMIN_ORGANIZATIONS);
-      this.store.isAdminOrganizationModalActive.set(true);
       this.facade.getOrganizations(true, null);
-    } else {
-      if (user) this.facade.getOrganizations(true, user.id);
     }
+    // else {
+    //   if (user) this.facade.getOrganizations(true, user.id);
+    // }
   }
 
   ngOnInit(): void {}
@@ -89,18 +108,6 @@ export class OrganizationList implements OnInit, OnDestroy {
 
   toggleSelection(id: number): void {
     this.store.toggleSelection(id);
-  }
-
-  closeModals(): void {
-    this.store.isAdminAddOrganizationModalActive.set(false);
-    this.store.isAdminAddOrganizationSuccessPopupActive.set(false);
-    this.store.isModalDeleteOwnerActive.set(false);
-    this.store.isModalDeleteMemberActive.set(false);
-    this.store.isModalDeleteOrganizationActive.set(false);
-    this.store.isModalDeleteOrganizationSuccessActive.set(false);
-    this.store.isModalDeleteMemberSuccessActive.set(false);
-    this.store.isModalDeleteOwnerSuccessActive.set(false);
-    this.store.globalErrorKey.set(null);
   }
 
   selectOrganizationAndOpenDetailsModal(org: Organization): void {

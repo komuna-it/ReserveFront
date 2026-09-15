@@ -28,27 +28,42 @@
     >
       @if (activeReservation(); as res) {
         <div class="grid grid-cols-2 gap-y-3 gap-x-2">
-          <div class="col-span-2 border-b border-slate-700/50 pb-2">
-            <span class="block text-xs text-slate-500 mb-0.5">{{
-              'CALENDAR.RESERVATION_TYPE' | transloco
-            }}</span>
-            <span class="font-medium">
-              {{ 'CALENDAR.' + res.type | transloco }}
-            </span>
+          <div
+            class="col-span-2 grid grid-cols-2 border-b border-slate-700/50 pb-2 flex justify-between"
+          >
+            <div>
+              <span class="block text-xs text-slate-500 mb-0.5">{{
+                'CALENDAR.RESERVATION_TYPE' | transloco
+              }}</span>
+              <span class="font-medium">
+                {{ 'CALENDAR.' + res.type | transloco }}
+              </span>
+            </div>
+
+            <div>
+              <span class="block text-xs text-slate-500 mb-0.5">{{
+                'PROFILE.STATUS' | transloco
+              }}</span>
+              <span class="text-slate-200"> {{ 'STATUS.' + res.status | transloco }} </span>
+            </div>
           </div>
 
-          <div class="col-span-2 border-b border-slate-700/50 pb-2">
-            <span class="block text-xs text-slate-500 mb-0.5">{{
-              'ADMIN_RESERVATIONS.RESERVED_BY' | transloco
-            }}</span>
-            <span class="text-slate-200"> {{ tool.reservedByText(res) }} </span>
-          </div>
+          <div
+            class="col-span-2 grid grid-cols-2 border-b border-slate-700/50 pb-2 flex justify-between"
+          >
+            <div>
+              <span class="block text-xs text-slate-500 mb-0.5">{{
+                'ADMIN_RESERVATIONS.RESERVED_BY' | transloco
+              }}</span>
+              <span class="text-slate-200"> {{ tool.reservedByText(res) }} </span>
+            </div>
 
-          <div class="col-span-2">
-            <span class="block text-xs text-slate-500 mb-0.5">{{
-              'ADMIN_RESERVATIONS.ORGANIZATION' | transloco
-            }}</span>
-            <span class="text-slate-200">{{ tool.bandText(res) }}</span>
+            <div>
+              <span class="block text-xs text-slate-500 mb-0.5">{{
+                'ADMIN_RESERVATIONS.ORGANIZATION' | transloco
+              }}</span>
+              <span class="text-slate-200">{{ tool.bandText(res) }}</span>
+            </div>
           </div>
 
           <div>
@@ -78,33 +93,47 @@
             }}</span>
             <span class="text-slate-200">
               @if (res.paid) {
-                <span class="text-emerald-400 font-medium">Tak</span>
+                <span class="text-emerald-400 font-medium">{{ 'PROFILE.YES' | transloco }}</span>
               } @else {
-                <span class="text-rose-400 font-medium">Nie</span>
+                <span class="text-rose-400 font-medium">{{ 'PROFILE.NO' | transloco }}</span>
               }
             </span>
           </div>
         </div>
       } @else {
         <div class="text-center py-4 text-slate-500 font-mono text-xs">
-          Trwa ładowanie danych...
+          {{ 'COMMON.LOADING' | transloco }}
         </div>
       }
     </div>
 
     <div class="w-full flex flex-col gap-2">
       @if (activeReservation(); as res) {
-        @if (res.status === ReservationStatus.CREATED) {
-          <div class="grid grid-cols-2 gap-2">
-            <button
-              (click)="
-                facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.CONFIRMED)
-              "
-              class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md active:scale-95"
-            >
-              {{ 'BUTTONS.ACCEPT' | transloco }}
-            </button>
+        @if (auth.isAdmin()) {
+          @if (res.status === ReservationStatus.CREATED) {
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                (click)="
+                  facade.openConfirmationUpdateReservationsStatus(
+                    [res],
+                    ReservationStatus.CONFIRMED
+                  )
+                "
+                class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md active:scale-95"
+              >
+                {{ 'BUTTONS.ACCEPT' | transloco }}
+              </button>
 
+              <button
+                (click)="
+                  facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.REJECTED)
+                "
+                class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
+              >
+                {{ 'BUTTONS.REJECT' | transloco }}
+              </button>
+            </div>
+          } @else if (res.status === ReservationStatus.CONFIRMED) {
             <button
               (click)="
                 facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.REJECTED)
@@ -113,28 +142,30 @@
             >
               {{ 'BUTTONS.REJECT' | transloco }}
             </button>
-          </div>
-        } @else if (res.status === ReservationStatus.CONFIRMED) {
+          } @else if (res.status === ReservationStatus.REQUESTED_CANCELLATION) {
+            <button
+              (click)="
+                facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.CANCELLED)
+              "
+              class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
+            >
+              {{ 'BUTTONS.CANCEL' | transloco }}
+            </button>
+          }
+        } @else {
           <button
-            (click)="
-              facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.REJECTED)
-            "
-            class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
+            (click)="requestCancellation(res)"
+            [disabled]="!facade.isCancellationPossible(res)"
+            class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg text-white transition-all shadow-md"
+            [ngClass]="{
+              'bg-red-700 hover:bg-red-600 active:scale-95': facade.isCancellationPossible(res),
+              'bg-slate-600 opacity-50 cursor-not-allowed': !facade.isCancellationPossible(res),
+            }"
           >
-            {{ 'BUTTONS.REJECT' | transloco }}
-          </button>
-        } @else if (res.status === ReservationStatus.REQUESTED_CANCELLATION) {
-          <button
-            (click)="
-              facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.CANCELLED)
-            "
-            class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
-          >
-            {{ 'BUTTONS.CANCEL' | transloco }}
+            {{ facade.getCancelButtonLabel(res) }}
           </button>
         }
       }
-
       <button
         (click)="facade.closeModals()"
         class="w-full mt-1 px-4 py-2.5 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-all shadow-md active:scale-95"

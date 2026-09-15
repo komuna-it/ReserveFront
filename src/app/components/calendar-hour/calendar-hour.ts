@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, isDevMode, output } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AuthService } from '../../auth/authService';
 import { ReservationStore } from '../reservation/reservation.store';
@@ -88,6 +88,11 @@ export class CalendarHour {
   });
 
   onCellClick(): void {
+    const selectedRes = this.reservation();
+    if (selectedRes) {
+      this.store.selectedReservation.set(selectedRes);
+    }
+
     if (this.isPast()) return;
 
     if (!this.isReserved()) {

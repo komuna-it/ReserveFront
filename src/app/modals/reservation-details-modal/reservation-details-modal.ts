@@ -8,10 +8,11 @@ import { ReservationStatus } from '../../model/reservationStatus';
 
 import { AuthService } from '../../auth/authService';
 import { ReservationDto } from '../../model/reservationDto';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-reservation-details-modal',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, NgClass],
   templateUrl: './reservation-details-modal.html',
   styleUrl: './reservation-details-modal.css',
 })
@@ -55,4 +56,14 @@ export class ReservationDetailsModal {
     }
     return null;
   });
+
+  readonly auth = inject(AuthService);
+
+  requestCancellation(res: ReservationDto) {
+    const id = new Set<number>();
+    id.add(res.id);
+    this.store.toolbarSelectedIds.set(id);
+    this.facade.updateReservationsStatus(ReservationStatus.REQUESTED_CANCELLATION);
+    this.facade.closeModals();
+  }
 }

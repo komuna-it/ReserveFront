@@ -1,6 +1,5 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, isDevMode } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { AuthService } from '../../auth/authService';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { Organization } from '../../model/organization';
@@ -11,12 +10,13 @@ import { ReservationStatus } from '../../model/reservationStatus';
 import { throwError } from 'rxjs';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { ReservationType } from '../../model/reservationType';
+import { environment } from '../../../environments/environment';
+import { ReservationQueryParams } from '../../model/reservationQueryParams';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationApi {
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
-  private apiUrl = process.env['VSF_API_URL'] || '/api';
+  private apiUrl = environment.apiUrl;
 
   getRooms(): Observable<Room[]> {
     return this.http.get<Room[]>(`${this.apiUrl}/rooms`);
@@ -137,24 +137,37 @@ export class ReservationApi {
     });
   }
 
-  updateReservationsStatus(resIds: Set<number>, status: ReservationStatus) {
+  updateReservationsStatus(
+    resIds: Set<number>,
+    status: ReservationStatus,
+  ): Observable<Page<ReservationDto>> {
     const reservationIds = Array.from(resIds);
 
     switch (status) {
       case ReservationStatus.CONFIRMED:
-        return this.http.post(`${this.apiUrl}/reservations/confirm`, { reservationIds });
+        return this.http.post<Page<ReservationDto>>(`${this.apiUrl}/reservations/confirm`, {
+          reservationIds,
+        });
 
       case ReservationStatus.REQUESTED_CANCELLATION:
-        return this.http.post(`${this.apiUrl}/reservations/requestCancel`, { reservationIds });
+        return this.http.post<Page<ReservationDto>>(`${this.apiUrl}/reservations/requestCancel`, {
+          reservationIds,
+        });
 
       case ReservationStatus.CANCELLED:
-        return this.http.post(`${this.apiUrl}/reservations/confirmCancel`, { reservationIds });
+        return this.http.post<Page<ReservationDto>>(`${this.apiUrl}/reservations/confirmCancel`, {
+          reservationIds,
+        });
 
       case ReservationStatus.REJECTED:
-        return this.http.post(`${this.apiUrl}/reservations/reject`, { reservationIds });
+        return this.http.post<Page<ReservationDto>>(`${this.apiUrl}/reservations/reject`, {
+          reservationIds,
+        });
 
       case ReservationStatus.REJECTED_CANCELLATION:
-        return this.http.post(`${this.apiUrl}/reservations/rejectCancel`, { reservationIds });
+        return this.http.post<Page<ReservationDto>>(`${this.apiUrl}/reservations/rejectCancel`, {
+          reservationIds,
+        });
 
       default:
         console.error('Unsupported status:', status);
@@ -188,56 +201,58 @@ export class ReservationApi {
     });
   }
 
-  getReservations(
-    statuses: Set<ReservationStatus> | null,
-    future: boolean,
-    page: number,
-    size: number,
-    userId: number | null,
-    organizationIds: Set<number> | null,
-    startAtAfter: string | null,
-    startAtBefore: string | null,
-  ): Observable<Page<ReservationDto>> {
-    let params = new HttpParams().set('page', page).set('size', size).set('future', future);
-    if (startAtAfter != null) {
-      params = params.set('startAtAfter', startAtAfter);
-    }
+  getReservations(paramsObj: ReservationQueryParams): Observable<Page<ReservationDto>> {
+    let params = new HttpParams()
+      .set('page', paramsObj.page ?? 0)
+      .set('size', paramsObj.size ?? 10)
+      .set('future', paramsObj.future ?? false);
 
-    if (startAtBefore != null) {
-      params = params.set('startAtBefore', startAtBefore);
-    }
-    if (statuses != null && statuses.size > 0) {
-      statuses.forEach((status) => {
+    if (paramsObj.startAtAfter) params = params.set('startAtAfter', paramsObj.startAtAfter);
+    if (paramsObj.startAtBefore) params = params.set('startAtBefore', paramsObj.startAtBefore);
+
+    if (paramsObj.statuses && paramsObj.statuses.size > 0) {
+      paramsObj.statuses.forEach((status) => {
         params = params.append('status', status);
       });
     }
 
-    if (userId != null) {
-      params = params.set('userId', userId);
-    }
+    if (paramsObj.userId != null) params = params.set('userId', paramsObj.userId);
 
-    if (organizationIds != null && organizationIds.size > 0) {
-      organizationIds.forEach((id) => {
+    if (paramsObj.organizationIds && paramsObj.organizationIds.size > 0) {
+      paramsObj.organizationIds.forEach((id) => {
         params = params.append('organizationsId', id);
       });
     }
-    console.info('calling /reservations with params:', params.toString());
+
+    if (isDevMode()) {
+      console.info('calling /reservations with params:', params.toString());
+    }
+
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
+  }
+
+  getReservationsCountByStatus() {
+    return this.http.get<Map<ReservationStatus, number> | null>(
+      `${this.apiUrl}/reservations/summary`,
+      {},
+    );
   }
 
   getOrganizations(
     page: number,
     size: number,
-    withMembers: boolean,
+    fetchMembers: boolean,
     userId: number | null,
   ): Observable<Page<Organization>> {
     const params = new HttpParams()
       .set('userId', userId ?? '')
-      .set('withMembers', withMembers)
+      .set('fetchMembers', fetchMembers)
       .set('page', page)
       .set('size', size);
-    console.info('calling /organizations   with params:', params.toString());
-
+    if (isDevMode()) {
+      console.info('calling /organizations   with params:', params.toString());
+      console.log('getOrganizations: ', this.apiUrl);
+    }
     return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 }

@@ -1,4 +1,4 @@
-import { effect, inject, Injectable } from '@angular/core';
+import { effect, inject, Injectable, isDevMode, signal } from '@angular/core';
 import { ReservationApi } from './reservation.api';
 import { ReservationStore } from './reservation.store';
 import { CalendarHelper } from '../calendar/calendar.helper';
@@ -9,22 +9,35 @@ import { ReservationType } from '../../model/reservationType';
 import { CreateReservationRequest } from '../../model/CreateReservationRequest';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { ReservationDto } from '../../model/reservationDto';
-import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
-import { User } from '../../model/user';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { Booking } from '../../model/booking';
 import { finalize } from 'rxjs';
+import { TranslocoService } from '@jsverse/transloco';
+import { SettingsFacade } from '../../settings/settingsFacade';
+import { SettingsStore } from '../../settings/settingsStore';
+import { environment } from '../../../environments/environment';
+import { ErrorType } from '../../model/error/errorType';
+import { ReservationQueryParams } from '../../model/reservationQueryParams';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
   private api = inject(ReservationApi);
+  private loco = inject(TranslocoService);
   private store = inject(ReservationStore);
   private helper = inject(CalendarHelper);
   private authService = inject(AuthService);
   private router = inject(Router);
   private sseController: AbortController | null = null;
+  public settingsFacade = inject(SettingsFacade);
+  public settingsStore = inject(SettingsStore);
   private readonly route = inject(ActivatedRoute);
+  private apiUrl = environment.apiUrl;
+  readonly errorPopupTitle = signal<string>('');
+  readonly errorPopupBody = signal<string>('');
+
+  constructor() {
+    this.settingsFacade.getSettings(null, true);
+  }
 
   refreshOrganizations() {
     if (this.authService.isAdmin()) {
@@ -73,8 +86,13 @@ export class ReservationFacade {
       },
       error: (e) => console.log('Error fetching rooms: ', e),
     });
-
-    this.getReservations(null, false, null, null, null, null);
+    const status = this.store.reservationTableStatus();
+    if (status) {
+      this.getReservations({
+        statuses: new Set<ReservationStatus>([status]),
+        future: this.store.toolbarOnlyFuture(),
+      });
+    }
   }
 
   confirmBooking(): void {
@@ -137,7 +155,7 @@ export class ReservationFacade {
     const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
     const price = this.store.price();
     const userOrgs = this.store.userOrganizations();
-    const allOrgs = this.store.allOrganizations();
+    const allOrgs = this.store.organizations();
     let defaultOrg = userOrgs[0]?.id;
 
     if (!defaultOrg && this.authService.isAdmin()) {
@@ -160,13 +178,21 @@ export class ReservationFacade {
     console.log('booking debugging:');
     console.table(this.store.selectedBooking());
   }
+  disconnectStream() {
+    if (this.sseController) {
+      this.sseController.abort();
+      this.sseController = null;
+    }
+  }
 
   connectToReservationStream() {
-    console.log('Connecting to SSE');
     this.disconnectStream();
     this.sseController = new AbortController();
 
-    const url = `${process.env['VSF_API_URL'] || ''}/sse`;
+    const url = `${this.apiUrl}/sse`;
+    if (isDevMode()) {
+      console.log('Connecting to SSE at url: ', url);
+    }
 
     fetchEventSource(url, {
       method: 'GET',
@@ -176,38 +202,50 @@ export class ReservationFacade {
       },
       onopen: async (response) => {
         if (response.ok) {
-          console.log('SSE connection successfully opened!');
+          if (isDevMode()) {
+            console.log('SSE connection successfully opened!');
+          }
           return;
         }
-        console.error('SSE connection failed with status:', response.status);
+        if (isDevMode()) {
+          console.error('SSE connection failed with status:', response.status);
+        }
       },
       onmessage: (msg) => {
-        console.log(`Fetched SSE! Event: ${msg.event}`, msg.data);
-
+        if (isDevMode()) {
+          console.log(`Fetched SSE! Event: ${msg.event}`, msg.data);
+        }
         if (!msg.data) return;
 
         try {
           const res: ReservationDto = JSON.parse(msg.data);
 
           if (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_REMOVED') {
-            this.getRoomsAndReservations();
+            this.refreshCurrentReservations();
+            if (this.authService.isAdmin()) {
+              this.getReservationsCountByStatus();
+            }
+          }
+
+          if (msg.event === 'RESERVATION_CREATED') {
+            this.store.newReservationEvent.set(res);
           }
 
           const safeUserId = parseInt(
             (this.authService.userId() || '').toString().replace(/['"]/g, ''),
             10,
           );
-          const isAdminLogged = this.authService.isAdmin();
           const currentBooking = this.store.selectedBooking() ?? null;
           const isColizion = this.isSseReservationColiding(res, currentBooking);
-
+          if (isDevMode()) {
+            console.log('isColizion? ', isColizion);
+          }
           if (
-            msg.event === 'RESERVATION_CREATED' &&
+            (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_CONFIRMED') &&
             isColizion &&
-            res.reservedBy !== safeUserId &&
-            !isAdminLogged
+            res.reservedBy !== safeUserId
           ) {
-            this.store.displayBookingErrorPopup.set(true);
+            this.showError(ErrorType.SOMEONE_WAS_FASTER, ErrorType.HOUR_ALREADY_RESERVED);
           }
         } catch (err) {
           console.error('Error parsing SSE message data:', err, 'Data was:', msg.data);
@@ -230,16 +268,24 @@ export class ReservationFacade {
     const resEndDate = new Date(res.endAt);
 
     const bookingStartDate = new Date(b.date);
-    bookingStartDate.setUTCHours(b.hour, 0, 0, 0);
+    bookingStartDate.setHours(b.hour, 0, 0, 0);
 
     const bookingEndDate = new Date(bookingStartDate);
 
     if (!b.duration) b.duration = 1;
-    bookingEndDate.setUTCHours(b.hour + b.duration, 0, 0, 0);
+    bookingEndDate.setHours(b.hour + b.duration, 0, 0, 0);
 
     const isTimeOverlapping =
       resStartDate.getTime() < bookingEndDate.getTime() &&
       resEndDate.getTime() > bookingStartDate.getTime();
+
+    if (isDevMode()) {
+      console.log('isSseReservationColiding: isTimeOverlapping', isTimeOverlapping);
+      console.log('bookingStartDate :', bookingStartDate);
+      console.log('bookingEndDate :', bookingEndDate);
+      console.log('resStartDate :', resStartDate);
+      console.log('resEndDate :', resEndDate);
+    }
 
     return isTimeOverlapping;
   }
@@ -265,61 +311,50 @@ export class ReservationFacade {
     });
   }
 
-  disconnectStream() {
-    if (this.sseController) {
-      this.sseController.abort();
-      this.sseController = null;
-    }
-  }
-
   changeReservationsByStatusSize() {
     const currentStatus = this.store.statusForAdminPage();
     if (currentStatus) {
-      this.getReservations(
-        new Set<ReservationStatus>([currentStatus]),
-        this.store.toolbarOnlyFuture(),
-        null,
-        null,
-        null,
-        null,
-      );
+      this.getReservations({
+        statuses: new Set<ReservationStatus>([currentStatus]),
+        future: this.store.toolbarOnlyFuture(),
+      });
     }
   }
 
   updateReservationsStatus(targetStatus: ReservationStatus): void {
     console.log('facade updateReservationsStatus ', targetStatus);
     this.closeModals();
-    let ids = this.store.toolbarSelectedIds();
+    let selectedIds = this.store.toolbarSelectedIds();
+    const idsToProcess = new Set<number>(selectedIds);
 
-    if (ids.size === 0) {
+    if (idsToProcess.size === 0) {
       const singleId = this.store.selectedReservation()?.id;
-      if (singleId) ids.add(singleId);
+      if (singleId) idsToProcess.add(singleId);
     }
 
-    if (!ids || ids.size === 0) {
+    if (!selectedIds || idsToProcess.size === 0) {
       console.error('No reservation IDs selected for status update');
       return;
     }
 
-    this.api.updateReservationsStatus(ids, targetStatus).subscribe({
+    this.api.updateReservationsStatus(selectedIds, targetStatus).subscribe({
       next: () => {
-        const user = this.authService.currentUser();
         if (this.authService.isAdmin()) {
-          const currentStatus = this.store.statusForAdminPage();
-          if (!currentStatus) return;
-          this.getReservations(
-            new Set<ReservationStatus>([currentStatus]),
-
-            this.store.toolbarOnlyFuture(),
-            null,
-            null,
-            null,
-            null,
-          );
-        } else {
-          if (user)
-            this.getReservations(null, this.store.toolbarOnlyFuture(), user.id, null, null, null);
+          const status = this.store.statusForAdminPage();
+          if (status)
+            this.getReservations({
+              statuses: new Set<ReservationStatus>([status]),
+              future: this.store.toolbarOnlyFuture(),
+            });
         }
+
+        this.store.reservationsPage.update((currentPage) => ({
+          ...currentPage,
+          content: currentPage.content.map((res) =>
+            idsToProcess.has(res.id) ? { ...res, status: targetStatus } : res,
+          ),
+        }));
+
         this.store.clearSelection();
       },
       error: (err: unknown) => {
@@ -616,9 +651,9 @@ export class ReservationFacade {
 
   prepareDeleteOrganization(orgId: number): void {
     if (!orgId) return;
-    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    const org = this.store.organizations().find((o) => o.id === orgId);
     if (!org) {
-      console.error(`Organization with ID ${orgId} not found in allOrganizations.`);
+      console.error(`Organization with ID ${orgId} not found in organizations.`);
       return;
     }
     this.store.selectedOrganization.set({
@@ -640,7 +675,8 @@ export class ReservationFacade {
 
   prepareAddMember(orgId: number): void {
     if (!orgId) return;
-    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    const org = this.store.organizations().find((o) => o.id === orgId);
+
     if (!org) return;
 
     this.store.selectedOrganization.set({
@@ -654,7 +690,7 @@ export class ReservationFacade {
 
   prepareAddOwner(orgId: number): void {
     if (!orgId) return;
-    const org = this.store.allOrganizations().find((o) => o.id === orgId);
+    const org = this.store.organizations().find((o) => o.id === orgId);
     if (!org) return;
 
     this.store.selectedOrganization.set({
@@ -758,16 +794,15 @@ export class ReservationFacade {
     this.store.isModalDeleteMemberActive.set(false);
     this.store.isModalDeleteOrganizationActive.set(false);
     this.store.selectedBooking.set(null);
+    this.store.globalErrorKey.set(null);
     this.store.isModalDeleteOrganizationSuccessActive.set(false);
     this.store.isModalDeleteMemberSuccessActive.set(false);
     this.store.isModalDeleteOwnerSuccessActive.set(false);
     this.store.displayBookingErrorPopup.set(false);
-    this.store.globalErrorKey.set(null);
     this.store.isAddOrganizationModalActive.set(false);
     this.store.popupConfirmationActive.set(false);
     this.store.isModalAddRoomActive.set(false);
     this.store.confirmMarkReservationAsRequestCancel.set(false);
-    this.store.globalErrorKey.set(null);
     this.store.isBanUsersModalActive.set(false);
     this.store.isBanUsersSuccessActive.set(false);
     this.store.isUserDetailsModalActive.set(false);
@@ -779,6 +814,8 @@ export class ReservationFacade {
     this.store.confirmMarkReservationAsAccepted.set(false);
     this.store.confirmMarkReservationAsRejected.set(false);
     this.store.confirmMarkReservationAsCanceled.set(false);
+    this.store.isModalAddMemberActive.set(false);
+    this.store.isAdminOrganizationModalActive.set(false);
   }
 
   handleClickBanUsers() {
@@ -791,6 +828,8 @@ export class ReservationFacade {
   }
 
   handleUserAddOrganization() {
+    console.log('handleUserAddOrganization ');
+
     this.store.isAdminAddOrganizationModalActive.set(true);
   }
 
@@ -945,7 +984,7 @@ export class ReservationFacade {
 
     const matchingOrgIds = new Set(
       this.store
-        .allOrganizations()
+        .organizations()
         .filter((o) => o.name?.toLowerCase().includes(query))
         .map((o) => o.id),
     );
@@ -1034,50 +1073,62 @@ export class ReservationFacade {
       ReservationStatus.REQUESTED_CANCELLATION,
       ReservationStatus.REJECTED_CANCELLATION,
     ]);
+
     const startOfDay = new Date(selectedDate);
     startOfDay.setHours(0, 0, 0, 0);
 
     const endOfDay = new Date(selectedDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    this.getReservations(
-      allowedStatuses,
-      false,
-      null,
-      null,
-      startOfDay.toISOString(),
-      endOfDay.toISOString(),
-    );
+    this.getReservations({
+      statuses: allowedStatuses,
+      future: false,
+      startAtAfter: startOfDay.toISOString(),
+      startAtBefore: endOfDay.toISOString(),
+    });
   }
 
-  getReservations(
-    statuses: Set<ReservationStatus> | null,
-    future: boolean = false,
-    userId: number | null = null,
-    organizationIds: Set<number> | null = null,
-    startAtAfter: string | null,
-    startAtBefore: string | null,
-  ) {
-    const page = this.store.currentReservationsPage();
-    const size = this.store.currentReservationsSize();
+  getReservations(filters: ReservationQueryParams) {
+    this.store.lastReservationFilters.set(filters);
 
-    this.api
-      .getReservations(
-        statuses,
-        future,
-        page,
-        size,
-        userId,
-        organizationIds,
-        startAtAfter,
-        startAtBefore,
-      )
-      .subscribe({
-        next: (pageData) => {
-          this.store.reservationsPage.set(pageData);
-        },
-        error: (e) => console.log('Error fetching res: ', e),
-      });
+    const page = filters.page ? filters.page : this.store.currentReservationsPage();
+    const size = filters.size ? filters.size : this.store.currentReservationsSize();
+
+    const requestParams = { ...filters, page, size };
+
+    this.api.getReservations(requestParams).subscribe({
+      next: (pageData) => {
+        this.store.reservationsPage.set(pageData);
+      },
+      error: (e) => console.log('Error fetching res: ', e),
+    });
+  }
+
+  refreshCurrentReservations() {
+    const filters = this.store.lastReservationFilters();
+    if (filters) {
+      this.getReservations(filters);
+    }
+  }
+
+  getReservationsCountByStatus() {
+    this.store.isCountLoading.set(true);
+    this.api.getReservationsCountByStatus().subscribe({
+      next: (data: any) => {
+        if (isDevMode()) {
+          console.log('getReservationsCountByStatus data: ', data);
+        }
+        const statusMap = new Map<ReservationStatus, number>(
+          Object.entries(data || {}) as [ReservationStatus, number][],
+        );
+        this.store.reservationsCount.set(statusMap);
+        this.store.isCountLoading.set(false);
+      },
+      error: (e) => {
+        console.log('Error fetching res: ', e);
+        this.store.isCountLoading.set(false);
+      },
+    });
   }
 
   getOrganizations(withMembers: boolean, userId: number | null) {
@@ -1090,5 +1141,50 @@ export class ReservationFacade {
       },
       error: (e) => console.error('Error in getOrganizations: ', e),
     });
+  }
+
+  isCancellationPossible(res: ReservationDto): boolean {
+    return (
+      res.status !== ReservationStatus.REQUESTED_CANCELLATION &&
+      res.status !== ReservationStatus.CANCELLED
+    );
+  }
+
+  canCancelWithoutAsking(res: ReservationDto) {
+    const paramCanCancelWithoutAsking =
+      this.settingsStore
+        .settings()
+        .find((s) => s.key === 'RESERVATION_CANCELLATION_WITHOUT_APPROVAL_HOURS')?.value ?? '24';
+    const hourPeriod = parseInt(paramCanCancelWithoutAsking);
+    const startDate = new Date(res.startAt);
+    const now = new Date();
+    const timeDifference = startDate.getTime() - now.getTime();
+    return timeDifference / (1000 * 60 * 60) >= hourPeriod;
+  }
+
+  getCancelButtonLabel(res: ReservationDto): string {
+    switch (res.status) {
+      case ReservationStatus.CREATED:
+      case ReservationStatus.CONFIRMED:
+        return this.canCancelWithoutAsking(res)
+          ? this.loco.translate('BUTTONS.CANCEL')
+          : this.loco.translate('BUTTONS.REQUEST_CANCEL');
+      case ReservationStatus.CANCELLED:
+        return this.loco.translate('STATUS.CANCELLED');
+      case ReservationStatus.REJECTED:
+        return this.loco.translate('STATUS.REJECTED');
+      case ReservationStatus.REQUESTED_CANCELLATION:
+        return this.loco.translate('BUTTONS.ASKED_FOR_CANCELLATION');
+      default:
+        return '';
+    }
+  }
+
+  showError(title: ErrorType, body: ErrorType) {
+    const titleTranslated = this.loco.translate(`ERRORS.${title}`);
+    const bodyTranslated = this.loco.translate(`ERRORS.${body}`);
+    this.errorPopupTitle.set(titleTranslated);
+    this.errorPopupBody.set(bodyTranslated);
+    this.store.displayErrorPopup.set(true);
   }
 }

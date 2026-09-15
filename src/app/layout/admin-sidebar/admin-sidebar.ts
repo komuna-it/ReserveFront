@@ -5,6 +5,7 @@ import { ReservationStore } from '../../components/reservation/reservation.store
 import { filter } from 'rxjs';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ReservationStatus } from '../../model/reservationStatus';
 
 @Component({
   selector: 'app-admin-sidebar',
@@ -19,8 +20,10 @@ export class AdminSidebar {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   readonly facade = inject(ReservationFacade);
+  readonly ReservationStatus = ReservationStatus;
 
   constructor() {
+    this.facade.connectToReservationStream();
     this.router.events
       .pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -29,6 +32,7 @@ export class AdminSidebar {
       .subscribe(() => {
         this.closeMobileMenu();
       });
+    this.facade.getReservationsCountByStatus();
   }
 
   toggleMobileMenu(): void {
@@ -44,5 +48,12 @@ export class AdminSidebar {
     if (window.innerWidth >= 768 && this.isMobileMenuOpen()) {
       this.closeMobileMenu();
     }
+  }
+
+  getNumberOfReservationsByStatus(status: ReservationStatus) {
+    const map = this.store.reservationsCount();
+    if (!map) return 0;
+
+    return map.get(status as ReservationStatus) || 0;
   }
 }
