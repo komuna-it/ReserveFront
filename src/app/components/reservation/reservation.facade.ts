@@ -18,6 +18,7 @@ import { SettingsStore } from '../../settings/settingsStore';
 import { environment } from '../../../environments/environment';
 import { ErrorType } from '../../model/error/errorType';
 import { ReservationQueryParams } from '../../model/reservationQueryParams';
+import { SuccessType } from '../../model/successType';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -34,6 +35,8 @@ export class ReservationFacade {
   private apiUrl = environment.apiUrl;
   readonly errorPopupTitle = signal<string>('');
   readonly errorPopupBody = signal<string>('');
+  readonly successPopupTitle = signal<string>('');
+  readonly successPopupBody = signal<string>('');
 
   constructor() {
     this.settingsFacade.getSettings(null, true);
@@ -1187,5 +1190,10 @@ export class ReservationFacade {
     this.errorPopupTitle.set(titleTranslated);
     this.errorPopupBody.set(bodyTranslated);
     this.store.displayErrorPopup.set(true);
+  }
+  showSuccess(title: SuccessType) {
+    const titleTranslated = this.loco.translate(`SUCCESS.${title}`);
+    this.successPopupTitle.set(titleTranslated);
+    this.store.isSuccessPopupActive.set(true);
   }
 }

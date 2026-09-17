@@ -198,6 +198,7 @@ export class ReservationStore {
   readonly isPrivateReservationCheckboxActivated = signal<boolean>(false);
   readonly isAddOrganizationModalActive = signal<boolean | null>(null);
   readonly popupConfirmationActive = signal<boolean | null>(null);
+  readonly isSuccessPopupActive = signal<boolean>(false);
 
   readonly statusForAdminPage = signal<ReservationStatus | null>(null);
   readonly organizationListSelectedUser = signal<User | null>(null);

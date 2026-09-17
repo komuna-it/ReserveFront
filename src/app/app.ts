@@ -5,11 +5,12 @@ import { CookieBarComponent } from './layout/cookie-bar/cookie-bar';
 import { ReservationStore } from './components/reservation/reservation.store';
 import { ReservationFacade } from './components/reservation/reservation.facade';
 import { ErrorPopup } from './modals/error-popup/error-popup';
+import { SuccessPopup } from './modals/success-popup/success-popup';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, Navbar, CookieBarComponent, ErrorPopup],
+  imports: [RouterOutlet, Navbar, CookieBarComponent, ErrorPopup, SuccessPopup],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
 })

@@ -351,5 +351,15 @@
       "SOMEONE_WAS_FASTER": "Хтось був швидшим!",
       "HOUR_ALREADY_RESERVED": "Ця година вже заброньована"
     }
+  },
+  "SUCCESS": {
+    "ORGANIZATION_ADDED_TITLE": "Групу додано",
+    "ORGANIZATION_ADDED_DESC": "Групу успішно додано.",
+    "RESERVATION_CREATED_TITLE": "Бронювання створено",
+    "RESERVATION_CREATED_DESC": "Бронювання успішно створено.",
+    "RESERVATION_CANCELLED_TITLE": "Бронювання скасовано",
+    "RESERVATION_CANCELLED_DESC": "Бронювання успішно скасовано.",
+    "PASSWORD_UPDATED_TITLE": "Пароль змінено!",
+    "PASSWORD_UPDATED_DESC": "Ваш пароль успішно змінено."
   }
 }
