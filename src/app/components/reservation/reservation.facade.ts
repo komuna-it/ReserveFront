@@ -114,10 +114,11 @@ export class ReservationFacade {
     console.log('CreateReservationRequest:', req);
 
     this.api.postReservation(req).subscribe({
-      next: () => {
+      next: (res) => {
         this.store.selectedBooking.set(null);
         this.store.displayBookingSuccesfulPopup.set(true);
         this.getRoomsAndReservations();
+        this.loadCalendarReservationsForDay(this.store.daySelectedByUser());
       },
       error: (err) => {
         console.error('Booking error response:', err);

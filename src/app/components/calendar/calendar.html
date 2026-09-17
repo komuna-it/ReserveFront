@@ -247,6 +247,9 @@
   }
 
   @if (store.displayBookingErrorPopup()) {
-    <app-error-popup [titleText]="'CALENDAR.ERROR_TITLE' | transloco"></app-error-popup>
+    <app-error-popup
+      [titleText]="'CALENDAR.ERROR_TITLE' | transloco"
+      (ok)="store.displayBookingErrorPopup.set(false)"
+    ></app-error-popup>
   }
 </div>

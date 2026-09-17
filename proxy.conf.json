@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://api.vipsound.lmt.technology",
+    "target": "http://localhost:8443",
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": {
