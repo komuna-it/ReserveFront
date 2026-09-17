@@ -14,4 +14,12 @@
   />
 }
 
+@if (store.isSuccessPopupActive()) {
+  <app-success-popup
+    [titleText]="facade.successPopupTitle()"
+    [bodyText]="facade.successPopupBody()"
+    (ok)="store.isSuccessPopupActive.set(false)"
+  />
+}
+
 <app-cookie-bar></app-cookie-bar>

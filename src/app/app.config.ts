@@ -14,13 +14,14 @@ import {
 import { routes } from './routes/app.routes';
 import { TranslocoHttpLoader } from './transloco-loader';
 import { authInterceptor } from './auth/authInterceptor';
+import { credentialsInterceptor } from './auth/credentialsInterceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(
-      withInterceptors([authInterceptor]),
+      withInterceptors([authInterceptor, credentialsInterceptor]),
       withInterceptorsFromDi(),
       withXsrfConfiguration({
         cookieName: 'XSRF-TOKEN',

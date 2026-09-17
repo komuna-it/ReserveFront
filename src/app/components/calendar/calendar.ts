@@ -92,6 +92,7 @@ export class CalendarComponent {
       }
     }
 
+    this.store.daySelectedByUser.set(selectedDay);
     this.facade.loadCalendarReservationsForDay(selectedDay);
     this.facade.getRooms();
     if (params['date']) {

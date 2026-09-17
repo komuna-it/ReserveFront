@@ -3,6 +3,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ReservationStore } from '../../reservation/reservation.store';
 import { ReservationFacade } from '../../reservation/reservation.facade';
 import { ConfirmationPopup } from '../../../modals/confirmation-popup/confirmation-popup';
+import { SuccessType } from '../../../model/successType';
 
 @Component({
   selector: 'app-add-organization-modal',
@@ -28,8 +29,9 @@ export class AddOrganizationModal {
 
     try {
       this.facade.createOrganization(name.trim());
-      this.store.popupConfirmationActive.set(true);
-      this.facade.closeModals();
+      this.facade.showSuccess(SuccessType.ORGANIZATION_ADDED_TITLE);
+      this.store.isAddOrganizationModalActive.set(false);
+      this.store.isAdminAddOrganizationModalActive.set(false);
     } catch (error) {
       console.error('Error creating organization:', error);
     }
