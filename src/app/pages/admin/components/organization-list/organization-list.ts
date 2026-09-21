@@ -12,22 +12,16 @@ import { CommonModule } from '@angular/common';
 import { ReservationStore } from '../../../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { AddUserIntoOrganizationModal } from '../../../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
-import { User } from '../../../../model/user';
 import { Organization } from '../../../../model/organization';
-import { AddOrganizationModal } from '../../../../components/modals/add-organization-modal/add-organization-modal';
-import { OrganizationMemberDto } from '../../../../model/organizationMemberDto';
 import { Pagination } from '../../../../layout/pagination/pagination';
-import { SuccessPopup } from '../../../../modals/success-popup/success-popup';
-import { ErrorPopup } from '../../../../modals/error-popup/error-popup';
-import { ConfirmationPopup } from '../../../../modals/confirmation-popup/confirmation-popup';
 import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 import { AuthService } from '../../../../auth/authService';
+import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
 
 @Component({
   selector: 'app-organization-list',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe, Pagination],
+  imports: [CommonModule, TranslocoPipe, Pagination, TableToolbar],
   templateUrl: './organization-list.html',
   styleUrl: './organization-list.css',
 })
@@ -36,6 +30,7 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
   readonly auth = inject(AuthService);
+  readonly toolbarType = ToolbarType.ADMIN_ORGANIZATIONS;
 
   readonly safeOrganizations = computed(() => {
     const orgs = this.store.organizations();

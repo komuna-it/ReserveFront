@@ -4,7 +4,6 @@ import { ReservationStore } from '../../../../components/reservation/reservation
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Pagination } from '../../../../layout/pagination/pagination';
-import { ErrorPopup } from '../../../../modals/error-popup/error-popup';
 import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
 import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 import { User } from '../../../../model/user';
