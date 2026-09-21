@@ -59,10 +59,6 @@ export class OrganizationList implements OnInit, OnDestroy {
     const selectedSize = this.store.toolbarSelectedIds().size;
     return selectedSize > 0 && !this.areAllSelected();
     var result = selectedSize > 0 && !this.areAllSelected();
-    if (isDevMode()) {
-      console.log('isIndeterminate', result, selectedSize, this.areAllSelected());
-    }
-    return result;
   });
 
   readonly isReservationsExpanded = signal(true);
@@ -108,15 +104,6 @@ export class OrganizationList implements OnInit, OnDestroy {
     } else {
       const allIds = new Set(this.store.organizations().map((res) => res.id));
       this.store.setSelectedIds(allIds);
-    }
-
-    if (isDevMode()) {
-      console.log(
-        'toggleMasterCheckbox this.areAllSelected(): ',
-        this.areAllSelected(),
-        'this.isIndeterminate(): ',
-        this.isIndeterminate(),
-      );
     }
   }
 

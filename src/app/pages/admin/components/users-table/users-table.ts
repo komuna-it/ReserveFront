@@ -33,7 +33,7 @@ export class UsersTable {
   }
 
   readonly areAllSelected = computed(() => {
-    const users = this.store.allUsers();
+    const users = this.store.users();
     if (users.length === 0) return false;
     const selected = this.store.toolbarSelectedIds();
     return users.every((u) => selected.has(u.id));
@@ -45,10 +45,10 @@ export class UsersTable {
   });
 
   toggleMasterCheckbox(): void {
-    if (this.areAllSelected() || this.isIndeterminate()) {
+    if (this.areAllSelected()) {
       this.store.clearSelection();
     } else {
-      const allIds = new Set(this.store.allUsers().map((u) => u.id));
+      const allIds = new Set(this.store.users().map((u) => u.id));
       this.store.setSelectedIds(allIds);
     }
   }

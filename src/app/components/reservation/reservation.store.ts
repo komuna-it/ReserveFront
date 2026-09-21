@@ -39,7 +39,11 @@ export class ReservationStore {
   readonly reservationTableStatus = signal<ReservationStatus | null>(null);
 
   // users
-  readonly users = computed(() => this.usersPage().content);
+  readonly users = computed(() => {
+    const fileteredUsers = this.usersPage().content.filter((u) => u.nick !== 'SYSTEM');
+    return fileteredUsers;
+  });
+
   readonly userOrganizations = signal<Organization[]>([]);
 
   // orgs
