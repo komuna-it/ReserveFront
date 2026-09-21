@@ -7,12 +7,11 @@ import { Pagination } from '../../../../layout/pagination/pagination';
 import { ErrorPopup } from '../../../../modals/error-popup/error-popup';
 import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
 import { ToolbarType } from '../../../../components/toolbars/toolbarType';
-import { UserDetailsModal } from '../../../../modals/user-details-modal/user-details-modal';
 import { User } from '../../../../model/user';
 
 @Component({
   selector: 'app-users-table',
-  imports: [TableToolbar, CommonModule, TranslocoPipe, Pagination, ErrorPopup],
+  imports: [TableToolbar, CommonModule, TranslocoPipe, Pagination],
   templateUrl: './users-table.html',
   styleUrl: './users-table.css',
 })
