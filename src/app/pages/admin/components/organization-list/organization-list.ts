@@ -7,6 +7,7 @@ import {
   effect,
   input,
   signal,
+  isDevMode,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservationStore } from '../../../../components/reservation/reservation.store';
@@ -47,12 +48,21 @@ export class OrganizationList implements OnInit, OnDestroy {
     const items = this.store.organizations();
     if (items.length === 0) return false;
     const selected = this.store.toolbarSelectedIds();
-    return items.every((res) => selected.has(res.id));
+    var all = items.every((res) => selected.has(res.id));
+    if (isDevMode()) {
+      console.log('areAllSelected', all, selected, items);
+    }
+    return all;
   });
 
   readonly isIndeterminate = computed(() => {
     const selectedSize = this.store.toolbarSelectedIds().size;
     return selectedSize > 0 && !this.areAllSelected();
+    var result = selectedSize > 0 && !this.areAllSelected();
+    if (isDevMode()) {
+      console.log('isIndeterminate', result, selectedSize, this.areAllSelected());
+    }
+    return result;
   });
 
   readonly isReservationsExpanded = signal(true);
@@ -93,11 +103,20 @@ export class OrganizationList implements OnInit, OnDestroy {
   }
 
   toggleMasterCheckbox(): void {
-    if (this.areAllSelected() || this.isIndeterminate()) {
+    if (this.areAllSelected()) {
       this.store.clearSelection();
     } else {
       const allIds = new Set(this.store.organizations().map((res) => res.id));
       this.store.setSelectedIds(allIds);
+    }
+
+    if (isDevMode()) {
+      console.log(
+        'toggleMasterCheckbox this.areAllSelected(): ',
+        this.areAllSelected(),
+        'this.isIndeterminate(): ',
+        this.isIndeterminate(),
+      );
     }
   }
 

@@ -564,7 +564,9 @@ export class ReservationFacade {
   markOrganizationsAsTrusted(): void {
     const ids = Array.from(this.store.toolbarSelectedIds());
     this.api.markOrganizationsAsTrusted(ids).subscribe({
-      next: () => this.refreshOrganizations(),
+      next: () => {
+        (this.refreshOrganizations(), this.store.clearSelection());
+      },
       error: (e) => console.error(`Failed to markOrganizationsAsTrusted`, e),
     });
   }
@@ -572,7 +574,7 @@ export class ReservationFacade {
   markOrganizationsAsUntrusted(): void {
     const ids = Array.from(this.store.toolbarSelectedIds());
     this.api.markOrganizationsAsUntrusted(ids).subscribe({
-      next: () => this.refreshOrganizations(),
+      next: () => (this.refreshOrganizations(), this.store.clearSelection()),
       error: (e) => console.error(`Failed to markOrganizationsAsUnTrusted`, e),
     });
   }
@@ -909,6 +911,7 @@ export class ReservationFacade {
         this.getAllUsers();
         this.store.isBanUsersModalActive.set(false);
         this.store.isBanUsersSuccessActive.set(true);
+        this.store.clearSelection();
       },
       error: (e) => {
         console.error('Error banning userId ', userIds, ': ', e);
@@ -924,6 +927,7 @@ export class ReservationFacade {
       next: () => {
         console.log('Banned userId ', userIds);
         this.getAllUsers();
+        this.store.clearSelection();
       },
       error: (e) => {
         console.error('Error banning userId ', userIds, ': ', e);
