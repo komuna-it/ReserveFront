@@ -21,42 +21,11 @@ const refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const injector = inject(Injector);
-  const preparedReq = prepareRequest(req);
 
-  return next(preparedReq).pipe(
-    catchError((error: HttpErrorResponse) => handleHttpError(error, preparedReq, next, injector)),
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => handleHttpError(error, req, next, injector)),
   );
 };
-
-// ============================================================================
-// REQUEST PREPARATION (XSRF & Credentials)
-// ============================================================================
-
-function prepareRequest(req: HttpRequest<unknown>): HttpRequest<unknown> {
-  let clonedReq = req.clone({ withCredentials: true });
-
-  if (isReadMethod(req.method)) {
-    return clonedReq;
-  }
-
-  const xsrfToken = getCookieValue('XSRF-TOKEN');
-  if (xsrfToken) {
-    clonedReq = clonedReq.clone({
-      headers: clonedReq.headers.set('X-XSRF-TOKEN', xsrfToken),
-    });
-  }
-
-  return clonedReq;
-}
-
-function isReadMethod(method: string): boolean {
-  return method === 'GET' || method === 'HEAD';
-}
-
-function getCookieValue(name: string): string | null {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]*)'));
-  return match ? decodeURIComponent(match[2]) : null;
-}
 
 // ============================================================================
 // ERROR DISPATCHER & HANDLERS

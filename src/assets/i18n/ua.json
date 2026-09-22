@@ -335,8 +335,14 @@
     "KEY": "Параметр",
     "VALUE": "Значення",
     "NEW_VALUE": "Нове значення",
-    "DELETE_ACCOUNT": "Видалити акаунт",
-    "VIEW_POLICY": "Політика конфіденційності"
+    "DELETE_ACCOUNT": "Видалити обліковий запис",
+    "VIEW_POLICY": "Політика конфіденційності",
+    "CONTACT_PHONE": "Контактний номер телефону",
+    "CONTACT_EMAIL": "Контактна адреса електронної пошти",
+    "RESERVATION_CANCELLATION_WITHOUT_APPROVAL_HOURS": "Скасування бронювання без схвалення (години)",
+    "RESERVATION_OPENING_HOUR": "Година початку бронювання",
+    "RESERVATION_CLOSING_HOUR": "Година закриття бронювання",
+    "RESERVATION_REMINDER_HOUR": "Година нагадування про бронювання"
   },
   "CONFIRM_EMAIL": {
     "VERIFYING": "Підтвердження адреси електронної пошти...",
@@ -351,5 +357,15 @@
       "SOMEONE_WAS_FASTER": "Хтось був швидшим!",
       "HOUR_ALREADY_RESERVED": "Ця година вже заброньована"
     }
+  },
+  "SUCCESS": {
+    "ORGANIZATION_ADDED_TITLE": "Групу додано",
+    "ORGANIZATION_ADDED_DESC": "Групу успішно додано.",
+    "RESERVATION_CREATED_TITLE": "Бронювання створено",
+    "RESERVATION_CREATED_DESC": "Бронювання успішно створено.",
+    "RESERVATION_CANCELLED_TITLE": "Бронювання скасовано",
+    "RESERVATION_CANCELLED_DESC": "Бронювання успішно скасовано.",
+    "PASSWORD_UPDATED_TITLE": "Пароль змінено!",
+    "PASSWORD_UPDATED_DESC": "Ваш пароль успішно змінено."
   }
 }

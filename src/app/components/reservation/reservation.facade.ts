@@ -11,13 +11,14 @@ import { ReservationStatus } from '../../model/reservationStatus';
 import { ReservationDto } from '../../model/reservationDto';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { Booking } from '../../model/booking';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 import { TranslocoService } from '@jsverse/transloco';
 import { SettingsFacade } from '../../settings/settingsFacade';
 import { SettingsStore } from '../../settings/settingsStore';
 import { environment } from '../../../environments/environment';
 import { ErrorType } from '../../model/error/errorType';
 import { ReservationQueryParams } from '../../model/reservationQueryParams';
+import { SuccessType } from '../../model/successType';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -34,6 +35,8 @@ export class ReservationFacade {
   private apiUrl = environment.apiUrl;
   readonly errorPopupTitle = signal<string>('');
   readonly errorPopupBody = signal<string>('');
+  readonly successPopupTitle = signal<string>('');
+  readonly successPopupBody = signal<string>('');
 
   constructor() {
     this.settingsFacade.getSettings(null, true);
@@ -114,10 +117,11 @@ export class ReservationFacade {
     console.log('CreateReservationRequest:', req);
 
     this.api.postReservation(req).subscribe({
-      next: () => {
+      next: (res) => {
         this.store.selectedBooking.set(null);
         this.store.displayBookingSuccesfulPopup.set(true);
         this.getRoomsAndReservations();
+        this.loadCalendarReservationsForDay(this.store.daySelectedByUser());
       },
       error: (err) => {
         console.error('Booking error response:', err);
@@ -356,6 +360,7 @@ export class ReservationFacade {
         }));
 
         this.store.clearSelection();
+        this.getReservationsCountByStatus();
       },
       error: (err: unknown) => {
         console.error('Error updating reservation status:', err);
@@ -560,7 +565,9 @@ export class ReservationFacade {
   markOrganizationsAsTrusted(): void {
     const ids = Array.from(this.store.toolbarSelectedIds());
     this.api.markOrganizationsAsTrusted(ids).subscribe({
-      next: () => this.refreshOrganizations(),
+      next: () => {
+        (this.refreshOrganizations(), this.store.clearSelection());
+      },
       error: (e) => console.error(`Failed to markOrganizationsAsTrusted`, e),
     });
   }
@@ -568,7 +575,7 @@ export class ReservationFacade {
   markOrganizationsAsUntrusted(): void {
     const ids = Array.from(this.store.toolbarSelectedIds());
     this.api.markOrganizationsAsUntrusted(ids).subscribe({
-      next: () => this.refreshOrganizations(),
+      next: () => (this.refreshOrganizations(), this.store.clearSelection()),
       error: (e) => console.error(`Failed to markOrganizationsAsUnTrusted`, e),
     });
   }
@@ -905,6 +912,7 @@ export class ReservationFacade {
         this.getAllUsers();
         this.store.isBanUsersModalActive.set(false);
         this.store.isBanUsersSuccessActive.set(true);
+        this.store.clearSelection();
       },
       error: (e) => {
         console.error('Error banning userId ', userIds, ': ', e);
@@ -920,6 +928,7 @@ export class ReservationFacade {
       next: () => {
         console.log('Banned userId ', userIds);
         this.getAllUsers();
+        this.store.clearSelection();
       },
       error: (e) => {
         console.error('Error banning userId ', userIds, ': ', e);
@@ -1015,6 +1024,29 @@ export class ReservationFacade {
         },
         error: (e) => {
           console.error('Error postPriceForRoomId: ', e);
+        },
+      });
+  }
+
+  saveMultiplePrices(
+    updates: { roomId: number; type: ReservationType; price: number }[],
+    onComplete: () => void,
+  ) {
+    // Map our updates array to an array of your existing API Observables
+    const requests = updates.map((update) =>
+      this.api.postPriceForRoomId(update.roomId, update.type, update.price),
+    );
+
+    // Execute all requests concurrently
+    forkJoin(requests)
+      .pipe(finalize(() => onComplete()))
+      .subscribe({
+        next: () => {
+          // Refresh the rooms to get the updated prices from the backend
+          this.getRooms();
+        },
+        error: (e) => {
+          console.error('Error saving multiple prices: ', e);
         },
       });
   }
@@ -1186,5 +1218,10 @@ export class ReservationFacade {
     this.errorPopupTitle.set(titleTranslated);
     this.errorPopupBody.set(bodyTranslated);
     this.store.displayErrorPopup.set(true);
+  }
+  showSuccess(title: SuccessType) {
+    const titleTranslated = this.loco.translate(`SUCCESS.${title}`);
+    this.successPopupTitle.set(titleTranslated);
+    this.store.isSuccessPopupActive.set(true);
   }
 }

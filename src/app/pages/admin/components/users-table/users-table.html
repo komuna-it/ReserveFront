@@ -190,8 +190,4 @@
     (pageChange)="facade.changeUsersPage($event)"
     (sizeChange)="facade.changeUsersSize($event)"
   ></app-pagination>
-
-  @if (store.globalErrorKey()) {
-    <app-error-popup [titleText]="store.globalErrorKey() ?? ''"></app-error-popup>
-  }
 </div>

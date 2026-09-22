@@ -160,18 +160,18 @@
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Wpisz swój adres e-mail",
     "FORGOT_PASSWORD": "Zresetuj hasło",
-    "CANCELLED": "Odwołana",
-    "REQUESTED_CANCELLATION": "Do odwołania",
-    "REJECTED": "Odrzucona",
+    "CANCELLED": "Rezerwacja odwołana",
+    "REQUESTED_CANCELLATION": "Poproszono o odwołanie",
+    "REJECTED": "Rezerwacja odrzucona",
     "SUCCESS_MESSAGE": "Sprawdź swój e-mail, aby zresetować hasło.",
     "ERROR_GENERIC": "Niepoprawny e-mail lub konto nie istnieje"
   },
   "STATUS": {
     "CREATED": "Do potwierdzenia",
     "CONFIRMED": "Potwierdzona",
-    "CANCELLED": "Odwołana",
-    "REQUESTED_CANCELLATION": "Do odwołania",
-    "REJECTED": "Odrzucona"
+    "CANCELLED": "Rezerwacja odwołana",
+    "REQUESTED_CANCELLATION": "Poproszono o odwołanie",
+    "REJECTED": "Rezerwacja odrzucona"
   },
   "REGISTER": {
     "CLOSE": "Zamknij",
@@ -184,6 +184,7 @@
   },
   "ORGANIZATION_LIST": {
     "TITLE": "Dodaj Zespół",
+    "ADD_ORGANIZATION": "Dodaj Zespół",
     "BAND_NAME": "Nazwa zespołu",
     "CANCEL": "Anuluj",
     "ACCEPT": "Dodaj zespół",
@@ -335,7 +336,13 @@
     "VALUE": "Wartość",
     "NEW_VALUE": "Nowa wartość",
     "DELETE_ACCOUNT": "Usuń konto",
-    "VIEW_POLICY": "Polityka Prywatności"
+    "VIEW_POLICY": "Polityka prywatności",
+    "CONTACT_PHONE": "Numer telefonu kontaktowego",
+    "CONTACT_EMAIL": "Adres e-mail kontaktowy",
+    "RESERVATION_CANCELLATION_WITHOUT_APPROVAL_HOURS": "Anulowanie rezerwacji bez zatwierdzenia (godziny)",
+    "RESERVATION_OPENING_HOUR": "Godzina otwarcia rezerwacji",
+    "RESERVATION_CLOSING_HOUR": "Godzina zamknięcia rezerwacji",
+    "RESERVATION_REMINDER_HOUR": "Godzina przypomnienia o rezerwacji"
   },
   "CONFIRM_EMAIL": {
     "VERIFYING": "Weryfikacja adresu e-mail...",
@@ -355,5 +362,15 @@
     "EMAIL_INSTRUCTIONS": "Adres email wygląda na nieprawidłowy",
     "SOMEONE_WAS_FASTER": "Ktoś cię ubiegł!",
     "HOUR_ALREADY_RESERVED": "Ta godzina jest już zarezerwowana"
+  },
+  "SUCCESS": {
+    "ORGANIZATION_ADDED_TITLE": "Zespół dodany",
+    "ORGANIZATION_ADDED_DESC": "Zespół został pomyślnie dodany.",
+    "RESERVATION_CREATED_TITLE": "Rezerwacja utworzona",
+    "RESERVATION_CREATED_DESC": "Rezerwacja została pomyślnie utworzona.",
+    "RESERVATION_CANCELLED_TITLE": "Rezerwacja odwołana",
+    "RESERVATION_CANCELLED_DESC": "Rezerwacja została pomyślnie odwołana.",
+    "PASSWORD_UPDATED_TITLE": "Hasło zmienione!",
+    "PASSWORD_UPDATED_DESC": "Twoje hasło zostało pomyślnie zmienione."
   }
 }

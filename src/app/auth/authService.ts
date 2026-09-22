@@ -145,6 +145,7 @@ export class AuthService {
       }),
       catchError((error) => {
         console.error('failed to refresh token, logging out');
+        console.error('error was: ', error);
         this.executeLocalLogout();
         return throwError(() => error);
       }),

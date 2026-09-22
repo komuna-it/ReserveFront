@@ -4,15 +4,13 @@ import { ReservationStore } from '../../../../components/reservation/reservation
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Pagination } from '../../../../layout/pagination/pagination';
-import { ErrorPopup } from '../../../../modals/error-popup/error-popup';
 import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
 import { ToolbarType } from '../../../../components/toolbars/toolbarType';
-import { UserDetailsModal } from '../../../../modals/user-details-modal/user-details-modal';
 import { User } from '../../../../model/user';
 
 @Component({
   selector: 'app-users-table',
-  imports: [TableToolbar, CommonModule, TranslocoPipe, Pagination, ErrorPopup],
+  imports: [TableToolbar, CommonModule, TranslocoPipe, Pagination],
   templateUrl: './users-table.html',
   styleUrl: './users-table.css',
 })
@@ -35,7 +33,7 @@ export class UsersTable {
   }
 
   readonly areAllSelected = computed(() => {
-    const users = this.store.allUsers();
+    const users = this.store.users();
     if (users.length === 0) return false;
     const selected = this.store.toolbarSelectedIds();
     return users.every((u) => selected.has(u.id));
@@ -47,10 +45,10 @@ export class UsersTable {
   });
 
   toggleMasterCheckbox(): void {
-    if (this.areAllSelected() || this.isIndeterminate()) {
+    if (this.areAllSelected()) {
       this.store.clearSelection();
     } else {
-      const allIds = new Set(this.store.allUsers().map((u) => u.id));
+      const allIds = new Set(this.store.users().map((u) => u.id));
       this.store.setSelectedIds(allIds);
     }
   }

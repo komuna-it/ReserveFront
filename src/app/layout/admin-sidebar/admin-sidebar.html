@@ -64,7 +64,7 @@
             </span>
           } @else if (store.reservationsCount() !== null) {
             <span class="border border-emerald-500/30 px-2 py-0.5 rounded-full">
-              {{ getNumberOfReservationsByStatus(ReservationStatus.CREATED) }}
+              {{ store.reservationCountCreated() }}
             </span>
           }
         </a>
@@ -81,7 +81,7 @@
             </span>
           } @else if (store.reservationsCount() !== null) {
             <span class="border border-emerald-500/30 px-2 py-0.5 rounded-full">
-              {{ getNumberOfReservationsByStatus(ReservationStatus.REQUESTED_CANCELLATION) }}
+              {{ store.reservationCountRequestedCancellation() }}
             </span>
           }
         </a>

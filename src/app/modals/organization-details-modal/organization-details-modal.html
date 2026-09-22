@@ -4,6 +4,8 @@
   (keyup.escape)="facade.closeModals()"
   tabindex="0"
 >
+  <!-- Modal Card Wrapper -->
+  <!-- RESPONSIVE NOTE: max-w-4xl fits single-column stacked layout cleanly on desktop; p-6 on mobile, md:p-8 on desktop -->
   <div
     class="relative my-auto flex max-h-[90vh] w-full max-w-7xl flex-col rounded-xl border border-slate-800 bg-slate-900 p-6 md:p-8 text-slate-200 shadow-xl transition-all"
     (click)="$event.stopPropagation()"
@@ -93,10 +95,12 @@
       </div>
     </div>
 
-    <!-- mobile section -->
+    <!-- Scrollable Body Container -->
     <div class="custom-scrollbar overflow-y-auto pr-1.5 space-y-6 flex-1">
-      <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-        <!-- Reservations Section -->
+      <!-- Single-Column Container (Mobile & Desktop) -->
+      <!-- RESPONSIVE NOTE: Uses grid-cols-1 across ALL breakpoints to enforce a single vertical stack (1. Reservations -> 2. Owners -> 3. Members) -->
+      <div class="grid grid-cols-1 gap-5">
+        <!-- 1. RESERVATIONS SECTION -->
         <div
           class="flex flex-col justify-start rounded-xl p-4 bg-slate-800/20 border border-slate-700/30"
         >
@@ -150,7 +154,7 @@
           }
         </div>
 
-        <!-- Owners Section -->
+        <!-- 2. OWNERS SECTION -->
         <div
           class="flex flex-col justify-start rounded-xl p-4 bg-slate-800/20 border border-slate-700/30"
         >
@@ -248,7 +252,7 @@
           </div>
         </div>
 
-        <!-- Members Section -->
+        <!-- 3. MEMBERS SECTION -->
         <div
           class="flex flex-col justify-start rounded-xl p-4 bg-slate-800/20 border border-slate-700/30"
         >
@@ -286,6 +290,7 @@
               </svg>
             </div>
 
+            <!-- Accordion Content -->
             @if (isMembersExpanded()) {
               <div class="space-y-2 max-h-52 overflow-y-auto custom-scrollbar pr-1.5">
                 @for (member of members(); track member.id) {

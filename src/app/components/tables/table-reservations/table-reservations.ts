@@ -12,9 +12,7 @@ import { ReservationTableType } from '../../../model/reservationTableType';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ToolbarType } from '../../toolbars/toolbarType';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TableToolbar } from '../../toolbars/table-toolbar/table-toolbar';
 import { AuthService } from '../../../auth/authService';
-import { of } from 'rxjs';
 
 @Component({
   selector: 'app-table-reservations',
@@ -42,7 +40,8 @@ export class TableReservations {
   isCancellationPossible(res: ReservationDto): boolean {
     if (
       res.status === ReservationStatus.REQUESTED_CANCELLATION ||
-      res.status === ReservationStatus.CANCELLED
+      res.status === ReservationStatus.CANCELLED ||
+      res.status === ReservationStatus.REJECTED
     ) {
       return false;
     }

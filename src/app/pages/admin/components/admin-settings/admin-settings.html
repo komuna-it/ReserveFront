@@ -22,7 +22,7 @@
         @for (setting of settingsStore.settings(); track setting.key) {
           <tr>
             <td class="py-4 px-2 font-mono text-xs text-center break-words">
-              <span class="text-slate-400 font-medium">{{ setting.key }}</span>
+              <span class="font-medium">{{ 'SETTINGS.' + setting.key | transloco }}</span>
             </td>
 
             <td class="py-4 px-2 font-mono text-xs text-center break-words">

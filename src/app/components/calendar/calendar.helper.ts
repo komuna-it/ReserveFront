@@ -80,7 +80,7 @@ export class CalendarHelper {
     return hoursMatch ? parseInt(hoursMatch[1], 10) : 1;
   }
 
-  generatBanExpirationFromDate(dateString: Date): string {
+  generateBanExpirationFromDate(dateString: Date): string {
     const date = new Date(dateString);
     const day = date.getDate();
     console.log('day: ', day);
@@ -89,7 +89,11 @@ export class CalendarHelper {
     const startAt = date.getHours();
     const minutes = date.getMinutes();
     let minutesString = '';
-    if (minutes < 10) minutesString = `0${minutes}`;
+    if (minutes < 10) {
+      minutesString = `0${minutes}`;
+    } else {
+      minutesString = `${minutes}`;
+    }
     return `${day}.${month}.${year} ${startAt}:${minutesString}`;
   }
 

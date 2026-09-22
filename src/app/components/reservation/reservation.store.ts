@@ -31,7 +31,16 @@ export class ReservationStore {
 
   // reservations
   readonly reservations = computed(() => this.reservationsPage().content);
+
+  // readonly reservationsCount = signal<Map<ReservationStatus, number> | null>(null);
   readonly reservationsCount = signal<Map<ReservationStatus, number> | null>(null);
+  readonly reservationCountCreated = computed(
+    () => this.reservationsCount()?.get(ReservationStatus.CREATED) ?? 0,
+  );
+  readonly reservationCountRequestedCancellation = computed(
+    () => this.reservationsCount()?.get(ReservationStatus.REQUESTED_CANCELLATION) ?? 0,
+  );
+
   readonly isCountLoading = signal<boolean>(false);
   readonly newReservationEvent = signal<ReservationDto | null>(null);
   readonly lastReservationFilters = signal<ReservationQueryParams | null>(null);
@@ -39,7 +48,11 @@ export class ReservationStore {
   readonly reservationTableStatus = signal<ReservationStatus | null>(null);
 
   // users
-  readonly users = computed(() => this.usersPage().content);
+  readonly users = computed(() => {
+    const fileteredUsers = this.usersPage().content.filter((u) => u.nick !== 'SYSTEM');
+    return fileteredUsers;
+  });
+
   readonly userOrganizations = signal<Organization[]>([]);
 
   // orgs
@@ -198,6 +211,7 @@ export class ReservationStore {
   readonly isPrivateReservationCheckboxActivated = signal<boolean>(false);
   readonly isAddOrganizationModalActive = signal<boolean | null>(null);
   readonly popupConfirmationActive = signal<boolean | null>(null);
+  readonly isSuccessPopupActive = signal<boolean>(false);
 
   readonly statusForAdminPage = signal<ReservationStatus | null>(null);
   readonly organizationListSelectedUser = signal<User | null>(null);
