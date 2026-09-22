@@ -335,8 +335,14 @@
     "KEY": "Параметр",
     "VALUE": "Значення",
     "NEW_VALUE": "Нове значення",
-    "DELETE_ACCOUNT": "Видалити акаунт",
-    "VIEW_POLICY": "Політика конфіденційності"
+    "DELETE_ACCOUNT": "Видалити обліковий запис",
+    "VIEW_POLICY": "Політика конфіденційності",
+    "CONTACT_PHONE": "Контактний номер телефону",
+    "CONTACT_EMAIL": "Контактна адреса електронної пошти",
+    "RESERVATION_CANCELLATION_WITHOUT_APPROVAL_HOURS": "Скасування бронювання без схвалення (години)",
+    "RESERVATION_OPENING_HOUR": "Година початку бронювання",
+    "RESERVATION_CLOSING_HOUR": "Година закриття бронювання",
+    "RESERVATION_REMINDER_HOUR": "Година нагадування про бронювання"
   },
   "CONFIRM_EMAIL": {
     "VERIFYING": "Підтвердження адреси електронної пошти...",

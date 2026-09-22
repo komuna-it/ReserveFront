@@ -336,7 +336,13 @@
     "VALUE": "Wartość",
     "NEW_VALUE": "Nowa wartość",
     "DELETE_ACCOUNT": "Usuń konto",
-    "VIEW_POLICY": "Polityka Prywatności"
+    "VIEW_POLICY": "Polityka prywatności",
+    "CONTACT_PHONE": "Numer telefonu kontaktowego",
+    "CONTACT_EMAIL": "Adres e-mail kontaktowy",
+    "RESERVATION_CANCELLATION_WITHOUT_APPROVAL_HOURS": "Anulowanie rezerwacji bez zatwierdzenia (godziny)",
+    "RESERVATION_OPENING_HOUR": "Godzina otwarcia rezerwacji",
+    "RESERVATION_CLOSING_HOUR": "Godzina zamknięcia rezerwacji",
+    "RESERVATION_REMINDER_HOUR": "Godzina przypomnienia o rezerwacji"
   },
   "CONFIRM_EMAIL": {
     "VERIFYING": "Weryfikacja adresu e-mail...",

@@ -337,7 +337,13 @@
     "VALUE": "Value",
     "NEW_VALUE": "New Value",
     "DELETE_ACCOUNT": "Delete Account",
-    "VIEW_POLICY": "Privacy Policy"
+    "VIEW_POLICY": "Privacy Policy",
+    "CONTACT_PHONE": "Contact Phone Number",
+    "CONTACT_EMAIL": "Contact Email Address",
+    "RESERVATION_CANCELLATION_WITHOUT_APPROVAL_HOURS": "Reservation Cancellation Without Approval (Hours)",
+    "RESERVATION_OPENING_HOUR": "Reservation Opening Hour",
+    "RESERVATION_CLOSING_HOUR": "Reservation Closing Hour",
+    "RESERVATION_REMINDER_HOUR": "Reservation Reminder Hour"
   },
   "CONFIRM_EMAIL": {
     "VERIFYING": "Verifying email address...",
