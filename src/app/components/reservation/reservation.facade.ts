@@ -360,6 +360,7 @@ export class ReservationFacade {
         }));
 
         this.store.clearSelection();
+        this.getReservationsCountByStatus();
       },
       error: (err: unknown) => {
         console.error('Error updating reservation status:', err);

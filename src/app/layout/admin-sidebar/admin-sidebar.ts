@@ -1,4 +1,4 @@
-import { Component, DestroyRef, HostListener, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, HostListener, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ReservationStore } from '../../components/reservation/reservation.store';
@@ -48,12 +48,5 @@ export class AdminSidebar {
     if (window.innerWidth >= 768 && this.isMobileMenuOpen()) {
       this.closeMobileMenu();
     }
-  }
-
-  getNumberOfReservationsByStatus(status: ReservationStatus) {
-    const map = this.store.reservationsCount();
-    if (!map) return 0;
-
-    return map.get(status as ReservationStatus) || 0;
   }
 }

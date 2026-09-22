@@ -31,7 +31,16 @@ export class ReservationStore {
 
   // reservations
   readonly reservations = computed(() => this.reservationsPage().content);
+
+  // readonly reservationsCount = signal<Map<ReservationStatus, number> | null>(null);
   readonly reservationsCount = signal<Map<ReservationStatus, number> | null>(null);
+  readonly reservationCountCreated = computed(
+    () => this.reservationsCount()?.get(ReservationStatus.CREATED) ?? 0,
+  );
+  readonly reservationCountRequestedCancellation = computed(
+    () => this.reservationsCount()?.get(ReservationStatus.REQUESTED_CANCELLATION) ?? 0,
+  );
+
   readonly isCountLoading = signal<boolean>(false);
   readonly newReservationEvent = signal<ReservationDto | null>(null);
   readonly lastReservationFilters = signal<ReservationQueryParams | null>(null);

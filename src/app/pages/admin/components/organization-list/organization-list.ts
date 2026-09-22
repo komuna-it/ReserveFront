@@ -66,9 +66,7 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly isMembersExpanded = signal(true);
 
   constructor() {
-    const orgs = this.store.organizations();
-
-    if (this.auth.isAdmin()) {
+    if (this.mode() === 'admin') {
       this.facade.getOrganizations(true, null);
     } else {
       const user = this.auth.currentUser();
@@ -80,13 +78,6 @@ export class OrganizationList implements OnInit, OnDestroy {
       this.store.currentOrganizationsPage();
       this.store.currentOrganizationsSize();
     });
-    if (this.auth.isAdmin()) {
-      this.store.toolbarType.set(ToolbarType.ADMIN_ORGANIZATIONS);
-      this.facade.getOrganizations(true, null);
-    }
-    // else {
-    //   if (user) this.facade.getOrganizations(true, user.id);
-    // }
   }
 
   ngOnInit(): void {}
