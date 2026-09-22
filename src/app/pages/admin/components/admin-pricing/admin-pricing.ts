@@ -1,17 +1,15 @@
-import { Component, OnInit, inject, effect } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
 import { ReservationStore } from '../../../../components/reservation/reservation.store';
 import { ReservationType } from '../../../../model/reservationType';
 import { Room } from '../../../../model/room';
-import { AddRoomModal } from '../../../../modals/add-room-modal/add-room-modal';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-admin-pricing',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslocoPipe],
+  imports: [CommonModule, TranslocoPipe],
   templateUrl: './admin-pricing.html',
 })
 export class AdminPricing implements OnInit {
@@ -19,38 +17,59 @@ export class AdminPricing implements OnInit {
   readonly store = inject(ReservationStore);
   readonly ResType = ReservationType;
 
-  constructor() {
-    effect(() => {
-      this.store.rooms();
-    });
-    this.facade.getRooms();
-  }
+  // Key: "roomId-type" (e.g., "1-REHEARSAL"), Value: Update Object
+  readonly pendingChanges = signal<
+    Map<string, { roomId: number; type: ReservationType; price: number }>
+  >(new Map());
+  isSavingPrices = false;
 
   ngOnInit(): void {
     this.facade.getRooms();
   }
 
-  toggleRecordable(roomId: number, currentStatus: boolean): void {
-    this.facade.isRoomRecordable(roomId, !currentStatus);
+  // Called every time an input value changes
+  onPriceChange(room: Room, type: ReservationType, newValueStr: string): void {
+    const originalPrice = this.getOriginalPrice(room, type);
+    const newPrice = Number(newValueStr);
+    const key = `${room.id}-${type}`;
+
+    // Update the signal map
+    this.pendingChanges.update((map) => {
+      const updatedMap = new Map(map);
+
+      if (newPrice !== originalPrice && !isNaN(newPrice)) {
+        // Value changed: add or update it in the map
+        updatedMap.set(key, { roomId: room.id, type, price: newPrice });
+      } else {
+        // Value reverted to original: remove it from the map
+        updatedMap.delete(key);
+      }
+
+      return updatedMap;
+    });
   }
 
-  savePrice(roomId: number, type: ReservationType, price: number): void {
-    this.facade.postPriceForRoomId(roomId, type, Number(price) || 0);
-  }
-
-  isSaving(roomId: number, type: ReservationType): boolean {
-    const loading = this.store.pricingLoadingState();
-    return loading?.roomId === roomId && loading?.type === type;
-  }
-
-  getPrice(room: Room, type: ReservationType): number {
+  getOriginalPrice(room: Room, type: ReservationType): number {
     if (!room?.pricing) return 0;
-
     if (Array.isArray(room.pricing)) {
       return room.pricing.find((p) => p.reservationType === type)?.price ?? 0;
     }
-
     return (room.pricing as Record<string, number>)[type] ?? 0;
+  }
+
+  saveChanges(): void {
+    const updates = Array.from(this.pendingChanges().values());
+    if (updates.length === 0) return;
+
+    this.isSavingPrices = true;
+    this.facade.saveMultiplePrices(updates, () => {
+      this.isSavingPrices = false;
+      this.pendingChanges.set(new Map()); // Clear pending changes on success
+    });
+  }
+
+  toggleRecordable(roomId: number, currentStatus: boolean): void {
+    this.facade.isRoomRecordable(roomId, !currentStatus);
   }
 
   handleCreateRoom() {

@@ -11,7 +11,7 @@ import { ReservationStatus } from '../../model/reservationStatus';
 import { ReservationDto } from '../../model/reservationDto';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { Booking } from '../../model/booking';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 import { TranslocoService } from '@jsverse/transloco';
 import { SettingsFacade } from '../../settings/settingsFacade';
 import { SettingsStore } from '../../settings/settingsStore';
@@ -1024,6 +1024,29 @@ export class ReservationFacade {
         },
         error: (e) => {
           console.error('Error postPriceForRoomId: ', e);
+        },
+      });
+  }
+
+  saveMultiplePrices(
+    updates: { roomId: number; type: ReservationType; price: number }[],
+    onComplete: () => void,
+  ) {
+    // Map our updates array to an array of your existing API Observables
+    const requests = updates.map((update) =>
+      this.api.postPriceForRoomId(update.roomId, update.type, update.price),
+    );
+
+    // Execute all requests concurrently
+    forkJoin(requests)
+      .pipe(finalize(() => onComplete()))
+      .subscribe({
+        next: () => {
+          // Refresh the rooms to get the updated prices from the backend
+          this.getRooms();
+        },
+        error: (e) => {
+          console.error('Error saving multiple prices: ', e);
         },
       });
   }

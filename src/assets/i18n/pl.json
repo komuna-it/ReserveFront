@@ -160,18 +160,18 @@
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Wpisz swój adres e-mail",
     "FORGOT_PASSWORD": "Zresetuj hasło",
-    "CANCELLED": "Odwołana",
-    "REQUESTED_CANCELLATION": "Do odwołania",
-    "REJECTED": "Odrzucona",
+    "CANCELLED": "Rezerwacja odwołana",
+    "REQUESTED_CANCELLATION": "Poproszono o odwołanie",
+    "REJECTED": "Rezerwacja odrzucona",
     "SUCCESS_MESSAGE": "Sprawdź swój e-mail, aby zresetować hasło.",
     "ERROR_GENERIC": "Niepoprawny e-mail lub konto nie istnieje"
   },
   "STATUS": {
     "CREATED": "Do potwierdzenia",
     "CONFIRMED": "Potwierdzona",
-    "CANCELLED": "Odwołana",
-    "REQUESTED_CANCELLATION": "Do odwołania",
-    "REJECTED": "Odrzucona"
+    "CANCELLED": "Rezerwacja odwołana",
+    "REQUESTED_CANCELLATION": "Poproszono o odwołanie",
+    "REJECTED": "Rezerwacja odrzucona"
   },
   "REGISTER": {
     "CLOSE": "Zamknij",
