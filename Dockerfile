@@ -3,10 +3,12 @@ FROM node:22-alpine AS build
 WORKDIR /app
 
 ARG MODE=production
-ENV NODE_ENV=$MODE
 
 COPY package*.json ./
+
 RUN npm ci
+
+ENV NODE_ENV=$MODE
 
 COPY . .
 
