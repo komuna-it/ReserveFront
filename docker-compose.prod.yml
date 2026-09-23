@@ -6,7 +6,7 @@ services:
         MODE: production
     container_name: reserve-frontend
     ports:
-      - '80:80'
+      - '8080:80'
       - '443:443'
     volumes:
       - /etc/letsencrypt/live/yourdomain.com:/etc/nginx/certs:ro
