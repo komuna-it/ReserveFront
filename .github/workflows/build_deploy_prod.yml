@@ -2,8 +2,7 @@ name: Build and Deploy Angular
 
 on:
   push:
-    tags:
-      - '*'
+    branches: [main]
 
 env:
   WORK_DIR: ${{ secrets.WORK_DIR }}/docker-frontend
