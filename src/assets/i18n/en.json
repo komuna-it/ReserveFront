@@ -373,5 +373,23 @@
     "RESERVATION_CANCELLED_DESC": "Reservation successfully cancelled.",
     "PASSWORD_UPDATED_TITLE": "Password Changed!",
     "PASSWORD_UPDATED_DESC": "Your password has been successfully changed."
+  },
+  "LANDING": {
+    "OUR_ROOMS": "Our rooms",
+    "CHOOSE_ROOM": "Choose a room that suits your needs. Professional equipment and excellent acoustics guarantee top-quality rehearsals.",
+    "RECORDING_AVAILABLE": "Audio recording available",
+    "RECORDING_UNAVAILABLE": "Audio recording unavailable",
+    "HERO_TITLE_1": "Book rehearsal rooms",
+    "HERO_TITLE_HIGHLIGHT": "online",
+    "BENEFIT_1": "View a clear calendar showing available slots for each room.",
+    "BENEFIT_2": "Book via the website. No need for calls or text messages.",
+    "BENEFIT_3": "Receive a confirmation email as soon as a staff member approves the booking.",
+    "QUICK_LINKS": "Select a room:",
+    "RECORDING_YES": "Recording available",
+    "RECORDING_NO": "Recording not available",
+    "PRICING": "Pricing",
+    "PER_HOUR": "PLN / h",
+    "MAP_TITLE": "Toruń, 5C Dworcowa St.",
+    "MODAL_IMG_ALT": "Enlarged photo of the room"
   }
 }

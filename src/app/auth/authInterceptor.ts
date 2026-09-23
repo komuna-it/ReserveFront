@@ -4,7 +4,7 @@ import {
   HttpHandlerFn,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { inject, Injector } from '@angular/core';
+import { inject, Injector, isDevMode } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { AuthService } from './authService';
@@ -77,8 +77,9 @@ function handle401Unauthorized(
   authService: AuthService,
   originalError: HttpErrorResponse,
 ): Observable<any> {
-  console.info('Catched 401 unauthorized, trying to refresh acess token...');
-
+  if (isDevMode()) {
+    console.info('Catched 401 unauthorized, trying to refresh acess token...');
+  }
   if (isRefreshing) {
     return waitForTokenRefresh(req, next, originalError);
   }
