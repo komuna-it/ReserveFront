@@ -372,5 +372,23 @@
     "RESERVATION_CANCELLED_DESC": "Rezerwacja została pomyślnie odwołana.",
     "PASSWORD_UPDATED_TITLE": "Hasło zmienione!",
     "PASSWORD_UPDATED_DESC": "Twoje hasło zostało pomyślnie zmienione."
+  },
+  "LANDING": {
+    "OUR_ROOMS": "Nasze sale",
+    "CHOOSE_ROOM": "Wybierz salę dopasowaną do Twoich potrzeb. Profesjonalny sprzęt i świetna akustyka gwarantują najwyższą jakość prób.",
+    "RECORDING_AVAILABLE": "Nagrywanie audio",
+    "RECORDING_UNAVAILABLE": "Nagrywanie audio niedostępne",
+    "HERO_TITLE_1": "Rezerwuj sale prób",
+    "HERO_TITLE_HIGHLIGHT": "online",
+    "BENEFIT_1": "Widzisz przejrzysty kalendarz z dostępnymi terminami dla każdej sali.",
+    "BENEFIT_2": "Zapisy przez stronę internetową. Bez dzwonienia i pisania SMS-ów.",
+    "BENEFIT_3": "Otrzymujesz maila z potwierdzeniem terminu zaraz po akceptacji pracownika.",
+    "QUICK_LINKS": "Wybierz salę:",
+    "RECORDING_YES": "Możliwość nagrywania",
+    "RECORDING_NO": "Brak możliwości nagrywania",
+    "PRICING": "Cennik",
+    "PER_HOUR": "PLN / h",
+    "MAP_TITLE": "Toruń, ul. Dworcowa 5C",
+    "MODAL_IMG_ALT": "Powiększone zdjęcie sali"
   }
 }

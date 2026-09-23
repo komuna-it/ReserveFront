@@ -1,35 +1,46 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReservationStore } from '../../components/reservation/reservation.store';
+import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { TranslocoModule, TranslocoPipe } from '@jsverse/transloco';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'home-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, TranslocoPipe, TranslocoModule],
   templateUrl: './home.html',
-  styleUrls: ['./home.css']
+  styleUrls: ['./home.css'],
 })
 export class HomePage {
-  images = [
-    'assets/images/tlo1.jfif',
-    'assets/images/tlo2.png',
-    'assets/images/tlo3.jpg'
-  ];
+  readonly store = inject(ReservationStore);
+  readonly facade = inject(ReservationFacade);
+  readonly selectedImage = signal<string | null>(null);
 
-  current = signal(0);
-
-  constructor() {
-    setInterval(() => {
-      this.next();
-    }, 5000);
+  ngOnInit() {
+    this.facade.getRooms();
   }
 
-  next() {
-    this.current.set((this.current() + 1) % this.images.length);
+  getImagesForRoom(roomName: string): string[] {
+    const folder = roomName
+      .toLowerCase()
+      .replace('ł', 'l')
+      .replace('ś', 's')
+      .replace('ą', 'a')
+      .replace('ę', 'e')
+      .replace('ć', 'c')
+      .replace('ż', 'z');
+    return [
+      `assets/images/${folder}/${folder}-1.jpeg`,
+      `assets/images/${folder}/${folder}-2.jpeg`,
+      `assets/images/${folder}/${folder}-3.jpeg`,
+    ];
   }
 
-  prev() {
-    this.current.set((this.current() - 1 + this.images.length) % this.images.length);
+  scrollToRoom(roomId: number) {
+    const element = document.getElementById(`room-${roomId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
-
-  currentImage = computed(() => this.images[this.current()]);
 }

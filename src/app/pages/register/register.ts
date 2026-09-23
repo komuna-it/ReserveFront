@@ -12,7 +12,7 @@ import { SuccessPopup } from '../../modals/success-popup/success-popup';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, FormsModule, TranslocoPipe, SuccessPopup],
+  imports: [CommonModule, FormsModule, TranslocoPipe],
   standalone: true,
   templateUrl: './register.html',
   styleUrl: './register.css',
