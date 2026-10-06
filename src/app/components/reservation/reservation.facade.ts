@@ -21,6 +21,7 @@ import { ReservationQueryParams } from '../../model/reservationQueryParams';
 import { SuccessType } from '../../model/successType';
 import { ConfirmationType } from '../../model/confirmationType';
 import { TextFormatingTool } from '../../tools/textFormatingTool';
+import { User } from '../../model/user';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -793,6 +794,44 @@ export class ReservationFacade {
     this.api.getUserByEmail(email).subscribe({
       next: (u) => console.log('fetched user by email: ', u),
       error: (e) => console.log('error fetching user by email: ', e),
+    });
+  }
+
+  promoteUserToAdmin(userId: number): void {
+    this.api.promoteUserToAdmin(userId).subscribe({
+      next: (updatedUser) => {
+        const selected = this.store.selectedUser();
+        if (selected && selected.id === userId) {
+          this.store.selectedUser.set({
+            ...selected,
+            role: 'ADMIN',
+          });
+        }
+        this.getAllUsers();
+      },
+      error: (e) => {
+        console.error('Error promoting user to admin: ', e);
+        this.store.globalErrorKey.set(e);
+      },
+    });
+  }
+
+  demoteAdminToUser(userId: number): void {
+    this.api.demoteAdminToUser(userId).subscribe({
+      next: (updatedUser) => {
+        const selected = this.store.selectedUser();
+        if (selected && selected.id === userId) {
+          this.store.selectedUser.set({
+            ...selected,
+            role: 'USER',
+          });
+        }
+        this.getAllUsers();
+      },
+      error: (e) => {
+        console.error('Error demoting user from admin: ', e);
+        this.store.globalErrorKey.set(e);
+      },
     });
   }
 

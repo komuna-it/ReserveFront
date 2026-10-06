@@ -1,4 +1,13 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  HostListener,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { ReservationStore } from '../../components/reservation/reservation.store';
 import { ReservationFacade } from '../../components/reservation/reservation.facade';
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
@@ -27,6 +36,36 @@ export class UserDetailsModal {
 
   readonly user = input.required<User | null>();
   readonly resTableType = ReservationTableType.ADMIN_USER_DETAILS;
+  readonly isMenuOpen = signal<boolean>(false);
+  private elementRef = inject(ElementRef);
+
+  toggleMenu(event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.isMenuOpen.update((open) => !open);
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.closeMenu();
+    }
+  }
+
+  promoteToAdmin(userId: number): void {
+    this.facade.promoteUserToAdmin(userId);
+    this.closeMenu();
+  }
+
+  demoteFromAdmin(userId: number): void {
+    this.facade.demoteAdminToUser(userId);
+    this.closeMenu();
+  }
 
   constructor() {
     const currentUser = this.store.selectedUser();

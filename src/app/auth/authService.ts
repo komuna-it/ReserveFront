@@ -28,6 +28,11 @@ export class AuthService {
       this.currentUserSignal()?.role === 'ADMIN' || this.currentUserSignal()?.role === 'MANAGER'
     );
   });
+
+  readonly isManager = computed(() => {
+    return this.currentUserSignal()?.role === 'MANAGER';
+  });
+
   private apiUrl = environment.apiUrl;
   private refreshTimeout: any;
 

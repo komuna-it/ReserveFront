@@ -8,6 +8,7 @@
     class="relative my-auto flex max-h-[90vh] w-full max-w-7xl flex-col rounded-xl border border-slate-800 bg-slate-900 p-6 md:p-8 text-slate-200 shadow-xl transition-all"
     (click)="$event.stopPropagation()"
   >
+    <!-- header -->
     <div class="flex items-center justify-between pb-4 border-b border-slate-700 mb-6">
       <div class="flex items-center gap-3">
         <div
@@ -24,24 +25,104 @@
         </h2>
       </div>
 
-      <button
-        type="button"
-        (click)="facade.closeModals()"
-        class="text-slate-400 hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-slate-700/50"
-      >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          ></path>
-        </svg>
-      </button>
+      <!-- action buttons -->
+      <div class="flex items-center gap-2">
+        <!-- Kebab Menu-->
+        <div class="relative">
+          <button
+            type="button"
+            (click)="toggleMenu($event)"
+            class="text-slate-400 hover:text-slate-200 transition-colors p-1.5 rounded-lg hover:bg-slate-700/50 focus:outline-none"
+            title="Opcje"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
+              ></path>
+            </svg>
+          </button>
+
+          <!-- Dropdown Menu -->
+          @if (isMenuOpen()) {
+            <div
+              class="absolute right-0 mt-2 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl py-1 z-50 text-xs divide-y divide-slate-700/60"
+            >
+              @if (auth.isManager()) {
+                <div class="py-1">
+                  @if (store.selectedUser()?.role !== 'ADMIN') {
+                    <button
+                      type="button"
+                      (click)="promoteToAdmin(store.selectedUser()!.id)"
+                      class="w-full text-left px-4 py-2.5 text-emerald-400 hover:bg-slate-700/60 flex items-center gap-2.5 transition-colors font-medium"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M4.5 12.75l6 6 9-13.5"
+                        />
+                      </svg>
+                      <span>Awansuj na Admina</span>
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      (click)="demoteFromAdmin(store.selectedUser()!.id)"
+                      class="w-full text-left px-4 py-2.5 text-rose-400 hover:bg-slate-700/60 flex items-center gap-2.5 transition-colors font-medium"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                      <span>Zdegraduj z Admina</span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- modal closebutton -->
+        <button
+          type="button"
+          (click)="facade.closeModals()"
+          class="text-slate-400 hover:text-slate-200 transition-colors p-1.5 rounded-lg hover:bg-slate-700/50"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+      </div>
     </div>
 
+    <!-- modal -->
     <div class="overflow-y-auto space-y-6 pr-1">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- user's details -->
         <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50">
           @if (store.selectedUser(); as user) {
             <div class="space-y-2 text-sm">
@@ -54,45 +135,48 @@
                 <span class="text-slate-400">{{ 'USERS_TABLE.EMAIL' | transloco }}:</span>
                 <span class="font-medium text-slate-200">{{ user.email }}</span>
               </p>
+
               <p class="flex justify-between border-b border-slate-800 pb-1.5">
                 <span class="text-slate-400">{{ 'USERS_TABLE.IS_BANNED' | transloco }}</span>
                 <span class="font-medium text-slate-200">
-                  {{ tool.getIsUserBannedText(user) }}</span
-                >
+                  {{ tool.getIsUserBannedText(user) }}
+                </span>
               </p>
+
               <p class="flex justify-between border-b border-slate-800 pb-1.5">
                 <span class="text-slate-400">{{ 'USERS_TABLE.IS_TRUESTED' | transloco }}</span>
-                <span class="font-medium text-slate-200">{{
-                  tool.getIsUserTrustedText(user)
-                }}</span>
+                <span class="font-medium text-slate-200">
+                  {{ tool.getIsUserTrustedText(user) }}
+                </span>
               </p>
+
               @if (user.banDto) {
                 <p class="flex justify-between border-b border-slate-800 pb-1.5">
                   <span class="text-slate-400">{{ 'USERS_TABLE.BANNED_AT' | transloco }}</span>
                   <span class="font-medium text-slate-200">
-                    {{ helper.generateBanExpirationFromDate(user.banDto.bannedAt) }}</span
-                  >
+                    {{ helper.generateBanExpirationFromDate(user.banDto.bannedAt) }}
+                  </span>
                 </p>
                 <p class="flex justify-between border-b border-slate-800 pb-1.5">
                   <span class="text-slate-400">{{ 'USERS_TABLE.BANNED_UNTIL' | transloco }}</span>
                   <span class="font-medium text-slate-200">
-                    {{ helper.generateBanExpirationFromDate(user.banDto.banExpires) }}</span
-                  >
+                    {{ helper.generateBanExpirationFromDate(user.banDto.banExpires) }}
+                  </span>
                 </p>
                 <p class="flex justify-between border-b border-slate-800 pb-1.5">
                   <span class="text-slate-400">{{ 'USERS_TABLE.REASON' | transloco }}</span>
-                  <span class="font-medium text-slate-200"> {{ user.banDto.reason }}</span>
+                  <span class="font-medium text-slate-200">{{ user.banDto.reason }}</span>
                 </p>
                 <p class="flex justify-between border-b border-slate-800 pb-1.5">
                   <span class="text-slate-400">{{ 'USERS_TABLE.BANNED_BY' | transloco }}</span>
-                  <span class="font-medium text-slate-200"> {{ user.banDto.bannedBy.nick }}</span>
+                  <span class="font-medium text-slate-200">{{ user.banDto.bannedBy.nick }}</span>
                 </p>
               }
             </div>
           }
         </div>
 
-        <!-- orgs -->
+        <!-- user's orgs -->
         <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50">
           <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
             {{ 'ADMIN_RESERVATIONS.USERS_ORGANIZATIONS' | transloco }}
@@ -111,7 +195,7 @@
         </div>
       </div>
 
-      <!-- reserv -->
+      <!-- user's reservations -->
       <div>
         <h3 class="text-base font-bold text-slate-100 mb-3">
           {{ 'ADMIN_RESERVATIONS.USERS_OR_THEIR_ORGS_RESERVATIONS' | transloco }}
@@ -119,6 +203,8 @@
         <app-table-reservations [type]="resTableType"></app-table-reservations>
       </div>
     </div>
+
+    <!-- footer -->
     <div class="flex justify-center w-full mt-4 pt-4">
       <button
         (click)="facade.closeModals()"

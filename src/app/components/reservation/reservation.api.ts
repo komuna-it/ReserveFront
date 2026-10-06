@@ -54,6 +54,14 @@ export class ReservationApi {
     return this.http.post(`${this.apiUrl}/organizations`, { name });
   }
 
+  promoteUserToAdmin(userId: number): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/users/assigneUser/${userId}/role/ADMIN`, {});
+  }
+
+  demoteAdminToUser(userId: number): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/users/assigneUser/${userId}/role/USER`, {});
+  }
+
   promoteMemberToOwner(userId: number, organizationId: number): Observable<OrganizationMemberDto> {
     return this.http.patch<OrganizationMemberDto>(
       `${this.apiUrl}/organizations/assigneUser/${userId}/role/OWNER/toOrganization/${organizationId}`,
