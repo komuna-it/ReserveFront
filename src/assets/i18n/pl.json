@@ -172,7 +172,8 @@
     "CONFIRMED": "Potwierdzona",
     "CANCELLED": "Rezerwacja odwołana",
     "REQUESTED_CANCELLATION": "Poproszono o odwołanie",
-    "REJECTED": "Rezerwacja odrzucona"
+    "REJECTED": "Rezerwacja odrzucona",
+    "REJECTED_CANCELLATION": "Potwierdzona (Prośba o odwołanie odrzucona)"
   },
   "REGISTER": {
     "CLOSE": "Zamknij",

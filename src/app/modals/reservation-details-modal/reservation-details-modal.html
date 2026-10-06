@@ -138,12 +138,23 @@
               {{ 'BUTTONS.CANCEL' | transloco }}
             </button>
           } @else if (res.status === ReservationStatus.REQUESTED_CANCELLATION) {
-            <button
-              (click)="facade.showConfirmation(ConfirmationType.RESERVATION_CANCEL, res)"
-              class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
-            >
-              {{ 'BUTTONS.CANCEL' | transloco }}
-            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                (click)="facade.showConfirmation(ConfirmationType.RESERVATION_CANCEL, res)"
+                class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
+              >
+                {{ 'BUTTONS.CANCEL' | transloco }}
+              </button>
+
+              <button
+                (click)="
+                  facade.showConfirmation(ConfirmationType.RESERVATION_REQUEST_CANCEL_REJECT, res)
+                "
+                class="border border-green w-full px-3 py-2.5 text-xs font-semibold rounded-lg hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
+              >
+                {{ 'ADMIN_RESERVATIONS.REJECT_CANCELLATION_REQUESTS' | transloco }}
+              </button>
+            </div>
           }
         } @else {
           <button

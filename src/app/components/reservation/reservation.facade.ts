@@ -1266,6 +1266,7 @@ export class ReservationFacade {
       case ConfirmationType.RESERVATION_ACCEPT:
       case ConfirmationType.RESERVATION_REJECT:
       case ConfirmationType.RESERVATION_REQUEST_CANCEL:
+      case ConfirmationType.RESERVATION_REQUEST_CANCEL_REJECT:
         break;
     }
 
@@ -1299,6 +1300,9 @@ export class ReservationFacade {
         break;
       case ConfirmationType.RESERVATION_REQUEST_CANCEL:
         this.updateReservationsStatus(ReservationStatus.REQUESTED_CANCELLATION);
+        break;
+      case ConfirmationType.RESERVATION_REQUEST_CANCEL_REJECT:
+        this.updateReservationsStatus(ReservationStatus.REJECTED_CANCELLATION);
         break;
     }
   }

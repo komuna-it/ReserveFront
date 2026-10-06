@@ -174,9 +174,16 @@ export class TableReservations {
 
       case ReservationTableType.ADMIN_BY_STATUS:
         this.store.toolbarType.set(ToolbarType.RESERVATIONS);
+
         if (currentStatus) {
           this.facade.getReservations({
-            statuses: new Set<ReservationStatus>([currentStatus]),
+            statuses:
+              currentStatus === ReservationStatus.CONFIRMED
+                ? new Set<ReservationStatus>([
+                    currentStatus,
+                    ReservationStatus.REJECTED_CANCELLATION,
+                  ])
+                : new Set<ReservationStatus>([currentStatus]),
             future: this.store.toolbarOnlyFuture(),
           });
         }
