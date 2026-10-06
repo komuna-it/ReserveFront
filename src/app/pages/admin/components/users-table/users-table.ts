@@ -21,6 +21,7 @@ export class UsersTable {
   readonly toolbarType = ToolbarType.USERS;
 
   constructor() {
+    console.log('UsersTable constructor');
     this.store.toolbarType.set(ToolbarType.USERS);
     effect(() => {
       this.store.currentSortBy();

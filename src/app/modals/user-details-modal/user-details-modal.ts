@@ -26,18 +26,20 @@ export class UserDetailsModal {
   readonly textFormatingTool = inject(TextFormatingTool);
 
   readonly user = input.required<User | null>();
-  resTableType = ReservationTableType.ADMIN_USER_DETAILS;
+  readonly resTableType = ReservationTableType.ADMIN_USER_DETAILS;
 
   constructor() {
-    effect(() => {
-      const currentUser = this.user();
+    const currentUser = this.store.selectedUser();
 
+    effect(() => {
       if (currentUser) {
+        console.log('UserDetailsModal Getting all reservations for user: ', currentUser.id);
         this.facade.getReservations({
           future: this.store.toolbarOnlyFuture(),
           userId: currentUser.id,
         });
-        this.facade.getOrganizations(true, currentUser.id);
+        console.log('UserDetailsModal Getting all organizations for user: ', currentUser.id);
+        this.facade.getOrganizations(false, currentUser.id);
       }
       console.table(currentUser);
     });

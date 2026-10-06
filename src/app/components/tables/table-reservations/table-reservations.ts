@@ -85,8 +85,6 @@ export class TableReservations {
     }
   }
 
-  // BY STATUS checkbox-ing
-
   readonly areAllSelected = computed(() => {
     const items = this.store.reservations();
     if (items.length === 0) return false;
@@ -113,24 +111,7 @@ export class TableReservations {
   }
 
   constructor() {
-    const loggedUser = this.auth.currentUser();
-
-    if (this.auth.isAdmin()) {
-      this.facade.getOrganizations(true, null);
-    } else if (loggedUser) {
-      this.facade.getOrganizations(true, loggedUser.id);
-    }
-
     effect(() => this.initializeTable());
-
-    const type = this.type();
-    const status = this.status();
-    if (type) {
-      this.store.reservationTableType.set(type);
-    }
-    if (status) {
-      this.store.reservationTableStatus.set(status);
-    }
   }
 
   initializeTable() {
@@ -138,6 +119,13 @@ export class TableReservations {
     const loggedUser = this.auth.currentUser();
     const selectedUser = this.store.selectedUser();
     const currentStatus = this.status();
+
+    if (tableType) {
+      this.store.reservationTableType.set(tableType);
+    }
+    if (currentStatus) {
+      this.store.reservationTableStatus.set(currentStatus);
+    }
 
     const params = this.queryParams();
     const page = this.store.currentReservationsPage();
@@ -165,16 +153,20 @@ export class TableReservations {
 
     switch (tableType) {
       case ReservationTableType.USER_PROFILE:
-        if (loggedUser)
+        if (loggedUser) {
+          this.facade.getOrganizations(true, loggedUser.id);
           this.facade.getReservations({
             future: this.store.toolbarOnlyFuture(),
             userId: loggedUser.id,
           });
+        }
         break;
 
       case ReservationTableType.ADMIN_BY_STATUS:
         this.store.toolbarType.set(ToolbarType.RESERVATIONS);
-
+        if (this.auth.isAdmin()) {
+          this.facade.getOrganizations(true, null);
+        }
         if (currentStatus) {
           this.facade.getReservations({
             statuses:
@@ -202,13 +194,13 @@ export class TableReservations {
 
       case ReservationTableType.ADMIN_USER_DETAILS:
         this.store.toolbarType.set(ToolbarType.RESERVATIONS);
-        if (currentStatus && selectedUser)
+        if (currentStatus && selectedUser) {
           this.facade.getReservations({
             statuses: new Set<ReservationStatus>([currentStatus]),
             future: this.store.toolbarOnlyFuture(),
             userId: selectedUser.id,
           });
-
+        }
         break;
     }
   }
