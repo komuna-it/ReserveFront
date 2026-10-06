@@ -7,8 +7,8 @@
     "REGISTER": "Register",
     "PROFILE": "Profile",
     "LOGOUT": "Log Out",
-    "LANGUAGE": "Language",
-    "RESERVATIONS_MOBILE": "Reservations"
+    "RESERVATIONS_MOBILE": "Reservations",
+    "LANGUAGE": "Language"
   },
   "CALENDAR": {
     "PREVIOUS_WEEK": "Previous",
@@ -103,24 +103,24 @@
     "NO": "No",
     "UNAUTHENTICATED": "Unauthenticated",
     "TAB_RESERVATIONS": "My Reservations",
-    "CREATE_Band_TITLE": "Create a new band",
-    "Band_NAME_LABEL": "Band Name",
-    "CREATE_Band_BTN": "Create Band",
-    "Band_RESERVATIONS_HEADING": "History & current reservations",
+    "CREATE_TEAM_TITLE": "Create a new band",
+    "TEAM_NAME_LABEL": "Band Name",
+    "CREATE_TEAM_BTN": "Create Band",
+    "TEAM_RESERVATIONS_HEADING": "History & current reservations",
     "REFRESH_DATA": "Refresh Data",
     "TABLE_INDEX": "No.",
     "TABLE_ROOM": "Room",
     "TABLE_START_DATE": "Start Date",
     "TABLE_DURATION": "Duration",
     "TABLE_DATE": "Date",
-    "TABLE_Band": "Band",
+    "TABLE_TEAM": "Band",
     "TABLE_CANCEL": "Cancel",
     "TABLE_REMOVE": "Remove",
     "ROOM_PREFIX": "Room",
     "CANCEL_BTN": "Request Cancellation",
     "CANCEL_BTN_DISABLED": "Too late to cancel",
     "CONFIRM_CANCEL_TITLE": "Are you sure you want to cancel?",
-    "Band_MEMBERS_TITLE": "Band Members",
+    "TEAM_MEMBERS_TITLE": "Band Members",
     "MEMBER_NICK": "Nickname",
     "MEMBER_EMAIL": "Email Address",
     "REMOVE_BTN": "Remove Member",
@@ -155,7 +155,8 @@
     "REJECT": "Reject",
     "SAVE": "Save",
     "DELETE": "Delete",
-    "NAVIGATE_TO_LOGIN": "Go to login"
+    "NAVIGATE_TO_LOGIN": "Go to login",
+    "ACCEPT": "Accept"
   },
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Enter your email address",
@@ -171,7 +172,8 @@
     "CONFIRMED": "Confirmed",
     "CANCELLED": "Cancelled",
     "REQUESTED_CANCELLATION": "Pending cancellation",
-    "REJECTED": "Rejected"
+    "REJECTED": "Rejected",
+    "REJECTED_CANCELLATION": "Confirmed (Cancellation request rejected)"
   },
   "REGISTER": {
     "CLOSE": "Close",
@@ -182,7 +184,6 @@
     "INVALID_DATA": "Invalid registration data. Please check your details and try again.",
     "EMAIL_EXISTS": "An account with this email address already exists."
   },
-
   "ORGANIZATION_LIST": {
     "TITLE": "Add Band",
     "ADD_ORGANIZATION": "Add Band",
@@ -372,7 +373,28 @@
     "RESERVATION_CANCELLED_TITLE": "Reservation Cancelled",
     "RESERVATION_CANCELLED_DESC": "Reservation successfully cancelled.",
     "PASSWORD_UPDATED_TITLE": "Password Changed!",
-    "PASSWORD_UPDATED_DESC": "Your password has been successfully changed."
+    "PASSWORD_UPDATED_DESC": "Your password has been successfully changed.",
+    "RESERVATION_CONFIRMED_TITLE": "Reservation confirmed"
+  },
+  "CONFIRMATION": {
+    "RESERVATION_CANCEL": {
+      "TITLE": "Confirm reservation cancellation",
+      "BODY": "Are you sure you want to request cancellation for {{organization}}, {{date}} {{startHour}} - {{endHour}}? The request will be sent to staff.",
+      "BODY_ORGANIZATION_ADMIN": "Are you sure you want to cancel the reservation for {{organization}}, {{date}} {{startHour}} - {{endHour}}?",
+      "BODY_PRIVATE_ADMIN": "Are you sure you want to cancel the reservation for {{reservedBy}}, {{date}} {{startHour}} - {{endHour}}?"
+    },
+    "RESERVATION_ACCEPT": {
+      "TITLE": "Confirm reservation acceptance",
+      "BODY": "Are you sure you want to accept the reservation for {{organization}}, {{date}} {{startHour}} - {{endHour}}?"
+    },
+    "RESERVATION_REJECT": {
+      "TITLE": "Confirm reservation rejection",
+      "BODY": "Are you sure you want to reject the reservation for {{organization}}, {{date}} {{startHour}} - {{endHour}}?"
+    },
+    "RESERVATION_REQUEST_CANCEL": {
+      "TITLE": "Confirm cancellation request acceptance",
+      "BODY": "Are you sure you want to accept the cancellation request for {{organization}}, {{date}} {{startHour}} - {{endHour}}?"
+    }
   },
   "LANDING": {
     "OUR_ROOMS": "Our rooms",
@@ -391,5 +413,13 @@
     "PER_HOUR": "PLN / h",
     "MAP_TITLE": "Toruń, 5C Dworcowa St.",
     "MODAL_IMG_ALT": "Enlarged photo of the room"
+  },
+  "LOGIN": {
+    "ERRORS": {
+      "INVALID_CREDENTIALS": "Invalid email address / password or account inactive",
+      "NO_CONNECTION": "No connection to server",
+      "UNEXPECTED_ERROR": "An unexpected error occurred. Please try again later",
+      "BANNED_UNTIL": "Account is blocked until {{date}} {{time}} UTC"
+    }
   }
 }
