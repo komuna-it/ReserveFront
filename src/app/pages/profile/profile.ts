@@ -27,8 +27,6 @@ import { ReservationDetailsModal } from '../../modals/reservation-details-modal/
     RouterOutlet,
     TranslocoPipe,
     ConfirmationPopup,
-    AddOrganizationModal,
-    SuccessPopup,
     UserSidebar,
     OrganizationDetailsModal,
     AddUserIntoOrganizationModal,
@@ -63,26 +61,26 @@ export class ProfilePage implements OnInit, OnDestroy {
     return '';
   }
 
-  getBodyText(): string {
-    if (this.store.isAddOrganizationModalActive()) {
-      return '';
-    }
-    const res = this.store.selectedReservation();
-    if (!res) return '';
+  // getBodyText(): string {
+  //   if (this.store.isAddOrganizationModalActive()) {
+  //     return '';
+  //   }
+  //   const res = this.store.selectedReservation();
+  //   if (!res) return '';
 
-    const params = {
-      organization: this.textFormatingTool.bandText(res),
-      date: this.textFormatingTool.dateColumnText(res),
-      startHour: this.textFormatingTool.startAtText(res),
-      endHour: this.textFormatingTool.endAtText(res),
-    };
+  //   const params = {
+  //     organization: this.textFormatingTool.bandText(res),
+  //     date: this.textFormatingTool.dateColumnText(res),
+  //     startHour: this.textFormatingTool.startAtText(res),
+  //     endHour: this.textFormatingTool.endAtText(res),
+  //   };
 
-    if (this.store.confirmMarkReservationAsRequestCancel()) {
-      return this.translocoService.translate('USER_MODALS.CONFIRM_REQUEST_CANCEL_BODY', params);
-    }
+  //   if (this.store.confirmMarkReservationAsRequestCancel()) {
+  //     return this.translocoService.translate('USER_MODALS.CONFIRM_REQUEST_CANCEL_BODY', params);
+  //   }
 
-    return '';
-  }
+  //   return '';
+  // }
 
   ngOnInit(): void {
     const user = this.authService.currentUser();
@@ -102,15 +100,13 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.sseController) {
-      this.sseController.abort();
-    }
+    this.facade.disconnectStream();
   }
 
-  openRequestCancellation(res: ReservationDto): void {
-    this.facade.openConfirmationUpdateReservationsStatus(
-      [res],
-      ReservationStatus.REQUESTED_CANCELLATION,
-    );
-  }
+  // openRequestCancellation(res: ReservationDto): void {
+  //   this.facade.openConfirmationUpdateReservationsStatus(
+  //     [res],
+  //     ReservationStatus.REQUESTED_CANCELLATION,
+  //   );
+  // }
 }

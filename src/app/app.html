@@ -8,17 +8,26 @@
 
 @if (store.displayErrorPopup()) {
   <app-error-popup
-    [titleText]="facade.errorPopupTitle()"
-    [bodyText]="facade.errorPopupBody()"
+    [titleText]="store.errorPopupTitle()"
+    [bodyText]="store.errorPopupBody()"
     (ok)="store.displayErrorPopup.set(false)"
   />
 }
 
 @if (store.isSuccessPopupActive()) {
   <app-success-popup
-    [titleText]="facade.successPopupTitle()"
-    [bodyText]="facade.successPopupBody()"
+    [titleText]="store.successPopupTitle()"
+    [bodyText]="store.successPopupBody()"
     (ok)="store.isSuccessPopupActive.set(false)"
+  />
+}
+
+@if (store.isConfirmationPopupActive()) {
+  <app-confirmation-popup
+    [titleText]="store.confirmationPopupTitle()"
+    [bodyText]="store.confirmationPopupBody()"
+    (ok)="facade.handleConfirmationOk()"
+    (cancel)="facade.handleConfirmationCancel()"
   />
 }
 

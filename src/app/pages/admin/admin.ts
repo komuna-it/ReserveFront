@@ -29,7 +29,6 @@ import { ReservationDetailsModal } from '../../modals/reservation-details-modal/
     RouterOutlet,
     AdminSidebar,
     TranslocoPipe,
-    ErrorPopup,
     BanModal,
     OrganizationDetailsModal,
     AddUserIntoOrganizationModal,

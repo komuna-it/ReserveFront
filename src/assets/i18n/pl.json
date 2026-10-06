@@ -155,7 +155,8 @@
     "REJECT": "Odrzuć",
     "SAVE": "Zapisz",
     "DELETE": "Usuń",
-    "NAVIGATE_TO_LOGIN": "Przejdź do logowania"
+    "NAVIGATE_TO_LOGIN": "Przejdź do logowania",
+    "ACCEPT": "Akceptuj"
   },
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Wpisz swój adres e-mail",
@@ -171,7 +172,8 @@
     "CONFIRMED": "Potwierdzona",
     "CANCELLED": "Rezerwacja odwołana",
     "REQUESTED_CANCELLATION": "Poproszono o odwołanie",
-    "REJECTED": "Rezerwacja odrzucona"
+    "REJECTED": "Rezerwacja odrzucona",
+    "REJECTED_CANCELLATION": "Potwierdzona (Prośba o odwołanie odrzucona)"
   },
   "REGISTER": {
     "CLOSE": "Zamknij",
@@ -235,8 +237,8 @@
     "CONFIRM_DELETE_ACCOUNT": "Czy na pewno chcesz usunąć konto?"
   },
   "ADMIN_RESERVATIONS": {
-    "IS_PRIVATE": "Tak",
-    "IS_NOT_PRIVATE": "Nie",
+    "IS_PRIVATE": "Prywatna",
+    "IS_NOT_PRIVATE": "Nie prywatna",
     "ACCEPT": "Akceptuj",
     "REJECT": "Odwołaj",
     "NO_RESERVATIONS": "Brak rezerwacji do wyświetlenia",
@@ -371,7 +373,28 @@
     "RESERVATION_CANCELLED_TITLE": "Rezerwacja odwołana",
     "RESERVATION_CANCELLED_DESC": "Rezerwacja została pomyślnie odwołana.",
     "PASSWORD_UPDATED_TITLE": "Hasło zmienione!",
-    "PASSWORD_UPDATED_DESC": "Twoje hasło zostało pomyślnie zmienione."
+    "PASSWORD_UPDATED_DESC": "Twoje hasło zostało pomyślnie zmienione.",
+    "RESERVATION_CONFIRMED_TITLE": "Rezerwacja potwierdzona"
+  },
+  "CONFIRMATION": {
+    "RESERVATION_CANCEL": {
+      "TITLE": "Potwierdź odwołanie rezerwacji",
+      "BODY": "Czy na pewno chcesz poprosić o odwołanie rezerwacji zespołu {{organization}}, {{date}} {{startHour}} - {{endHour}}? Prośba trafi do pracownika.",
+      "BODY_ORGANIZATION_ADMIN": "Czy na pewno chcesz odwołać rezerwację zespołu {{organization}}, {{date}} {{startHour}} - {{endHour}}?",
+      "BODY_PRIVATE_ADMIN": "Czy na pewno chcesz odwołać rezerwację {{reservedBy}}, {{date}} {{startHour}} - {{endHour}}?"
+    },
+    "RESERVATION_ACCEPT": {
+      "TITLE": "Potwierdź akceptację rezerwacji",
+      "BODY": "Czy na pewno chcesz zaakceptować rezerwację zespołu {{organization}}, {{date}} {{startHour}} - {{endHour}}?"
+    },
+    "RESERVATION_REJECT": {
+      "TITLE": "Potwierdź odrzucenie rezerwacji",
+      "BODY": "Czy na pewno chcesz odrzucić rezerwację {{organization}}, {{date}} {{startHour}} - {{endHour}}?"
+    },
+    "RESERVATION_REQUEST_CANCEL": {
+      "TITLE": "Potwierdź akceptację prośby o odwołanie rezerwacji",
+      "BODY": "Czy na pewno chcesz zaakceptować prośbę o odwołanie rezerwacji {{organization}}, {{date}} {{startHour}} - {{endHour}}?"
+    }
   },
   "LANDING": {
     "OUR_ROOMS": "Nasze sale",
@@ -390,5 +413,13 @@
     "PER_HOUR": "PLN / h",
     "MAP_TITLE": "Toruń, ul. Dworcowa 5C",
     "MODAL_IMG_ALT": "Powiększone zdjęcie sali"
+  },
+  "LOGIN": {
+    "ERRORS": {
+      "INVALID_CREDENTIALS": "Nieprawidłowy adres e-mail / hasło lub konto nieaktywne",
+      "NO_CONNECTION": "Brak połączenia z serwerem",
+      "UNEXPECTED_ERROR": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później",
+      "BANNED_UNTIL": "Konto jest zablokowane do {{date}} {{time}} UTC"
+    }
   }
 }

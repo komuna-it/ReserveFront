@@ -155,7 +155,8 @@
     "REJECT": "Відхилити",
     "SAVE": "Зберегти",
     "DELETE": "Видалити",
-    "NAVIGATE_TO_LOGIN": "Перейти до входу"
+    "NAVIGATE_TO_LOGIN": "Перейти до входу",
+    "ACCEPT": "Прийняти"
   },
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Введіть вашу електронну пошту",
@@ -171,7 +172,8 @@
     "CONFIRMED": "Підтверджено",
     "CANCELLED": "Скасовано",
     "REQUESTED_CANCELLATION": "Запит на скасування",
-    "REJECTED": "Відхилено"
+    "REJECTED": "Відхилено",
+    "REJECTED_CANCELLATION": "Підтверджено (Запит на скасування відхилено)"
   },
   "REGISTER": {
     "CLOSE": "Закрити",
@@ -183,8 +185,8 @@
     "EMAIL_EXISTS": "Акаунт з цією електронною поштою вже існує."
   },
   "ORGANIZATION_LIST": {
-    "ADD_ORGANIZATION": "Dodaj zespół",
     "TITLE": "Додати команду",
+    "ADD_ORGANIZATION": "Додати команду",
     "BAND_NAME": "Назва команди",
     "CANCEL": "Скасувати",
     "ACCEPT": "Додати команду",
@@ -349,14 +351,19 @@
     "SUCCESS_TITLE": "Email підтверджено!",
     "SUCCESS_DESC": "Вашу електронну пошту успішно підтверджено. Тепер ви можете увійти до свого акаунта.",
     "PROCEED_TO_LOGIN": "Перейти до входу",
+    "PROCEED_TO_CALENDAR": "Перейти до календаря",
     "FAILED_TITLE": "Помилка підтвердження",
     "BACK_TO_LOGIN": "Повернутися до входу",
     "ERRORS": {
       "MISSING_TOKEN": "Токен підтвердження відсутній в URL-адресі.",
-      "CONFIRMATION_FAILED": "Не вдалося підтвердити email або токен закінчився.",
-      "SOMEONE_WAS_FASTER": "Хтось був швидшим!",
-      "HOUR_ALREADY_RESERVED": "Ця година вже заброньована"
+      "CONFIRMATION_FAILED": "Не вдалося підтвердити email або токен закінчився."
     }
+  },
+  "ERRORS": {
+    "PASSWORD_INSTRUCTIONS": "Пароль повинен містити принаймні одну велику літеру, одну маленьку літеру та одну цифру. Пароль повинен бути від 8 до 64 символів.",
+    "EMAIL_INSTRUCTIONS": "Адреса електронної пошти виглядає некоректною",
+    "SOMEONE_WAS_FASTER": "Хтось був швидшим!",
+    "HOUR_ALREADY_RESERVED": "Ця година вже заброньована"
   },
   "SUCCESS": {
     "ORGANIZATION_ADDED_TITLE": "Групу додано",
@@ -366,7 +373,28 @@
     "RESERVATION_CANCELLED_TITLE": "Бронювання скасовано",
     "RESERVATION_CANCELLED_DESC": "Бронювання успішно скасовано.",
     "PASSWORD_UPDATED_TITLE": "Пароль змінено!",
-    "PASSWORD_UPDATED_DESC": "Ваш пароль успішно змінено."
+    "PASSWORD_UPDATED_DESC": "Ваш пароль успішно змінено.",
+    "RESERVATION_CONFIRMED_TITLE": "Бронювання підтверджено"
+  },
+  "CONFIRMATION": {
+    "RESERVATION_CANCEL": {
+      "TITLE": "Підтвердіть скасування бронювання",
+      "BODY": "Ви дійсно бажаєте запросити скасування бронювання групи {{organization}}, {{date}} {{startHour}} - {{endHour}}? Запит буде надіслано адміністратору.",
+      "BODY_ORGANIZATION_ADMIN": "Ви дійсно бажаєте скасувати бронювання групи {{organization}}, {{date}} {{startHour}} - {{endHour}}?",
+      "BODY_PRIVATE_ADMIN": "Ви дійсно бажаєте скасувати бронювання {{reservedBy}}, {{date}} {{startHour}} - {{endHour}}?"
+    },
+    "RESERVATION_ACCEPT": {
+      "TITLE": "Підтвердіть прийняття бронювання",
+      "BODY": "Ви дійсно бажаєте прийняти бронювання групи {{organization}}, {{date}} {{startHour}} - {{endHour}}?"
+    },
+    "RESERVATION_REJECT": {
+      "TITLE": "Підтвердіть відхилення бронювання",
+      "BODY": "Ви дійсно бажаєте відхилити бронювання {{organization}}, {{date}} {{startHour}} - {{endHour}}?"
+    },
+    "RESERVATION_REQUEST_CANCEL": {
+      "TITLE": "Підтвердіть прийняття запиту на скасування бронювання",
+      "BODY": "Ви дійсно бажаєте прийняти запит на скасування бронювання {{organization}}, {{date}} {{startHour}} - {{endHour}}?"
+    }
   },
   "LANDING": {
     "OUR_ROOMS": "Наші кімнати",
@@ -379,12 +407,19 @@
     "BENEFIT_2": "Зареєструйтесь онлайн. Телефонувати чи писати текстові повідомлення не потрібно.",
     "BENEFIT_3": "Отримайте електронний лист із підтвердженням вашої дати одразу після схвалення співробітником.",
     "QUICK_LINKS": "Виберіть кімнату:",
-
     "RECORDING_YES": "Запис можливий",
     "RECORDING_NO": "Запис неможливий",
-    "PRICING": "Ціна список",
+    "PRICING": "Ціни",
     "PER_HOUR": "PLN / год",
     "MAP_TITLE": "Торунь, вул. Дворцова 5C",
     "MODAL_IMG_ALT": "Збільшене фото кімнати"
+  },
+  "LOGIN": {
+    "ERRORS": {
+      "INVALID_CREDENTIALS": "Невірний email / пароль або акаунт неактивний",
+      "NO_CONNECTION": "Немає з'єднання з сервером",
+      "UNEXPECTED_ERROR": "Сталася неочікувана помилка. Спробуйте пізніше",
+      "BANNED_UNTIL": "Акаунт заблоковано до {{date}} {{time}} UTC"
+    }
   }
 }

@@ -58,7 +58,6 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly isIndeterminate = computed(() => {
     const selectedSize = this.store.toolbarSelectedIds().size;
     return selectedSize > 0 && !this.areAllSelected();
-    var result = selectedSize > 0 && !this.areAllSelected();
   });
 
   readonly isReservationsExpanded = signal(true);
@@ -66,12 +65,6 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly isMembersExpanded = signal(true);
 
   constructor() {
-    if (this.mode() === 'admin') {
-      this.facade.getOrganizations(true, null);
-    } else {
-      const user = this.auth.currentUser();
-      if (user) this.facade.getOrganizations(true, user.id);
-    }
     effect(() => {
       this.store.currentSortBy();
       this.store.currentSortDir();
@@ -80,7 +73,14 @@ export class OrganizationList implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (this.mode() === 'admin') {
+      this.facade.getOrganizations(true, null);
+    } else {
+      const user = this.auth.currentUser();
+      if (user) this.facade.getOrganizations(true, user.id);
+    }
+  }
 
   ngOnDestroy(): void {
     if (this.mode() === 'admin') {

@@ -13,17 +13,13 @@ import { Organization } from '../model/organization';
 export class TextFormatingTool {
   readonly translocoService = inject(TranslocoService);
   readonly store = inject(ReservationStore);
-  readonly facade = inject(ReservationFacade);
   readonly helper = inject(CalendarHelper);
   readonly authService = inject(AuthService);
   readonly loco = inject(TranslocoService);
 
   // reservation modals & popups texts
 
-  constructor() {
-    this.facade.getRooms();
-    this.facade.getAllUsers();
-  }
+  constructor() {}
 
   bandText(res: ReservationDto): string {
     {
@@ -105,11 +101,29 @@ export class TextFormatingTool {
     return this.helper.generateDurationLabel(res.startAt, res.duration);
   }
 
-  reservedByLabel(reservation: ReservationDto): string {
-    const org = this.store.userOrganizations().find((o) => o.id === reservation.organization);
+  reservationDetailsModalReservedByText(res: ReservationDto): string {
+    const reservedByUser = this.store.users().find((u) => u.id === res.reservedBy);
+    const reservedByNick = reservedByUser?.nick ?? 'No nick found';
+    const reservedByEmail = reservedByUser?.email ?? 'No email found';
 
-    return org ? `${org.name}` : this.translocoService.translate('USER_MODALS.PRIVATE');
+    return `${reservedByNick} (${reservedByEmail})`;
   }
+
+  reservationDetailsModalOrganizationText(res: ReservationDto): string {
+    const organization = this.store.organizations().find((o) => o.id === res.organization);
+    return organization?.name ?? this.privateReservationText(res);
+  }
+
+  // reservedByLabel(reservation: ReservationDto): string {
+  //   if (this.authService.isAdmin()) {
+  //     const user = this.store.users().find((u) => u.id === reservation.reservedBy);
+  //     return user ? `${user.nick}` : this.translocoService.translate('USER_MODALS.PRIVATE');
+  //   }
+
+  //   const org = this.store.userOrganizations().find((o) => o.id === reservation.organization);
+
+  //   return org ? `${org.name}` : this.translocoService.translate('USER_MODALS.PRIVATE');
+  // }
 
   getStatusText(res: ReservationDto): string {
     switch (res.status) {

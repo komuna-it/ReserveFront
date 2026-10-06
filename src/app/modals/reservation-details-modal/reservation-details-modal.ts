@@ -9,6 +9,7 @@ import { ReservationStatus } from '../../model/reservationStatus';
 import { AuthService } from '../../auth/authService';
 import { ReservationDto } from '../../model/reservationDto';
 import { NgClass } from '@angular/common';
+import { ConfirmationType } from '../../model/confirmationType';
 
 @Component({
   selector: 'app-reservation-details-modal',
@@ -23,6 +24,7 @@ export class ReservationDetailsModal {
   readonly loco = inject(TranslocoService);
   readonly ReservationStatus = ReservationStatus;
   readonly helper = inject(CalendarHelper);
+  readonly ConfirmationType = ConfirmationType;
 
   readonly activeReservation = computed(() => {
     const explicitlySelected = this.store.selectedReservation();
@@ -64,6 +66,14 @@ export class ReservationDetailsModal {
     id.add(res.id);
     this.store.toolbarSelectedIds.set(id);
     this.facade.updateReservationsStatus(ReservationStatus.REQUESTED_CANCELLATION);
+    this.facade.closeModals();
+  }
+
+  acceptReservation(res: ReservationDto) {
+    const id = new Set<number>();
+    id.add(res.id);
+    this.store.toolbarSelectedIds.set(id);
+    this.facade.updateReservationsStatus(ReservationStatus.CONFIRMED);
     this.facade.closeModals();
   }
 }
