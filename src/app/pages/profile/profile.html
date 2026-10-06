@@ -8,12 +8,12 @@
   </main>
 </div>
 
-@if (store.confirmMarkReservationAsRequestCancel() && store.selectedReservation(); as res) {
+@if (store.isConfirmationPopupActive()) {
   <app-confirmation-popup
-    [titleText]="getTitleText()"
-    [bodyText]="getBodyText()"
-    (ok)="openRequestCancellation(res)"
-    (cancel)="facade.closeModals()"
+    [titleText]="store.confirmationPopupTitle()"
+    [bodyText]="store.confirmationPopupBody()"
+    (ok)="facade.handleConfirmationOk()"
+    (cancel)="facade.handleConfirmationCancel()"
   ></app-confirmation-popup>
 }
 

@@ -6,6 +6,7 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { TextFormatingTool } from '../../tools/textFormatingTool';
+import { ReservationStatus } from '../../model/reservationStatus';
 
 @Component({
   selector: 'app-calendar-hour',
@@ -36,6 +37,8 @@ export class CalendarHour {
 
   readonly slotClick = output<void>();
 
+  readonly isCreated = computed(() => this.reservation()?.status === ReservationStatus.CREATED);
+
   readonly canViewDetails = computed(() => {
     if (!this.isReserved()) return false;
     if (this.authService.isAdmin()) return true;
@@ -58,10 +61,10 @@ export class CalendarHour {
     let borderClasses = '';
 
     if (isFirst && isLast) {
-      shapeClasses = 'rounded-xl h-[calc(100%-4px)]  ';
+      shapeClasses = 'rounded-xl h-[calc(100%-4px)]';
       borderClasses = 'border';
     } else if (isFirst && !isLast) {
-      shapeClasses = 'rounded-t-xl h-[calc(100%-2px)] ';
+      shapeClasses = 'rounded-t-xl h-[calc(100%-2px)]';
       borderClasses = 'border-t border-x border-b-0';
     } else if (!isFirst && isLast) {
       shapeClasses = 'rounded-b-xl h-[calc(100%-2px)] mb-0.5 mt-0';
@@ -71,8 +74,17 @@ export class CalendarHour {
       borderClasses = 'border-x border-t-0 border-b-0';
     }
 
+    const isCreatedStatus = this.isCreated();
+
     if (this.canViewDetails()) {
+      if (isCreatedStatus) {
+        return `bg-amber-500/20 text-amber-300 ${borderClasses} border-dashed border-amber-500/60 hover:bg-amber-500/30 cursor-pointer ${shapeClasses}`;
+      }
       return `bg-blue-500/20 text-blue-300 ${borderClasses} border-blue-500/40 hover:bg-blue-500/30 cursor-pointer ${shapeClasses}`;
+    }
+
+    if (isCreatedStatus) {
+      return `bg-yellow-500/10 text-green-400/60 ${borderClasses} border-green-500/30 cursor-not-allowed ${shapeClasses}`;
     }
 
     return `bg-red-500/20 text-red-300 ${borderClasses} border-red-500/40 cursor-not-allowed ${shapeClasses}`;
@@ -82,9 +94,17 @@ export class CalendarHour {
     if (!this.isReserved() || !this.canViewDetails()) return '';
 
     const res = this.reservation();
+    const text = res ? this.tool.reservedByText(res) : 'Private';
 
-    if (res) return this.tool.reservedByText(res);
-    return 'Private';
+    if (this.isCreated()) {
+      return ` ${text}`;
+    }
+
+    if (this.reservation()?.status === ReservationStatus.REQUESTED_CANCELLATION) {
+      return ` ❌ ${text}`;
+    }
+
+    return text;
   });
 
   onCellClick(): void {

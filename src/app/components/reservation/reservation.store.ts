@@ -18,6 +18,7 @@ import { ToolbarType } from '../toolbars/toolbarType';
 import { Booking } from '../../model/booking';
 import { ReservationTableType } from '../../model/reservationTableType';
 import { ReservationQueryParams } from '../../model/reservationQueryParams';
+import { ConfirmationType } from '../../model/confirmationType';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
@@ -212,6 +213,7 @@ export class ReservationStore {
   readonly isAddOrganizationModalActive = signal<boolean | null>(null);
   readonly popupConfirmationActive = signal<boolean | null>(null);
   readonly isSuccessPopupActive = signal<boolean>(false);
+  readonly isConfirmationPopupActive = signal<boolean>(false);
 
   readonly statusForAdminPage = signal<ReservationStatus | null>(null);
   readonly organizationListSelectedUser = signal<User | null>(null);
@@ -394,4 +396,14 @@ export class ReservationStore {
   // settings
   readonly availableLanguages = signal<string[]>(['pl', 'en', 'ua']);
   readonly selectedLanguage = this.loco.activeLang();
+
+  // ================= modals control =================
+  readonly errorPopupTitle = signal<string>('');
+  readonly errorPopupBody = signal<string>('');
+  readonly successPopupTitle = signal<string>('');
+  readonly successPopupBody = signal<string>('');
+  readonly confirmationPopupTitle = signal<string>('');
+  readonly confirmationPopupBody = signal<string>('');
+  readonly pendingConfirmationType = signal<ConfirmationType | null>(null);
+  readonly pendingConfirmationReservation = signal<ReservationDto | null>(null);
 }

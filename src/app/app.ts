@@ -6,11 +6,12 @@ import { ReservationStore } from './components/reservation/reservation.store';
 import { ReservationFacade } from './components/reservation/reservation.facade';
 import { ErrorPopup } from './modals/error-popup/error-popup';
 import { SuccessPopup } from './modals/success-popup/success-popup';
+import { ConfirmationPopup } from './modals/confirmation-popup/confirmation-popup';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, Navbar, CookieBarComponent, ErrorPopup, SuccessPopup],
+  imports: [RouterOutlet, Navbar, CookieBarComponent, ErrorPopup, SuccessPopup, ConfirmationPopup],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
 })

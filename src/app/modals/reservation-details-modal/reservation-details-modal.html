@@ -55,14 +55,18 @@
               <span class="block text-xs text-slate-500 mb-0.5">{{
                 'ADMIN_RESERVATIONS.RESERVED_BY' | transloco
               }}</span>
-              <span class="text-slate-200"> {{ tool.reservedByText(res) }} </span>
+              <span class="text-slate-200">
+                {{ tool.reservationDetailsModalReservedByText(res) }}
+              </span>
             </div>
 
             <div>
               <span class="block text-xs text-slate-500 mb-0.5">{{
                 'ADMIN_RESERVATIONS.ORGANIZATION' | transloco
               }}</span>
-              <span class="text-slate-200">{{ tool.bandText(res) }}</span>
+              <span class="text-slate-200">{{
+                tool.reservationDetailsModalOrganizationText(res)
+              }}</span>
             </div>
           </div>
 
@@ -113,21 +117,14 @@
           @if (res.status === ReservationStatus.CREATED) {
             <div class="grid grid-cols-2 gap-2">
               <button
-                (click)="
-                  facade.openConfirmationUpdateReservationsStatus(
-                    [res],
-                    ReservationStatus.CONFIRMED
-                  )
-                "
+                (click)="acceptReservation(res)"
                 class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md active:scale-95"
               >
                 {{ 'BUTTONS.ACCEPT' | transloco }}
               </button>
 
               <button
-                (click)="
-                  facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.REJECTED)
-                "
+                (click)="facade.showConfirmation(ConfirmationType.RESERVATION_REJECT, res)"
                 class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
               >
                 {{ 'BUTTONS.REJECT' | transloco }}
@@ -135,18 +132,14 @@
             </div>
           } @else if (res.status === ReservationStatus.CONFIRMED) {
             <button
-              (click)="
-                facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.REJECTED)
-              "
+              (click)="facade.showConfirmation(ConfirmationType.RESERVATION_REJECT, res)"
               class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
             >
-              {{ 'BUTTONS.REJECT' | transloco }}
+              {{ 'BUTTONS.CANCEL' | transloco }}
             </button>
           } @else if (res.status === ReservationStatus.REQUESTED_CANCELLATION) {
             <button
-              (click)="
-                facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.CANCELLED)
-              "
+              (click)="facade.showConfirmation(ConfirmationType.RESERVATION_CANCEL, res)"
               class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
             >
               {{ 'BUTTONS.CANCEL' | transloco }}

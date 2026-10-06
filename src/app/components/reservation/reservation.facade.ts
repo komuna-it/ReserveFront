@@ -19,6 +19,8 @@ import { environment } from '../../../environments/environment';
 import { ErrorType } from '../../model/error/errorType';
 import { ReservationQueryParams } from '../../model/reservationQueryParams';
 import { SuccessType } from '../../model/successType';
+import { ConfirmationType } from '../../model/confirmationType';
+import { TextFormatingTool } from '../../tools/textFormatingTool';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -33,13 +35,12 @@ export class ReservationFacade {
   public settingsStore = inject(SettingsStore);
   private readonly route = inject(ActivatedRoute);
   private apiUrl = environment.apiUrl;
-  readonly errorPopupTitle = signal<string>('');
-  readonly errorPopupBody = signal<string>('');
-  readonly successPopupTitle = signal<string>('');
-  readonly successPopupBody = signal<string>('');
+  readonly textFormatingTool = inject(TextFormatingTool);
 
   constructor() {
     this.settingsFacade.getSettings(null, true);
+    this.getRooms();
+    this.getAllUsers();
   }
 
   refreshOrganizations() {
@@ -336,12 +337,12 @@ export class ReservationFacade {
       if (singleId) idsToProcess.add(singleId);
     }
 
-    if (!selectedIds || idsToProcess.size === 0) {
+    if (idsToProcess.size === 0) {
       console.error('No reservation IDs selected for status update');
       return;
     }
 
-    this.api.updateReservationsStatus(selectedIds, targetStatus).subscribe({
+    this.api.updateReservationsStatus(idsToProcess, targetStatus).subscribe({
       next: () => {
         if (this.authService.isAdmin()) {
           const status = this.store.statusForAdminPage();
@@ -354,11 +355,15 @@ export class ReservationFacade {
 
         this.store.reservationsPage.update((currentPage) => ({
           ...currentPage,
-          content: currentPage.content.map((res) =>
-            idsToProcess.has(res.id) ? { ...res, status: targetStatus } : res,
-          ),
+          content: currentPage.content
+            .map((res) => (idsToProcess.has(res.id) ? { ...res, status: targetStatus } : res))
+            .filter(
+              (res) =>
+                res.status !== ReservationStatus.CANCELLED &&
+                res.status !== ReservationStatus.REJECTED &&
+                res.status !== ReservationStatus.REQUESTED_CANCELLATION,
+            ),
         }));
-
         this.store.clearSelection();
         this.getReservationsCountByStatus();
       },
@@ -562,11 +567,13 @@ export class ReservationFacade {
       error: (e) => console.error(`Failed to markOrganizationsAsUntrusted`, e),
     });
   }
+
   markOrganizationsAsTrusted(): void {
     const ids = Array.from(this.store.toolbarSelectedIds());
     this.api.markOrganizationsAsTrusted(ids).subscribe({
       next: () => {
-        (this.refreshOrganizations(), this.store.clearSelection());
+        this.refreshOrganizations();
+        this.store.clearSelection();
       },
       error: (e) => console.error(`Failed to markOrganizationsAsTrusted`, e),
     });
@@ -823,6 +830,9 @@ export class ReservationFacade {
     this.store.confirmMarkReservationAsCanceled.set(false);
     this.store.isModalAddMemberActive.set(false);
     this.store.isAdminOrganizationModalActive.set(false);
+    this.store.isConfirmationPopupActive.set(false);
+    this.store.pendingConfirmationType.set(null);
+    this.store.pendingConfirmationReservation.set(null);
   }
 
   handleClickBanUsers() {
@@ -860,8 +870,6 @@ export class ReservationFacade {
     reservations: ReservationDto[],
     status: ReservationStatus,
   ) {
-    const res = new Set<number>(this.store.selectedReservations()?.map((r) => r.id));
-
     this.store.selectedReservations.set(reservations);
     this.closeModals();
 
@@ -1215,13 +1223,89 @@ export class ReservationFacade {
   showError(title: ErrorType, body: ErrorType) {
     const titleTranslated = this.loco.translate(`ERRORS.${title}`);
     const bodyTranslated = this.loco.translate(`ERRORS.${body}`);
-    this.errorPopupTitle.set(titleTranslated);
-    this.errorPopupBody.set(bodyTranslated);
+    this.store.errorPopupTitle.set(titleTranslated);
+    this.store.errorPopupBody.set(bodyTranslated);
     this.store.displayErrorPopup.set(true);
   }
+
   showSuccess(title: SuccessType) {
     const titleTranslated = this.loco.translate(`SUCCESS.${title}`);
-    this.successPopupTitle.set(titleTranslated);
+    this.store.successPopupTitle.set(titleTranslated);
     this.store.isSuccessPopupActive.set(true);
+  }
+
+  showConfirmation(type: ConfirmationType, res: ReservationDto) {
+    this.store.pendingConfirmationType.set(type);
+    this.store.pendingConfirmationReservation.set(res);
+
+    const params = {
+      organization: this.textFormatingTool.reservationDetailsModalOrganizationText(res),
+      date: this.textFormatingTool.dateColumnText(res),
+      startHour: this.textFormatingTool.startAtText(res),
+      endHour: this.textFormatingTool.endAtText(res),
+      reservedBy: this.textFormatingTool.reservationDetailsModalReservedByText(res),
+    };
+
+    let titleTranslated = this.loco.translate(`CONFIRMATION.${type}.TITLE`);
+    let bodyTranslated = this.loco.translate(`CONFIRMATION.${type}.BODY`, params);
+
+    switch (type) {
+      case ConfirmationType.RESERVATION_CANCEL:
+        if (this.authService.isAdmin()) {
+          if (res.organization === null || res.organization === undefined) {
+            bodyTranslated = this.loco.translate(`CONFIRMATION.${type}.BODY_PRIVATE_ADMIN`, params);
+          } else {
+            bodyTranslated = this.loco.translate(
+              `CONFIRMATION.${type}.BODY_ORGANIZATION_ADMIN`,
+              params,
+            );
+          }
+        }
+        break;
+
+      case ConfirmationType.RESERVATION_ACCEPT:
+      case ConfirmationType.RESERVATION_REJECT:
+      case ConfirmationType.RESERVATION_REQUEST_CANCEL:
+        break;
+    }
+
+    this.store.confirmationPopupTitle.set(titleTranslated);
+    this.store.confirmationPopupBody.set(bodyTranslated);
+    this.store.isConfirmationPopupActive.set(true);
+  }
+
+  handleConfirmationOk(): void {
+    const type = this.store.pendingConfirmationType();
+    const res = this.store.pendingConfirmationReservation();
+
+    this.store.isConfirmationPopupActive.set(false);
+    this.store.pendingConfirmationType.set(null);
+    this.store.pendingConfirmationReservation.set(null);
+
+    if (!res || !type) return;
+
+    const idSet = new Set<number>([res.id]);
+    this.store.toolbarSelectedIds.set(idSet);
+
+    switch (type) {
+      case ConfirmationType.RESERVATION_CANCEL:
+        this.updateReservationsStatus(ReservationStatus.CANCELLED);
+        break;
+      case ConfirmationType.RESERVATION_REJECT:
+        this.updateReservationsStatus(ReservationStatus.REJECTED);
+        break;
+      case ConfirmationType.RESERVATION_ACCEPT:
+        this.updateReservationsStatus(ReservationStatus.CONFIRMED);
+        break;
+      case ConfirmationType.RESERVATION_REQUEST_CANCEL:
+        this.updateReservationsStatus(ReservationStatus.REQUESTED_CANCELLATION);
+        break;
+    }
+  }
+
+  handleConfirmationCancel(): void {
+    this.store.isConfirmationPopupActive.set(false);
+    this.store.pendingConfirmationType.set(null);
+    this.store.pendingConfirmationReservation.set(null);
   }
 }

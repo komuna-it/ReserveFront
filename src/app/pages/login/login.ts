@@ -39,12 +39,12 @@ export class LoginPage {
         this.isLoading = false;
         const lang = user.preferredLanguage;
         if (lang) {
-          this.loco.setActiveLang(user.preferredLanguage);
+          this.loco.setActiveLang(lang);
         }
 
         if (user.banDto) {
-          console.log('detected user banned');
-          this.store.globalErrorKey.set(ErrorType.USER_BANNED);
+          console.log('Detected banned user on 200 OK response');
+          this.errorString.set(this.formatBanMessage(user.banDto.banExpires));
           return;
         }
 
@@ -69,27 +69,33 @@ export class LoginPage {
 
     if (err.status === 401 || err.status === 403) {
       this.errorString.set(
-        errorBody?.message || 'Nieprawidłowy adres e-mail / hasło lub konto nieaktywne',
+        errorBody?.message || this.loco.translate('LOGIN.ERRORS.INVALID_CREDENTIALS'),
       );
     } else if (err.status === 0) {
-      this.errorString.set('Brak połączenia z serwerem');
+      this.errorString.set(this.loco.translate('LOGIN.ERRORS.NO_CONNECTION'));
     } else {
       this.errorString.set(
-        errorBody?.message || 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później',
+        errorBody?.message || this.loco.translate('LOGIN.ERRORS.UNEXPECTED_ERROR'),
       );
     }
 
-    console.error('Błąd logowania:', err);
+    console.error('Login error:', err);
   }
 
   private formatBanMessage(bannedUntil: string | Date): string {
     const date = new Date(bannedUntil);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
 
-    return `You're banned until ${day}.${month}.${year} ${hours}:${minutes}`;
+    const formattedDate = `${day}.${month}.${year}`;
+    const formattedTime = `${hours}:${minutes}`;
+
+    return this.loco.translate('LOGIN.ERRORS.BANNED_UNTIL', {
+      date: formattedDate,
+      time: formattedTime,
+    });
   }
 }
