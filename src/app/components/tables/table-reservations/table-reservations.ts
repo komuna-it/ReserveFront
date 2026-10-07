@@ -40,6 +40,7 @@ export class TableReservations {
   isCancellationPossible(res: ReservationDto): boolean {
     if (
       res.status === ReservationStatus.REQUESTED_CANCELLATION ||
+      res.status === ReservationStatus.REJECTED_CANCELLATION ||
       res.status === ReservationStatus.CANCELLED ||
       res.status === ReservationStatus.REJECTED
     ) {
@@ -79,6 +80,8 @@ export class TableReservations {
         return this.translocoService.translate('STATUS.REJECTED');
       case ReservationStatus.REQUESTED_CANCELLATION:
         return this.translocoService.translate('BUTTONS.ASKED_FOR_CANCELLATION');
+      case ReservationStatus.REJECTED_CANCELLATION:
+        return this.translocoService.translate('STATUS.REJECTED_CANCELLATION');
 
       default:
         return '';

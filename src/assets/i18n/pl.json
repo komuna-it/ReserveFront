@@ -144,6 +144,7 @@
     "ASKED_FOR_CANCELLATION": "Poproszono o odwołanie",
     "CANCEL": "Odwołaj",
     "REQUEST_CANCEL": "Poproś o odwołanie",
+    "REJECTED_CANCELLATION": "Odrzucono prośbę o odwołanie",
     "TOO_LATE_TO_CANCEL": "Za późno na odwołanie",
     "ALLOWED": "Zezwolone",
     "NOT_ALLOWED": "Zabronione",
@@ -394,6 +395,10 @@
     "RESERVATION_REQUEST_CANCEL": {
       "TITLE": "Potwierdź akceptację prośby o odwołanie rezerwacji",
       "BODY": "Czy na pewno chcesz zaakceptować prośbę o odwołanie rezerwacji {{organization}}, {{date}} {{startHour}} - {{endHour}}?"
+    },
+    "RESERVATION_REQUEST_CANCEL_REJECT": {
+      "TITLE": "Potwierdź odrzucenie prośby o odwołanie rezerwacji",
+      "BODY": "Czy na pewno chcesz odrzucić prośbę o odwołanie rezerwacji {{organization}}, {{date}} {{startHour}} - {{endHour}}?"
     }
   },
   "LANDING": {

@@ -22,6 +22,7 @@ import { SuccessType } from '../../model/successType';
 import { ConfirmationType } from '../../model/confirmationType';
 import { TextFormatingTool } from '../../tools/textFormatingTool';
 import { User } from '../../model/user';
+import { ReservationTableType } from '../../model/reservationTableType';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -37,6 +38,7 @@ export class ReservationFacade {
   private readonly route = inject(ActivatedRoute);
   private apiUrl = environment.apiUrl;
   readonly textFormatingTool = inject(TextFormatingTool);
+  readonly reservationTableType = this.store.reservationTableType.asReadonly();
 
   constructor() {
     this.settingsFacade.getSettings(null, true);
@@ -354,17 +356,23 @@ export class ReservationFacade {
             });
         }
 
-        this.store.reservationsPage.update((currentPage) => ({
-          ...currentPage,
-          content: currentPage.content
-            .map((res) => (idsToProcess.has(res.id) ? { ...res, status: targetStatus } : res))
-            .filter(
-              (res) =>
-                res.status !== ReservationStatus.CANCELLED &&
-                res.status !== ReservationStatus.REJECTED &&
-                res.status !== ReservationStatus.REQUESTED_CANCELLATION,
-            ),
-        }));
+        if (this.store.reservationTableType() === ReservationTableType.CALENDAR) {
+          this.store.reservationsPage.update((currentPage) => ({
+            ...currentPage,
+            content: currentPage.content
+              .map((res) => (idsToProcess.has(res.id) ? { ...res, status: targetStatus } : res))
+              .filter(
+                (res) =>
+                  res.status !== ReservationStatus.CANCELLED &&
+                  res.status !== ReservationStatus.REJECTED,
+              ),
+          }));
+        }
+
+        if (this.reservationTableType() === ReservationTableType.USER_PROFILE) {
+          this.refreshCurrentReservations();
+        }
+
         this.store.clearSelection();
         this.getReservationsCountByStatus();
       },

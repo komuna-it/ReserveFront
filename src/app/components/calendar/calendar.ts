@@ -18,7 +18,7 @@ import { CalendarHelper } from './calendar.helper';
 import { Booking } from '../../model/booking';
 import { SettingsFacade } from '../../settings/settingsFacade';
 import { SettingsStore } from '../../settings/settingsStore';
-import { filter } from 'rxjs';
+import { ReservationTableType } from '../../model/reservationTableType';
 
 @Component({
   selector: 'app-calendar',
@@ -67,7 +67,7 @@ export class CalendarComponent {
 
   constructor() {
     this.getSettings();
-
+    this.store.reservationTableType.set(ReservationTableType.CALENDAR);
     const params = this.route.snapshot.queryParams;
     let selectedDay = new Date();
 
