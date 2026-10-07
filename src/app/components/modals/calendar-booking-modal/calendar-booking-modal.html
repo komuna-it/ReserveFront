@@ -1,7 +1,7 @@
 @if (store.selectedBooking(); as booking) {
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm"
-    (click)="facade.closeModals()"
+    (click)="viewController.closeModals()"
   >
     <div
       class="w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-800 p-4 text-slate-100 shadow-2xl"
@@ -40,7 +40,7 @@
             (ngModelChange)="onUserIdSelected($event)"
             class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            @for (user of store.users(); track user.id) {
+            @for (user of userStore.users(); track user.id) {
               <option [ngValue]="user.id">{{ user.nick }} - {{ user.email }}</option>
             }
           </select>
@@ -107,13 +107,13 @@
           [disabled]="this.store.isPrivateReservationCheckboxActivated()"
           class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          @for (org of store.organizations(); track org.id) {
+          @for (org of organizationStore.organizations(); track org.id) {
             <option [value]="org.id">{{ org.name }}</option>
           }
         </select>
       </div>
 
-      @if (!authService.isAdmin() && store.organizations().length === 0) {
+      @if (!authService.isAdmin() && organizationStore.organizations().length === 0) {
         <div class="text-sm text-red-400 mb-4">
           {{ 'CALENDAR.NOT_MEMBER_OF_ANY_BAND' | transloco }}
           <button
@@ -159,7 +159,7 @@
       </div>
       <div class="my-2 flex gap-3 justify-end">
         <button
-          (click)="facade.closeModals()"
+          (click)="viewController.closeModals()"
           class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
         >
           {{ 'CALENDAR.CANCEL' | transloco }}
@@ -174,7 +174,7 @@
     </div>
   </div>
 
-  @if (this.store.isAddOrganizationModalActive()) {
+  @if (viewStore.isAddOrganizationModalActive()) {
     <app-add-organization-modal></app-add-organization-modal>
   }
 }

@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActivatedRoute } from '@angular/router';
 import { ToolbarType } from '../../components/toolbars/toolbarType';
-import { ReservationStore } from '../../components/reservation/reservation.store';
+import { ReservationStore } from '../../services/reservation/reservation.store';
 import { ReservationType } from '../../model/reservationType';
 @Component({
   selector: 'app-pagination',

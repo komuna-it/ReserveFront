@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../auth/authService';
-import { ReservationStore } from '../../components/reservation/reservation.store';
+import { ReservationStore } from '../../services/reservation/reservation.store';
 
 @Component({
   selector: 'app-forgot-password',

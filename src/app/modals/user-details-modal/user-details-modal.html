@@ -1,7 +1,7 @@
 <div
   class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-150"
-  (click)="facade.closeModals()"
-  (keyup.escape)="facade.closeModals()"
+  (click)="viewController.closeModals()"
+  (keyup.escape)="viewController.closeModals()"
   tabindex="0"
 >
   <div
@@ -52,10 +52,10 @@
             >
               @if (auth.isManager()) {
                 <div class="py-1">
-                  @if (store.selectedUser()?.role !== 'ADMIN') {
+                  @if (userStore.selectedUser()?.role !== 'ADMIN') {
                     <button
                       type="button"
-                      (click)="promoteToAdmin(store.selectedUser()!.id)"
+                      (click)="promoteToAdmin(userStore.selectedUser()!.id)"
                       class="w-full text-left px-4 py-2.5 text-emerald-400 hover:bg-slate-700/60 flex items-center gap-2.5 transition-colors font-medium"
                     >
                       <svg
@@ -76,7 +76,7 @@
                   } @else {
                     <button
                       type="button"
-                      (click)="demoteFromAdmin(store.selectedUser()!.id)"
+                      (click)="demoteFromAdmin(userStore.selectedUser()!.id)"
                       class="w-full text-left px-4 py-2.5 text-rose-400 hover:bg-slate-700/60 flex items-center gap-2.5 transition-colors font-medium"
                     >
                       <svg
@@ -104,7 +104,7 @@
         <!-- modal closebutton -->
         <button
           type="button"
-          (click)="facade.closeModals()"
+          (click)="viewController.closeModals()"
           class="text-slate-400 hover:text-slate-200 transition-colors p-1.5 rounded-lg hover:bg-slate-700/50"
         >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,7 +124,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- user's details -->
         <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50">
-          @if (store.selectedUser(); as user) {
+          @if (userStore.selectedUser(); as user) {
             <div class="space-y-2 text-sm">
               <p class="flex justify-between border-b border-slate-800 pb-1.5">
                 <span class="text-slate-400">{{ 'USERS_TABLE.NICK' | transloco }}:</span>
@@ -182,7 +182,7 @@
             {{ 'ADMIN_RESERVATIONS.USERS_ORGANIZATIONS' | transloco }}
           </h3>
           <div class="max-h-58 overflow-y-auto space-y-1.5 pr-1">
-            @for (org of store.organizations(); track org.id) {
+            @for (org of organizationStore.organizations(); track org.id) {
               <div
                 class="text-xs text-slate-300 bg-slate-800/80 p-2 rounded-lg border border-slate-700/50 font-medium"
               >
@@ -207,7 +207,7 @@
     <!-- footer -->
     <div class="flex justify-center w-full mt-4 pt-4">
       <button
-        (click)="facade.closeModals()"
+        (click)="viewController.closeModals()"
         class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-8 py-2 rounded-xl transition-colors"
       >
         OK

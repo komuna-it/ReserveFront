@@ -1,10 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
-import { ReservationStore } from '../../../../components/reservation/reservation.store';
+import { ReservationFacade } from '../../../../services/reservation/reservation.facade';
+import { ReservationStore } from '../../../../services/reservation/reservation.store';
 import { ReservationType } from '../../../../model/reservationType';
 import { Room } from '../../../../model/room';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ViewController } from '../../../../services/view/view.controller';
+import { ViewStore } from '../../../../services/view/view.store';
 
 @Component({
   selector: 'app-admin-pricing',
@@ -16,6 +18,8 @@ export class AdminPricing implements OnInit {
   readonly facade = inject(ReservationFacade);
   readonly store = inject(ReservationStore);
   readonly ResType = ReservationType;
+  private viewStore = inject(ViewStore);
+  private viewController = inject(ViewController);
 
   // Key: "roomId-type" (e.g., "1-REHEARSAL"), Value: Update Object
   readonly pendingChanges = signal<
@@ -73,6 +77,6 @@ export class AdminPricing implements OnInit {
   }
 
   handleCreateRoom() {
-    this.store.isModalAddRoomActive.set(true);
+    this.viewStore.isModalAddRoomActive.set(true);
   }
 }

@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
-import { ReservationStore } from '../../../../components/reservation/reservation.store';
+import { ReservationFacade } from '../../../../services/reservation/reservation.facade';
+import { ReservationStore } from '../../../../services/reservation/reservation.store';
 
 @Component({
   selector: 'app-rooms',
@@ -13,7 +13,7 @@ export class Rooms implements OnInit, OnDestroy {
   readonly facade = inject(ReservationFacade);
 
   ngOnInit(): void {
-    this.facade.getAllRooms();
+    this.facade.getRooms();
   }
   ngOnDestroy(): void {
     this.store.rooms.set([]);

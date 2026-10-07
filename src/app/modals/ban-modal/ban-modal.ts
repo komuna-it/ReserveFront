@@ -2,8 +2,11 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 
-import { ReservationStore } from '../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { ReservationStore } from '../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
+import { UserFacade } from '../../services/user/user.facade';
+import { ViewStore } from '../../services/view/view.store';
+import { ViewController } from '../../services/view/view.controller';
 
 @Component({
   selector: 'app-ban-modal',
@@ -14,6 +17,9 @@ import { ReservationFacade } from '../../components/reservation/reservation.faca
 export class BanModal {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
+  readonly userFacade = inject(UserFacade);
+  readonly viewStore = inject(ViewStore);
+  readonly viewController = inject(ViewController);
 
   readonly userIds = this.store.toolbarSelectedIds();
 
@@ -29,6 +35,6 @@ export class BanModal {
     const duration = `P${this.durationInput}D`;
     this.store.banDuration.set(duration);
     this.store.banReason.set(this.reason);
-    this.facade.banUsers();
+    this.userFacade.banUsers();
   }
 }

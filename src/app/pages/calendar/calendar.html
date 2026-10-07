@@ -1,9 +1,9 @@
 <app-calendar></app-calendar>
 
-@if (store.isReservationDetailsModalActive()) {
+@if (viewStore.isReservationDetailsModalActive()) {
   <app-reservation-details-modal></app-reservation-details-modal>
 }
 
-@if (store.isLoginOrRegisterModalActive()) {
+@if (viewStore.isLoginOrRegisterModalActive()) {
   <app-unauthenticated-modal></app-unauthenticated-modal>
 }

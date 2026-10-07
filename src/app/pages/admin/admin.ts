@@ -2,8 +2,8 @@ import { Component, inject, input, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
-import { ReservationStore } from '../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { ReservationStore } from '../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
 import { ReservationStatus } from '../../model/reservationStatus';
 import { TextFormatingTool } from '../../tools/textFormatingTool';
 
@@ -19,6 +19,12 @@ import { AddOrganizationModal } from '../../components/modals/add-organization-m
 import { AddRoomModal } from '../../modals/add-room-modal/add-room-modal';
 import { AuthService } from '../../auth/authService';
 import { ReservationDetailsModal } from '../../modals/reservation-details-modal/reservation-details-modal';
+import { OrganizationFacade } from '../../services/organization/organization.facade';
+import { UserFacade } from '../../services/user/user.facade';
+import { UserStore } from '../../services/user/user.store';
+import { OrganizationStore } from '../../services/organization/organization.store';
+import { ViewController } from '../../services/view/view.controller';
+import { ViewStore } from '../../services/view/view.store';
 
 @Component({
   selector: 'app-admin',
@@ -37,39 +43,44 @@ import { ReservationDetailsModal } from '../../modals/reservation-details-modal/
     ReservationDetailsModal,
   ],
   templateUrl: './admin.html',
-  styleUrl: './admin.css',
 })
 export class AdminPage implements OnInit {
   readonly auth = inject(AuthService);
-  readonly store = inject(ReservationStore);
+  readonly reservationStore = inject(ReservationStore);
+  readonly organizationStore = inject(OrganizationStore);
+  readonly userStore = inject(UserStore);
   readonly facade = inject(ReservationFacade);
+  readonly organizationFacade = inject(OrganizationFacade);
+  readonly userFacade = inject(UserFacade);
   readonly translocoService = inject(TranslocoService);
   readonly textFormatingTool = inject(TextFormatingTool);
   readonly ReservationStatus = ReservationStatus;
   readonly reservation = input<any | null>(null);
   readonly tool = inject(TextFormatingTool);
+  readonly viewStore = inject(ViewStore);
+  readonly viewController = inject(ViewController);
 
   ngOnInit(): void {
     this.facade.getReservations({
       statuses: new Set<ReservationStatus>([ReservationStatus.CREATED]),
-      future: this.store.toolbarOnlyFuture(),
+      future: this.reservationStore.toolbarOnlyFuture(),
     });
-    this.facade.getAllUsers();
+    this.userFacade.getAllUsers();
   }
 
   getTitleText(): string {
-    if (this.store.confirmMarkReservationAsAccepted()) {
+    if (this.viewStore.confirmMarkReservationAsAccepted()) {
       return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_ACCEPT_TITLE');
-    } else if (this.store.confirmMarkReservationAsRequestCancel()) {
+    } else if (this.viewStore.confirmMarkReservationAsRequestCancel()) {
       return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_REQUEST_CANCEL_TITLE');
-    } else if (this.store.confirmMarkReservationAsCanceled()) {
+    } else if (this.viewStore.confirmMarkReservationAsCanceled()) {
       return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_TITLE');
     }
     return '';
   }
 
   getBodyText(): string {
-    const res = this.store.selectedReservation();
+    const res = this.reservationStore.selectedReservation();
     if (!res) return '';
 
     const params = {
@@ -79,14 +90,14 @@ export class AdminPage implements OnInit {
       endHour: this.textFormatingTool.endAtText(res),
     };
 
-    if (this.store.confirmMarkReservationAsAccepted()) {
+    if (this.viewStore.confirmMarkReservationAsAccepted()) {
       return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_ACCEPT_BODY', params);
-    } else if (this.store.confirmMarkReservationAsRequestCancel()) {
+    } else if (this.viewStore.confirmMarkReservationAsRequestCancel()) {
       return this.translocoService.translate(
         'ADMIN_RESERVATIONS.CONFIRM_REQUEST_CANCEL_BODY',
         params,
       );
-    } else if (this.store.confirmMarkReservationAsCanceled()) {
+    } else if (this.viewStore.confirmMarkReservationAsCanceled()) {
       return this.translocoService.translate('ADMIN_RESERVATIONS.CONFIRM_CANCEL_BODY', params);
     }
 

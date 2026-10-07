@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { CalendarHelper } from '../calendar/calendar.helper';
+import { CalendarHelper } from '../../components/calendar/calendar.helper';
 import { OrganizationFront } from '../../model/organizationFront';
 import { AuthService } from '../../auth/authService';
 import { Room } from '../../model/room';
@@ -14,7 +14,7 @@ import { OrganizationMemberDto } from '../../model/organizationMemberDto';
 import { ReservationType } from '../../model/reservationType';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { ToolbarType } from '../toolbars/toolbarType';
+import { ToolbarType } from '../../components/toolbars/toolbarType';
 import { Booking } from '../../model/booking';
 import { ReservationTableType } from '../../model/reservationTableType';
 import { ReservationQueryParams } from '../../model/reservationQueryParams';
@@ -32,8 +32,8 @@ export class ReservationStore {
 
   // reservations
   readonly reservations = computed(() => this.reservationsPage().content);
+  readonly isPrivateReservationCheckboxActivated = signal<boolean>(false);
 
-  // readonly reservationsCount = signal<Map<ReservationStatus, number> | null>(null);
   readonly reservationsCount = signal<Map<ReservationStatus, number> | null>(null);
   readonly reservationCountCreated = computed(
     () => this.reservationsCount()?.get(ReservationStatus.CREATED) ?? 0,
@@ -107,10 +107,6 @@ export class ReservationStore {
     return Array.from({ length: Math.max(0, maxDuration) }, (_, i) => i + 1);
   });
 
-  readonly displayBookingSuccesfulPopup = signal<boolean>(false);
-  readonly displayBookingErrorPopup = signal<boolean>(false);
-  readonly displayErrorPopup = signal<boolean>(false);
-
   readonly selectedBooking = signal<Booking | null>(null);
   readonly price = computed(() => {
     const booking = this.selectedBooking();
@@ -180,51 +176,13 @@ export class ReservationStore {
 
   // ================= modals control =================
 
-  readonly isAdminAddOrganizationModalActive = signal<boolean>(false);
-  readonly isAdminOrganizationModalActive = signal<boolean>(false);
-  readonly isAdminAddOrganizationSuccessPopupActive = signal<boolean>(false);
-  readonly isModalDeleteOrganizationActive = signal<boolean>(false);
-  readonly isModalDeleteMemberActive = signal<boolean>(false);
-  readonly isModalDeleteOwnerActive = signal<boolean>(false);
-  readonly isModalDeleteOrganizationSuccessActive = signal<boolean>(false);
-  readonly isModalDeleteMemberSuccessActive = signal<boolean>(false);
-  readonly isModalDeleteOwnerSuccessActive = signal<boolean>(false);
-  readonly isModalAddMemberActive = signal<boolean>(false);
-  readonly isModalAddOwnerActive = signal<boolean>(false);
-  readonly isModalAddRoomActive = signal<boolean>(false);
-  readonly isBanModalActive = signal<boolean>(false);
-  readonly isBanUsersModalActive = signal<boolean>(false);
-  readonly isBanUsersSuccessActive = signal<boolean>(false);
-  readonly isReservationDetailsModalActive = signal<boolean>(false);
-  readonly isUserDetailsModalActive = signal<boolean>(false);
-  readonly isOrganizationDetailsModalActive = signal<boolean>(false);
-  readonly isModalAddOwnerSuccessActive = signal<boolean>(false);
-  readonly isModalAddMemberSuccessActive = signal<boolean>(false);
-  readonly isBookingModalActive = signal<boolean>(false);
-  readonly isLoginOrRegisterModalActive = signal<boolean>(false);
-  readonly confirmMarkReservationAsAccepted = signal<boolean>(false);
-  readonly confirmMarkReservationAsRequestCancel = signal<boolean>(false);
-  readonly confirmMarkReservationAsCanceled = signal<boolean>(false);
-  readonly confirmMarkReservationAsRejected = signal<boolean>(false);
-  readonly popupMarkedReservationAsAccepted = signal<boolean>(false);
-  readonly popupMarkedReservationAsRequestCancel = signal<boolean>(false);
-  readonly popupMarkedReservationAsCanceled = signal<boolean>(false);
-  readonly isPrivateReservationCheckboxActivated = signal<boolean>(false);
-  readonly isAddOrganizationModalActive = signal<boolean | null>(null);
-  readonly popupConfirmationActive = signal<boolean | null>(null);
-  readonly isSuccessPopupActive = signal<boolean>(false);
-  readonly isConfirmationPopupActive = signal<boolean>(false);
-
   readonly statusForAdminPage = signal<ReservationStatus | null>(null);
   readonly organizationListSelectedUser = signal<User | null>(null);
   readonly selectedOrganization = signal<Organization | null>(null);
   readonly selectedReservation = signal<ReservationDto | null>(null);
-  readonly selectedUser = signal<User | null>(null);
   readonly selectedRoom = signal<Room | null>(null);
   readonly selectedHour = signal<number | null>(null);
   readonly selectedReservations = signal<ReservationDto[] | null>(null);
-
-  readonly globalErrorKey = signal<string | null>(null);
 
   // =================
 
@@ -396,14 +354,4 @@ export class ReservationStore {
   // settings
   readonly availableLanguages = signal<string[]>(['pl', 'en', 'ua']);
   readonly selectedLanguage = this.loco.activeLang();
-
-  // ================= modals control =================
-  readonly errorPopupTitle = signal<string>('');
-  readonly errorPopupBody = signal<string>('');
-  readonly successPopupTitle = signal<string>('');
-  readonly successPopupBody = signal<string>('');
-  readonly confirmationPopupTitle = signal<string>('');
-  readonly confirmationPopupBody = signal<string>('');
-  readonly pendingConfirmationType = signal<ConfirmationType | null>(null);
-  readonly pendingConfirmationReservation = signal<ReservationDto | null>(null);
 }

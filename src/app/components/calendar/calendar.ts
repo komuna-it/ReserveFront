@@ -3,8 +3,8 @@ import { CommonModule, DatePipe, NgClass } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
-import { ReservationStore } from '../reservation/reservation.store';
-import { ReservationFacade } from '../reservation/reservation.facade';
+import { ReservationStore } from '../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
 import { AuthService } from '../../auth/authService';
 
 import { CalendarBookingModal } from '../modals/calendar-booking-modal/calendar-booking-modal';
@@ -19,6 +19,10 @@ import { Booking } from '../../model/booking';
 import { SettingsFacade } from '../../settings/settingsFacade';
 import { SettingsStore } from '../../settings/settingsStore';
 import { ReservationTableType } from '../../model/reservationTableType';
+import { OrganizationFacade } from '../../services/organization/organization.facade';
+import { ViewStore } from '../../services/view/view.store';
+import { ViewController } from '../../services/view/view.controller';
+import { OrganizationStore } from '../../services/organization/organization.store';
 
 @Component({
   selector: 'app-calendar',
@@ -37,12 +41,16 @@ import { ReservationTableType } from '../../model/reservationTableType';
 })
 export class CalendarComponent {
   readonly store = inject(ReservationStore);
+  readonly organizationStore = inject(OrganizationStore);
   readonly facade = inject(ReservationFacade);
+  readonly organizationFacade = inject(OrganizationFacade);
   readonly auth = inject(AuthService);
   readonly loco = inject(TranslocoService);
-  public helper = inject(CalendarHelper);
-  public settingsFacade = inject(SettingsFacade);
-  public settingsStore = inject(SettingsStore);
+  readonly helper = inject(CalendarHelper);
+  readonly settingsFacade = inject(SettingsFacade);
+  readonly settingsStore = inject(SettingsStore);
+  readonly viewStore = inject(ViewStore);
+  readonly viewController = inject(ViewController);
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -86,9 +94,9 @@ export class CalendarComponent {
     const user = this.auth.currentUser();
     if (user) {
       if (this.auth.isAdmin()) {
-        this.facade.getOrganizations(true, null);
+        this.organizationFacade.getOrganizations(true, null);
       } else {
-        this.facade.getOrganizations(false, user.id);
+        this.organizationFacade.getOrganizations(false, user.id);
       }
     }
 
@@ -267,7 +275,7 @@ export class CalendarComponent {
   selectRoomAndHour(roomId: number, hour: number): void {
     console.log('selectRoomAndHour selected roomId: ', roomId, ' hour: ', hour);
     if (!this.auth.currentUser()) {
-      this.store.isLoginOrRegisterModalActive.set(true);
+      this.viewStore.isLoginOrRegisterModalActive.set(true);
       return;
     }
     let day = new Date();
@@ -289,7 +297,7 @@ export class CalendarComponent {
       (this.store.rooms() || []).find((r) => String(r.id) === String(roomId)) ??
         (this.store.rooms() || [])[0],
     );
-    this.store.isBookingModalActive.set(true);
+    this.viewStore.isBookingModalActive.set(true);
 
     const booking = this.createBookingObject(roomId, hour);
     this.store.selectedBooking.set(booking);
@@ -344,7 +352,7 @@ export class CalendarComponent {
     const res = this.getReservationForSlot(roomId, hour);
     if (!res || !res.organization) return false;
 
-    const userOrgsData = this.store.organizations();
+    const userOrgsData = this.organizationStore.organizations();
 
     if (Array.isArray(userOrgsData)) {
       return userOrgsData.some(

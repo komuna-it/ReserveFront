@@ -1,8 +1,11 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { ReservationStatus } from '../../../model/reservationStatus';
 import { ReservationDto } from '../../../model/reservationDto';
-import { ReservationFacade } from '../../reservation/reservation.facade';
-import { ReservationStore } from '../../reservation/reservation.store';
+import { ReservationFacade } from '../../../services/reservation/reservation.facade';
+import { ReservationStore } from '../../../services/reservation/reservation.store';
+import { OrganizationFacade } from '../../../services/organization/organization.facade';
+import { OrganizationStore } from '../../../services/organization/organization.store';
+import { UserStore } from '../../../services/user/user.store';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TextFormatingTool } from '../../../tools/textFormatingTool';
 import { CalendarHelper } from '../../calendar/calendar.helper';
@@ -13,15 +16,24 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ToolbarType } from '../../toolbars/toolbarType';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../auth/authService';
+import { ViewStore } from '../../../services/view/view.store';
+import { ViewController } from '../../../services/view/view.controller';
 
 @Component({
   selector: 'app-table-reservations',
+  standalone: true,
   imports: [TranslocoPipe, CommonModule, Pagination],
   templateUrl: './table-reservations.html',
 })
 export class TableReservations {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
+  readonly orgFacade = inject(OrganizationFacade);
+  readonly orgStore = inject(OrganizationStore);
+  readonly userStore = inject(UserStore);
+  readonly viewStore = inject(ViewStore);
+  readonly viewController = inject(ViewController);
+
   readonly translocoService = inject(TranslocoService);
   readonly textFormatingTool = inject(TextFormatingTool);
   readonly calendarHelper = inject(CalendarHelper);
@@ -140,7 +152,7 @@ export class TableReservations {
   initializeTable() {
     const tableType = this.type();
     const loggedUser = this.auth.currentUser();
-    const selectedUser = this.store.selectedUser();
+    const selectedUser = this.userStore.selectedUser();
     const currentStatus = this.status();
 
     if (tableType) {
@@ -179,7 +191,7 @@ export class TableReservations {
     switch (tableType) {
       case ReservationTableType.USER_PROFILE:
         if (loggedUser) {
-          this.facade.getOrganizations(true, loggedUser.id);
+          this.orgFacade.getOrganizations(true, loggedUser.id);
           this.facade.getReservations({
             future: future,
             userId: loggedUser.id,
@@ -190,12 +202,13 @@ export class TableReservations {
       case ReservationTableType.ADMIN_BY_STATUS:
         this.store.toolbarType.set(ToolbarType.RESERVATIONS);
         if (this.auth.isAdmin()) {
-          this.facade.getOrganizations(true, null);
+          this.orgFacade.getOrganizations(true, null);
         }
         if (currentStatus) {
           this.facade.getReservations({
             statuses:
-              currentStatus === ReservationStatus.CONFIRMED
+              currentStatus === ReservationStatus.CONFIRMED ||
+              currentStatus === ReservationStatus.CREATED
                 ? new Set<ReservationStatus>([
                     currentStatus,
                     ReservationStatus.REJECTED_CANCELLATION,
@@ -208,7 +221,7 @@ export class TableReservations {
 
       case ReservationTableType.ADMIN_ORG_DETAILS:
         this.store.toolbarType.set(ToolbarType.RESERVATIONS);
-        const selectedOrg = this.store.selectedOrganization();
+        const selectedOrg = this.orgStore.selectedOrganization();
         if (selectedOrg) {
           this.facade.getReservations({
             future: future,
@@ -256,7 +269,7 @@ export class TableReservations {
       const idSet = new Set<number>();
       idSet.add(res.id);
       this.store.toolbarSelectedIds.set(idSet);
-      this.store.isReservationDetailsModalActive.set(true);
+      this.viewStore.isReservationDetailsModalActive.set(true);
     }
   }
 }

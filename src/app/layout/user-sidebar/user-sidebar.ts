@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ReservationStore } from '../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { ReservationStore } from '../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
 import { AuthService } from '../../auth/authService';
 import { UserSettings } from '../../components/user-settings/user-settings';
 

@@ -1,8 +1,8 @@
 import { Component, effect, inject, input, OnInit } from '@angular/core';
 import { Pagination } from '../../../../layout/pagination/pagination';
 import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
-import { ReservationStore } from '../../../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
+import { ReservationStore } from '../../../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../../../services/reservation/reservation.facade';
 import { AuthService } from '../../../../auth/authService';
 import { ReservationStatus } from '../../../../model/reservationStatus';
 import { ToolbarType } from '../../../../components/toolbars/toolbarType';

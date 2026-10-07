@@ -6,28 +6,28 @@
   </main>
 </div>
 
-@if (store.displayErrorPopup()) {
+@if (viewStore.displayErrorPopup()) {
   <app-error-popup
-    [titleText]="store.errorPopupTitle()"
-    [bodyText]="store.errorPopupBody()"
-    (ok)="store.displayErrorPopup.set(false)"
+    [titleText]="viewStore.errorPopupTitle()"
+    [bodyText]="viewStore.errorPopupBody()"
+    (ok)="viewStore.displayErrorPopup.set(false)"
   />
 }
 
-@if (store.isSuccessPopupActive()) {
+@if (viewStore.isSuccessPopupActive()) {
   <app-success-popup
-    [titleText]="store.successPopupTitle()"
-    [bodyText]="store.successPopupBody()"
-    (ok)="store.isSuccessPopupActive.set(false)"
+    [titleText]="viewStore.successPopupTitle()"
+    [bodyText]="viewStore.successPopupBody()"
+    (ok)="viewStore.isSuccessPopupActive.set(false)"
   />
 }
 
-@if (store.isConfirmationPopupActive()) {
+@if (viewStore.isConfirmationPopupActive()) {
   <app-confirmation-popup
-    [titleText]="store.confirmationPopupTitle()"
-    [bodyText]="store.confirmationPopupBody()"
-    (ok)="facade.handleConfirmationOk()"
-    (cancel)="facade.handleConfirmationCancel()"
+    [titleText]="viewStore.confirmationPopupTitle()"
+    [bodyText]="viewStore.confirmationPopupBody()"
+    (ok)="reservationFacade.updateResStatusBasedOnConfirmationType()"
+    (cancel)="viewController.handleConfirmationCancel()"
   />
 }
 

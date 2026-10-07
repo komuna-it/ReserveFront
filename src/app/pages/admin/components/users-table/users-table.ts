@@ -1,65 +1,82 @@
 import { Component, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReservationStore } from '../../../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
+import { UserFacade } from '../../../../services/user/user.facade';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Pagination } from '../../../../layout/pagination/pagination';
 import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
 import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 import { User } from '../../../../model/user';
+import { ActivatedRoute, Router } from '@angular/router';
+import { UserStore } from '../../../../services/user/user.store';
+import { ViewController } from '../../../../services/view/view.controller';
+import { ViewStore } from '../../../../services/view/view.store';
 
 @Component({
   selector: 'app-users-table',
+  standalone: true,
   imports: [TableToolbar, CommonModule, TranslocoPipe, Pagination],
   templateUrl: './users-table.html',
-  styleUrl: './users-table.css',
 })
 export class UsersTable {
-  readonly store = inject(ReservationStore);
-  readonly facade = inject(ReservationFacade);
+  readonly userStore = inject(UserStore);
+  readonly facade = inject(UserFacade);
 
   readonly toolbarType = ToolbarType.USERS;
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  readonly viewStore = inject(ViewStore);
+  readonly viewController = inject(ViewController);
+
+  toggleSort(column: string): void {
+    const currentSort = this.userStore.currentSortBy();
+    const currentDir = this.userStore.currentSortDir();
+    const nextDir = currentSort === column && currentDir === 'asc' ? 'desc' : 'asc';
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { sortBy: column, sortDir: nextDir, page: 0 },
+      queryParamsHandling: 'merge',
+    });
+  }
 
   constructor() {
-    console.log('UsersTable constructor');
-    this.store.toolbarType.set(ToolbarType.USERS);
     effect(() => {
-      this.store.currentSortBy();
-      this.store.currentSortDir();
-      this.store.currentUsersPage();
-      this.store.currentUsersPage();
+      this.userStore.currentSortBy();
+      this.userStore.currentSortDir();
+      this.userStore.currentUsersPage();
+      this.userStore.currentUsersSize();
 
       this.facade.getAllUsers();
     });
   }
 
   readonly areAllSelected = computed(() => {
-    const users = this.store.users();
+    const users = this.userStore.users();
     if (users.length === 0) return false;
-    const selected = this.store.toolbarSelectedIds();
+    const selected = this.userStore.toolbarSelectedIds();
     return users.every((u) => selected.has(u.id));
   });
 
   readonly isIndeterminate = computed(() => {
-    const selectedSize = this.store.toolbarSelectedIds().size;
+    const selectedSize = this.userStore.toolbarSelectedIds().size;
     return selectedSize > 0 && !this.areAllSelected();
   });
 
   toggleMasterCheckbox(): void {
     if (this.areAllSelected()) {
-      this.store.clearSelection();
+      this.userStore.clearSelection();
     } else {
-      const allIds = new Set(this.store.users().map((u) => u.id));
-      this.store.setSelectedIds(allIds);
+      const allIds = new Set(this.userStore.users().map((u) => u.id));
+      this.userStore.setSelectedIds(allIds);
     }
   }
 
   toggleUserSelection(id: number): void {
-    this.store.toggleSelection(id);
+    this.userStore.toggleSelection(id);
   }
 
   selectUserAndOpenDetailsModal(user: User) {
-    this.store.selectedUser.set(user);
-    this.store.isUserDetailsModalActive.set(true);
+    this.userStore.selectedUser.set(user);
+    this.viewStore.isUserDetailsModalActive.set(true);
   }
 }

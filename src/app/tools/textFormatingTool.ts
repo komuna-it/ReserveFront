@@ -1,18 +1,22 @@
 import { inject, Injectable } from '@angular/core';
 import { ReservationDto } from '../model/reservationDto';
 import { TranslocoService } from '@jsverse/transloco';
-import { ReservationStore } from '../components/reservation/reservation.store';
+import { ReservationStore } from '../services/reservation/reservation.store';
 import { CalendarHelper } from '../components/calendar/calendar.helper';
-import { ReservationFacade } from '../components/reservation/reservation.facade';
+import { ReservationFacade } from '../services/reservation/reservation.facade';
 import { ReservationStatus } from '../model/reservationStatus';
 import { User } from '../model/user';
 import { AuthService } from '../auth/authService';
 import { Organization } from '../model/organization';
+import { UserStore } from '../services/user/user.store';
+import { OrganizationStore } from '../services/organization/organization.store';
 
 @Injectable({ providedIn: 'root' })
 export class TextFormatingTool {
   readonly translocoService = inject(TranslocoService);
-  readonly store = inject(ReservationStore);
+  readonly reservationStore = inject(ReservationStore);
+  readonly organizationStore = inject(OrganizationStore);
+  readonly userStore = inject(UserStore);
   readonly helper = inject(CalendarHelper);
   readonly authService = inject(AuthService);
   readonly loco = inject(TranslocoService);
@@ -24,24 +28,18 @@ export class TextFormatingTool {
   bandText(res: ReservationDto): string {
     {
       return (
-        this.store.allOrganizations().find((o) => o.id === res.organization)?.name ??
+        this.organizationStore.allOrganizations().find((o) => o.id === res.organization)?.name ??
         this.translocoService.translate('USER_MODALS.PRIVATE')
       );
     }
   }
 
   reservedByText(res: ReservationDto): string {
-    // console.log('loaded orgs');
-    // console.table(this.store.organizations());
-
-    // console.log('loaded res');
-    // console.table(this.store.reservations());
-
     const currentUser = this.authService.currentUser();
     if (!currentUser) return 'no user';
 
     if (res.organization != null) {
-      const orgs = this.store.organizations();
+      const orgs = this.organizationStore.organizations();
       const foundOrg = orgs.find((org) => Number(org.id) === Number(res.organization));
       return foundOrg?.name || 'no org';
     }
@@ -49,7 +47,7 @@ export class TextFormatingTool {
     const privateText = this.loco.translate('CALENDAR.PRIVATE') || 'prywatna';
     const myPrivateText = this.loco.translate('CALENDAR.MY_PRIVATE') || 'Moja prywatna';
 
-    const users = this.store.users();
+    const users = this.userStore.users();
     const reservedByUser = users.find((u) => u.id === res.reservedBy);
     const nick = reservedByUser?.nick || 'No nick found';
 
@@ -59,7 +57,7 @@ export class TextFormatingTool {
       return nick ? `${nick} (${privateText})` : `(${privateText})`;
     }
 
-    const userOrgs = this.store.organizations().map((o) => o.id);
+    const userOrgs = this.organizationStore.organizations().map((o) => o.id);
 
     const isMyReservation = currentUserId === res.reservedBy;
     const isMyTeamReservation = userOrgs.includes(res.organization ?? -1);
@@ -89,7 +87,7 @@ export class TextFormatingTool {
   }
 
   getRoomName(res: ReservationDto): string {
-    const room = this.store.rooms().find((r) => r.id === res.room);
+    const room = this.reservationStore.rooms().find((r) => r.id === res.room);
     return room?.name ?? '';
   }
 
@@ -102,7 +100,7 @@ export class TextFormatingTool {
   }
 
   reservationDetailsModalReservedByText(res: ReservationDto): string {
-    const reservedByUser = this.store.users().find((u) => u.id === res.reservedBy);
+    const reservedByUser = this.userStore.users().find((u) => u.id === res.reservedBy);
     const reservedByNick = reservedByUser?.nick ?? 'No nick found';
     const reservedByEmail = reservedByUser?.email ?? 'No email found';
 
@@ -110,17 +108,19 @@ export class TextFormatingTool {
   }
 
   reservationDetailsModalOrganizationText(res: ReservationDto): string {
-    const organization = this.store.organizations().find((o) => o.id === res.organization);
+    const organization = this.organizationStore
+      .organizations()
+      .find((o) => o.id === res.organization);
     return organization?.name ?? this.privateReservationText(res);
   }
 
   // reservedByLabel(reservation: ReservationDto): string {
   //   if (this.authService.isAdmin()) {
-  //     const user = this.store.users().find((u) => u.id === reservation.reservedBy);
+  //     const user = this.userStore.users().find((u) => u.id === reservation.reservedBy);
   //     return user ? `${user.nick}` : this.translocoService.translate('USER_MODALS.PRIVATE');
   //   }
 
-  //   const org = this.store.userOrganizations().find((o) => o.id === reservation.organization);
+  //   const org = this.organizationStore.userOrganizations().find((o) => o.id === reservation.organization);
 
   //   return org ? `${org.name}` : this.translocoService.translate('USER_MODALS.PRIVATE');
   // }

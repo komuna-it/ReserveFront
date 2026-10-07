@@ -10,14 +10,16 @@ import {
   isDevMode,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReservationStore } from '../../../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../../../components/reservation/reservation.facade';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { OrganizationStore } from '../../../../services/organization/organization.store';
+import { OrganizationFacade } from '../../../../services/organization/organization.facade';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Organization } from '../../../../model/organization';
 import { Pagination } from '../../../../layout/pagination/pagination';
 import { ToolbarType } from '../../../../components/toolbars/toolbarType';
 import { AuthService } from '../../../../auth/authService';
 import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
+import { ViewController } from '../../../../services/view/view.controller';
+import { ViewStore } from '../../../../services/view/view.store';
 
 @Component({
   selector: 'app-organization-list',
@@ -28,10 +30,13 @@ import { TableToolbar } from '../../../../components/toolbars/table-toolbar/tabl
 })
 export class OrganizationList implements OnInit, OnDestroy {
   readonly organizationListMode = input<'admin' | 'user'>('user');
-  readonly store = inject(ReservationStore);
-  readonly facade = inject(ReservationFacade);
+  readonly store = inject(OrganizationStore);
+  readonly facade = inject(OrganizationFacade);
+  readonly organizationFacade = inject(OrganizationFacade);
   readonly auth = inject(AuthService);
   readonly toolbarType = ToolbarType.ADMIN_ORGANIZATIONS;
+  readonly viewStore = inject(ViewStore);
+  readonly viewController = inject(ViewController);
 
   readonly safeOrganizations = computed(() => {
     const orgs = this.store.organizations();
@@ -48,7 +53,7 @@ export class OrganizationList implements OnInit, OnDestroy {
     const items = this.store.organizations();
     if (items.length === 0) return false;
     const selected = this.store.toolbarSelectedIds();
-    var all = items.every((res) => selected.has(res.id));
+    const all = items.every((res) => selected.has(res.id));
     if (isDevMode()) {
       console.log('areAllSelected', all, selected, items);
     }
@@ -65,11 +70,7 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly isMembersExpanded = signal(true);
 
   constructor() {
-    console.log('OrganizationList constructor this.mode:', this.organizationListMode());
-
     effect(() => {
-      this.store.currentSortBy();
-      this.store.currentSortDir();
       this.store.currentOrganizationsPage();
       this.store.currentOrganizationsSize();
     });
@@ -77,18 +78,17 @@ export class OrganizationList implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.organizationListMode() === 'admin') {
-      this.facade.getOrganizations(true, null);
+      this.organizationFacade.getOrganizations(true, null);
     } else {
       const user = this.auth.currentUser();
-      if (user) this.facade.getOrganizations(true, user.id);
+      if (user) this.organizationFacade.getOrganizations(true, user.id);
     }
-    console.log('OrganizationList ngOnInit mode:', this.organizationListMode());
   }
 
   ngOnDestroy(): void {
     if (this.organizationListMode() === 'admin') {
       this.store.teamsList.set([]);
-      this.store.isAdminOrganizationModalActive.set(false);
+      this.viewStore.isAdminOrganizationModalActive.set(false);
     }
   }
 
@@ -107,7 +107,6 @@ export class OrganizationList implements OnInit, OnDestroy {
 
   selectOrganizationAndOpenDetailsModal(org: Organization): void {
     this.store.selectedOrganization.set(org);
-
-    this.store.isOrganizationDetailsModalActive.set(true);
+    this.viewStore.isOrganizationDetailsModalActive.set(true);
   }
 }

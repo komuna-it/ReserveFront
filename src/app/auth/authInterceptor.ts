@@ -10,7 +10,9 @@ import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { AuthService } from './authService';
 import { ErrorResponse } from '../model/error/errorResponse';
 import { ErrorType } from '../model/error/errorType';
-import { ReservationStore } from '../components/reservation/reservation.store';
+import { ReservationStore } from '../services/reservation/reservation.store';
+import { ViewStore } from '../services/view/view.store';
+import { ViewController } from '../services/view/view.controller';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
@@ -55,9 +57,11 @@ function handle403Forbidden(error: HttpErrorResponse, injector: Injector): void 
   if (errorBody?.errorType === ErrorType.USER_BANNED) {
     const authService = injector.get(AuthService);
     const store = injector.get(ReservationStore);
+    const viewStore = injector.get(ViewStore);
+    const viewController = injector.get(ViewController);
 
     authService.handleUserBanned?.(errorBody.message);
-    store.globalErrorKey.set(ErrorType.USER_BANNED);
+    viewController.showError(ErrorType.USER_BANNED);
   }
 }
 

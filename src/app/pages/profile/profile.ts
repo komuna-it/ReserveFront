@@ -1,25 +1,30 @@
-import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../auth/authService';
 import { ReservationDto } from '../../model/reservationDto';
-import { ReservationFacade } from '../../components/reservation/reservation.facade';
-import { ReservationStore } from '../../components/reservation/reservation.store';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
+import { ReservationStore } from '../../services/reservation/reservation.store';
+import { OrganizationFacade } from '../../services/organization/organization.facade';
+import { OrganizationStore } from '../../services/organization/organization.store';
+import { UserStore } from '../../services/user/user.store';
+import { UserFacade } from '../../services/user/user.facade';
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TextFormatingTool } from '../../tools/textFormatingTool';
 import { ConfirmationPopup } from '../../modals/confirmation-popup/confirmation-popup';
 import { AddOrganizationModal } from '../../components/modals/add-organization-modal/add-organization-modal';
-import { ReservationStatus } from '../../model/reservationStatus';
 import { SuccessPopup } from '../../modals/success-popup/success-popup';
 import { UserSidebar } from '../../layout/user-sidebar/user-sidebar';
 import { RouterOutlet } from '@angular/router';
 import { AddUserIntoOrganizationModal } from '../../components/modals/add-user-into-organization-modal/add-user-into-organization-modal';
 import { OrganizationDetailsModal } from '../../modals/organization-details-modal/organization-details-modal';
-import { ErrorPopup } from '../../modals/error-popup/error-popup';
 import { SettingsFacade } from '../../settings/settingsFacade';
 import { SettingsStore } from '../../settings/settingsStore';
 import { ReservationDetailsModal } from '../../modals/reservation-details-modal/reservation-details-modal';
 import { ToolbarType } from '../../components/toolbars/toolbarType';
+import { ViewStore } from '../../services/view/view.store';
+import { ViewController } from '../../services/view/view.controller';
+
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -38,75 +43,54 @@ import { ToolbarType } from '../../components/toolbars/toolbarType';
   templateUrl: './profile.html',
 })
 export class ProfilePage implements OnInit, OnDestroy {
-  readonly store = inject(ReservationStore);
+  readonly reservationStore = inject(ReservationStore);
+  readonly orgStore = inject(OrganizationStore);
+  readonly userStore = inject(UserStore);
   readonly settingsStore = inject(SettingsStore);
-  readonly facade = inject(ReservationFacade);
+  readonly viewStore = inject(ViewStore);
+
+  readonly reservationFacade = inject(ReservationFacade);
+  readonly orgFacade = inject(OrganizationFacade);
+  readonly userFacade = inject(UserFacade);
   readonly settingsFacade = inject(SettingsFacade);
+  readonly viewController = inject(ViewController);
+
   readonly authService = inject(AuthService);
   readonly translocoService = inject(TranslocoService);
   readonly helper = inject(CalendarHelper);
   readonly textFormatingTool = inject(TextFormatingTool);
 
   readonly reservationToDelete = signal<ReservationDto | null>(null);
-  private sseController: AbortController | null = null;
 
   getTitleText(): string {
-    if (this.store.confirmMarkReservationAsRequestCancel()) {
+    if (this.viewStore.confirmMarkReservationAsRequestCancel()) {
       return this.translocoService.translate('USER_MODALS.CONFIRM_REQUEST_CANCEL_TITLE');
     }
-    if (this.store.isAddOrganizationModalActive()) {
+    if (this.viewStore.isAddOrganizationModalActive()) {
       return this.translocoService.translate('USER_MODALS.ORGANIZATION_ADDED');
     }
     return '';
   }
 
-  // getBodyText(): string {
-  //   if (this.store.isAddOrganizationModalActive()) {
-  //     return '';
-  //   }
-  //   const res = this.store.selectedReservation();
-  //   if (!res) return '';
-
-  //   const params = {
-  //     organization: this.textFormatingTool.bandText(res),
-  //     date: this.textFormatingTool.dateColumnText(res),
-  //     startHour: this.textFormatingTool.startAtText(res),
-  //     endHour: this.textFormatingTool.endAtText(res),
-  //   };
-
-  //   if (this.store.confirmMarkReservationAsRequestCancel()) {
-  //     return this.translocoService.translate('USER_MODALS.CONFIRM_REQUEST_CANCEL_BODY', params);
-  //   }
-
-  //   return '';
-  // }
-
   ngOnInit(): void {
-    this.store.toolbarType.set(ToolbarType.USER_ORGANIZATIONS);
+    this.reservationStore.toolbarType.set(ToolbarType.USER_ORGANIZATIONS);
     const user = this.authService.currentUser();
     if (user) {
-      this.facade.getRooms();
-      this.facade.getReservations({
-        future: this.store.toolbarOnlyFuture(),
+      this.reservationFacade.getRooms();
+      this.reservationFacade.getReservations({
+        future: this.reservationStore.toolbarOnlyFuture(),
         userId: user.id,
       });
-      this.facade.connectToReservationStream();
-      this.facade.getOrganizations(true, user.id);
+      this.reservationFacade.connectToReservationStream();
+      this.orgFacade.getOrganizations(true, user.id);
     }
   }
 
   handleClickCreateTeam(): void {
-    this.store.isAddOrganizationModalActive.set(true);
+    this.viewStore.isAddOrganizationModalActive.set(true);
   }
 
   ngOnDestroy(): void {
-    this.facade.disconnectStream();
+    this.reservationFacade.disconnectStream();
   }
-
-  // openRequestCancellation(res: ReservationDto): void {
-  //   this.facade.openConfirmationUpdateReservationsStatus(
-  //     [res],
-  //     ReservationStatus.REQUESTED_CANCELLATION,
-  //   );
-  // }
 }

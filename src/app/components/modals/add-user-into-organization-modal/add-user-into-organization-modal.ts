@@ -2,9 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ReservationFacade } from '../../reservation/reservation.facade';
-import { ReservationStore } from '../../reservation/reservation.store';
+import { ReservationFacade } from '../../../services/reservation/reservation.facade';
+import { ReservationStore } from '../../../services/reservation/reservation.store';
 import { AuthService } from '../../../auth/authService';
+import { OrganizationFacade } from '../../../services/organization/organization.facade';
+import { UserFacade } from '../../../services/user/user.facade';
+import { ViewController } from '../../../services/view/view.controller';
+import { ViewStore } from '../../../services/view/view.store';
 
 @Component({
   selector: 'app-add-user-into-organization-modal',
@@ -14,14 +18,17 @@ import { AuthService } from '../../../auth/authService';
   styleUrl: './add-user-into-organization-modal.css',
 })
 export class AddUserIntoOrganizationModal implements OnInit, OnDestroy {
-  readonly facade = inject(ReservationFacade);
+  readonly organizationFacade = inject(OrganizationFacade);
+  readonly userFacade = inject(UserFacade);
   readonly store = inject(ReservationStore);
   readonly auth = inject(AuthService);
+  readonly viewStore = inject(ViewStore);
+  readonly viewController = inject(ViewController);
 
   readonly type = input.required<'member' | 'owner' | string>();
 
   ngOnInit(): void {
-    this.facade.getAllUsers();
+    this.userFacade.getAllUsers();
     this.store.organizationListSelectedUser.set(null);
   }
 
@@ -50,9 +57,9 @@ export class AddUserIntoOrganizationModal implements OnInit, OnDestroy {
   });
 
   cancel(): void {
-    this.store.isModalAddMemberActive.set(false);
-    this.store.isModalAddOwnerActive.set(false);
-    this.store.isModalAddOwnerActive.set(false);
+    this.viewStore.isModalAddMemberActive.set(false);
+    this.viewStore.isModalAddOwnerActive.set(false);
+    this.viewStore.isModalAddOwnerActive.set(false);
     this.store.organizationListSelectedUser.set(null);
   }
 
@@ -65,9 +72,9 @@ export class AddUserIntoOrganizationModal implements OnInit, OnDestroy {
     }
 
     if (this.type() === 'owner') {
-      this.facade.addOwnerToOrganization(selectedUser.id, selectedOrg.id);
+      this.organizationFacade.addOwnerToOrganization(selectedUser.id, selectedOrg.id);
     } else {
-      this.facade.addMemberToOrganization(selectedUser.id, selectedOrg.id);
+      this.organizationFacade.addMemberToOrganization(selectedUser.id, selectedOrg.id);
     }
   }
 }

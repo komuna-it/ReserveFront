@@ -58,7 +58,7 @@
           </td>
         </tr>
 
-        @for (user of store.users(); track user.id) {
+        @for (user of userStore.users(); track user.id) {
           <tr
             class="grid grid-cols-[auto_1fr_auto] gap-x-2 md:gap-x-0 p-3 md:p-0 md:table-row hover:bg-slate-700/30 transition-colors items-center"
           >
@@ -70,7 +70,7 @@
               >
                 <input
                   type="checkbox"
-                  [checked]="store.toolbarSelectedIds().has(user.id)"
+                  [checked]="userStore.toolbarSelectedIds().has(user.id)"
                   (change)="toggleUserSelection(user.id)"
                   class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-indigo-500 focus:ring-indigo-500/50 cursor-pointer"
                 />
@@ -183,10 +183,10 @@
   </div>
 
   <app-pagination
-    [totalElements]="store.usersPage().totalElements"
-    [totalPages]="store.usersPage().totalPages"
-    [currentPage]="store.usersPage().number"
-    [pageSize]="store.usersPage().size"
+    [totalElements]="userStore.usersPage().totalElements"
+    [totalPages]="userStore.usersPage().totalPages"
+    [currentPage]="userStore.usersPage().number"
+    [pageSize]="userStore.usersPage().size"
     (pageChange)="facade.changeUsersPage($event)"
     (sizeChange)="facade.changeUsersSize($event)"
   ></app-pagination>

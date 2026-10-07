@@ -1,7 +1,7 @@
 import { Component, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReservationStore } from '../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { ReservationStore } from '../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
 import { TranslocoModule, TranslocoPipe } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
 import { Room } from '../../model/room';

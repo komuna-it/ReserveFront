@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../auth/authService';
-import { ReservationStore } from '../../components/reservation/reservation.store';
+import { ReservationStore } from '../../services/reservation/reservation.store';
 import { ErrorResponse } from '../../model/error/errorResponse';
 import { ErrorType } from '../../model/error/errorType';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';

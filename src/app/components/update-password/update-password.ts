@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { ReservationStore } from '../reservation/reservation.store';
-import { ReservationFacade } from '../reservation/reservation.facade';
+import { ReservationStore } from '../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
 import { AuthService } from '../../auth/authService';
 import { FormsModule } from '@angular/forms';
 

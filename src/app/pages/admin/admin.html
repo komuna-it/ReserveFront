@@ -8,19 +8,19 @@
   </main>
 </div>
 
-@if (store.confirmMarkReservationAsAccepted()) {
-  @if (store.selectedReservation(); as res) {
+@if (viewStore.confirmMarkReservationAsAccepted()) {
+  @if (reservationStore.selectedReservation(); as res) {
     <app-confirmation-popup
       [titleText]="'ADMIN_RESERVATIONS.CONFIRM_ACCEPT_TITLE' | transloco"
       [bodyText]="getBodyText()"
       (ok)="facade.openConfirmationUpdateReservationsStatus([res], ReservationStatus.CONFIRMED)"
-      (cancel)="facade.closeModals()"
+      (cancel)="viewController.closeModals()"
     ></app-confirmation-popup>
   }
 }
 
-@if (store.confirmMarkReservationAsRejected()) {
-  @if (store.selectedReservation(); as res) {
+@if (viewStore.confirmMarkReservationAsRejected()) {
+  @if (reservationStore.selectedReservation(); as res) {
     <app-confirmation-popup
       [titleText]="
         'ADMIN_RESERVATIONS.CONFIRM_REJECT_TITLE'
@@ -31,11 +31,15 @@
                 room: tool.getRoomName(res),
               }
       "
-      (cancel)="facade.closeModals()"
+      (cancel)="viewController.closeModals()"
     ></app-confirmation-popup>
   }
 }
-@if (store.confirmMarkReservationAsCanceled() && store.selectedReservation(); as res) {
+
+@if (
+  viewStore.confirmMarkReservationAsCanceled() && reservationStore.selectedReservation();
+  as res
+) {
   <app-confirmation-popup
     [titleText]="
       'ADMIN_RESERVATIONS.CONFIRM_CANCEL_TITLE'
@@ -47,69 +51,73 @@
             }
     "
     (ok)="facade.updateReservationsStatus(ReservationStatus.CANCELLED)"
-    (cancel)="facade.closeModals()"
+    (cancel)="viewController.closeModals()"
   ></app-confirmation-popup>
 }
 
-@if (store.isBanUsersModalActive()) {
+@if (viewStore.isBanUsersModalActive()) {
   <app-ban-modal></app-ban-modal>
 }
 
-@if (store.isBanUsersSuccessActive()) {
+@if (viewStore.isSuccessPopupActive()) {
   <app-success-popup
     [titleText]="'USER_MODALS.SUCCESS' | transloco"
-    (ok)="facade.closeModals()"
+    (ok)="viewController.closeModals()"
   ></app-success-popup>
 }
-@if (store.isUserDetailsModalActive()) {
-  <app-user-details-modal [user]="store.selectedUser()"></app-user-details-modal>
+
+@if (viewStore.isUserDetailsModalActive()) {
+  <app-user-details-modal [user]="userStore.selectedUser()"></app-user-details-modal>
 }
 
-@if (store.selectedOrganization(); as org) {
-  @if (store.isOrganizationDetailsModalActive()) {
+@if (organizationStore.selectedOrganization(); as org) {
+  @if (viewStore.isOrganizationDetailsModalActive()) {
     <app-organization-details-modal></app-organization-details-modal>
   }
 
-  @if (store.isModalAddMemberActive()) {
+  @if (viewStore.isModalAddMemberActive()) {
     <app-add-user-into-organization-modal [type]="'member'"></app-add-user-into-organization-modal>
   }
 
-  @if (store.isModalAddOwnerActive()) {
+  @if (viewStore.isModalAddOwnerActive()) {
     <app-add-user-into-organization-modal [type]="'owner'"></app-add-user-into-organization-modal>
   }
 }
 
-@if (store.selectedOrganization(); as res) {
-  @if (store.selectedUser(); as user) {
-    @if (store.isModalDeleteOwnerActive()) {
+@if (organizationStore.selectedOrganization(); as res) {
+  @if (userStore.selectedUser(); as user) {
+    @if (viewStore.isModalDeleteOwnerActive()) {
       <app-confirmation-popup
         [titleText]="'USER_MODALS.CONFIRM_DELETE_OWNER' | transloco"
-        (ok)="facade.removeOwnerFromOrganization(user.id, res.id)"
-        (cancel)="facade.closeModals()"
+        (ok)="organizationFacade.removeOwnerFromOrganization(user.id, res.id)"
+        (cancel)="viewController.closeModals()"
       ></app-confirmation-popup>
     }
   }
 }
 
-<!-- Popup -  success -->
+<!-- Popup - success -->
 @if (
-  store.isModalDeleteMemberSuccessActive() ||
-  store.isModalDeleteOrganizationSuccessActive() ||
-  store.isModalDeleteOwnerSuccessActive() ||
-  store.isAdminAddOrganizationSuccessPopupActive()
+  viewStore.isModalDeleteMemberSuccessActive() ||
+  viewStore.isModalDeleteOrganizationSuccessActive() ||
+  viewStore.isModalDeleteOwnerSuccessActive() ||
+  viewStore.isAdminAddOrganizationSuccessPopupActive()
 ) {
-  <app-success-popup [titleText]="'USER_MODALS.SUCCESS | transloco '"></app-success-popup>
+  <app-success-popup
+    [titleText]="'USER_MODALS.SUCCESS' | transloco"
+    (ok)="viewController.closeModals()"
+  ></app-success-popup>
 }
 
 <!-- Modal - Add Organization -->
-@if (store.isAdminAddOrganizationModalActive()) {
+@if (viewStore.isAdminAddOrganizationModalActive()) {
   <app-add-organization-modal></app-add-organization-modal>
 }
 
-@if (store.isModalAddRoomActive()) {
+@if (viewStore.isModalAddRoomActive()) {
   <app-add-room-modal></app-add-room-modal>
 }
 
-@if (store.isReservationDetailsModalActive()) {
+@if (viewStore.isReservationDetailsModalActive()) {
   <app-reservation-details-modal></app-reservation-details-modal>
 }

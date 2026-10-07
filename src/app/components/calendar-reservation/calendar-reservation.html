@@ -3,7 +3,7 @@
   [ngClass]="cellClasses()"
 >
   @if (canViewDetails()) {
-    <button type="button" (click)="store.isReservationDetailsModalActive.set(true)">
+    <button type="button" (click)="viewStore.isReservationDetailsModalActive.set(true)">
       <span
         class="font-bold text-[10px] tracking-wide uppercase block truncate w-full px-1 text-center"
         [class.text-emerald-300]="isForAdmin()"

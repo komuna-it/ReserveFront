@@ -2,8 +2,9 @@ import { signal, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../auth/authService';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { ReservationStore } from '../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { ReservationStore } from '../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
+import { UserFacade } from '../../services/user/user.facade';
 
 @Component({
   selector: 'app-navbar',
@@ -15,6 +16,7 @@ import { ReservationFacade } from '../../components/reservation/reservation.faca
 export class Navbar {
   readonly authService = inject(AuthService);
   readonly translocoService = inject(TranslocoService);
+  readonly userFacade = inject(UserFacade);
   readonly facade = inject(ReservationFacade);
   readonly store = inject(ReservationStore);
 
@@ -33,7 +35,7 @@ export class Navbar {
   changeLang(lang: string) {
     this.translocoService.setActiveLang(lang);
     this.isLangMenuOpen.set(false);
-    this.facade.setPreferredLanguage(lang);
+    this.userFacade.setPreferredLanguage(lang);
   }
 
   toggleMobileMenu() {

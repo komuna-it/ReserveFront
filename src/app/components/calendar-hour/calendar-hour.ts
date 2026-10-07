@@ -1,12 +1,14 @@
 import { Component, computed, inject, input, isDevMode, output } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AuthService } from '../../auth/authService';
-import { ReservationStore } from '../reservation/reservation.store';
+import { ReservationStore } from '../../services/reservation/reservation.store';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
 import { TextFormatingTool } from '../../tools/textFormatingTool';
 import { ReservationStatus } from '../../model/reservationStatus';
+import { ViewController } from '../../services/view/view.controller';
+import { ViewStore } from '../../services/view/view.store';
 
 @Component({
   selector: 'app-calendar-hour',
@@ -26,6 +28,8 @@ export class CalendarHour {
   readonly room = input.required<Room>();
   readonly hour = input.required<number>();
   readonly reservation = input<ReservationDto | undefined>();
+  readonly viewStore = inject(ViewStore);
+  readonly viewController = inject(ViewController);
 
   readonly isForAdmin = input<boolean | null>(false);
   readonly isMyPrivate = input<boolean | null>(false);
@@ -118,7 +122,7 @@ export class CalendarHour {
     if (!this.isReserved()) {
       this.slotClick.emit();
     } else if (this.canViewDetails()) {
-      this.store.isReservationDetailsModalActive.set(true);
+      this.viewStore.isReservationDetailsModalActive.set(true);
     }
   }
 }

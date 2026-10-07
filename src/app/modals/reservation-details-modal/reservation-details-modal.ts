@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
-import { ReservationStore } from '../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { ReservationStore } from '../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TextFormatingTool } from '../../tools/textFormatingTool';
@@ -10,6 +10,8 @@ import { AuthService } from '../../auth/authService';
 import { ReservationDto } from '../../model/reservationDto';
 import { NgClass } from '@angular/common';
 import { ConfirmationType } from '../../model/confirmationType';
+import { ViewStore } from '../../services/view/view.store';
+import { ViewController } from '../../services/view/view.controller';
 
 @Component({
   selector: 'app-reservation-details-modal',
@@ -25,6 +27,8 @@ export class ReservationDetailsModal {
   readonly ReservationStatus = ReservationStatus;
   readonly helper = inject(CalendarHelper);
   readonly ConfirmationType = ConfirmationType;
+  readonly viewStore = inject(ViewStore);
+  readonly viewController = inject(ViewController);
 
   readonly activeReservation = computed(() => {
     const explicitlySelected = this.store.selectedReservation();
@@ -66,7 +70,7 @@ export class ReservationDetailsModal {
     id.add(res.id);
     this.store.toolbarSelectedIds.set(id);
     this.facade.updateReservationsStatus(ReservationStatus.REQUESTED_CANCELLATION);
-    this.facade.closeModals();
+    this.viewController.closeModals();
   }
 
   acceptReservation(res: ReservationDto) {
@@ -74,6 +78,6 @@ export class ReservationDetailsModal {
     id.add(res.id);
     this.store.toolbarSelectedIds.set(id);
     this.facade.updateReservationsStatus(ReservationStatus.CONFIRMED);
-    this.facade.closeModals();
+    this.viewController.closeModals();
   }
 }

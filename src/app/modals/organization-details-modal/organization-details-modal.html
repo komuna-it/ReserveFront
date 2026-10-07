@@ -1,7 +1,7 @@
 <div
   class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-150"
-  (click)="facade.closeModals()"
-  (keyup.escape)="facade.closeModals()"
+  (click)="viewController.closeModals()"
+  (keyup.escape)="viewController.closeModals()"
   tabindex="0"
 >
   <!-- Modal Card Wrapper -->
@@ -26,7 +26,7 @@
           <div class="flex items-center gap-1.5">
             <button
               type="button"
-              (click)="facade.markSingleOrganizationAsTrusted(organization().id)"
+              (click)="organizationFacade.markSingleOrganizationAsTrusted(organization().id)"
               [disabled]="organization().trusted"
               class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all"
               [class]="
@@ -48,7 +48,7 @@
 
             <button
               type="button"
-              (click)="facade.markSingleOrganizationAsUntrusted(organization().id)"
+              (click)="organizationFacade.markSingleOrganizationAsUntrusted(organization().id)"
               [disabled]="!organization().trusted"
               class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all"
               [class]="
@@ -73,7 +73,7 @@
 
         <button
           type="button"
-          (click)="facade.closeModals()"
+          (click)="viewController.closeModals()"
           class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100 active:scale-95"
           aria-label="Zamknij modal"
         >
@@ -221,7 +221,10 @@
                           <button
                             type="button"
                             (click)="
-                              facade.prepareDemoteOwner(owner.userId, organization().id);
+                              organizationFacade.prepareDemoteOwner(
+                                owner.userId,
+                                organization().id
+                              );
                               $event.stopPropagation()
                             "
                             [disabled]="owners().length <= 1"
@@ -234,7 +237,10 @@
                           <button
                             type="button"
                             (click)="
-                              facade.prepareDeleteOwner(owner.userId, organization().id);
+                              organizationFacade.prepareDeleteOwner(
+                                owner.userId,
+                                organization().id
+                              );
                               $event.stopPropagation()
                             "
                             [disabled]="!isDeleteOwnerButtonActive()"
@@ -319,7 +325,10 @@
                           <button
                             type="button"
                             (click)="
-                              facade.preparePromoteMember(member.userId, organization().id);
+                              organizationFacade.preparePromoteMember(
+                                member.userId,
+                                organization().id
+                              );
                               $event.stopPropagation()
                             "
                             class="rounded px-2 py-1 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/10"
@@ -331,7 +340,10 @@
                           <button
                             type="button"
                             (click)="
-                              facade.prepareDeleteMember(member.userId, organization().id);
+                              organizationFacade.prepareDeleteMember(
+                                member.userId,
+                                organization().id
+                              );
                               $event.stopPropagation()
                             "
                             class="rounded px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
@@ -348,7 +360,7 @@
               @if (canManageMembers()) {
                 <button
                   type="button"
-                  (click)="facade.prepareAddMember(organization().id)"
+                  (click)="organizationFacade.prepareAddMember(organization().id)"
                   class="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2 text-xs font-medium text-slate-300 transition-all hover:border-slate-600 hover:bg-slate-800 active:scale-[0.99]"
                 >
                   <span class="text-sm leading-none">+</span>
@@ -365,7 +377,7 @@
     <div class="mt-5 flex w-full shrink-0 justify-end border-t border-slate-800 pt-4">
       <button
         type="button"
-        (click)="store.isOrganizationDetailsModalActive.set(false)"
+        (click)="viewStore.isOrganizationDetailsModalActive.set(false)"
         class="rounded-lg border border-slate-700/60 bg-slate-800 px-6 py-2 text-xs font-medium text-slate-200 shadow-sm transition-all hover:bg-slate-700 hover:text-white active:scale-95"
       >
         {{ 'COMMON.CLOSE' | transloco }}

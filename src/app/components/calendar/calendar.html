@@ -235,21 +235,21 @@
     </div>
   </div>
 
-  @if (store.isBookingModalActive() && store.selectedBooking()) {
+  @if (viewStore.isBookingModalActive() && store.selectedBooking()) {
     <app-calendar-booking-modal></app-calendar-booking-modal>
   }
 
-  @if (store.displayBookingSuccesfulPopup()) {
+  @if (viewStore.displayBookingSuccesfulPopup()) {
     <app-success-popup
       [titleText]="'CALENDAR.SUCCESS_TITLE' | transloco"
-      (ok)="facade.closeModals()"
+      (ok)="viewController.closeModals()"
     ></app-success-popup>
   }
 
-  @if (store.displayBookingErrorPopup()) {
+  @if (viewStore.displayErrorPopup()) {
     <app-error-popup
       [titleText]="'CALENDAR.ERROR_TITLE' | transloco"
-      (ok)="store.displayBookingErrorPopup.set(false)"
+      (ok)="viewController.closeModals()"
     ></app-error-popup>
   }
 </div>

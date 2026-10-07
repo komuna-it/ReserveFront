@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { ReservationStore } from '../../components/reservation/reservation.store';
-import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { ReservationStore } from '../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
 import { Organization } from '../../model/organization';
 import {} from '../../components/tables/table-reservations/table-reservations';
 import { User } from '../../model/user';
@@ -9,6 +9,9 @@ import { AuthService } from '../../auth/authService';
 import { NgClass } from '@angular/common';
 import { TableReservations } from '../../components/tables/table-reservations/table-reservations';
 import { ReservationTableType } from '../../model/reservationTableType';
+import { OrganizationFacade } from '../../services/organization/organization.facade';
+import { ViewController } from '../../services/view/view.controller';
+import { ViewStore } from '../../services/view/view.store';
 
 @Component({
   selector: 'app-organization-details-modal',
@@ -20,8 +23,11 @@ import { ReservationTableType } from '../../model/reservationTableType';
 export class OrganizationDetailsModal {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
+  readonly organizationFacade = inject(OrganizationFacade);
   readonly auth = inject(AuthService);
   readonly loco = inject(TranslocoService);
+  readonly viewStore = inject(ViewStore);
+  readonly viewController = inject(ViewController);
 
   readonly organization = computed(() => this.store.selectedOrganization()!);
   readonly owners = computed(() => this.organization().owners);

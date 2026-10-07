@@ -1,6 +1,6 @@
 import { Component, inject, input, output } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { ReservationFacade } from '../../components/reservation/reservation.facade';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
 
 @Component({
   selector: 'app-error-popup',

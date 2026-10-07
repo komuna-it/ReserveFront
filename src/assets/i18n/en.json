@@ -363,7 +363,10 @@
     "PASSWORD_INSTRUCTIONS": "Password must contain at least one uppercase letter, one lowercase letter and one digit. Password must be between 8 and 64 characters",
     "EMAIL_INSTRUCTIONS": "Email address looks invalid",
     "SOMEONE_WAS_FASTER": "Someone was faster!",
-    "HOUR_ALREADY_RESERVED": "This hour is already reserved"
+    "HOUR_ALREADY_RESERVED": "This hour is already reserved",
+    "ACTION_FAILED": "Failed to perform action. Please try again later.",
+    "USER_NOT_FOUND": "User not found",
+    "ORGANIZATION_NOT_FOUND": "Organization not found"
   },
   "SUCCESS": {
     "ORGANIZATION_ADDED_TITLE": "Band Added",

@@ -1,10 +1,11 @@
 import { Component, computed, inject } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { ReservationStore } from '../reservation/reservation.store';
-import { ReservationFacade } from '../reservation/reservation.facade';
+import { ReservationStore } from '../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../services/reservation/reservation.facade';
 import { AuthService } from '../../auth/authService';
 import { SettingsFacade } from '../../settings/settingsFacade';
 import { SettingsStore } from '../../settings/settingsStore';
+import { UserFacade } from '../../services/user/user.facade';
 
 @Component({
   selector: 'app-user-settings',
@@ -16,6 +17,7 @@ import { SettingsStore } from '../../settings/settingsStore';
 export class UserSettings {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
+  readonly userFacade = inject(UserFacade);
   readonly settingsFacade = inject(SettingsFacade);
   readonly settingsStore = inject(SettingsStore);
   readonly auth = inject(AuthService);
@@ -32,7 +34,7 @@ export class UserSettings {
     if (newLanguage) {
       this.transloco.setActiveLang(newLanguage);
 
-      this.facade.setPreferredLanguage(newLanguage);
+      this.userFacade.setPreferredLanguage(newLanguage);
     }
   }
 

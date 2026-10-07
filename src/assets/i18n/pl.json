@@ -364,7 +364,11 @@
     "PASSWORD_INSTRUCTIONS": "Hasło musi zawierać co najmniej jedną wielką literę, jedną małą literę i jedną cyfrę. Hasło musi mieć od 8 do 64 znaków.",
     "EMAIL_INSTRUCTIONS": "Adres email wygląda na nieprawidłowy",
     "SOMEONE_WAS_FASTER": "Ktoś cię ubiegł!",
-    "HOUR_ALREADY_RESERVED": "Ta godzina jest już zarezerwowana"
+    "HOUR_ALREADY_RESERVED": "Ta godzina jest już zarezerwowana",
+    "ACTION_FAILED": "Nie udało się wykonać akcji. Spróbuj ponownie później.",
+    "USER_NOT_FOUND": "Nie znaleziono użytkownika",
+    "ORGANIZATION_NOT_FOUND": "Nie znaleziono zespołu",
+    "STATUS_UPDATE_FAILED": "Nie udało się zaktualizować statusu rezerwacji"
   },
   "SUCCESS": {
     "ORGANIZATION_ADDED_TITLE": "Zespół dodany",

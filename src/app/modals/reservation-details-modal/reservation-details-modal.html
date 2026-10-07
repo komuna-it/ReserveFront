@@ -1,6 +1,6 @@
 <div
   class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
-  (click)="facade.closeModals()"
+  (click)="viewController.closeModals()"
 >
   <div
     (click)="$event.stopPropagation()"
@@ -124,7 +124,7 @@
               </button>
 
               <button
-                (click)="facade.showConfirmation(ConfirmationType.RESERVATION_REJECT, res)"
+                (click)="viewController.showConfirmation(ConfirmationType.RESERVATION_REJECT, res)"
                 class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
               >
                 {{ 'BUTTONS.REJECT' | transloco }}
@@ -132,7 +132,7 @@
             </div>
           } @else if (res.status === ReservationStatus.CONFIRMED) {
             <button
-              (click)="facade.showConfirmation(ConfirmationType.RESERVATION_REJECT, res)"
+              (click)="viewController.showConfirmation(ConfirmationType.RESERVATION_REJECT, res)"
               class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
             >
               {{ 'BUTTONS.CANCEL' | transloco }}
@@ -140,7 +140,7 @@
           } @else if (res.status === ReservationStatus.REQUESTED_CANCELLATION) {
             <div class="grid grid-cols-2 gap-2">
               <button
-                (click)="facade.showConfirmation(ConfirmationType.RESERVATION_CANCEL, res)"
+                (click)="viewController.showConfirmation(ConfirmationType.RESERVATION_CANCEL, res)"
                 class="w-full px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
               >
                 {{ 'BUTTONS.CANCEL' | transloco }}
@@ -148,7 +148,10 @@
 
               <button
                 (click)="
-                  facade.showConfirmation(ConfirmationType.RESERVATION_REQUEST_CANCEL_REJECT, res)
+                  viewController.showConfirmation(
+                    ConfirmationType.RESERVATION_REQUEST_CANCEL_REJECT,
+                    res
+                  )
                 "
                 class="border border-green w-full px-3 py-2.5 text-xs font-semibold rounded-lg hover:bg-red-500 text-white transition-all shadow-md active:scale-95"
               >
@@ -171,7 +174,7 @@
         }
       }
       <button
-        (click)="facade.closeModals()"
+        (click)="viewController.closeModals()"
         class="w-full mt-1 px-4 py-2.5 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-all shadow-md active:scale-95"
       >
         {{ 'USER_MODALS.CANCEL' | transloco }}

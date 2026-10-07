@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
-import { ReservationStore } from '../../reservation/reservation.store';
-import { ReservationFacade } from '../../reservation/reservation.facade';
+import { ReservationStore } from '../../../services/reservation/reservation.store';
+import { ReservationFacade } from '../../../services/reservation/reservation.facade';
 import { FormsModule } from '@angular/forms';
 
 @Component({

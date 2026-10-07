@@ -1,8 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AuthService } from '../../auth/authService';
-import { ReservationStore } from '../reservation/reservation.store';
+import { ReservationStore } from '../../services/reservation/reservation.store';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ViewStore } from '../../services/view/view.store';
 
 @Component({
   selector: 'app-calendar-reservation',
@@ -13,6 +14,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 export class CalendarReservation {
   readonly authService = inject(AuthService);
   readonly store = inject(ReservationStore);
+  readonly viewStore = inject(ViewStore);
 
   readonly isForAdmin = input<boolean | null>(false);
   readonly isMyPrivate = input<boolean | null>(false);
