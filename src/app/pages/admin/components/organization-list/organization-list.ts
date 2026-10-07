@@ -27,7 +27,7 @@ import { TableToolbar } from '../../../../components/toolbars/table-toolbar/tabl
   styleUrl: './organization-list.css',
 })
 export class OrganizationList implements OnInit, OnDestroy {
-  readonly mode = input<'admin' | 'user'>('user');
+  readonly organizationListMode = input<'admin' | 'user'>('user');
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
   readonly auth = inject(AuthService);
@@ -65,6 +65,8 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly isMembersExpanded = signal(true);
 
   constructor() {
+    console.log('OrganizationList constructor this.mode:', this.organizationListMode());
+
     effect(() => {
       this.store.currentSortBy();
       this.store.currentSortDir();
@@ -74,16 +76,17 @@ export class OrganizationList implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (this.mode() === 'admin') {
+    if (this.organizationListMode() === 'admin') {
       this.facade.getOrganizations(true, null);
     } else {
       const user = this.auth.currentUser();
       if (user) this.facade.getOrganizations(true, user.id);
     }
+    console.log('OrganizationList ngOnInit mode:', this.organizationListMode());
   }
 
   ngOnDestroy(): void {
-    if (this.mode() === 'admin') {
+    if (this.organizationListMode() === 'admin') {
       this.store.teamsList.set([]);
       this.store.isAdminOrganizationModalActive.set(false);
     }

@@ -19,6 +19,7 @@ import { ErrorPopup } from '../../modals/error-popup/error-popup';
 import { SettingsFacade } from '../../settings/settingsFacade';
 import { SettingsStore } from '../../settings/settingsStore';
 import { ReservationDetailsModal } from '../../modals/reservation-details-modal/reservation-details-modal';
+import { ToolbarType } from '../../components/toolbars/toolbarType';
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -32,7 +33,6 @@ import { ReservationDetailsModal } from '../../modals/reservation-details-modal/
     AddUserIntoOrganizationModal,
     AddOrganizationModal,
     SuccessPopup,
-    ErrorPopup,
     ReservationDetailsModal,
   ],
   templateUrl: './profile.html',
@@ -82,6 +82,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   // }
 
   ngOnInit(): void {
+    this.store.toolbarType.set(ToolbarType.USER_ORGANIZATIONS);
     const user = this.authService.currentUser();
     if (user) {
       this.facade.getRooms();

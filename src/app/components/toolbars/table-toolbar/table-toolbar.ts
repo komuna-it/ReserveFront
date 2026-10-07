@@ -57,6 +57,7 @@ export class TableToolbar {
       this.type();
       this.store.clearSelection();
     });
+    console.log('TableToolbar constructor type:', this.type());
   }
 
   toggleSelectAll(): void {

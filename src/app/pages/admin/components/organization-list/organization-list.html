@@ -1,4 +1,6 @@
-<app-table-toolbar [type]="toolbarType"></app-table-toolbar>
+@if (organizationListMode() === 'admin') {
+  <app-table-toolbar [type]="toolbarType"></app-table-toolbar>
+}
 
 <div class="mb-3">
   <button
@@ -20,7 +22,7 @@
       <tr
         class="bg-slate-900/80 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700"
       >
-        @if (mode() === 'admin') {
+        @if (organizationListMode() === 'admin') {
           <th class="py-3.5 px-2 font-semibold text-center border-r border-slate-700/60 w-[5%]">
             <label
               class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
@@ -59,7 +61,7 @@
     <tbody class="divide-y divide-slate-700/70 text-slate-300">
       @for (org of safeOrganizations(); track org.id) {
         <tr class="hover:bg-slate-700/30 transition-colors">
-          @if (mode() === 'admin') {
+          @if (organizationListMode() === 'admin') {
             <td class="p-1.5 border-r border-slate-700/60 align-top text-center pt-3.5">
               <label
                 class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
@@ -177,7 +179,7 @@
       } @empty {
         <tr>
           <td
-            [attr.colspan]="mode() === 'admin' ? 5 : 4"
+            [attr.colspan]="organizationListMode() === 'admin' ? 5 : 4"
             class="p-8 text-center text-slate-400 italic"
           >
             {{ 'ORGANIZATION_LIST.NO_BANDS_TO_DISPLAY' | transloco }}
