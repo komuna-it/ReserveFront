@@ -215,7 +215,6 @@ export class ReservationApi {
       .set('size', paramsObj.size ?? 10)
       .set('future', paramsObj.future ?? false);
 
-    // Apply Spring Data Pageable sort format
     const sortBy = paramsObj.sortBy;
     const sortDir = paramsObj.sortDir ?? 'desc';
     if (sortBy) {

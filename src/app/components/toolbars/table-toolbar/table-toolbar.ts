@@ -1,4 +1,5 @@
-import { Component, computed, inject, input, effect, signal } from '@angular/core';
+import { Component, computed, inject, input, effect } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ReservationStore } from '../../reservation/reservation.store';
 import { ReservationFacade } from '../../reservation/reservation.facade';
 import { ToolbarType } from '../toolbarType';
@@ -13,16 +14,16 @@ interface Identifiable {
   selector: 'app-table-toolbar',
   imports: [TranslocoPipe],
   templateUrl: './table-toolbar.html',
-  styleUrl: './table-toolbar.css',
 })
 export class TableToolbar {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
-  readonly type = input<ToolbarType | null>();
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
+  readonly type = input<ToolbarType | null>();
   readonly ToolbarType = ToolbarType;
   readonly ReservationStatus = ReservationStatus;
-
   readonly selectedIds = this.store.toolbarSelectedIds;
 
   readonly activeItems = computed<Identifiable[]>(() => {
@@ -97,38 +98,18 @@ export class TableToolbar {
     this.facade.isReservationPaid(selectedRes, paid);
   }
 
-  toggleOnlyFuture() {
-    this.store.toolbarOnlyFuture.update((v) => !v);
-    const future = this.store.toolbarOnlyFuture();
-
-    const status = this.store.statusForAdminPage();
-    if (!status) return;
-    switch (this.type()) {
-      case ToolbarType.RESERVATIONS: {
-        this.facade.getReservations({
-          statuses: new Set<ReservationStatus>([status]),
-          future: this.store.toolbarOnlyFuture(),
-        });
-        break;
-      }
-
-      case ToolbarType.ADMIN_ORGANIZATIONS: {
-        this.facade.getOrganizations(true, null);
-        break;
-      }
-
-      case ToolbarType.USERS: {
-        this.facade.getAllUsers();
-        break;
-      }
-
-      case ToolbarType.USER_ORGANIZATIONS: {
-        const user = this.store.selectedUser();
-        if (user) {
-          this.facade.getOrganizations(future, user.id);
-        }
-        break;
-      }
-    }
+  toggleOnlyFuture(): void {
+    const nextFutureState = !this.store.toolbarOnlyFuture();
+    this.store.toolbarOnlyFuture.set(nextFutureState);
+    const pageKey = this.store.reservationsPageQueryParamName();
+    console.log('TableToolbar toggleOnlyFuture nextFutureState:', nextFutureState);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        future: nextFutureState ? 'true' : 'false',
+        [pageKey]: 0,
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 }

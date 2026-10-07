@@ -37,7 +37,6 @@ export class TableReservations {
 
   readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} as Params });
 
-  // Computed signal to sort reservations by frontend-calculated reservedBy text
   readonly sortedReservations = computed<ReservationDto[]>(() => {
     const items = this.store.reservations();
     const sortBy = this.store.currentSortBy();
@@ -156,6 +155,7 @@ export class TableReservations {
     const size = this.store.currentReservationsSize();
     const sortBy = this.store.currentSortBy();
     const sortDir = this.store.currentSortDir();
+    const future = this.store.toolbarOnlyFuture();
 
     const sizeKey = this.store.reservationsSizeQueryParamName();
     const pageKey = this.store.reservationsPageQueryParamName();
@@ -168,6 +168,7 @@ export class TableReservations {
           [sizeKey]: size,
           sortBy: sortBy,
           sortDir: sortDir,
+          future: future ? 'true' : 'false',
         },
         queryParamsHandling: 'merge',
       });
@@ -180,7 +181,7 @@ export class TableReservations {
         if (loggedUser) {
           this.facade.getOrganizations(true, loggedUser.id);
           this.facade.getReservations({
-            future: this.store.toolbarOnlyFuture(),
+            future: future,
             userId: loggedUser.id,
           });
         }
@@ -200,7 +201,7 @@ export class TableReservations {
                     ReservationStatus.REJECTED_CANCELLATION,
                   ])
                 : new Set<ReservationStatus>([currentStatus]),
-            future: this.store.toolbarOnlyFuture(),
+            future: future,
           });
         }
         break;
@@ -210,7 +211,7 @@ export class TableReservations {
         const selectedOrg = this.store.selectedOrganization();
         if (selectedOrg) {
           this.facade.getReservations({
-            future: this.store.toolbarOnlyFuture(),
+            future: future,
             organizationIds: new Set([selectedOrg.id]),
           });
         }
@@ -221,7 +222,7 @@ export class TableReservations {
         if (currentStatus && selectedUser) {
           this.facade.getReservations({
             statuses: new Set<ReservationStatus>([currentStatus]),
-            future: this.store.toolbarOnlyFuture(),
+            future: future,
             userId: selectedUser.id,
           });
         }
