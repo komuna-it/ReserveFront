@@ -1178,10 +1178,18 @@ export class ReservationFacade {
   getReservations(filters: ReservationQueryParams) {
     this.store.lastReservationFilters.set(filters);
 
-    const page = filters.page ? filters.page : this.store.currentReservationsPage();
-    const size = filters.size ? filters.size : this.store.currentReservationsSize();
+    const page = filters.page ?? this.store.currentReservationsPage();
+    const size = filters.size ?? this.store.currentReservationsSize();
+    const sortBy = filters.sortBy ?? this.store.currentSortBy();
+    const sortDir = filters.sortDir ?? this.store.currentSortDir();
 
-    const requestParams = { ...filters, page, size };
+    const requestParams: ReservationQueryParams = {
+      ...filters,
+      page,
+      size,
+      sortBy,
+      sortDir,
+    };
 
     this.api.getReservations(requestParams).subscribe({
       next: (pageData) => {
@@ -1233,6 +1241,7 @@ export class ReservationFacade {
   isCancellationPossible(res: ReservationDto): boolean {
     return (
       res.status !== ReservationStatus.REQUESTED_CANCELLATION &&
+      res.status !== ReservationStatus.REJECTED &&
       res.status !== ReservationStatus.CANCELLED
     );
   }

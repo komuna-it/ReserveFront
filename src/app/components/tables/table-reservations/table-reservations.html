@@ -25,39 +25,156 @@
                   </label>
                 </th>
               }
-              <th class="border border-r border-slate-700/60 py-3 px-2 text-center">
-                {{ 'PROFILE.TABLE_INDEX' | transloco }}
+
+              <!-- ID Index Sort -->
+              <th
+                (click)="toggleSort('id')"
+                class="border border-r border-slate-700/60 py-3 px-2 text-center cursor-pointer hover:bg-slate-700/50 transition-colors select-none"
+              >
+                <div class="flex items-center justify-center gap-1">
+                  {{ 'PROFILE.TABLE_INDEX' | transloco }}
+                  <span class="text-xs" [class.text-emerald-500]="store.currentSortBy() === 'id'">
+                    {{
+                      store.currentSortBy() === 'id'
+                        ? store.currentSortDir() === 'asc'
+                          ? '↑'
+                          : '↓'
+                        : '↕'
+                    }}
+                  </span>
+                </div>
               </th>
 
+              <!-- Reserved By Sort -->
               <th
-                (click)="toggleSort('r')"
+                (click)="toggleSort('reservedBy.nick')"
                 class="py-3.5 px-4 font-semibold text-center w-[14%] cursor-pointer hover:bg-slate-700/50 transition-colors select-none"
               >
                 <div class="flex items-center justify-center gap-1.5">
                   {{ 'ADMIN_RESERVATIONS.RESERVED_BY' | transloco }}
                   <span
-                    class="text-lg leading-none"
-                    [class.text-emerald-500]="store.currentSortBy() === 'r'"
+                    class="text-xs"
+                    [class.text-emerald-500]="store.currentSortBy() === 'reservedBy.nick'"
                   >
-                    @if (store.currentSortBy() === 'r') {
-                      {{ store.currentSortDir() === 'asc' ? '↑' : '↓' }}
-                    } @else {
-                      <span class="text-slate-600 opacity-50">↕</span>
-                    }
+                    {{
+                      store.currentSortBy() === 'reservedBy.nick'
+                        ? store.currentSortDir() === 'asc'
+                          ? '↑'
+                          : '↓'
+                        : '↕'
+                    }}
                   </span>
                 </div>
               </th>
 
-              <th class="py-3 px-6 text-center">{{ 'PROFILE.TABLE_ROOM' | transloco }}</th>
-              <th class="py-3 px-6 text-center">{{ 'PROFILE.TABLE_DATE' | transloco }}</th>
-              <th class="py-3 px-6 text-center">{{ 'CALENDAR.RESERVATION_TYPE' | transloco }}</th>
-              <th class="py-3 px-6 text-center">{{ 'PROFILE.PRICE' | transloco }} (zł)</th>
-              <th class="py-3.5 px-4 font-semibold text-center w-[14%]">
-                {{ 'PROFILE.IS_PAID' | transloco }}
+              <!-- Room Name Sort -->
+              <th
+                (click)="toggleSort('room.name')"
+                class="py-3 px-6 text-center cursor-pointer hover:bg-slate-700/50 transition-colors select-none"
+              >
+                <div class="flex items-center justify-center gap-1">
+                  {{ 'PROFILE.TABLE_ROOM' | transloco }}
+                  <span
+                    class="text-xs"
+                    [class.text-emerald-500]="store.currentSortBy() === 'room.name'"
+                  >
+                    {{
+                      store.currentSortBy() === 'room.name'
+                        ? store.currentSortDir() === 'asc'
+                          ? '↑'
+                          : '↓'
+                        : '↕'
+                    }}
+                  </span>
+                </div>
               </th>
+
+              <!-- Date StartAt Sort -->
+              <th
+                (click)="toggleSort('startAt')"
+                class="py-3 px-6 text-center cursor-pointer hover:bg-slate-700/50 transition-colors select-none"
+              >
+                <div class="flex items-center justify-center gap-1">
+                  {{ 'PROFILE.TABLE_DATE' | transloco }}
+                  <span
+                    class="text-xs"
+                    [class.text-emerald-500]="store.currentSortBy() === 'startAt'"
+                  >
+                    {{
+                      store.currentSortBy() === 'startAt'
+                        ? store.currentSortDir() === 'asc'
+                          ? '↑'
+                          : '↓'
+                        : '↕'
+                    }}
+                  </span>
+                </div>
+              </th>
+
+              <!-- Reservation Type Sort -->
+              <th
+                (click)="toggleSort('type')"
+                class="py-3 px-6 text-center cursor-pointer hover:bg-slate-700/50 transition-colors select-none"
+              >
+                <div class="flex items-center justify-center gap-1">
+                  {{ 'CALENDAR.RESERVATION_TYPE' | transloco }}
+                  <span class="text-xs" [class.text-emerald-500]="store.currentSortBy() === 'type'">
+                    {{
+                      store.currentSortBy() === 'type'
+                        ? store.currentSortDir() === 'asc'
+                          ? '↑'
+                          : '↓'
+                        : '↕'
+                    }}
+                  </span>
+                </div>
+              </th>
+
+              <th class="py-3 px-6 text-center">{{ 'PROFILE.PRICE' | transloco }} (zł)</th>
+
+              <!-- Is Paid Sort -->
+              <th
+                (click)="toggleSort('paid')"
+                class="py-3.5 px-4 font-semibold text-center w-[14%] cursor-pointer hover:bg-slate-700/50 transition-colors select-none"
+              >
+                <div class="flex items-center justify-center gap-1">
+                  {{ 'PROFILE.IS_PAID' | transloco }}
+                  <span class="text-xs" [class.text-emerald-500]="store.currentSortBy() === 'paid'">
+                    {{
+                      store.currentSortBy() === 'paid'
+                        ? store.currentSortDir() === 'asc'
+                          ? '↑'
+                          : '↓'
+                        : '↕'
+                    }}
+                  </span>
+                </div>
+              </th>
+
               @if (type() != ReservationTableType.ADMIN_BY_STATUS) {
-                <th class="py-3 px-6 text-center">{{ 'PROFILE.STATUS' | transloco }}</th>
+                <!-- Status Sort -->
+                <th
+                  (click)="toggleSort('status')"
+                  class="py-3 px-6 text-center cursor-pointer hover:bg-slate-700/50 transition-colors select-none"
+                >
+                  <div class="flex items-center justify-center gap-1">
+                    {{ 'PROFILE.STATUS' | transloco }}
+                    <span
+                      class="text-xs"
+                      [class.text-emerald-500]="store.currentSortBy() === 'status'"
+                    >
+                      {{
+                        store.currentSortBy() === 'status'
+                          ? store.currentSortDir() === 'asc'
+                            ? '↑'
+                            : '↓'
+                          : '↕'
+                      }}
+                    </span>
+                  </div>
+                </th>
               }
+
               @if (type() === ReservationTableType.USER_PROFILE) {
                 <th class="py-3 px-6 text-center">{{ 'PROFILE.TABLE_CANCEL' | transloco }}</th>
               }

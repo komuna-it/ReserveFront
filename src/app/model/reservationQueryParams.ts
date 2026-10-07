@@ -9,4 +9,6 @@ export interface ReservationQueryParams {
   startAtBefore?: string | null;
   page?: number;
   size?: number;
+  sortBy?: string | null;
+  sortDir?: 'asc' | 'desc' | null;
 }

@@ -37,6 +37,27 @@ export class TableReservations {
 
   readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} as Params });
 
+  // Computed signal to sort reservations by frontend-calculated reservedBy text
+  readonly sortedReservations = computed<ReservationDto[]>(() => {
+    const items = this.store.reservations();
+    const sortBy = this.store.currentSortBy();
+    const sortDir = this.store.currentSortDir();
+
+    if (sortBy === 'reservedBy.nick' || sortBy === 'reservedBy') {
+      return [...items].sort((a, b) => {
+        const textA = this.textFormatingTool.reservedByText(a);
+        const textB = this.textFormatingTool.reservedByText(b);
+        const comparison = textA.localeCompare(textB, undefined, {
+          sensitivity: 'base',
+          numeric: true,
+        });
+        return sortDir === 'asc' ? comparison : -comparison;
+      });
+    }
+
+    return items;
+  });
+
   isCancellationPossible(res: ReservationDto): boolean {
     if (
       res.status === ReservationStatus.REQUESTED_CANCELLATION ||
@@ -89,7 +110,7 @@ export class TableReservations {
   }
 
   readonly areAllSelected = computed(() => {
-    const items = this.store.reservations();
+    const items = this.sortedReservations();
     if (items.length === 0) return false;
     const selected = this.store.toolbarSelectedIds();
     return items.every((res) => selected.has(res.id));
@@ -104,7 +125,7 @@ export class TableReservations {
     if (this.areAllSelected() || this.isIndeterminate()) {
       this.store.clearSelection();
     } else {
-      const allIds = new Set(this.store.reservations().map((res) => res.id));
+      const allIds = new Set(this.sortedReservations().map((res) => res.id));
       this.store.setSelectedIds(allIds);
     }
   }

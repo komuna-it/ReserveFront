@@ -36,7 +36,6 @@ import { ReservationDetailsModal } from '../../modals/reservation-details-modal/
     ReservationDetailsModal,
   ],
   templateUrl: './profile.html',
-  styleUrl: './profile.css',
 })
 export class ProfilePage implements OnInit, OnDestroy {
   readonly store = inject(ReservationStore);
