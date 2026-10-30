@@ -12,6 +12,7 @@ const SKIP_AUTH_REFRESH = new HttpContextToken<boolean>(() => false);
 
 let refreshRequest$: Observable<void> | null = null;
 
+// auth endpoints must not trigger automatic token refresh, session initialization handles /auth/me and /auth/refresh separately
 function isAuthEndpoint(url: string): boolean {
   return (
     url.includes('/auth/login') ||
@@ -22,6 +23,7 @@ function isAuthEndpoint(url: string): boolean {
   );
 }
 
+//only one refresh request is executed at a time.
 function refreshOnce(authService: AuthService): Observable<void> {
   if (!refreshRequest$) {
     refreshRequest$ = authService.refreshToken().pipe(
@@ -66,8 +68,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     withCredentials: true,
   });
 
-  // Login, registration, refresh and logout must never
-  // initiate another refresh.
+  // auth endpoints are handled separately they must never trigger automatic token refresh
   if (isAuthEndpoint(request.url)) {
     return next(request);
   }
@@ -78,13 +79,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
-      // Forbidden is not the same as unauthenticated.
+      // Do not attempt token refresh for forbidden requests.
       if (error.status === 403) {
         handle403(error, authService, viewController);
 
         return throwError(() => error);
       }
 
+      // Only 401 responses can trigger token refresh.
       if (error.status !== 401) {
         return throwError(() => error);
       }
@@ -93,7 +95,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
-      // This request has already been retried.
       if (request.context.get(SKIP_AUTH_REFRESH)) {
         authService.handleSessionExpired();
 

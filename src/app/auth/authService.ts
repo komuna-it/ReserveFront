@@ -74,20 +74,23 @@ export class AuthService {
     }
 
     const getCurrentUser = () =>
-      this.http.get<User>(`${this.apiUrl}/auth/me`, {
+      this.http.get<User | null>(`${this.apiUrl}/auth/me`, {
         withCredentials: true,
       });
 
     return getCurrentUser().pipe(
       catchError((error: HttpErrorResponse) => {
+        // 401 is expected when the user is anonymous  or when the access token has expired.
         if (error.status !== 401) {
           return throwError(() => error);
         }
 
-        // Access token may have expired while refresh token is still valid.
+        // Try refreshing the session in case the access token  expired but the refresh token is still valid.
         return this.refreshToken().pipe(
           switchMap(() => getCurrentUser()),
+
           catchError((refreshError: HttpErrorResponse) => {
+            // No valid refresh token means anonymous session.
             if (refreshError.status === 401) {
               return of(null);
             }
@@ -106,13 +109,21 @@ export class AuthService {
           }
         } else {
           this.clearSessionState();
+
+          if (isDevMode()) {
+            console.log('No active session. Continuing as anonymous user.');
+          }
         }
       }),
 
       map((user) => user !== null),
 
       catchError((error: unknown) => {
-        console.error('Error checking current session:', error);
+        // Do not log expected authentication failures.
+        if (!(error instanceof HttpErrorResponse) || error.status !== 401) {
+          console.error('Error checking current session:', error);
+        }
+
         this.clearSessionState();
         return of(false);
       }),
@@ -198,8 +209,10 @@ export class AuthService {
         }),
       )
       .subscribe({
-        error: (error) => {
-          console.error('Logout request failed:', error);
+        error: (error: HttpErrorResponse) => {
+          if (error.status !== 401) {
+            console.error('Logout request failed:', error);
+          }
         },
       });
   }
@@ -223,8 +236,11 @@ export class AuthService {
 
     this.refreshTimeout = setTimeout(() => {
       this.refreshToken().subscribe({
-        error: (error) => {
-          console.error('Scheduled token refresh failed:', error);
+        error: (error: HttpErrorResponse) => {
+          // 401 means the refresh token is no longer valid.
+          if (error.status !== 401) {
+            console.error('Scheduled token refresh failed:', error);
+          }
 
           this.handleSessionExpired();
         },

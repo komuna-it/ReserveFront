@@ -26,8 +26,9 @@ export class UserFacade {
   readonly textFormatingTool = inject(TextFormatingTool);
 
   constructor() {
-    this.settingsFacade.getSettings(null, true);
-    // this.getAllUsers();
+    if (this.authService.isAuthenticated()) {
+      this.settingsFacade.getSettings(null, true);
+    }
   }
 
   getAllUsers() {
