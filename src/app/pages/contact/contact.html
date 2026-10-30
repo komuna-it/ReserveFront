@@ -1,1 +1,54 @@
-<p>contact works!</p>
+<section class="max-w-3xl mx-auto px-4 py-8">
+  <h2 class="text-3xl font-semibold mb-6">
+    {{ 'CONTACT.TITLE' | transloco }}
+  </h2>
+
+  <div class="space-y-5">
+    @if (email()) {
+      <div>
+        <h3 class="text-lg font-medium mb-1">
+          {{ 'CONTACT.EMAIL' | transloco }}
+        </h3>
+        <a [href]="'mailto:' + email()" class="text-blue-600 hover:underline">
+          {{ email() }}
+        </a>
+      </div>
+    }
+
+    @if (phone()) {
+      <div>
+        <h3 class="text-lg font-medium mb-1">
+          {{ 'CONTACT.PHONE' | transloco }}
+        </h3>
+        <a [href]="'tel:' + phone()" class="text-blue-600 hover:underline">
+          {{ phone() }}
+        </a>
+      </div>
+    }
+
+    @if (!email() && !phone()) {
+      <p class="text-gray-500">
+        {{ 'CONTACT.UNAVAILABLE' | transloco }}
+      </p>
+    }
+
+    <div>
+      <h3 class="text-lg font-medium mb-1">
+        {{ 'CONTACT.ADDRESS' | transloco }}
+      </h3>
+      <p>Dworcowa 5c, 87-100 Toruń, Polska</p>
+    </div>
+
+    <div class="border-t border-slate-300 my-6"></div>
+
+    <div class="w-full h-96 rounded-xl overflow-hidden">
+      <iframe
+        class="w-full h-full"
+        src="https://maps.google.com/maps?q=Toru%C5%84%20ul%20dworcowa%205C&t=&z=15&ie=UTF8&iwloc=&output=embed"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="VIPSound - Dworcowa 5c, Toruń"
+      ></iframe>
+    </div>
+  </div>
+</section>

@@ -425,5 +425,12 @@
       "UNEXPECTED_ERROR": "An unexpected error occurred. Please try again later",
       "BANNED_UNTIL": "Account is blocked until {{date}} {{time}} UTC"
     }
+  },
+  "CONTACT": {
+    "TITLE": "Contact",
+    "EMAIL": "Email address",
+    "PHONE": "Phone",
+    "ADDRESS": "Address",
+    "UNAVAILABLE": "Contact details are currently unavailable."
   }
 }

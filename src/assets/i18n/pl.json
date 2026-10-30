@@ -430,5 +430,12 @@
       "UNEXPECTED_ERROR": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później",
       "BANNED_UNTIL": "Konto jest zablokowane do {{date}} {{time}} UTC"
     }
+  },
+  "CONTACT": {
+    "TITLE": "Kontakt",
+    "EMAIL": "Adres e-mail",
+    "PHONE": "Telefon",
+    "ADDRESS": "Adres",
+    "UNAVAILABLE": "Dane kontaktowe są obecnie niedostępne."
   }
 }
