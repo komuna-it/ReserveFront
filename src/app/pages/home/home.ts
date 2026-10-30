@@ -5,6 +5,7 @@ import { ReservationFacade } from '../../services/reservation/reservation.facade
 import { TranslocoModule, TranslocoPipe } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
 import { Room } from '../../model/room';
+import { SettingsFacade } from '../../settings/settingsFacade';
 
 @Component({
   selector: 'home-page',
@@ -17,8 +18,10 @@ export class HomePage {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
   readonly selectedImage = signal<string | null>(null);
+  private readonly settingsFacade = inject(SettingsFacade);
 
-  ngOnInit() {
+  ngOnInit(): void {
+    // this.settingsFacade.getSettings(null, true);
     this.facade.getRooms();
   }
 

@@ -1,6 +1,18 @@
 import { Injectable, signal, inject, computed, isDevMode } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, of, map, throwError } from 'rxjs';
+
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import {
+  Observable,
+  tap,
+  catchError,
+  of,
+  map,
+  throwError,
+  firstValueFrom,
+  finalize,
+  switchMap,
+} from 'rxjs';
+
 import { Router } from '@angular/router';
 import { User } from '../model/user';
 import { TranslocoService } from '@jsverse/transloco';
@@ -8,186 +20,300 @@ import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
-  private router = inject(Router);
-  private translocoService = inject(TranslocoService);
-  private currentUserSignal = signal<User | null>(null);
-  private isLoadingSignal = signal<boolean>(true);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly translocoService = inject(TranslocoService);
+
+  private readonly currentUserSignal = signal<User | null>(null);
+  private readonly isLoadingSignal = signal<boolean>(true);
 
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly isLoading = this.isLoadingSignal.asReadonly();
+
   readonly isAuthenticated = computed(() => this.currentUserSignal() !== null);
 
-  readonly userId = computed(() =>
-    this.currentUserSignal()?.id ? String(this.currentUserSignal()?.id) : null,
-  );
+  readonly userId = computed(() => {
+    const id = this.currentUserSignal()?.id;
+    return id ? String(id) : null;
+  });
+
   readonly email = computed(() => this.currentUserSignal()?.email || null);
 
   readonly isAdmin = computed(() => {
-    return (
-      this.currentUserSignal()?.role === 'ADMIN' || this.currentUserSignal()?.role === 'MANAGER'
-    );
+    const role = this.currentUserSignal()?.role;
+    return role === 'ADMIN' || role === 'MANAGER';
   });
 
-  readonly isManager = computed(() => {
-    return this.currentUserSignal()?.role === 'MANAGER';
-  });
+  readonly isManager = computed(() => this.currentUserSignal()?.role === 'MANAGER');
 
-  private apiUrl = environment.apiUrl;
-  private refreshTimeout: any;
+  readonly isConfirmingEmail = signal<boolean>(false);
+
+  private readonly apiUrl = environment.apiUrl;
+
+  private refreshTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
-    this.checkCurrentSession().subscribe();
-    console.log('AuthService apiUrl: ', this.apiUrl);
-  }
-
-  login(email: string, password: string, rememberMe: boolean): Observable<User> {
-    return this.http
-      .post<User>(`${this.apiUrl}/auth/login`, { email, password, rememberMe })
-      .pipe(tap((user) => this.currentUserSignal.set(user)));
-  }
-
-  register(email: string, password: string, name: string, language: string): Observable<User> {
-    console.log('auth register: language: ', language);
-    return this.http.post<User>(`${this.apiUrl}/auth/register`, {
-      email,
-      password,
-      name,
-      preferredLanguage: language,
-    });
-  }
-
-  private setupRefreshTimer(expiresAtMillis: number) {
-    if (this.refreshTimeout) {
-      clearTimeout(this.refreshTimeout);
+    if (isDevMode()) {
+      console.log('AuthService apiUrl:', this.apiUrl);
     }
+  }
 
-    const expiresIn = expiresAtMillis - Date.now();
-    const timeToRefresh = expiresIn - 10000;
+  // -------------------------------------------------------
+  // APPLICATION INITIALIZATION
+  // -------------------------------------------------------
 
-    if (timeToRefresh > 0) {
-      this.refreshTimeout = setTimeout(() => {
-        this.refreshToken().subscribe();
-      }, timeToRefresh);
-    } else {
-      this.refreshToken().subscribe();
-    }
+  initialize(): Promise<void> {
+    return firstValueFrom(this.checkCurrentSession()).then(() => undefined);
   }
 
   checkCurrentSession(): Observable<boolean> {
     this.isLoadingSignal.set(true);
+
     if (isDevMode()) {
-      console.log('apiUrl: ', environment.apiUrl);
-      console.log('checking current session');
+      console.log('Checking current session...');
     }
-    return this.http.get<User>(`${this.apiUrl}/auth/me`).pipe(
-      map((user) => {
-        if (isDevMode()) {
-          console.log('AuthService: Refreshed session user:', user);
-          console.log('checking current session done');
-        }
-        this.currentUserSignal.set(user);
-        this.isLoadingSignal.set(false);
 
-        if (user.preferredLanguage) {
-          this.translocoService.setActiveLang(user.preferredLanguage);
-        }
+    const getCurrentUser = () =>
+      this.http.get<User>(`${this.apiUrl}/auth/me`, {
+        withCredentials: true,
+      });
 
-        if (user.accessTokenExpiresAt) {
-          if (isDevMode()) {
-            console.log('user.accessTokenExpiresAt: ', user.accessTokenExpiresAt);
-          }
-          this.setupRefreshTimer(user.accessTokenExpiresAt);
+    return getCurrentUser().pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status !== 401) {
+          return throwError(() => error);
         }
 
-        return true;
+        // Access token may have expired while refresh token is still valid.
+        return this.refreshToken().pipe(
+          switchMap(() => getCurrentUser()),
+          catchError((refreshError: HttpErrorResponse) => {
+            if (refreshError.status === 401) {
+              return of(null);
+            }
+
+            return throwError(() => refreshError);
+          }),
+        );
       }),
-      catchError((e) => {
-        console.error('Error checking current session:', e);
-        this.executeLocalLogout();
-        this.isLoadingSignal.set(false);
+
+      tap((user) => {
+        if (user) {
+          this.setAuthenticatedUser(user);
+
+          if (isDevMode()) {
+            console.log('Session restored:', user);
+          }
+        } else {
+          this.clearSessionState();
+        }
+      }),
+
+      map((user) => user !== null),
+
+      catchError((error: unknown) => {
+        console.error('Error checking current session:', error);
+        this.clearSessionState();
         return of(false);
+      }),
+
+      finalize(() => {
+        this.isLoadingSignal.set(false);
+
+        if (isDevMode()) {
+          console.log('Session initialization finished.');
+        }
       }),
     );
   }
 
-  handleUserBanned(reason?: string): void {
-    this.currentUserSignal.set(null);
+  // -------------------------------------------------------
+  // SESSION MANAGEMENT
+  // -------------------------------------------------------
+
+  private setAuthenticatedUser(user: User): void {
+    this.currentUserSignal.set(user);
+
+    if (user.preferredLanguage) {
+      this.translocoService.setActiveLang(user.preferredLanguage);
+    }
+
+    if (user.accessTokenExpiresAt) {
+      this.setupRefreshTimer(user.accessTokenExpiresAt);
+    }
   }
 
-  logout() {
-    this.http.post(`${this.apiUrl}/auth/logout`, {}).subscribe({
-      next: () => this.executeLocalLogout(),
-      error: () => this.executeLocalLogout(),
-    });
-  }
-
-  private executeLocalLogout() {
+  private clearSessionState(): void {
     this.currentUserSignal.set(null);
 
-    if (this.refreshTimeout) {
+    if (this.refreshTimeout !== null) {
+      clearTimeout(this.refreshTimeout);
+      this.refreshTimeout = null;
+    }
+  }
+
+  private navigateAfterLogout(): void {
+    const publicRoutes = [
+      '/',
+      '/login',
+      '/register',
+      '/confirm-email',
+      '/forgot-password',
+      '/contact',
+      '/calendar',
+    ];
+
+    const currentUrl = this.router.url.split('?')[0];
+
+    if (!publicRoutes.includes(currentUrl)) {
+      void this.router.navigate(['/']);
+    }
+  }
+
+  executeLocalLogout(): void {
+    this.clearSessionState();
+    this.navigateAfterLogout();
+  }
+
+  // Called by the interceptor when refresh fails.
+  // Avoid navigation while the application initializer is running.
+  handleSessionExpired(): void {
+    this.clearSessionState();
+
+    if (!this.isLoadingSignal()) {
+      this.navigateAfterLogout();
+    }
+  }
+
+  handleUserBanned(_reason?: string): void {
+    this.executeLocalLogout();
+  }
+
+  logout(): void {
+    this.http
+      .post(`${this.apiUrl}/auth/logout`, {}, { withCredentials: true })
+      .pipe(
+        finalize(() => {
+          this.executeLocalLogout();
+        }),
+      )
+      .subscribe({
+        error: (error) => {
+          console.error('Logout request failed:', error);
+        },
+      });
+  }
+
+  // -------------------------------------------------------
+  // TOKEN REFRESH
+  // -------------------------------------------------------
+
+  private setupRefreshTimer(expiresAtMillis: number): void {
+    if (this.refreshTimeout !== null) {
       clearTimeout(this.refreshTimeout);
       this.refreshTimeout = null;
     }
 
-    const publicRoutes = ['/', '/login', '/register', '/confirm-email', '/forgot-password'];
-    const currentUrl = this.router.url.split('?')[0];
+    // Refresh 10 seconds before access-token expiration.
+    const delay = Math.max(0, expiresAtMillis - Date.now() - 10_000);
 
-    if (!publicRoutes.includes(currentUrl)) {
-      this.router.navigate(['/']);
+    if (isDevMode()) {
+      console.log(`Next token refresh in ${Math.round(delay / 1000)} seconds.`);
     }
+
+    this.refreshTimeout = setTimeout(() => {
+      this.refreshToken().subscribe({
+        error: (error) => {
+          console.error('Scheduled token refresh failed:', error);
+
+          this.handleSessionExpired();
+        },
+      });
+    }, delay);
   }
 
   refreshToken(): Observable<{ accessTokenExpiresAt: number }> {
-    return this.http.post<{ accessTokenExpiresAt: number }>(`${this.apiUrl}/auth/refresh`, {}).pipe(
-      tap((response) => {
-        if (response && response.accessTokenExpiresAt) {
-          this.setupRefreshTimer(response.accessTokenExpiresAt);
-          if (isDevMode()) {
-            console.info('refreshed token, new expiration: ', response.accessTokenExpiresAt);
+    return this.http
+      .post<{
+        accessTokenExpiresAt: number;
+      }>(`${this.apiUrl}/auth/refresh`, {}, { withCredentials: true })
+      .pipe(
+        tap((response) => {
+          if (response?.accessTokenExpiresAt) {
+            this.setupRefreshTimer(response.accessTokenExpiresAt);
+
+            if (isDevMode()) {
+              console.info('Token refreshed. New expiration:', response.accessTokenExpiresAt);
+            }
           }
-        }
-      }),
-      catchError((error) => {
-        console.error('failed to refresh token, logging out');
-        console.error('error was: ', error);
-        this.executeLocalLogout();
-        return throwError(() => error);
-      }),
+        }),
+      );
+  }
+
+  // -------------------------------------------------------
+  // LOGIN / REGISTER
+  // -------------------------------------------------------
+
+  login(email: string, password: string, rememberMe: boolean): Observable<User> {
+    return this.http
+      .post<User>(
+        `${this.apiUrl}/auth/login`,
+        { email, password, rememberMe },
+        { withCredentials: true },
+      )
+      .pipe(
+        tap((user) => {
+          this.setAuthenticatedUser(user);
+        }),
+      );
+  }
+
+  register(email: string, password: string, name: string, language: string): Observable<User> {
+    return this.http.post<User>(
+      `${this.apiUrl}/auth/register`,
+      {
+        email,
+        password,
+        name,
+        preferredLanguage: language,
+      },
+      { withCredentials: true },
     );
   }
 
-  handleSessionExpired() {
-    this.executeLocalLogout();
-  }
+  // -------------------------------------------------------
+  // USER PREFERENCES
+  // -------------------------------------------------------
 
-  updateUserLanguage(lang: string) {
+  updateUserLanguage(lang: string): void {
     this.currentUserSignal.update((user) => (user ? { ...user, preferredLanguage: lang } : null));
   }
 
+  // -------------------------------------------------------
+  // PASSWORD MANAGEMENT
+  // -------------------------------------------------------
+
   handleForgotPassword(email: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/users/forgotPassword`, { email: email });
+    return this.http.post<void>(`${this.apiUrl}/users/forgotPassword`, { email });
   }
 
   handleUpdatePassword(currentPassword: string, newPassword: string): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/users/updatePassword`, {
-      currentPassword: currentPassword,
-      newPassword: newPassword,
+      currentPassword,
+      newPassword,
     });
   }
 
-  readonly isConfirmingEmail = signal<boolean>(false);
+  // -------------------------------------------------------
+  // EMAIL CONFIRMATION
+  // -------------------------------------------------------
 
   confirmEmail(verificationToken: string): Observable<void> {
     this.isConfirmingEmail.set(true);
 
     return this.http.get<void>(`${this.apiUrl}/auth/confirmEmail/${verificationToken}`).pipe(
-      tap(() => {
+      finalize(() => {
         this.isConfirmingEmail.set(false);
-      }),
-      catchError((error) => {
-        this.isConfirmingEmail.set(false);
-        return throwError(() => error);
       }),
     );
   }

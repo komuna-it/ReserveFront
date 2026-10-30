@@ -47,8 +47,8 @@ export class ReservationFacade {
   readonly reservationTableType = this.store.reservationTableType.asReadonly();
 
   constructor() {
-    this.settingsFacade.getSettings(null, true);
-    this.getRooms();
+    // this.settingsFacade.getSettings(null, true);
+    // this.getRooms();
   }
 
   getRooms() {

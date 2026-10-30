@@ -27,7 +27,7 @@ export class UserFacade {
 
   constructor() {
     this.settingsFacade.getSettings(null, true);
-    this.getAllUsers();
+    // this.getAllUsers();
   }
 
   getAllUsers() {
