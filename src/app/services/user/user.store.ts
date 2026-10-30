@@ -14,6 +14,7 @@ export class UserStore {
   readonly usersPage = signal<Page<User>>(initialPage);
   readonly allUsers = signal<User[]>([]);
   readonly users = computed(() => this.usersPage().content.filter((u) => u.nick !== 'SYSTEM'));
+  readonly calendarUsers = signal<User[]>([]);
 
   readonly banReason = signal<string>('');
   readonly banDuration = signal<string>('');

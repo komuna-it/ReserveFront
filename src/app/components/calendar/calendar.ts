@@ -23,6 +23,7 @@ import { OrganizationFacade } from '../../services/organization/organization.fac
 import { ViewStore } from '../../services/view/view.store';
 import { ViewController } from '../../services/view/view.controller';
 import { OrganizationStore } from '../../services/organization/organization.store';
+import { UserFacade } from '../../services/user/user.facade';
 
 @Component({
   selector: 'app-calendar',
@@ -44,6 +45,7 @@ export class CalendarComponent {
   readonly organizationStore = inject(OrganizationStore);
   readonly facade = inject(ReservationFacade);
   readonly organizationFacade = inject(OrganizationFacade);
+  readonly userFacade = inject(UserFacade);
   readonly auth = inject(AuthService);
   readonly loco = inject(TranslocoService);
   readonly helper = inject(CalendarHelper);
@@ -94,6 +96,7 @@ export class CalendarComponent {
     const user = this.auth.currentUser();
     if (user) {
       if (this.auth.isAdmin()) {
+        this.userFacade.getCalendarUsers();
         this.organizationFacade.getOrganizations(true, null);
       } else {
         this.organizationFacade.getOrganizations(false, user.id);

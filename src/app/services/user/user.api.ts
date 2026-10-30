@@ -57,4 +57,8 @@ export class UserApi {
   setPreferredLanguage(language: string) {
     return this.http.patch<User>(`${this.apiUrl}/users/preferredLanguage/${language}`, {});
   }
+
+  getCalendarUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/users/calendar`);
+  }
 }

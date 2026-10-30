@@ -47,7 +47,7 @@ export class TextFormatingTool {
     const privateText = this.loco.translate('CALENDAR.PRIVATE') || 'prywatna';
     const myPrivateText = this.loco.translate('CALENDAR.MY_PRIVATE') || 'Moja prywatna';
 
-    const users = this.userStore.users();
+    const users = this.userStore.calendarUsers();
     const reservedByUser = users.find((u) => u.id === res.reservedBy);
     const nick = reservedByUser?.nick || 'No nick found';
 
@@ -100,7 +100,7 @@ export class TextFormatingTool {
   }
 
   reservationDetailsModalReservedByText(res: ReservationDto): string {
-    const reservedByUser = this.userStore.users().find((u) => u.id === res.reservedBy);
+    const reservedByUser = this.userStore.calendarUsers().find((u) => u.id === res.reservedBy);
     const reservedByNick = reservedByUser?.nick ?? 'No nick found';
     const reservedByEmail = reservedByUser?.email ?? 'No email found';
 

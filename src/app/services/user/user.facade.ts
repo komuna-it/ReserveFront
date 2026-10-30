@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, isDevMode } from '@angular/core';
 import { UserApi } from './user.api';
 import { UserStore } from './user.store';
 import { AuthService } from '../../auth/authService';
@@ -35,7 +35,7 @@ export class UserFacade {
     const sortBy = this.userStore.currentSortBy();
     const sortDir = this.userStore.currentSortDir();
     const page = this.userStore.currentUsersPage();
-    const size = this.userStore.currentUsersSize();
+    const size = 999;
     const sortParam = `${sortBy},${sortDir}`;
 
     return this.api.getAllUsers(page, size, sortParam).subscribe({
@@ -185,5 +185,19 @@ export class UserFacade {
         },
       });
     }
+  }
+  getCalendarUsers() {
+    return this.api.getCalendarUsers().subscribe({
+      next: (users) => {
+        if (isDevMode()) {
+          console.log('fetched calendar users: ', users);
+        }
+        this.userStore.calendarUsers.set(users);
+      },
+      error: (e) => {
+        console.error('Error fetching calendar users:', e);
+        this.viewController.showError(ErrorType.ACTION_FAILED);
+      },
+    });
   }
 }
