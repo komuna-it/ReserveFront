@@ -432,5 +432,11 @@
     "PHONE": "Phone",
     "ADDRESS": "Address",
     "UNAVAILABLE": "Contact details are currently unavailable."
+  },
+  "PRICING": {
+    "TITLE": "Cennik",
+    "ROOM": "Sala",
+    "PRICE": "Cena",
+    "IS_RECORDING_ALLOWED": "Nagrywanie"
   }
 }

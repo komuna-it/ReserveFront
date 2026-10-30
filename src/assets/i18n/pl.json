@@ -437,5 +437,11 @@
     "PHONE": "Telefon",
     "ADDRESS": "Adres",
     "UNAVAILABLE": "Dane kontaktowe są obecnie niedostępne."
+  },
+  "PRICING": {
+    "TITLE": "Cennik",
+    "ROOM": "Sala",
+    "PRICE": "Cena",
+    "IS_RECORDING_ALLOWED": "Nagrywanie"
   }
 }
