@@ -109,7 +109,7 @@ export class ReservationFacade {
     this.api.postReservation(req).subscribe({
       next: (res) => {
         this.store.selectedBooking.set(null);
-        this.viewController.showSuccess('SUCCESS' as any);
+        this.viewController.showSuccess('SUCCESS.RESERVATION_CREATED_TITLE' as any);
         this.getRoomsAndReservations();
         this.loadCalendarReservationsForDay(this.store.daySelectedByUser());
       },

@@ -54,8 +54,8 @@ export class ViewController {
   }
 
   showSuccess(title: SuccessType | any, bodyText: string = '') {
-    const key = typeof title === 'string' ? title : title?.type || 'SUCCESS';
-    this.viewStore.successPopupTitle.set(this.loco.translate(`SUCCESS.${key}`));
+    const key = typeof title === 'string';
+    this.viewStore.successPopupTitle.set(this.loco.translate(`${key}`));
     this.viewStore.successPopupBody.set(bodyText);
     this.viewStore.isSuccessPopupActive.set(true);
   }

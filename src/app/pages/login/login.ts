@@ -67,7 +67,7 @@ export class LoginPage {
       return;
     }
 
-    if (err.status === 401 || err.status === 403) {
+    if (err.status === 401 || err.status === 403 || err.status === 404) {
       this.errorString.set(
         errorBody?.message || this.loco.translate('LOGIN.ERRORS.INVALID_CREDENTIALS'),
       );
