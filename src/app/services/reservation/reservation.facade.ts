@@ -24,6 +24,7 @@ import { TextFormatingTool } from '../../tools/textFormatingTool';
 import { ReservationTableType } from '../../model/reservationTableType';
 import { ViewController } from '../view/view.controller';
 import { ViewStore } from '../view/view.store';
+import { SuccessType } from '../../model/successType';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
@@ -109,7 +110,7 @@ export class ReservationFacade {
     this.api.postReservation(req).subscribe({
       next: (res) => {
         this.store.selectedBooking.set(null);
-        this.viewController.showSuccess('SUCCESS.RESERVATION_CREATED_TITLE' as any);
+        this.viewController.showSuccess(SuccessType.RESERVATION_CREATED_TITLE);
         this.getRoomsAndReservations();
         this.loadCalendarReservationsForDay(this.store.daySelectedByUser());
       },
@@ -348,14 +349,14 @@ export class ReservationFacade {
     this.store.toolbarSelectedIds.set(resIds);
     this.updateReservationsStatus(ReservationStatus.CONFIRMED);
     this.viewStore.confirmMarkReservationAsAccepted.set(false);
-    this.viewController.showSuccess('SUCCESS' as any);
+    this.viewController.showSuccess(SuccessType.RESERVATION_ACCEPTED_TITLE);
   }
 
   handleCancelReservation(resIds: Set<number>) {
     this.store.toolbarSelectedIds.set(resIds);
     this.updateReservationsStatus(ReservationStatus.CANCELLED);
     this.viewStore.confirmMarkReservationAsCanceled.set(false);
-    this.viewController.showSuccess('SUCCESS' as any);
+    this.viewController.showSuccess(SuccessType.RESERVATION_CANCELED_TITLE);
   }
 
   openConfirmationUpdateReservationsStatus(

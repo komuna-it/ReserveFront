@@ -11,6 +11,7 @@ import { OrganizationApi } from './organization.api';
 import { UserStore } from '../user/user.store';
 import { ViewStore } from '../view/view.store';
 import { ViewController } from '../view/view.controller';
+import { SuccessType } from '../../model/successType';
 
 @Injectable({ providedIn: 'root' })
 export class OrganizationFacade {
@@ -91,7 +92,7 @@ export class OrganizationFacade {
       next: () => {
         this.viewStore.isModalAddMemberActive.set(false);
         this.organizationStore.organizationListSelectedUser.set(null);
-        this.viewController.showSuccess('SUCCESS' as any);
+        this.viewController.showSuccess(SuccessType.MEMBER_ADDED_TITLE);
 
         const addedUser = this.userStore.users().find((u) => u.id === userId);
         if (addedUser) {
@@ -125,7 +126,7 @@ export class OrganizationFacade {
       next: () => {
         this.viewStore.isModalAddOwnerActive.set(false);
         this.organizationStore.organizationListSelectedUser.set(null);
-        this.viewController.showSuccess('SUCCESS' as any);
+        this.viewController.showSuccess(SuccessType.OWNER_ADDED_TITLE);
 
         const addedUser = this.userStore.users().find((u) => u.id === userId);
         if (addedUser) {
@@ -313,7 +314,7 @@ export class OrganizationFacade {
     this.api.removeOrg(org.id).subscribe(() => {
       this.viewStore.isModalDeleteOrganizationActive.set(false);
       this.organizationStore.selectedOrganization.set(null);
-      this.viewController.showSuccess('SUCCESS' as any);
+      this.viewController.showSuccess(SuccessType.ORGANIZATION_DELETED_TITLE);
     });
   }
 
@@ -326,7 +327,7 @@ export class OrganizationFacade {
       this.viewStore.isModalDeleteMemberActive.set(false);
       this.organizationStore.organizationListSelectedUser.set(null);
       this.organizationStore.selectedOrganization.set(null);
-      this.viewController.showSuccess('SUCCESS' as any);
+      this.viewController.showSuccess(SuccessType.MEMBER_DELETED_TITLE);
       this.refreshOrganizations();
     });
   }
@@ -340,7 +341,7 @@ export class OrganizationFacade {
       this.viewStore.isModalDeleteOwnerActive.set(false);
       this.organizationStore.organizationListSelectedUser.set(null);
       this.organizationStore.selectedOrganization.set(null);
-      this.viewController.showSuccess('SUCCESS' as any);
+      this.viewController.showSuccess(SuccessType.OWNER_DELETED_TITLE);
       this.refreshOrganizations();
     });
   }

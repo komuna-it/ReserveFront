@@ -5,6 +5,7 @@ import { ReservationFacade } from '../../services/reservation/reservation.facade
 import { ViewStore } from '../../services/view/view.store';
 import { ViewController } from '../../services/view/view.controller';
 import { ErrorType } from '../../model/error/errorType';
+import { SuccessType } from '../../model/successType';
 
 @Component({
   selector: 'app-add-room-modal',
@@ -32,7 +33,7 @@ export class AddRoomModal {
     try {
       this.facade.postRoom(trimmedName);
       this.viewController.closeModals();
-      this.viewController.showSuccess('ROOM_CREATED');
+      this.viewController.showSuccess(SuccessType.ROOM_CREATED_TITLE);
     } catch (error) {
       console.error('Error creating room:', error);
       this.viewController.showError(ErrorType.ROOM_CREATION_FAILED);

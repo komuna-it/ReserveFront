@@ -10,6 +10,7 @@ import { TextFormatingTool } from '../../tools/textFormatingTool';
 import { ViewController } from '../view/view.controller';
 import { ViewStore } from '../view/view.store';
 import { ErrorType } from '../../model/error/errorType';
+import { SuccessType } from '../../model/successType';
 
 @Injectable({ providedIn: 'root' })
 export class UserFacade {
@@ -95,7 +96,7 @@ export class UserFacade {
       next: () => {
         this.getAllUsers();
         this.viewStore.isBanUsersModalActive.set(false);
-        this.viewController.showSuccess('SUCCESS' as any);
+        this.viewController.showSuccess(SuccessType.USER_BANNED_TITLE);
         this.userStore.clearSelection();
       },
       error: (e) => {
