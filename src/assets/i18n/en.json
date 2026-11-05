@@ -378,7 +378,11 @@
     "RESERVATION_CANCELLED_DESC": "Reservation successfully cancelled.",
     "PASSWORD_UPDATED_TITLE": "Password Changed!",
     "PASSWORD_UPDATED_DESC": "Your password has been successfully changed.",
-    "RESERVATION_CONFIRMED_TITLE": "Reservation confirmed"
+    "RESERVATION_CONFIRMED_TITLE": "Reservation confirmed",
+    "ACCOUNT_DELETED_TITLE": "Account Deleted",
+    "ACCOUNT_DELETED_DESC": "Your account has been successfully deleted.",
+    "ACCOUNT_CREATED_TITLE": "Account Created",
+    "ACCOUNT_CREATED_DESC": "Please check your email to confirm your account."
   },
   "CONFIRMATION": {
     "RESERVATION_CANCEL": {

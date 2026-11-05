@@ -379,7 +379,10 @@
     "RESERVATION_CANCELLED_DESC": "Rezerwacja została pomyślnie odwołana.",
     "PASSWORD_UPDATED_TITLE": "Hasło zmienione!",
     "PASSWORD_UPDATED_DESC": "Twoje hasło zostało pomyślnie zmienione.",
-    "RESERVATION_CONFIRMED_TITLE": "Rezerwacja potwierdzona"
+    "RESERVATION_CONFIRMED_TITLE": "Rezerwacja potwierdzona",
+    "ACCOUNT_CREATED_TITLE": "Konto utworzone",
+    "ACCOUNT_CREATED_DESC": "Sprawdź swoją skrzynkę e-mail, aby potwierdzić konto.",
+    "ACCOUNT_DELETED_TITLE": "Konto usunięte"
   },
   "CONFIRMATION": {
     "RESERVATION_CANCEL": {

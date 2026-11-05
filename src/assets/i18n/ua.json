@@ -377,7 +377,11 @@
     "RESERVATION_CANCELLED_DESC": "Бронювання успішно скасовано.",
     "PASSWORD_UPDATED_TITLE": "Пароль змінено!",
     "PASSWORD_UPDATED_DESC": "Ваш пароль успішно змінено.",
-    "RESERVATION_CONFIRMED_TITLE": "Бронювання підтверджено"
+    "RESERVATION_CONFIRMED_TITLE": "Бронювання підтверджено",
+    "ACCOUNT_DELETED_TITLE": "Акаунт видалено",
+    "ACCOUNT_DELETED_DESC": "Ваш акаунт успішно видалено.",
+    "ACCOUNT_CREATED_TITLE": "Акаунт створено",
+    "ACCOUNT_CREATED_DESC": "Будь ласка, перевірте свою електронну пошту, щоб підтвердити акаунт."
   },
   "CONFIRMATION": {
     "RESERVATION_CANCEL": {

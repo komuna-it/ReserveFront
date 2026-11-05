@@ -9,6 +9,8 @@ import { SettingsFacade } from '../../settings/settingsFacade';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorResponse } from '../../model/error/errorResponse';
 import { SuccessPopup } from '../../modals/success-popup/success-popup';
+import { ViewController } from '../../services/view/view.controller';
+import { SuccessType } from '../../model/successType';
 
 @Component({
   selector: 'app-register',
@@ -20,6 +22,7 @@ import { SuccessPopup } from '../../modals/success-popup/success-popup';
 export class RegisterPage {
   readonly settingsStore = inject(SettingsStore);
   readonly settingsFacade = inject(SettingsFacade);
+  readonly viewController = inject(ViewController);
 
   email = '';
   name = '';
@@ -63,6 +66,7 @@ export class RegisterPage {
       .subscribe({
         next: () => {
           this.registerSuccess.set(true);
+          this.openSuccessPopup();
         },
         error: (error: HttpErrorResponse) => {
           this.handleErrorResponse(error);
@@ -110,6 +114,15 @@ export class RegisterPage {
     event.stopPropagation();
 
     this.settingsFacade.getPrivacyPolicy();
+  }
+
+  openSuccessPopup() {
+    this.registerSuccess.set(true);
+    this.viewController.showSuccess(
+      SuccessType.ACCOUNT_CREATED_TITLE,
+      SuccessType.ACCOUNT_CREATED_DESC,
+    );
+    this.router.navigate(['/login']);
   }
 
   handleCloseSuccessPopup() {

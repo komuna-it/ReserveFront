@@ -53,11 +53,14 @@ export class ViewController {
     this.viewStore.displayErrorPopup.set(true);
   }
 
-  showSuccess(type: SuccessType): void {
+  showSuccess(type: SuccessType, body?: SuccessType | undefined): void {
     const translationPrefix = `SUCCESS.${type}`;
+    const translationBody = `SUCCESS.${body}`;
 
     this.viewStore.successPopupTitle.set(this.loco.translate(`${translationPrefix}`));
-
+    if (body) {
+      this.viewStore.successPopupBody.set(this.loco.translate(`${translationBody}`));
+    }
     this.viewStore.isSuccessPopupActive.set(true);
   }
 
