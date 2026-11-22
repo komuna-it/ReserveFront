@@ -166,6 +166,8 @@ export class TableReservations {
 
     const user = this.auth.currentUser();
     if (user) {
+      this.facade.getRooms();
+
       if (this.auth.isAdmin()) {
         this.userFacade.getCalendarUsers();
         this.organizationFacade.getOrganizations(true, null);
