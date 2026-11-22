@@ -18,6 +18,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../auth/authService';
 import { ViewStore } from '../../../services/view/view.store';
 import { ViewController } from '../../../services/view/view.controller';
+import { UserFacade } from '../../../services/user/user.facade';
 
 @Component({
   selector: 'app-table-reservations',
@@ -28,7 +29,8 @@ import { ViewController } from '../../../services/view/view.controller';
 export class TableReservations {
   readonly store = inject(ReservationStore);
   readonly facade = inject(ReservationFacade);
-  readonly orgFacade = inject(OrganizationFacade);
+  readonly organizationFacade = inject(OrganizationFacade);
+  readonly userFacade = inject(UserFacade);
   readonly orgStore = inject(OrganizationStore);
   readonly userStore = inject(UserStore);
   readonly viewStore = inject(ViewStore);
@@ -162,6 +164,16 @@ export class TableReservations {
       this.store.reservationTableStatus.set(currentStatus);
     }
 
+    const user = this.auth.currentUser();
+    if (user) {
+      if (this.auth.isAdmin()) {
+        this.userFacade.getCalendarUsers();
+        this.organizationFacade.getOrganizations(true, null);
+      } else {
+        this.organizationFacade.getOrganizations(false, user.id);
+      }
+    }
+
     const params = this.queryParams();
     const page = this.store.currentReservationsPage();
     const size = this.store.currentReservationsSize();
@@ -191,7 +203,7 @@ export class TableReservations {
     switch (tableType) {
       case ReservationTableType.USER_PROFILE:
         if (loggedUser) {
-          this.orgFacade.getOrganizations(true, loggedUser.id);
+          this.organizationFacade.getOrganizations(true, loggedUser.id);
           this.facade.getReservations({
             future: future,
             userId: loggedUser.id,
@@ -202,7 +214,7 @@ export class TableReservations {
       case ReservationTableType.ADMIN_BY_STATUS:
         this.store.toolbarType.set(ToolbarType.RESERVATIONS);
         if (this.auth.isAdmin()) {
-          this.orgFacade.getOrganizations(true, null);
+          this.organizationFacade.getOrganizations(true, null);
         }
         if (currentStatus) {
           this.facade.getReservations({
