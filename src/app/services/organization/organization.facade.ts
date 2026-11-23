@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, isDevMode } from '@angular/core';
 import { AuthService } from '../../auth/authService';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrganizationMemberDto } from '../../model/organizationMemberDto';
@@ -12,6 +12,7 @@ import { UserStore } from '../user/user.store';
 import { ViewStore } from '../view/view.store';
 import { ViewController } from '../view/view.controller';
 import { SuccessType } from '../../model/successType';
+import { map } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class OrganizationFacade {
@@ -366,8 +367,33 @@ export class OrganizationFacade {
     this.api.getOrganizations(page, size, withMembers, userId).subscribe({
       next: (pageData) => {
         this.organizationStore.organizationsPage.set(pageData);
+        if (isDevMode()) {
+          console.log('Fetched organizations:');
+          console.table(
+            pageData.content.map((org) => ({ id: org.id, name: org.name, trusted: org.trusted })),
+          );
+        }
       },
       error: (e) => console.error('Error in getOrganizations: ', e),
+    });
+  }
+
+  getAllOrganizations(): void {
+    this.api.getAllOrganizations().subscribe({
+      next: (organizations) => {
+        if (isDevMode()) {
+          console.log('Fetched all organizations:');
+          console.table(
+            organizations.content.map((org) => ({
+              id: org.id,
+              name: org.name,
+              trusted: org.trusted,
+            })),
+          );
+        }
+        this.organizationStore.organizationsPage.set(organizations);
+      },
+      error: (e) => console.error('Failed to fetch all organizations:', e),
     });
   }
 }

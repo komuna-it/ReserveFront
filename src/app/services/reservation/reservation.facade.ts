@@ -515,7 +515,13 @@ export class ReservationFacade {
     };
 
     this.api.getReservations(requestParams).subscribe({
-      next: (pageData) => this.store.reservationsPage.set(pageData),
+      next: (pageData) => {
+        this.store.reservationsPage.set(pageData);
+        if (isDevMode()) {
+          console.log('Fetched reservations:');
+          console.table(pageData.content);
+        }
+      },
       error: (e) => console.log('Error fetching res: ', e),
     });
   }

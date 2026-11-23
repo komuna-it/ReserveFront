@@ -97,7 +97,8 @@ export class CalendarComponent {
     if (user) {
       if (this.auth.isAdmin()) {
         this.userFacade.getCalendarUsers();
-        this.organizationFacade.getOrganizations(true, null);
+        // this.organizationFacade.getOrganizations(true, null);
+        this.organizationFacade.getAllOrganizations();
       } else {
         this.organizationFacade.getOrganizations(false, user.id);
       }

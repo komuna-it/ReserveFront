@@ -1,6 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
-import { OrganizationFront } from '../../model/organizationFront';
 import { AuthService } from '../../auth/authService';
 import { Room } from '../../model/room';
 import { ReservationDto } from '../../model/reservationDto';
@@ -126,7 +125,7 @@ export class ReservationStore {
 
   readonly userOrgsMap = computed(() => new Map(this.organizations().map((o) => [o.id, o.name])));
   readonly allOrgsMap = computed(() => new Map(this.allOrganizations().map((o) => [o.id, o.name])));
-  readonly teamsList = signal<OrganizationFront[]>([]);
+  readonly teamsList = signal<Organization[]>([]);
 
   readonly currentDayReservations = computed(() => {
     const selectedDate = this.daySelectedByUser();

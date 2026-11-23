@@ -1,5 +1,4 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { OrganizationFront } from '../../model/organizationFront';
 import { Organization } from '../../model/organization';
 import { User } from '../../model/user';
 import { initialPage, Page } from '../../model/page';
@@ -20,7 +19,7 @@ export class OrganizationStore {
 
   readonly userOrgsMap = computed(() => new Map(this.organizations().map((o) => [o.id, o.name])));
   readonly allOrgsMap = computed(() => new Map(this.allOrganizations().map((o) => [o.id, o.name])));
-  readonly teamsList = signal<OrganizationFront[]>([]);
+  readonly teamsList = signal<Organization[]>([]);
   readonly orgAndMembersMap = signal<Map<Organization, User[]>>(new Map());
 
   readonly organizationsPageQueryParamName = signal<string>('orgsPage');

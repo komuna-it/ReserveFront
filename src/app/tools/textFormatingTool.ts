@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, isDevMode } from '@angular/core';
 import { ReservationDto } from '../model/reservationDto';
 import { TranslocoService } from '@jsverse/transloco';
 import { ReservationStore } from '../services/reservation/reservation.store';
@@ -28,7 +28,7 @@ export class TextFormatingTool {
   bandText(res: ReservationDto): string {
     {
       return (
-        this.organizationStore.allOrganizations().find((o) => o.id === res.organization)?.name ??
+        this.organizationStore.organizations().find((o) => o.id === res.organization)?.name ??
         this.translocoService.translate('USER_MODALS.PRIVATE')
       );
     }

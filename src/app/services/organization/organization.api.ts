@@ -51,6 +51,13 @@ export class OrganizationApi {
     return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 
+  getAllOrganizations(): Observable<Page<Organization>> {
+    if (isDevMode()) {
+      console.info('calling /organizations/all');
+    }
+    return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations/all`, {});
+  }
+
   promoteMemberToOwner(userId: number, organizationId: number): Observable<OrganizationMemberDto> {
     return this.http.patch<OrganizationMemberDto>(
       `${this.apiUrl}/organizations/assigneUser/${userId}/role/OWNER/toOrganization/${organizationId}`,
