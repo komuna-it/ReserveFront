@@ -129,7 +129,7 @@ export class CalendarComponent {
         this.mobileSelectedRoom.set(roomToSelect);
       }
     });
-    this.facade.connectToReservationStream();
+    // this.facade.connectToReservationStream();
   }
 
   getSettings() {
