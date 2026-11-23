@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, isDevMode, OnInit } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { CalendarHelper } from '../../calendar/calendar.helper';
 import { AuthService } from '../../../auth/authService';
@@ -68,6 +68,11 @@ export class CalendarBookingModal {
 
     if (this.authService.isAdmin()) {
       this.userFacade.getAllUsers();
+    }
+    if (isDevMode()) {
+      console.log('CalendarBookingModal initialized');
+      console.log('Current user:', this.authService.currentUser());
+      console.log('Selected booking:', this.booking);
     }
   }
 

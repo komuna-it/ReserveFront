@@ -107,6 +107,10 @@ export class ReservationFacade {
       reservedByUserId: booking.reservedByUserId,
     };
 
+    if (isDevMode()) {
+      console.log('Confirming booking with request:', req);
+    }
+
     this.api.postReservation(req).subscribe({
       next: (res) => {
         this.store.selectedBooking.set(null);
