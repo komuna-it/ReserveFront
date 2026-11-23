@@ -29,7 +29,7 @@ export const ADMIN_ROUTES: Routes = [
           import('../pages/admin/components/organization-list/organization-list').then(
             (m) => m.OrganizationList,
           ),
-        data: { mode: 'admin' },
+        data: { organizationListMode: 'admin' },
       },
       {
         path: 'rooms',

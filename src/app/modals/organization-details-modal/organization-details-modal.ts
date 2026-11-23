@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, isDevMode, signal } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ReservationStore } from '../../services/reservation/reservation.store';
 import { ReservationFacade } from '../../services/reservation/reservation.facade';
@@ -12,6 +12,7 @@ import { ReservationTableType } from '../../model/reservationTableType';
 import { OrganizationFacade } from '../../services/organization/organization.facade';
 import { ViewController } from '../../services/view/view.controller';
 import { ViewStore } from '../../services/view/view.store';
+import { OrganizationStore } from '../../services/organization/organization.store';
 
 @Component({
   selector: 'app-organization-details-modal',
@@ -21,15 +22,16 @@ import { ViewStore } from '../../services/view/view.store';
   styleUrl: './organization-details-modal.css',
 })
 export class OrganizationDetailsModal {
-  readonly store = inject(ReservationStore);
-  readonly facade = inject(ReservationFacade);
+  readonly reservationStore = inject(ReservationStore);
+  readonly reservationFacade = inject(ReservationFacade);
   readonly organizationFacade = inject(OrganizationFacade);
+  readonly organizationStore = inject(OrganizationStore);
   readonly auth = inject(AuthService);
-  readonly loco = inject(TranslocoService);
+  readonly transloco = inject(TranslocoService);
   readonly viewStore = inject(ViewStore);
   readonly viewController = inject(ViewController);
 
-  readonly organization = computed(() => this.store.selectedOrganization()!);
+  readonly organization = computed(() => this.organizationStore.selectedOrganization()!);
   readonly owners = computed(() => this.organization().owners);
   readonly members = computed(() => this.organization().members);
 
@@ -54,47 +56,52 @@ export class OrganizationDetailsModal {
 
   constructor() {
     effect(() => {
-      const org = this.store.selectedOrganization();
+      const org = this.organizationStore.selectedOrganization();
     });
+    if (isDevMode()) {
+      console.log('OrganizationDetailsModal initialized');
+      console.log('Current user:', this.currentUser());
+      console.log('Selected organization:', this.organization());
+    }
   }
 
   orgTrustedText(org: Organization) {
     return org.trusted
-      ? this.loco.translate('ORGANIZATION_LIST.TRUSTED')
-      : this.loco.translate('ORGANIZATION_LIST.NOT_TRUSTED');
+      ? this.transloco.translate('ORGANIZATION_LIST.TRUSTED')
+      : this.transloco.translate('ORGANIZATION_LIST.NOT_TRUSTED');
   }
 
   orgTrustedButtonText(org: Organization) {
     return org.trusted
-      ? this.loco.translate('ORGANIZATION_LIST.MARK_AS_NOT_TRUSTED')
-      : this.loco.translate('ORGANIZATION_LIST.MARK_AS_TRUSTED');
+      ? this.transloco.translate('ORGANIZATION_LIST.MARK_AS_NOT_TRUSTED')
+      : this.transloco.translate('ORGANIZATION_LIST.MARK_AS_TRUSTED');
   }
 
   userTrustedButtonText(user: User) {
     return user.trusted
-      ? this.loco.translate('ORGANIZATION_LIST.MARK_AS_NOT_TRUSTED')
-      : this.loco.translate('ORGANIZATION_LIST.MARK_AS_TRUSTED');
+      ? this.transloco.translate('ORGANIZATION_LIST.MARK_AS_NOT_TRUSTED')
+      : this.transloco.translate('ORGANIZATION_LIST.MARK_AS_TRUSTED');
   }
 
   userTrustedText(user: User) {
     return user.trusted
-      ? this.loco.translate('ORGANIZATION_LIST.NOT_TRUSTED')
-      : this.loco.translate('ORGANIZATION_LIST.TRUSTED');
+      ? this.transloco.translate('ORGANIZATION_LIST.NOT_TRUSTED')
+      : this.transloco.translate('ORGANIZATION_LIST.TRUSTED');
   }
 
   getOrganizationAddedTitleText() {
-    return this.loco.translate('ORGANIZATION_LIST.SUCCESS_TITLE');
+    return this.transloco.translate('ORGANIZATION_LIST.SUCCESS_TITLE');
   }
 
   getDeleteOrganizationSuccessTitleText() {
-    return this.loco.translate('ORGANIZATION_LIST.DELETE_ORGANIZATION.SUCCESS_TITLE');
+    return this.transloco.translate('ORGANIZATION_LIST.DELETE_ORGANIZATION.SUCCESS_TITLE');
   }
 
   getDeleteOwnerSuccessTitleText() {
-    return this.loco.translate('ORGANIZATION_LIST.DELETE_OWNER.SUCCESS_TITLE');
+    return this.transloco.translate('ORGANIZATION_LIST.DELETE_OWNER.SUCCESS_TITLE');
   }
 
   getDeleteMemberSuccessTitleText() {
-    return this.loco.translate('ORGANIZATION_LIST.DELETE_MEMBER.SUCCESS_TITLE');
+    return this.transloco.translate('ORGANIZATION_LIST.DELETE_MEMBER.SUCCESS_TITLE');
   }
 }

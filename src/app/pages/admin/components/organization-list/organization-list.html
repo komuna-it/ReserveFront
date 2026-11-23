@@ -68,7 +68,7 @@
               >
                 <input
                   type="checkbox"
-                  [checked]="store.toolbarSelectedIds().has(org.id)"
+                  [checked]="organizationStore.toolbarSelectedIds().has(org.id)"
                   (change)="toggleSelection(org.id)"
                   class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
                 />
@@ -268,10 +268,10 @@
 
 <!-- Pagination -->
 <app-pagination
-  [totalElements]="store.organizationsPage().totalElements"
-  [totalPages]="store.organizationsPage().totalPages"
-  [currentPage]="store.currentOrganizationsPage()"
-  [pageSize]="store.currentOrganizationsSize()"
+  [totalElements]="organizationStore.organizationsPage().totalElements"
+  [totalPages]="organizationStore.organizationsPage().totalPages"
+  [currentPage]="organizationStore.currentOrganizationsPage()"
+  [pageSize]="organizationStore.currentOrganizationsSize()"
   (pageChange)="facade.changeOrganizationsPage($event)"
   (sizeChange)="facade.changeOrganizationsSize($event)"
 ></app-pagination>

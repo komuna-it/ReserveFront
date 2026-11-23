@@ -29,8 +29,8 @@ import { ViewStore } from '../../../../services/view/view.store';
   styleUrl: './organization-list.css',
 })
 export class OrganizationList implements OnInit, OnDestroy {
-  readonly organizationListMode = input<'admin' | 'user'>('user');
-  readonly store = inject(OrganizationStore);
+  readonly organizationListMode = input.required<'admin' | 'user'>();
+  readonly organizationStore = inject(OrganizationStore);
   readonly facade = inject(OrganizationFacade);
   readonly organizationFacade = inject(OrganizationFacade);
   readonly auth = inject(AuthService);
@@ -39,7 +39,7 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly viewController = inject(ViewController);
 
   readonly safeOrganizations = computed(() => {
-    const orgs = this.store.organizations();
+    const orgs = this.organizationStore.organizations();
     if (!Array.isArray(orgs)) return [];
 
     return orgs.map((org) => ({
@@ -50,9 +50,9 @@ export class OrganizationList implements OnInit, OnDestroy {
   });
 
   readonly areAllSelected = computed(() => {
-    const items = this.store.organizations();
+    const items = this.organizationStore.organizations();
     if (items.length === 0) return false;
-    const selected = this.store.toolbarSelectedIds();
+    const selected = this.organizationStore.toolbarSelectedIds();
     const all = items.every((res) => selected.has(res.id));
     if (isDevMode()) {
       console.log('areAllSelected', all, selected, items);
@@ -61,7 +61,7 @@ export class OrganizationList implements OnInit, OnDestroy {
   });
 
   readonly isIndeterminate = computed(() => {
-    const selectedSize = this.store.toolbarSelectedIds().size;
+    const selectedSize = this.organizationStore.toolbarSelectedIds().size;
     return selectedSize > 0 && !this.areAllSelected();
   });
 
@@ -71,12 +71,16 @@ export class OrganizationList implements OnInit, OnDestroy {
 
   constructor() {
     effect(() => {
-      this.store.currentOrganizationsPage();
-      this.store.currentOrganizationsSize();
+      this.organizationStore.currentOrganizationsPage();
+      this.organizationStore.currentOrganizationsSize();
     });
   }
 
   ngOnInit(): void {
+    if (isDevMode()) {
+      console.log('OrganizationList initialized');
+      console.log('Organization list mode:', this.organizationListMode());
+    }
     if (this.organizationListMode() === 'admin') {
       this.organizationFacade.getOrganizations(true, null);
     } else {
@@ -87,26 +91,29 @@ export class OrganizationList implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.organizationListMode() === 'admin') {
-      this.store.teamsList.set([]);
+      this.organizationStore.teamsList.set([]);
       this.viewStore.isAdminOrganizationModalActive.set(false);
     }
   }
 
   toggleMasterCheckbox(): void {
     if (this.areAllSelected()) {
-      this.store.clearSelection();
+      this.organizationStore.clearSelection();
     } else {
-      const allIds = new Set(this.store.organizations().map((res) => res.id));
-      this.store.setSelectedIds(allIds);
+      const allIds = new Set(this.organizationStore.organizations().map((res) => res.id));
+      this.organizationStore.setSelectedIds(allIds);
     }
   }
 
   toggleSelection(id: number): void {
-    this.store.toggleSelection(id);
+    this.organizationStore.toggleSelection(id);
   }
 
   selectOrganizationAndOpenDetailsModal(org: Organization): void {
-    this.store.selectedOrganization.set(org);
+    if (isDevMode()) {
+      console.log('selectOrganizationAndOpenDetailsModal', org);
+    }
+    this.organizationStore.selectedOrganization.set(org);
     this.viewStore.isOrganizationDetailsModalActive.set(true);
   }
 }
