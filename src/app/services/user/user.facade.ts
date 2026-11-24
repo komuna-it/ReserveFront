@@ -178,7 +178,9 @@ export class UserFacade {
       this.api.setPreferredLanguage(language).subscribe({
         next: () => {
           this.authService.updateUserLanguage(language);
-          console.log(`set language for ${user.email}: ${language}`);
+          if (isDevMode()) {
+            console.log(`set language for ${user.email}: ${language}`);
+          }
         },
         error: (e) => {
           console.error('Error setPreferredLanguage: ', e);

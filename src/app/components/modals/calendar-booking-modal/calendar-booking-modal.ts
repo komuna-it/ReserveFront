@@ -1,21 +1,22 @@
-import { Component, computed, effect, inject, isDevMode, OnInit } from '@angular/core';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { Component, effect, inject, isDevMode, untracked } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
 import { CalendarHelper } from '../../calendar/calendar.helper';
 import { AuthService } from '../../../auth/authService';
 import { ReservationFacade } from '../../../services/reservation/reservation.facade';
 import { ReservationStore } from '../../../services/reservation/reservation.store';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { AddOrganizationModal } from '../add-organization-modal/add-organization-modal';
-import { ReservationType } from '../../../model/reservationType';
-import { Booking } from '../../../model/booking';
-import { User } from '../../../model/user';
 import { OrganizationFacade } from '../../../services/organization/organization.facade';
+import { OrganizationStore } from '../../../services/organization/organization.store';
 import { UserFacade } from '../../../services/user/user.facade';
 import { UserStore } from '../../../services/user/user.store';
 import { ViewController } from '../../../services/view/view.controller';
 import { ViewStore } from '../../../services/view/view.store';
-import { OrganizationStore } from '../../../services/organization/organization.store';
+
+import { AddOrganizationModal } from '../add-organization-modal/add-organization-modal';
+import { ReservationType } from '../../../model/reservationType';
+import { initialPage } from '../../../model/page';
 
 @Component({
   selector: 'app-calendar-booking-modal',
@@ -24,108 +25,168 @@ import { OrganizationStore } from '../../../services/organization/organization.s
   styleUrl: './calendar-booking-modal.css',
 })
 export class CalendarBookingModal {
-  translocoService = inject(TranslocoService);
   readonly helper = inject(CalendarHelper);
+
   readonly store = inject(ReservationStore);
   readonly userStore = inject(UserStore);
   readonly organizationStore = inject(OrganizationStore);
+
   readonly facade = inject(ReservationFacade);
   readonly organizationFacade = inject(OrganizationFacade);
   readonly userFacade = inject(UserFacade);
+
   readonly authService = inject(AuthService);
-  readonly booking = this.store.selectedBooking();
+
   readonly viewStore = inject(ViewStore);
   readonly viewController = inject(ViewController);
 
+  readonly isAdmin = this.authService.isAdmin();
+
   constructor() {
+    // Keep the booking organization list synchronized with the selected
+    // user's memberships. Do not track the booking itself here, because
+    // changing its organization must not override the private checkbox.
     effect(() => {
-      const orgs = this.organizationStore.organizations();
-      const booking = this.store.selectedBooking();
-      const isAdmin = this.authService.isAdmin();
-      const user = this.userStore.selectedUser();
+      const organizations = this.organizationStore.organizations();
 
-      if (!isAdmin && orgs.length === 0) {
-        this.store.isPrivateReservationCheckboxActivated.set(true);
-      } else if (!isAdmin) {
+      untracked(() => {
+        const booking = this.store.selectedBooking();
+
+        if (!booking) return;
+
+        if (organizations.length === 0) {
+          this.store.isPrivateReservationCheckboxActivated.set(true);
+          return;
+        }
+
         this.store.isPrivateReservationCheckboxActivated.set(false);
-      }
 
-      if (
-        booking &&
-        orgs.length > 0 &&
-        (!booking.organizationId || !orgs.some((org) => org.id === booking.organizationId))
-      ) {
-        booking.organizationId = orgs[0].id;
-      }
+        const selectedOrganizationExists = organizations.some(
+          (org) => org.id === booking.organizationId,
+        );
+
+        // Select the first organization if the current one does not
+        // belong to the selected user.
+        if (!selectedOrganizationExists) {
+          this.store.selectedBooking.update((current) =>
+            current ? { ...current, organizationId: organizations[0].id } : null,
+          );
+        }
+      });
     });
 
     if (this.store.reservationTypeOptions().length > 0) {
       this.store.selectedReservationType.set(this.store.reservationTypeOptions()[0]);
     }
 
-    console.log('opening CalendarBookingModal');
-    this.organizationFacade.refreshOrganizations();
+    this.initializeBooking();
 
-    if (this.authService.isAdmin()) {
+    if (isDevMode()) {
+      console.log('CalendarBookingModal initialized', {
+        isAdmin: this.isAdmin,
+        booking: this.store.selectedBooking(),
+      });
+    }
+  }
+
+  /**
+   * Initialize the modal using the user already assigned to the booking.
+   *
+   * Admins can subsequently change that user.
+   * Non-admins always operate on their own user ID.
+   */
+  private initializeBooking(): void {
+    const booking = this.store.selectedBooking();
+
+    if (!booking) return;
+
+    const userId = this.isAdmin ? booking.reservedByUserId : this.authService.currentUser()?.id;
+
+    if (!userId) return;
+
+    // Remove organizations from the previously selected user.
+    this.resetOrganizations();
+
+    if (this.isAdmin) {
       this.userFacade.getAllUsers();
     }
-    if (isDevMode()) {
-      console.log('CalendarBookingModal initialized');
-      console.log('Current user:', this.authService.currentUser());
-      console.log('Selected booking:', this.booking);
-    }
+
+    this.loadOrganizationsForUser(userId);
   }
 
-  onUserIdSelected(userId: User): void {
+  /**
+   * Admin-only: change the person on whose behalf the reservation
+   * will be created.
+   */
+  onUserIdSelected(userId: number | string): void {
+    if (!this.isAdmin) return;
+
     const id = Number(userId);
-    const user = this.userStore.users().find((u) => u.id === id);
-    if (!user) return;
-    this.userStore.selectedUser.set(user);
-    if (this.isAdminOrManagerSelected()) {
-      this.organizationFacade.getOrganizations(true, null);
-    } else {
-      this.organizationFacade.getOrganizations(false, user.id);
-    }
-    if (this.booking) {
-      this.booking.reservedByUserId = user.id;
-    }
+
+    if (!Number.isInteger(id) || id <= 0) return;
+
+    const userExists = this.userStore.users().some((user) => user.id === id);
+
+    if (!userExists) return;
+
+    // Update booking ownership, not the globally selected application user.
+    this.store.selectedBooking.update((booking) =>
+      booking
+        ? {
+            ...booking,
+            reservedByUserId: id,
+            organizationId: null,
+          }
+        : null,
+    );
+
+    this.resetOrganizations();
+
+    // Fetch only organizations belonging to the newly selected user.
+    this.loadOrganizationsForUser(id);
   }
 
-  isAdminOrManagerSelected = computed(() => {
-    const adminAndManagersUserIds = new Set<number>();
-    const userAndManagers = this.userStore
-      .users()
-      .filter((u) => u.role === 'ADMIN' || u.role === 'MANAGER')
-      .every((u) => adminAndManagersUserIds.add(u.id));
+  private resetOrganizations(): void {
+    this.organizationStore.organizationsPage.set({
+      ...initialPage,
+      content: [],
+    });
 
-    const user = this.userStore.selectedUser();
-    if (!user) return false;
-    if (adminAndManagersUserIds.has(user.id)) {
-      return true;
-    }
-    return false;
-  });
+    this.organizationStore.selectedOrganization.set(null);
 
-  handleAddOrganizationModal() {
+    // Until the new user's organizations arrive, prevent selecting
+    // an organization belonging to the previous user.
+    this.store.isPrivateReservationCheckboxActivated.set(true);
+  }
+
+  private loadOrganizationsForUser(userId: number): void {
+    this.organizationFacade.getAllOrganizationsForUserNotPagination(false, userId);
+  }
+
+  handleAddOrganizationModal(): void {
     this.viewStore.isAddOrganizationModalActive.set(true);
   }
 
-  togglePrivateReservationCheckbox() {
-    if (this.isPrivateReservationForced()) {
-      return;
-    }
+  togglePrivateReservationCheckbox(): void {
+    if (this.isPrivateReservationForced()) return;
 
-    const isPrivateNow = this.store.isPrivateReservationCheckboxActivated();
-    this.store.isPrivateReservationCheckboxActivated.set(!isPrivateNow);
+    const isPrivate = this.store.isPrivateReservationCheckboxActivated();
+
+    this.store.isPrivateReservationCheckboxActivated.set(!isPrivate);
 
     const booking = this.store.selectedBooking();
-    const orgs = this.organizationStore.organizations();
-    if (!isPrivateNow && booking && !booking.organizationId && orgs.length > 0) {
-      booking.organizationId = orgs[0].id;
+    const organizations = this.organizationStore.organizations();
+
+    // When switching back to an organization reservation,
+    // restore the first available organization if necessary.
+    if (isPrivate && booking && !organizations.some((org) => org.id === booking.organizationId)) {
+      this.store.selectedBooking.update((current) =>
+        current ? { ...current, organizationId: organizations[0].id } : null,
+      );
     }
   }
 
-  isPrivateReservationForced() {
+  isPrivateReservationForced(): boolean {
     return this.organizationStore.organizations().length === 0;
   }
 

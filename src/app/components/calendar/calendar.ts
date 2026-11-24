@@ -277,7 +277,9 @@ export class CalendarComponent {
   }
 
   selectRoomAndHour(roomId: number, hour: number): void {
-    console.log('selectRoomAndHour selected roomId: ', roomId, ' hour: ', hour);
+    if (isDevMode()) {
+      console.log('selectRoomAndHour called with roomId: ', roomId, ' hour: ', hour);
+    }
     if (!this.auth.currentUser()) {
       this.viewStore.isLoginOrRegisterModalActive.set(true);
       return;

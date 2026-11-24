@@ -396,4 +396,24 @@ export class OrganizationFacade {
       error: (e) => console.error('Failed to fetch all organizations:', e),
     });
   }
+
+  getAllOrganizationsForUserNotPagination(withMembers: boolean, userId: number | null): void {
+    this.api.getOrganizations(0, 9999, withMembers, userId).subscribe({
+      next: (pageData) => {
+        this.organizationStore.organizationsPage.set(pageData);
+
+        if (isDevMode()) {
+          console.log('Fetched organizations:');
+          console.table(
+            pageData.content.map((org) => ({
+              id: org.id,
+              name: org.name,
+              trusted: org.trusted,
+            })),
+          );
+        }
+      },
+      error: (e) => console.error('Error in getOrganizations: ', e),
+    });
+  }
 }
