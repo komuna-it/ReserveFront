@@ -25,12 +25,15 @@ import { ReservationTableType } from '../../model/reservationTableType';
 import { ViewController } from '../view/view.controller';
 import { ViewStore } from '../view/view.store';
 import { SuccessType } from '../../model/successType';
+import { OrganizationApi } from '../organization/organization.api';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationFacade {
   private api = inject(ReservationApi);
+  private organizationApi = inject(OrganizationApi);
   private loco = inject(TranslocoService);
   private store = inject(ReservationStore);
+  private organizationStore = inject(OrganizationStore);
   private userStore = inject(UserStore);
   private orgStore = inject(OrganizationStore);
   private helper = inject(CalendarHelper);
@@ -117,12 +120,34 @@ export class ReservationFacade {
         this.viewController.showSuccess(SuccessType.RESERVATION_CREATED_TITLE);
         this.getRoomsAndReservations();
         this.loadCalendarReservationsForDay(this.store.daySelectedByUser());
+        if (this.authService.isAdmin()) {
+          this.getAllOrganizations();
+        }
       },
       error: (err) => {
         console.error('Booking error response:', err);
         this.store.selectedBooking.set(null);
         this.viewController.showError('ACTION_FAILED' as any);
       },
+    });
+  }
+
+  getAllOrganizations(): void {
+    this.organizationApi.getAllOrganizations().subscribe({
+      next: (organizations) => {
+        if (isDevMode()) {
+          console.log('Fetched all organizations:');
+          console.table(
+            organizations.content.map((org) => ({
+              id: org.id,
+              name: org.name,
+              trusted: org.trusted,
+            })),
+          );
+        }
+        this.organizationStore.organizationsPage.set(organizations);
+      },
+      error: (e) => console.error('Failed to fetch all organizations:', e),
     });
   }
 
