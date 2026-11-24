@@ -104,11 +104,11 @@
         <select
           id="bandSelect"
           [(ngModel)]="booking.organizationId"
-          [disabled]="this.store.isPrivateReservationCheckboxActivated()"
+          [disabled]="store.isPrivateReservationCheckboxActivated()"
           class="w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
           @for (org of organizationStore.organizations(); track org.id) {
-            <option [value]="org.id">{{ org.name }}</option>
+            <option [ngValue]="org.id">{{ org.name }}</option>
           }
         </select>
       </div>
@@ -129,8 +129,8 @@
         <input
           id="privateReservationCheckbox"
           type="checkbox"
-          [ngModel]="isPrivateReservationForced()"
-          (click)="togglePrivateReservationCheckbox()"
+          [ngModel]="store.isPrivateReservationCheckboxActivated()"
+          (ngModelChange)="store.isPrivateReservationCheckboxActivated.set($event)"
           [disabled]="isPrivateReservationForced()"
           class="w-4 h-4 text-emerald-600 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         />
