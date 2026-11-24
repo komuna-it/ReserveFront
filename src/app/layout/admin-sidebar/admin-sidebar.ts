@@ -40,7 +40,7 @@ export class AdminSidebar {
       });
     this.facade.getReservationsCountByStatus();
   }
-
+  //
   toggleMobileMenu(): void {
     this.isMobileMenuOpen.update((isOpen) => !isOpen);
   }
