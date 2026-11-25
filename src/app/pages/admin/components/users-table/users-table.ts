@@ -10,6 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UserStore } from '../../../../services/user/user.store';
 import { ViewController } from '../../../../services/view/view.controller';
 import { ViewStore } from '../../../../services/view/view.store';
+import { SettingsStore } from '../../../../settings/settingsStore';
 
 @Component({
   selector: 'app-users-table',
@@ -25,7 +26,36 @@ export class UsersTable {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   readonly viewStore = inject(ViewStore);
+  readonly settingsStore = inject(SettingsStore);
   readonly viewController = inject(ViewController);
+
+  initializePagination() {
+    const params = this.settingsStore.queryParams();
+    const page = this.userStore.currentUsersPage();
+    const size = this.userStore.currentUsersSize();
+    const sortBy = this.settingsStore.currentSortBy();
+    const sortDir = this.settingsStore.currentSortDir();
+    const future = this.userStore.toolbarOnlyFuture();
+
+    const sizeKey = this.userStore.usersSizeQueryParamName();
+    const pageKey = this.userStore.usersPageQueryParamName();
+
+    if (params[pageKey] === undefined || params[sizeKey] === undefined) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {
+          [pageKey]: page,
+          [sizeKey]: size,
+          sortBy: sortBy,
+          sortDir: sortDir,
+          future: future ? 'true' : 'false',
+        },
+        queryParamsHandling: 'merge',
+      });
+
+      return;
+    }
+  }
 
   toggleSort(column: string): void {
     const currentSort = this.userStore.currentSortBy();
@@ -41,12 +71,14 @@ export class UsersTable {
 
   constructor() {
     effect(() => {
+      this.initializePagination();
+
       this.userStore.currentSortBy();
       this.userStore.currentSortDir();
       this.userStore.currentUsersPage();
       this.userStore.currentUsersSize();
 
-      this.facade.getAllUsers();
+      this.facade.getUsers();
     });
   }
 

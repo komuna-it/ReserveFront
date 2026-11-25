@@ -535,8 +535,8 @@ export class ReservationFacade {
       ...filters,
       page: filters.page ?? this.store.currentReservationsPage(),
       size: filters.size ?? this.store.currentReservationsSize(),
-      sortBy: filters.sortBy ?? this.store.currentSortBy(),
-      sortDir: filters.sortDir ?? this.store.currentSortDir(),
+      sortBy: filters.sortBy ?? this.settingsStore.currentSortBy(),
+      sortDir: filters.sortDir ?? this.settingsStore.currentSortDir(),
     };
 
     this.api.getReservations(requestParams).subscribe({

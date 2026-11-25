@@ -26,6 +26,7 @@ export class OrganizationStore {
   readonly organizationsSizeQueryParamName = signal<string>('orgsSize');
 
   readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} as Params });
+  readonly toolbarOnlyFuture = signal<boolean>(false);
 
   readonly currentOrganizationsSize = computed(
     () => Number(this.queryParams()[this.organizationsSizeQueryParamName()]) || 10,

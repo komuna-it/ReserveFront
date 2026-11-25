@@ -20,6 +20,8 @@ import { AuthService } from '../../../../auth/authService';
 import { TableToolbar } from '../../../../components/toolbars/table-toolbar/table-toolbar';
 import { ViewController } from '../../../../services/view/view.controller';
 import { ViewStore } from '../../../../services/view/view.store';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { SettingsStore } from '../../../../settings/settingsStore';
 
 @Component({
   selector: 'app-organization-list',
@@ -37,6 +39,10 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly toolbarType = ToolbarType.ADMIN_ORGANIZATIONS;
   readonly viewStore = inject(ViewStore);
   readonly viewController = inject(ViewController);
+  private readonly settingsStore = inject(SettingsStore);
+
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly safeOrganizations = computed(() => {
     const orgs = this.organizationStore.organizations();
@@ -70,10 +76,48 @@ export class OrganizationList implements OnInit, OnDestroy {
   readonly isMembersExpanded = signal(true);
 
   constructor() {
-    effect(() => {
-      this.organizationStore.currentOrganizationsPage();
-      this.organizationStore.currentOrganizationsSize();
-    });
+    effect(() => this.initializeTable());
+  }
+
+  initializeTable() {
+    this.initializePagination();
+    this.organizationStore.currentOrganizationsPage();
+    this.organizationStore.currentOrganizationsSize();
+
+    if (this.organizationListMode() === 'admin') {
+      this.organizationFacade.getOrganizations(true, null);
+    } else {
+      const user = this.auth.currentUser();
+      if (user) this.organizationFacade.getOrganizations(true, user.id);
+    }
+  }
+
+  initializePagination() {
+    const params = this.settingsStore.queryParams();
+    const page = this.organizationStore.currentOrganizationsPage();
+    const size = this.organizationStore.currentOrganizationsSize();
+    const sortBy = this.settingsStore.currentSortBy();
+    const sortDir = this.settingsStore.currentSortDir();
+    const future = this.organizationStore.toolbarOnlyFuture();
+
+    const sizeKey = this.organizationStore.organizationsSizeQueryParamName();
+    const pageKey = this.organizationStore.organizationsPageQueryParamName();
+
+    if (params[pageKey] === undefined || params[sizeKey] === undefined) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {
+          [pageKey]: page,
+          [sizeKey]: size,
+          sortBy: sortBy,
+          sortDir: sortDir,
+          future: future ? 'true' : 'false',
+        },
+        queryParamsHandling: 'merge',
+      });
+
+      return;
+    }
   }
 
   ngOnInit(): void {
@@ -81,12 +125,12 @@ export class OrganizationList implements OnInit, OnDestroy {
       console.log('OrganizationList initialized');
       console.log('Organization list mode:', this.organizationListMode());
     }
-    if (this.organizationListMode() === 'admin') {
-      this.organizationFacade.getOrganizations(true, null);
-    } else {
-      const user = this.auth.currentUser();
-      if (user) this.organizationFacade.getOrganizations(true, user.id);
-    }
+    // if (this.organizationListMode() === 'admin') {
+    //   this.organizationFacade.getOrganizations(true, null);
+    // } else {
+    //   const user = this.auth.currentUser();
+    //   if (user) this.organizationFacade.getOrganizations(true, user.id);
+    // }
   }
 
   ngOnDestroy(): void {

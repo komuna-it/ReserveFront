@@ -17,7 +17,7 @@ export class Pagination {
   readonly currentPage = input.required<number>();
   readonly store = inject(ReservationStore);
   readonly pageSize = input<number>(10);
-  readonly pageSizeOptions = input<number[]>([5, 10, 25, 50]);
+  readonly pageSizeOptions = input<number[]>([5, 10, 25, 50, 100]);
   readonly pageChange = output<number>();
   readonly sizeChange = output<number>();
 

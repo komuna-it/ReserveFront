@@ -18,12 +18,14 @@ import { Booking } from '../../model/booking';
 import { ReservationTableType } from '../../model/reservationTableType';
 import { ReservationQueryParams } from '../../model/reservationQueryParams';
 import { ConfirmationType } from '../../model/confirmationType';
+import { SettingsStore } from '../../settings/settingsStore';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationStore {
   private helper = inject(CalendarHelper);
   readonly loco = inject(TranslocoService);
   private readonly route = inject(ActivatedRoute);
+  private readonly settingsStore = inject(SettingsStore);
 
   readonly allUsers = signal<User[]>([]);
 
@@ -203,25 +205,25 @@ export class ReservationStore {
   // size
 
   readonly currentReservationsSize = computed(
-    () => Number(this.queryParams()[this.reservationsSizeQueryParamName()]) || 10,
+    () => Number(this.settingsStore.queryParams()[this.reservationsSizeQueryParamName()]) || 10,
   );
   readonly currentOrganizationsSize = computed(
-    () => Number(this.queryParams()[this.organizationsSizeQueryParamName()]) || 10,
+    () => Number(this.settingsStore.queryParams()[this.organizationsSizeQueryParamName()]) || 10,
   );
   readonly currentUsersSize = computed(
-    () => Number(this.queryParams()[this.usersSizeQueryParamName()]) || 10,
+    () => Number(this.settingsStore.queryParams()[this.usersSizeQueryParamName()]) || 10,
   );
 
   // page
 
   readonly currentReservationsPage = computed(
-    () => Number(this.queryParams()[this.reservationsPageQueryParamName()]) || 0,
+    () => Number(this.settingsStore.queryParams()[this.reservationsPageQueryParamName()]) || 0,
   );
   readonly currentUsersPage = computed(
-    () => Number(this.queryParams()[this.usersPageQueryParamName()]) || 0,
+    () => Number(this.settingsStore.queryParams()[this.usersPageQueryParamName()]) || 0,
   );
   readonly currentOrganizationsPage = computed(
-    () => Number(this.queryParams()[this.organizationsPageQueryParamName()]) || 0,
+    () => Number(this.settingsStore.queryParams()[this.organizationsPageQueryParamName()]) || 0,
   );
 
   // Toolbar
@@ -322,35 +324,4 @@ export class ReservationStore {
       return matchesRoom || matchesReservedBy;
     });
   });
-
-  // ======= Sorting params
-
-  readonly toolbarType = signal<ToolbarType | null>(null);
-
-  readonly queryParams = toSignal(this.route.queryParams, {
-    initialValue: {} as Params,
-  });
-  readonly currentSortBy = computed<string>(() => {
-    switch (this.toolbarType()) {
-      case ToolbarType.USERS:
-        return (this.queryParams()['sortBy'] as string) ?? 'nick';
-      case ToolbarType.RESERVATIONS:
-        return (this.queryParams()['sortBy'] as string) ?? 'id';
-      default:
-        return (this.queryParams()['sortBy'] as string) ?? 'id';
-    }
-  });
-
-  readonly currentSortDir = computed(
-    () => (this.queryParams()['sortDir'] as 'asc' | 'desc') ?? 'desc',
-  );
-
-  currentYear = computed(() => {
-    const now = new Date();
-    return now.getFullYear();
-  });
-
-  // settings
-  readonly availableLanguages = signal<string[]>(['pl', 'en', 'ua']);
-  readonly selectedLanguage = this.loco.activeLang();
 }

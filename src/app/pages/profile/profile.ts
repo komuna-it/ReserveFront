@@ -73,7 +73,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.reservationStore.toolbarType.set(ToolbarType.USER_ORGANIZATIONS);
+    this.settingsStore.toolbarType.set(ToolbarType.USER_ORGANIZATIONS);
     const user = this.authService.currentUser();
     if (user) {
       this.reservationFacade.getRooms();

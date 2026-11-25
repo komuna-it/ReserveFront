@@ -8,6 +8,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 @Injectable({ providedIn: 'root' })
 export class UserStore {
   private readonly route = inject(ActivatedRoute);
+  readonly toolbarOnlyFuture = signal<boolean>(false);
 
   readonly selectedUser = signal<User | null>(null);
   readonly organizationListSelectedUser = signal<User | null>(null);

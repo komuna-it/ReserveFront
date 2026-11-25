@@ -33,10 +33,13 @@
               >
                 <div class="flex items-center justify-center gap-1">
                   {{ 'PROFILE.TABLE_INDEX' | transloco }}
-                  <span class="text-xs" [class.text-emerald-500]="store.currentSortBy() === 'id'">
+                  <span
+                    class="text-xs"
+                    [class.text-emerald-500]="settingsStore.currentSortBy() === 'id'"
+                  >
                     {{
-                      store.currentSortBy() === 'id'
-                        ? store.currentSortDir() === 'asc'
+                      settingsStore.currentSortBy() === 'id'
+                        ? settingsStore.currentSortDir() === 'asc'
                           ? '↑'
                           : '↓'
                         : '↕'
@@ -54,11 +57,11 @@
                   {{ 'ADMIN_RESERVATIONS.RESERVED_BY' | transloco }}
                   <span
                     class="text-xs"
-                    [class.text-emerald-500]="store.currentSortBy() === 'reservedBy.nick'"
+                    [class.text-emerald-500]="settingsStore.currentSortBy() === 'reservedBy.nick'"
                   >
                     {{
-                      store.currentSortBy() === 'reservedBy.nick'
-                        ? store.currentSortDir() === 'asc'
+                      settingsStore.currentSortBy() === 'reservedBy.nick'
+                        ? settingsStore.currentSortDir() === 'asc'
                           ? '↑'
                           : '↓'
                         : '↕'
@@ -76,11 +79,11 @@
                   {{ 'PROFILE.TABLE_ROOM' | transloco }}
                   <span
                     class="text-xs"
-                    [class.text-emerald-500]="store.currentSortBy() === 'room.name'"
+                    [class.text-emerald-500]="settingsStore.currentSortBy() === 'room.name'"
                   >
                     {{
-                      store.currentSortBy() === 'room.name'
-                        ? store.currentSortDir() === 'asc'
+                      settingsStore.currentSortBy() === 'room.name'
+                        ? settingsStore.currentSortDir() === 'asc'
                           ? '↑'
                           : '↓'
                         : '↕'
@@ -98,11 +101,11 @@
                   {{ 'PROFILE.TABLE_DATE' | transloco }}
                   <span
                     class="text-xs"
-                    [class.text-emerald-500]="store.currentSortBy() === 'startAt'"
+                    [class.text-emerald-500]="settingsStore.currentSortBy() === 'startAt'"
                   >
                     {{
-                      store.currentSortBy() === 'startAt'
-                        ? store.currentSortDir() === 'asc'
+                      settingsStore.currentSortBy() === 'startAt'
+                        ? settingsStore.currentSortDir() === 'asc'
                           ? '↑'
                           : '↓'
                         : '↕'
@@ -118,10 +121,13 @@
               >
                 <div class="flex items-center justify-center gap-1">
                   {{ 'CALENDAR.RESERVATION_TYPE' | transloco }}
-                  <span class="text-xs" [class.text-emerald-500]="store.currentSortBy() === 'type'">
+                  <span
+                    class="text-xs"
+                    [class.text-emerald-500]="settingsStore.currentSortBy() === 'type'"
+                  >
                     {{
-                      store.currentSortBy() === 'type'
-                        ? store.currentSortDir() === 'asc'
+                      settingsStore.currentSortBy() === 'type'
+                        ? settingsStore.currentSortDir() === 'asc'
                           ? '↑'
                           : '↓'
                         : '↕'
@@ -139,10 +145,13 @@
               >
                 <div class="flex items-center justify-center gap-1">
                   {{ 'PROFILE.IS_PAID' | transloco }}
-                  <span class="text-xs" [class.text-emerald-500]="store.currentSortBy() === 'paid'">
+                  <span
+                    class="text-xs"
+                    [class.text-emerald-500]="settingsStore.currentSortBy() === 'paid'"
+                  >
                     {{
-                      store.currentSortBy() === 'paid'
-                        ? store.currentSortDir() === 'asc'
+                      settingsStore.currentSortBy() === 'paid'
+                        ? settingsStore.currentSortDir() === 'asc'
                           ? '↑'
                           : '↓'
                         : '↕'
@@ -161,11 +170,11 @@
                     {{ 'PROFILE.STATUS' | transloco }}
                     <span
                       class="text-xs"
-                      [class.text-emerald-500]="store.currentSortBy() === 'status'"
+                      [class.text-emerald-500]="settingsStore.currentSortBy() === 'status'"
                     >
                       {{
-                        store.currentSortBy() === 'status'
-                          ? store.currentSortDir() === 'asc'
+                        settingsStore.currentSortBy() === 'status'
+                          ? settingsStore.currentSortDir() === 'asc'
                             ? '↑'
                             : '↓'
                           : '↕'

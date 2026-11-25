@@ -32,6 +32,27 @@ export class UserFacade {
     }
   }
 
+  getUsers() {
+    const sortBy = this.userStore.currentSortBy();
+    const sortDir = this.userStore.currentSortDir();
+    const page = this.userStore.currentUsersPage();
+    const size = this.userStore.currentUsersSize();
+    const sortParam = `${sortBy},${sortDir}`;
+
+    return this.api.getAllUsers(page, size, sortParam).subscribe({
+      next: (pageData) => {
+        if (isDevMode()) {
+          console.log('getUsers Fetched usersPage: ', pageData);
+        }
+        this.userStore.usersPage.set(pageData);
+      },
+      error: (e) => {
+        console.error('Error fetching usersPage: ', e);
+        this.viewController.showError(ErrorType.ACTION_FAILED);
+      },
+    });
+  }
+
   getAllUsers() {
     const sortBy = this.userStore.currentSortBy();
     const sortDir = this.userStore.currentSortDir();
@@ -41,6 +62,9 @@ export class UserFacade {
 
     return this.api.getAllUsers(page, size, sortParam).subscribe({
       next: (pageData) => {
+        if (isDevMode()) {
+          console.log('getAllUsers Fetched usersPage: ', pageData);
+        }
         this.userStore.usersPage.set(pageData);
       },
       error: (e) => {

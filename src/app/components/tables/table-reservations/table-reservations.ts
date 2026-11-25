@@ -19,6 +19,7 @@ import { AuthService } from '../../../auth/authService';
 import { ViewStore } from '../../../services/view/view.store';
 import { ViewController } from '../../../services/view/view.controller';
 import { UserFacade } from '../../../services/user/user.facade';
+import { SettingsStore } from '../../../settings/settingsStore';
 
 @Component({
   selector: 'app-table-reservations',
@@ -34,6 +35,7 @@ export class TableReservations {
   readonly orgStore = inject(OrganizationStore);
   readonly userStore = inject(UserStore);
   readonly viewStore = inject(ViewStore);
+  readonly settingsStore = inject(SettingsStore);
   readonly viewController = inject(ViewController);
 
   readonly translocoService = inject(TranslocoService);
@@ -53,8 +55,8 @@ export class TableReservations {
 
   readonly sortedReservations = computed<ReservationDto[]>(() => {
     const items = this.store.reservations();
-    const sortBy = this.store.currentSortBy();
-    const sortDir = this.store.currentSortDir();
+    const sortBy = this.settingsStore.currentSortBy();
+    const sortDir = this.settingsStore.currentSortDir();
 
     if (sortBy === 'reservedBy.nick' || sortBy === 'reservedBy') {
       return [...items].sort((a, b) => {
@@ -152,10 +154,13 @@ export class TableReservations {
   }
 
   initializeTable() {
+    this.initializePagination();
+
     const tableType = this.type();
     const loggedUser = this.auth.currentUser();
     const selectedUser = this.userStore.selectedUser();
     const currentStatus = this.status();
+    const future = this.store.toolbarOnlyFuture();
 
     if (tableType) {
       this.store.reservationTableType.set(tableType);
@@ -178,11 +183,67 @@ export class TableReservations {
       }
     }
 
+    switch (tableType) {
+      case ReservationTableType.USER_PROFILE:
+        if (loggedUser) {
+          this.organizationFacade.getOrganizations(true, loggedUser.id);
+          this.facade.getReservations({
+            future: future,
+            userId: loggedUser.id,
+          });
+        }
+        break;
+
+      case ReservationTableType.ADMIN_BY_STATUS:
+        this.settingsStore.toolbarType.set(ToolbarType.RESERVATIONS);
+        if (this.auth.isAdmin()) {
+          this.organizationFacade.getOrganizations(true, null);
+        }
+        if (currentStatus) {
+          this.facade.getReservations({
+            statuses:
+              currentStatus === ReservationStatus.CONFIRMED ||
+              currentStatus === ReservationStatus.CREATED
+                ? new Set<ReservationStatus>([
+                    currentStatus,
+                    ReservationStatus.REJECTED_CANCELLATION,
+                  ])
+                : new Set<ReservationStatus>([currentStatus]),
+            future: future,
+          });
+        }
+        break;
+
+      case ReservationTableType.ADMIN_ORG_DETAILS:
+        this.settingsStore.toolbarType.set(ToolbarType.RESERVATIONS);
+        const selectedOrg = this.orgStore.selectedOrganization();
+        if (selectedOrg) {
+          this.facade.getReservations({
+            future: future,
+            organizationIds: new Set([selectedOrg.id]),
+          });
+        }
+        break;
+
+      case ReservationTableType.ADMIN_USER_DETAILS:
+        this.settingsStore.toolbarType.set(ToolbarType.RESERVATIONS);
+        if (currentStatus && selectedUser) {
+          this.facade.getReservations({
+            statuses: new Set<ReservationStatus>([currentStatus]),
+            future: future,
+            userId: selectedUser.id,
+          });
+        }
+        break;
+    }
+  }
+
+  initializePagination() {
     const params = this.queryParams();
     const page = this.store.currentReservationsPage();
     const size = this.store.currentReservationsSize();
-    const sortBy = this.store.currentSortBy();
-    const sortDir = this.store.currentSortDir();
+    const sortBy = this.settingsStore.currentSortBy();
+    const sortDir = this.settingsStore.currentSortDir();
     const future = this.store.toolbarOnlyFuture();
 
     const sizeKey = this.store.reservationsSizeQueryParamName();
@@ -203,66 +264,12 @@ export class TableReservations {
 
       return;
     }
-
-    switch (tableType) {
-      case ReservationTableType.USER_PROFILE:
-        if (loggedUser) {
-          this.organizationFacade.getOrganizations(true, loggedUser.id);
-          this.facade.getReservations({
-            future: future,
-            userId: loggedUser.id,
-          });
-        }
-        break;
-
-      case ReservationTableType.ADMIN_BY_STATUS:
-        this.store.toolbarType.set(ToolbarType.RESERVATIONS);
-        if (this.auth.isAdmin()) {
-          this.organizationFacade.getOrganizations(true, null);
-        }
-        if (currentStatus) {
-          this.facade.getReservations({
-            statuses:
-              currentStatus === ReservationStatus.CONFIRMED ||
-              currentStatus === ReservationStatus.CREATED
-                ? new Set<ReservationStatus>([
-                    currentStatus,
-                    ReservationStatus.REJECTED_CANCELLATION,
-                  ])
-                : new Set<ReservationStatus>([currentStatus]),
-            future: future,
-          });
-        }
-        break;
-
-      case ReservationTableType.ADMIN_ORG_DETAILS:
-        this.store.toolbarType.set(ToolbarType.RESERVATIONS);
-        const selectedOrg = this.orgStore.selectedOrganization();
-        if (selectedOrg) {
-          this.facade.getReservations({
-            future: future,
-            organizationIds: new Set([selectedOrg.id]),
-          });
-        }
-        break;
-
-      case ReservationTableType.ADMIN_USER_DETAILS:
-        this.store.toolbarType.set(ToolbarType.RESERVATIONS);
-        if (currentStatus && selectedUser) {
-          this.facade.getReservations({
-            statuses: new Set<ReservationStatus>([currentStatus]),
-            future: future,
-            userId: selectedUser.id,
-          });
-        }
-        break;
-    }
   }
 
   toggleSort(column: string): void {
-    const isCurrentlySortedByThis = this.store.currentSortBy() === column;
+    const isCurrentlySortedByThis = this.settingsStore.currentSortBy() === column;
     const nextDir =
-      isCurrentlySortedByThis && this.store.currentSortDir() === 'asc' ? 'desc' : 'asc';
+      isCurrentlySortedByThis && this.settingsStore.currentSortDir() === 'asc' ? 'desc' : 'asc';
 
     this.router.navigate([], {
       relativeTo: this.route,
