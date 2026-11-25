@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input, isDevMode } from '@angular/core';
 import { ReservationStatus } from '../../../model/reservationStatus';
 import { ReservationDto } from '../../../model/reservationDto';
 import { ReservationFacade } from '../../../services/reservation/reservation.facade';
@@ -163,6 +163,9 @@ export class TableReservations {
     const future = this.store.toolbarOnlyFuture();
 
     if (tableType) {
+      if (isDevMode()) {
+        console.log('TableReservations initialized with tableType:', tableType);
+      }
       this.store.reservationTableType.set(tableType);
     }
     if (currentStatus) {
@@ -177,7 +180,9 @@ export class TableReservations {
         this.userFacade.getCalendarUsers();
         // this.userFacade.getAllUsers();
         // this.organizationFacade.getOrganizations(true, null);
-        this.organizationFacade.getAllOrganizations();
+        if (tableType != ReservationTableType.ADMIN_USER_DETAILS) {
+          this.organizationFacade.getAllOrganizations();
+        }
       } else {
         this.organizationFacade.getOrganizations(false, user.id);
       }

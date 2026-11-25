@@ -80,7 +80,7 @@ export class UserDetailsModal {
           userId: currentUser.id,
         });
         console.log('UserDetailsModal Getting all organizations for user: ', currentUser.id);
-        this.organizationFacade.getOrganizations(false, currentUser.id);
+        this.organizationFacade.getAllOrganizationsForUserNotPagination(false, currentUser.id);
       }
       console.table(currentUser);
     });
