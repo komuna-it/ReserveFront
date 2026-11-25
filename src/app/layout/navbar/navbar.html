@@ -38,7 +38,7 @@
             <div
               class="absolute right-0 mt-2 py-2 w-24 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50"
             >
-              @for (lang of store.availableLanguages(); track lang) {
+              @for (lang of settingsStore.availableLanguages(); track lang) {
                 <button
                   (click)="changeLang(lang)"
                   class="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white uppercase"
@@ -150,7 +150,7 @@
             {{ 'NAVBAR.LANGUAGE' | transloco }}
           </span>
           <div class="flex gap-2">
-            @for (lang of store.availableLanguages(); track lang) {
+            @for (lang of settingsStore.availableLanguages(); track lang) {
               <button
                 (click)="changeLang(lang); closeMobileMenu()"
                 [class]="

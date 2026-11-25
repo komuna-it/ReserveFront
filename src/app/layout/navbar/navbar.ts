@@ -5,6 +5,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ReservationStore } from '../../services/reservation/reservation.store';
 import { ReservationFacade } from '../../services/reservation/reservation.facade';
 import { UserFacade } from '../../services/user/user.facade';
+import { SettingsStore } from '../../settings/settingsStore';
 
 @Component({
   selector: 'app-navbar',
@@ -19,6 +20,7 @@ export class Navbar {
   readonly userFacade = inject(UserFacade);
   readonly facade = inject(ReservationFacade);
   readonly store = inject(ReservationStore);
+  readonly settingsStore = inject(SettingsStore);
 
   readonly isLangMenuOpen = signal(false);
   readonly isMobileMenuOpen = signal(false);

@@ -9,7 +9,7 @@
       [value]="currentLanguage()"
       (change)="onLanguageSelect($event)"
     >
-      @for (option of store.availableLanguages(); track option) {
+      @for (option of settingsStore.availableLanguages(); track option) {
         <option [value]="option" [selected]="option === currentLanguage()">
           {{ option }}
         </option>
