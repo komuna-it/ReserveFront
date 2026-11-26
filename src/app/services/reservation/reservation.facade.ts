@@ -107,11 +107,11 @@ export class ReservationFacade {
       organizationId: this.store.isPrivateReservationCheckboxActivated()
         ? null
         : booking.organizationId,
-      reservedByUserId: booking.reservedByUserId,
+      userId: booking.userId,
     };
 
     if (isDevMode()) {
-      console.log('Confirming booking with request:', req);
+      console.log('CreateReservationRequest:', req);
     }
 
     this.api.postReservation(req).subscribe({
@@ -133,7 +133,7 @@ export class ReservationFacade {
   }
 
   getAllOrganizations(): void {
-    this.organizationApi.getAllOrganizations().subscribe({
+    this.organizationApi.getAllOrganizationsNoPagination().subscribe({
       next: (organizations) => {
         if (isDevMode()) {
           console.log('Fetched all organizations:');
@@ -195,7 +195,7 @@ export class ReservationFacade {
       duration: 1,
       roomName: this.store.rooms().find((r) => r.id === roomId)?.name,
       organizationId: defaultOrg || 0,
-      reservedByUserId: parseInt(rawUserId, 10),
+      userId: parseInt(rawUserId, 10),
       reservationType: this.store.selectedReservationType() ?? ReservationType.REHEARSAL,
     });
   }
@@ -250,7 +250,7 @@ export class ReservationFacade {
           if (
             (msg.event === 'RESERVATION_CREATED' || msg.event === 'RESERVATION_CONFIRMED') &&
             isColizion &&
-            res.reservedBy !== safeUserId
+            res.userId !== safeUserId
           ) {
             this.viewController.showError(ErrorType.HOUR_ALREADY_RESERVED);
           }
@@ -266,7 +266,7 @@ export class ReservationFacade {
 
   isSseReservationColiding(res: ReservationDto, b: Booking | null): boolean {
     if (!b) return false;
-    if (Number(res.room) !== Number(b.roomId)) return false;
+    if (Number(res.roomId) !== Number(b.roomId)) return false;
 
     const resStartDate = new Date(res.startAt);
     const resEndDate = new Date(res.endAt);
@@ -445,12 +445,12 @@ export class ReservationFacade {
     );
 
     return reservations.filter((reservation: ReservationDto) => {
-      const matchesRoom = matchingRoomIds.has(reservation.room);
+      const matchesRoom = matchingRoomIds.has(reservation.roomId);
       const isOrgReservation =
-        reservation.organization !== null && reservation.organization !== undefined;
+        reservation.organizationId !== null && reservation.organizationId !== undefined;
       const matchesReservedBy = isOrgReservation
-        ? matchingOrgIds.has(reservation.organization)
-        : matchingUserIds.has(reservation.reservedBy);
+        ? matchingOrgIds.has(reservation.organizationId)
+        : matchingUserIds.has(reservation.userId);
 
       return matchesRoom || matchesReservedBy;
     });
@@ -544,6 +544,32 @@ export class ReservationFacade {
         this.store.reservationsPage.set(pageData);
         if (isDevMode()) {
           console.log('Fetched reservations:');
+          console.table(pageData.content);
+        }
+      },
+      error: (e) => console.log('Error fetching res: ', e),
+    });
+  }
+
+  getCalendarReservations() {
+    const date = this.store.daySelectedByUser();
+
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const requestParams: ReservationQueryParams = {
+      startAtAfter: startOfDay.toISOString(),
+      startAtBefore: endOfDay.toISOString(),
+    };
+
+    this.api.getCalendarReservations(requestParams).subscribe({
+      next: (pageData) => {
+        this.store.reservationsPage.set(pageData);
+        if (isDevMode()) {
+          console.log('Output from getCalendarReservations reservationsPage.set(pageData):');
           console.table(pageData.content);
         }
       },

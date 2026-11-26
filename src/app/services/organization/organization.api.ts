@@ -51,11 +51,31 @@ export class OrganizationApi {
     return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
   }
 
-  getAllOrganizations(): Observable<Page<Organization>> {
+  getOrganizationsNoPagination(
+    page: number,
+    size: number,
+    fetchMembers: boolean,
+    userId: number | null,
+  ): Observable<Page<Organization>> {
+    const params = new HttpParams()
+      .set('userId', userId ?? '')
+      .set('fetchMembers', fetchMembers)
+      .set('page', 0)
+      .set('size', 9999);
+
+    if (isDevMode()) {
+      console.info('calling /organizations with params:', params.toString());
+    }
+    return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations`, { params });
+  }
+
+  getAllOrganizationsNoPagination(): Observable<Page<Organization>> {
+    const params = new HttpParams().set('page', 0).set('size', 9999);
+
     if (isDevMode()) {
       console.info('calling /organizations/all');
     }
-    return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations/all`, {});
+    return this.http.get<Page<Organization>>(`${this.apiUrl}/organizations/all`, { params });
   }
 
   promoteMemberToOwner(userId: number, organizationId: number): Observable<OrganizationMemberDto> {

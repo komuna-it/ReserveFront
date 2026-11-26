@@ -6,5 +6,6 @@ export interface CreateReservationRequest {
   duration: string;
   type: ReservationType;
   organizationId?: number | null;
-  reservedByUserId?: number | null;
+  userId?: number | null;
+  actorUserId?: number;
 }

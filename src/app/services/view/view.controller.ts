@@ -38,7 +38,7 @@ export class ViewController {
 
     if (type === ConfirmationType.RESERVATION_CANCEL && this.authService.isAdmin()) {
       bodyTranslated =
-        res.organization === null || res.organization === undefined
+        res.organizationId === null || res.organizationId === undefined
           ? this.loco.translate(`CONFIRMATION.${type}.BODY_PRIVATE_ADMIN`, params)
           : this.loco.translate(`CONFIRMATION.${type}.BODY_ORGANIZATION_ADMIN`, params);
     }

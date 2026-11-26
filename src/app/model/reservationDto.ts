@@ -4,14 +4,14 @@ import { ReservationType } from './reservationType';
 export interface ReservationDto {
   id: number;
   type: ReservationType;
-  organization: number;
-  reservedBy: number;
-  reservedByText: string;
-  room: number;
+  organizationId: number;
+  userId: number;
+  roomId: number;
   startAt: string;
   endAt: string;
   duration: string;
   status: ReservationStatus;
   price: number;
   paid: boolean;
+  actorUserId: number;
 }

@@ -98,14 +98,16 @@ export class CalendarComponent {
       if (this.auth.isAdmin()) {
         this.userFacade.getCalendarUsers();
         // this.organizationFacade.getOrganizations(true, null);
-        this.organizationFacade.getAllOrganizations();
+        this.organizationFacade.getAllOrganizationsNoPagination();
       } else {
-        this.organizationFacade.getOrganizations(false, user.id);
+        this.organizationFacade.getOrganizationsNoPagination(false, user.id);
       }
     }
 
     this.store.daySelectedByUser.set(selectedDay);
-    this.facade.loadCalendarReservationsForDay(selectedDay);
+    // this.facade.loadCalendarReservationsForDay(selectedDay);
+    this.facade.getCalendarReservations();
+
     this.facade.getRooms();
     if (params['date']) {
       const parsedDate = new Date(params['date']);
@@ -131,6 +133,10 @@ export class CalendarComponent {
       }
     });
     // this.facade.connectToReservationStream();
+    console.log('content of store.reservations(): ');
+    console.table(this.store.reservations());
+    console.log('content of store.reservationsPage(): ');
+    console.table(this.store.reservationsPage());
   }
 
   getSettings() {
@@ -177,9 +183,12 @@ export class CalendarComponent {
   }
 
   onDaySelect(day: Date): void {
+    if (isDevMode()) {
+      console.log('onDaySelect called with day: ', day);
+    }
     this.facade.selectDay(day);
     this.updateUrl(day, this.mobileSelectedRoom()?.id);
-    this.facade.loadCalendarReservationsForDay(day);
+    this.facade.getCalendarReservations();
   }
 
   onRoomSelect(room: any): void {
@@ -264,7 +273,7 @@ export class CalendarComponent {
     return reservations.find((res) => {
       if (!res) return false;
       const resRoomId =
-        typeof res.room === 'object' && res.room !== null ? (res.room as any).id : res.room;
+        typeof res.roomId === 'object' && res.roomId !== null ? (res.roomId as any).id : res.roomId;
       if (String(resRoomId) !== String(roomId)) return false;
 
       if (!this.isSameLocalDay(res.startAt, selectedDate)) return false;
@@ -332,7 +341,7 @@ export class CalendarComponent {
       roomName: foundRoom ? foundRoom.name : '',
       duration: 1,
       reservationType: ReservationType.REHEARSAL,
-      reservedByUserId: this.auth.currentUser()?.id,
+      userId: this.auth.currentUser()?.id,
     };
   }
 
@@ -350,19 +359,20 @@ export class CalendarComponent {
     if (!res) return false;
 
     const currentUserId = this.auth.currentUser?.()?.id;
-    const resUserId = res.reservedBy || (res as any).userId;
-    return resUserId === currentUserId && !res.organization;
+    const resUserId = res.userId || (res as any).userId;
+    return resUserId === currentUserId && !res.organizationId;
   }
 
   isMyOrganization(roomId: number, hour: number): boolean {
     const res = this.getReservationForSlot(roomId, hour);
-    if (!res || !res.organization) return false;
+    if (!res || !res.organizationId) return false;
 
     const userOrgsData = this.organizationStore.organizations();
 
     if (Array.isArray(userOrgsData)) {
       return userOrgsData.some(
-        (org: any) => String(org.id) === String(res.organization) || org.name === res.organization,
+        (org: any) =>
+          String(org.id) === String(res.organizationId) || org.name === res.organizationId,
       );
     }
 
@@ -371,7 +381,7 @@ export class CalendarComponent {
       if (Array.isArray(orgs)) {
         return orgs.some(
           (org: any) =>
-            String(org.id) === String(res.organization) || org.name === res.organization,
+            String(org.id) === String(res.organizationId) || org.name === res.organizationId,
         );
       }
     }

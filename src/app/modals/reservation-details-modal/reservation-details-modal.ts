@@ -58,7 +58,7 @@ export class ReservationDetailsModal {
 
     const users = this.store.allUsers();
     if (Array.isArray(users)) {
-      return users.find((u: any) => u.id === res.reservedBy) || null;
+      return users.find((u: any) => u.id === res.userId) || null;
     }
     return null;
   });

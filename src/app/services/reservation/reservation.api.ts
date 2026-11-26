@@ -93,6 +93,16 @@ export class ReservationApi {
     return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations`, { params });
   }
 
+  getCalendarReservations(paramsObj: ReservationQueryParams): Observable<Page<ReservationDto>> {
+    let params = new HttpParams();
+    if (paramsObj.startAtAfter) params = params.set('startAtAfter', paramsObj.startAtAfter);
+    if (paramsObj.startAtBefore) params = params.set('startAtBefore', paramsObj.startAtBefore);
+
+    if (isDevMode()) console.info('calling /reservations/calendar with params:', params.toString());
+
+    return this.http.get<Page<ReservationDto>>(`${this.apiUrl}/reservations/calendar`, { params });
+  }
+
   updateReservationsStatus(
     resIds: Set<number>,
     status: ReservationStatus,

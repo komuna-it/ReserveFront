@@ -8,6 +8,6 @@ export interface Booking {
   duration?: number;
   roomName: string | undefined;
   organizationId?: number | null;
-  reservedByUserId?: number;
+  userId?: number;
   reservationType?: ReservationType;
 }

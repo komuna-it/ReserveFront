@@ -100,7 +100,7 @@ export class CalendarBookingModal {
 
     if (!booking) return;
 
-    const userId = this.isAdmin ? booking.reservedByUserId : this.authService.currentUser()?.id;
+    const userId = this.isAdmin ? booking.userId : this.authService.currentUser()?.id;
 
     if (!userId) return;
 
@@ -134,7 +134,7 @@ export class CalendarBookingModal {
       booking
         ? {
             ...booking,
-            reservedByUserId: id,
+            userId: id,
             organizationId: null,
           }
         : null,

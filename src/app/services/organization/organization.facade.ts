@@ -42,6 +42,14 @@ export class OrganizationFacade {
     }
   }
 
+  refreshOrganizationsNoPagination() {
+    if (this.authService.isAdmin()) {
+      this.getOrganizationsNoPagination(true, null);
+    } else if (this.authService.currentUser()) {
+      this.getOrganizationsNoPagination(true, this.authService.currentUser()?.id ?? 0);
+    }
+  }
+
   changeOrganizationsPage(newPage: number) {
     this.router.navigate([], {
       relativeTo: this.route,
@@ -378,11 +386,29 @@ export class OrganizationFacade {
     });
   }
 
-  getAllOrganizations(): void {
-    this.api.getAllOrganizations().subscribe({
+  getOrganizationsNoPagination(withMembers: boolean, userId: number | null) {
+    const page = this.organizationStore.currentOrganizationsPage();
+    const size = this.organizationStore.currentOrganizationsSize();
+
+    this.api.getOrganizationsNoPagination(page, size, withMembers, userId).subscribe({
+      next: (pageData) => {
+        this.organizationStore.organizationsPage.set(pageData);
+        if (isDevMode()) {
+          console.log('Fetched getOrganizationsNoPagination:');
+          console.table(
+            pageData.content.map((org) => ({ id: org.id, name: org.name, trusted: org.trusted })),
+          );
+        }
+      },
+      error: (e) => console.error('Error in getOrganizations: ', e),
+    });
+  }
+
+  getAllOrganizationsNoPagination(): void {
+    this.api.getAllOrganizationsNoPagination().subscribe({
       next: (organizations) => {
         if (isDevMode()) {
-          console.log('Fetched all organizations:');
+          console.log('Fetched getAllOrganizationsNoPagination:');
           console.table(
             organizations.content.map((org) => ({
               id: org.id,
@@ -393,7 +419,7 @@ export class OrganizationFacade {
         }
         this.organizationStore.organizationsPage.set(organizations);
       },
-      error: (e) => console.error('Failed to fetch all organizations:', e),
+      error: (e) => console.error('Failed to fetch getAllOrganizationsNoPagination:', e),
     });
   }
 
@@ -403,7 +429,7 @@ export class OrganizationFacade {
         this.organizationStore.organizationsPage.set(pageData);
 
         if (isDevMode()) {
-          console.log('Fetched organizations:');
+          console.log('Fetched getAllOrganizationsForUserNotPagination:');
           console.table(
             pageData.content.map((org) => ({
               id: org.id,

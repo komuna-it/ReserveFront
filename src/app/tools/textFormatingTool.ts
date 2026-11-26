@@ -28,7 +28,7 @@ export class TextFormatingTool {
   bandText(res: ReservationDto): string {
     {
       return (
-        this.organizationStore.organizations().find((o) => o.id === res.organization)?.name ??
+        this.organizationStore.organizations().find((o) => o.id === res.organizationId)?.name ??
         this.translocoService.translate('USER_MODALS.PRIVATE')
       );
     }
@@ -36,11 +36,11 @@ export class TextFormatingTool {
 
   reservedByText(res: ReservationDto): string {
     const currentUser = this.authService.currentUser();
-    if (!currentUser) return 'no user';
+    if (!currentUser) return '';
 
-    if (res.organization != null) {
+    if (res.organizationId != null) {
       const orgs = this.organizationStore.organizations();
-      const foundOrg = orgs.find((org) => Number(org.id) === Number(res.organization));
+      const foundOrg = orgs.find((org) => Number(org.id) === Number(res.organizationId));
       return foundOrg?.name || 'no org';
     }
 
@@ -48,7 +48,7 @@ export class TextFormatingTool {
     const myPrivateText = this.loco.translate('CALENDAR.MY_PRIVATE') || 'Moja prywatna';
 
     const users = this.userStore.calendarUsers();
-    const reservedByUser = users.find((u) => u.id === res.reservedBy);
+    const reservedByUser = users.find((u) => u.id === res.userId);
     const nick = reservedByUser?.nick || 'No nick found';
 
     const currentUserId = currentUser.id;
@@ -59,8 +59,8 @@ export class TextFormatingTool {
 
     const userOrgs = this.organizationStore.organizations().map((o) => o.id);
 
-    const isMyReservation = currentUserId === res.reservedBy;
-    const isMyTeamReservation = userOrgs.includes(res.organization ?? -1);
+    const isMyReservation = currentUserId === res.userId;
+    const isMyTeamReservation = userOrgs.includes(res.organizationId ?? -1);
 
     if (isMyReservation) return myPrivateText;
     if (isMyTeamReservation) return nick ? `${nick} (${privateText})` : `(${privateText})`;
@@ -81,13 +81,13 @@ export class TextFormatingTool {
   }
 
   privateReservationText(res: ReservationDto) {
-    return res.organization === null
+    return res.organizationId === null
       ? this.translocoService.translate('ADMIN_RESERVATIONS.IS_PRIVATE')
       : this.translocoService.translate('ADMIN_RESERVATIONS.IS_NOT_PRIVATE');
   }
 
   getRoomName(res: ReservationDto): string {
-    const room = this.reservationStore.rooms().find((r) => r.id === res.room);
+    const room = this.reservationStore.rooms().find((r) => r.id === res.roomId);
     return room?.name ?? '';
   }
 
@@ -100,7 +100,7 @@ export class TextFormatingTool {
   }
 
   reservationDetailsModalReservedByText(res: ReservationDto): string {
-    const reservedByUser = this.userStore.calendarUsers().find((u) => u.id === res.reservedBy);
+    const reservedByUser = this.userStore.calendarUsers().find((u) => u.id === res.userId);
     const reservedByNick = reservedByUser?.nick ?? 'No nick found';
     const reservedByEmail = reservedByUser?.email ?? 'No email found';
 
@@ -110,7 +110,7 @@ export class TextFormatingTool {
   reservationDetailsModalOrganizationText(res: ReservationDto): string {
     const organization = this.organizationStore
       .organizations()
-      .find((o) => o.id === res.organization);
+      .find((o) => o.id === res.organizationId);
     return organization?.name ?? this.privateReservationText(res);
   }
 

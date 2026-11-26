@@ -92,7 +92,7 @@ export class ReservationStore {
 
     const reservs = this.currentDayReservations();
 
-    const reservsForRoom = reservs.filter((res) => res.room === booking?.roomId);
+    const reservsForRoom = reservs.filter((res) => res.roomId === booking?.roomId);
     const bookingStartHour = booking?.hour;
     let limitHour = 22;
 
@@ -313,13 +313,13 @@ export class ReservationStore {
     );
 
     return reservations.filter((r) => {
-      const matchesRoom = matchingRoomIds.has(r.room);
+      const matchesRoom = matchingRoomIds.has(r.roomId);
 
-      const isOrg = r.organization !== null && r.organization !== undefined;
+      const isOrg = r.organizationId !== null && r.organizationId !== undefined;
 
       const matchesReservedBy = isOrg
-        ? matchingOrgIds.has(r.organization)
-        : matchingUserIds.has(r.reservedBy);
+        ? matchingOrgIds.has(r.organizationId)
+        : matchingUserIds.has(r.userId);
 
       return matchesRoom || matchesReservedBy;
     });

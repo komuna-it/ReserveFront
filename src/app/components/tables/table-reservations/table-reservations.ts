@@ -181,10 +181,10 @@ export class TableReservations {
         // this.userFacade.getAllUsers();
         // this.organizationFacade.getOrganizations(true, null);
         if (tableType != ReservationTableType.ADMIN_USER_DETAILS) {
-          this.organizationFacade.getAllOrganizations();
+          this.organizationFacade.getAllOrganizationsNoPagination();
         }
       } else {
-        this.organizationFacade.getOrganizations(false, user.id);
+        this.organizationFacade.getOrganizationsNoPagination(false, user.id);
       }
     }
 
@@ -202,7 +202,7 @@ export class TableReservations {
       case ReservationTableType.ADMIN_BY_STATUS:
         this.settingsStore.toolbarType.set(ToolbarType.RESERVATIONS);
         if (this.auth.isAdmin()) {
-          this.organizationFacade.getOrganizations(true, null);
+          this.organizationFacade.getOrganizationsNoPagination(true, null);
         }
         if (currentStatus) {
           this.facade.getReservations({

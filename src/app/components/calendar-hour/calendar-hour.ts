@@ -44,6 +44,7 @@ export class CalendarHour {
   readonly isCreated = computed(() => this.reservation()?.status === ReservationStatus.CREATED);
 
   readonly canViewDetails = computed(() => {
+    if (!this.authService.isAuthenticated()) return false;
     if (!this.isReserved()) return false;
     if (this.authService.isAdmin()) return true;
     return Boolean(this.isMyPrivate() || this.isMyOrganization());
