@@ -139,7 +139,7 @@ export class TableToolbar {
 
   handlePaid(paid: boolean): void {
     const selectedRes = this.store.toolbarSelectedIds();
-    this.facade.isReservationPaid(selectedRes, paid);
+    this.facade.updatePaidStatusForReservations(selectedRes, paid);
   }
 
   toggleOnlyFuture(): void {

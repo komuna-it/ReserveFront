@@ -157,7 +157,9 @@
     "SAVE": "Zapisz",
     "DELETE": "Usuń",
     "NAVIGATE_TO_LOGIN": "Przejdź do logowania",
-    "ACCEPT": "Akceptuj"
+    "ACCEPT": "Akceptuj",
+    "CONFIRM_AS_PAID": "Zaznacz opłacone",
+    "CONFIRM_AS_UNPAID": "Zaznacz nieopłacone"
   },
   "FORGOT_PASSWORD": {
     "PUT_EMAIL": "Wpisz swój adres e-mail",
@@ -260,7 +262,8 @@
     "CONFIRM_CANCEL_BODY": "Czy na pewno chcesz odwołać rezerwację zespołu?",
     "CONFIRM_CANCEL_TITLE": "Potwierdź odwołanie rezerwacji {{reservedBy}}, {{date}}, Sala {{room}}",
     "ORGANIZATION": "Zespół",
-    "RESERVED_BY": "Rezerwujący",
+    "RESERVED_BY": "Zarezerwowane przez",
+    "USER_OF_RESERVATION": "Użytkownik",
     "DATE": "Data",
     "START_HOUR": "Godzina rozpoczęcia",
     "END_HOUR": "Godzina zakończenia",

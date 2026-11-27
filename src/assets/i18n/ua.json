@@ -239,6 +239,8 @@
   "ADMIN_RESERVATIONS": {
     "IS_PRIVATE": "Так",
     "IS_NOT_PRIVATE": "Ні",
+    "USER_OF_RESERVATION": "Користувач",
+
     "ACCEPT": "Прийняти",
     "REJECT": "Скасувати",
     "NO_RESERVATIONS": "Немає бронювань для відображення",

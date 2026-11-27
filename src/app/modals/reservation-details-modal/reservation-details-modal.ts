@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, isDevMode } from '@angular/core';
 import { ReservationStore } from '../../services/reservation/reservation.store';
 import { ReservationFacade } from '../../services/reservation/reservation.facade';
 import { CalendarHelper } from '../../components/calendar/calendar.helper';
@@ -79,5 +79,18 @@ export class ReservationDetailsModal {
     this.store.toolbarSelectedIds.set(id);
     this.facade.updateReservationsStatus(ReservationStatus.CONFIRMED);
     this.viewController.closeModals();
+  }
+
+  setPaidStatus(res: ReservationDto): void {
+    const currentReservation =
+      this.store.selectedReservation() ??
+      this.store.reservations().find((r) => r.id === res.id) ??
+      res;
+
+    const newPaidStatus = !currentReservation.paid;
+
+    const ids = new Set<number>([res.id]);
+
+    this.facade.updatePaidStatusForReservations(ids, newPaidStatus);
   }
 }

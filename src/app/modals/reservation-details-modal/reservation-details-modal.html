@@ -53,10 +53,10 @@
           >
             <div>
               <span class="block text-xs text-slate-500 mb-0.5">{{
-                'ADMIN_RESERVATIONS.RESERVED_BY' | transloco
+                'ADMIN_RESERVATIONS.USER_OF_RESERVATION' | transloco
               }}</span>
               <span class="text-slate-200">
-                {{ tool.reservationDetailsModalReservedByText(res) }}
+                {{ tool.reservationDetailsModalUserOfReservationText(res) }}
               </span>
             </div>
 
@@ -102,6 +102,19 @@
                 <span class="text-rose-400 font-medium">{{ 'PROFILE.NO' | transloco }}</span>
               }
             </span>
+          </div>
+
+          <div
+            class="col-span-2 grid grid-cols-2 border-t border-slate-700/50 pt-2 flex justify-between"
+          >
+            <div>
+              <span class="block text-xs text-slate-500 mb-0.5">{{
+                'ADMIN_RESERVATIONS.RESERVED_BY' | transloco
+              }}</span>
+              <span class="text-slate-200">
+                {{ tool.reservationDetailsModalReservedByText(res) }}
+              </span>
+            </div>
           </div>
         </div>
       } @else {
@@ -172,6 +185,19 @@
             {{ facade.getCancelButtonLabel(res) }}
           </button>
         }
+      }
+      @if (activeReservation(); as res) {
+        <button
+          (click)="setPaidStatus(res)"
+          class="w-full mt-1 px-4 py-2.5 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-white border border-green-500 border-3 transition-all shadow-md active:scale-95"
+          [ngClass]="res.paid ? 'border-green-500' : 'border-red-500'"
+        >
+          @if (res.paid) {
+            {{ 'BUTTONS.CONFIRM_AS_UNPAID' | transloco }}
+          } @else {
+            {{ 'BUTTONS.CONFIRM_AS_PAID' | transloco }}
+          }
+        </button>
       }
       <button
         (click)="viewController.closeModals()"

@@ -248,6 +248,8 @@
     "SEND_ACCEPT": "Accept",
     "SEND_CANCEL": "Cancel",
     "OK": "OK",
+    "USER_OF_RESERVATION": "User",
+
     "PENDING": "Pending",
     "CONFIRMED": "Confirmed",
     "CANCELLED": "Cancelled",

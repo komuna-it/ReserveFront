@@ -30,7 +30,7 @@ export class ViewController {
       date: this.textFormatingTool.dateColumnText(res),
       startHour: this.textFormatingTool.startAtText(res),
       endHour: this.textFormatingTool.endAtText(res),
-      reservedBy: this.textFormatingTool.reservationDetailsModalReservedByText(res),
+      reservedBy: this.textFormatingTool.reservationDetailsModalUserOfReservationText(res),
     };
 
     let titleTranslated = this.loco.translate(`CONFIRMATION.${type}.TITLE`);

@@ -490,19 +490,35 @@ export class ReservationFacade {
     });
   }
 
-  isReservationPaid(reservationId: Set<number>, paid: boolean) {
-    return this.api.isReservationPaid(reservationId, paid).subscribe({
+  updatePaidStatusForReservations(reservationIds: Set<number>, paid: boolean) {
+    if (isDevMode()) {
+      console.log('Updating paid status:', {
+        reservationIds: Array.from(reservationIds),
+        paid,
+      });
+    }
+
+    return this.api.isReservationPaid(reservationIds, paid).subscribe({
       next: (updatedReservations) => {
-        const updatedMap = new Map(updatedReservations.map((r) => [r.id, r]));
-        this.store.reservationsPage.update((page) => {
-          if (!page?.content) return page;
-          return {
-            ...page,
-            content: page.content.map((item) => updatedMap.get(item.id) ?? item),
-          };
+        const updatedMap = new Map(
+          updatedReservations.map((reservation) => [reservation.id, reservation]),
+        );
+
+        this.store.reservationsPage.update((page) => ({
+          ...page,
+          content: page.content.map((reservation) => updatedMap.get(reservation.id) ?? reservation),
+        }));
+
+        this.store.selectedReservation.update((selected) => {
+          if (!selected) return selected;
+
+          return updatedMap.get(selected.id) ?? selected;
         });
       },
-      error: (e) => console.error('Error updating reservation paid status: ', e),
+      error: (error) => {
+        console.error('Error updating reservation paid status:', error);
+        this.viewController.showError(ErrorType.ACTION_FAILED);
+      },
     });
   }
 

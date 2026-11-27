@@ -99,12 +99,21 @@ export class TextFormatingTool {
     return this.helper.generateDurationLabel(res.startAt, res.duration);
   }
 
+  reservationDetailsModalUserOfReservationText(res: ReservationDto): string {
+    const reservedByUser = this.userStore.calendarUsers().find((u) => u.id === res.userId);
+    const reservedByNick = reservedByUser?.nick ?? 'No nick found';
+    const reservedByEmail = reservedByUser?.email ?? 'No email found';
+
+    // return `${reservedByNick} (${reservedByEmail})`;
+    return `${reservedByNick} `;
+  }
+
   reservationDetailsModalReservedByText(res: ReservationDto): string {
     const reservedByUser = this.userStore.calendarUsers().find((u) => u.id === res.userId);
     const reservedByNick = reservedByUser?.nick ?? 'No nick found';
     const reservedByEmail = reservedByUser?.email ?? 'No email found';
 
-    return `${reservedByNick} (${reservedByEmail})`;
+    return `${reservedByNick} `;
   }
 
   reservationDetailsModalOrganizationText(res: ReservationDto): string {
