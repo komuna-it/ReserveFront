@@ -304,6 +304,7 @@
     "TOTAL": "Razem"
   },
   "COMMON": {
+    "STATISTICS": "Statystyki",
     "DELETE": "Usuń",
     "CLOSE": "Zamknij",
     "SELECT": "Wybierz",
@@ -449,5 +450,28 @@
     "ROOM": "Sala",
     "PRICE": "Cena",
     "IS_RECORDING_ALLOWED": "Nagrywanie"
+  },
+  "STATISTICS": {
+    "TITLE": "Statystyki",
+    "SUBTITLE": "Dzienna liczba rezerwacji i przychody",
+    "DATE_FROM": "Data od",
+    "DATE_TO": "Data do",
+    "SHOW": "Pokaż",
+    "LOADING": "Ładowanie danych...",
+    "TOTAL_USERS": "Liczba użytkowników",
+    "TOTAL_ORGANIZATIONS": "Liczba zespołów",
+    "RESERVATION_SUMMARY": "Podsumowanie rezerwacji",
+    "TOTAL_RESERVATIONS": "Wszystkie rezerwacje w okresie",
+    "ROOMS_BREAKDOWN": "Podział na sale",
+    "NO_RESERVATIONS": "Brak rezerwacji w wybranym okresie.",
+    "EARNINGS_SUMMARY": "Podsumowanie przychodów",
+    "TOTAL_EARNINGS": "Łączne przychody",
+    "NO_EARNINGS": "Brak danych o przychodach.",
+    "RESERVATION_CHART": "Liczba rezerwacji",
+    "EARNINGS_CHART": "Przychody",
+    "RESERVATIONS": "Rezerwacje",
+    "EARNINGS": "Przychody",
+    "NO_DATA": "Brak danych dla wybranego zakresu.",
+    "ALL_ROOMS": "Wszystkie sale"
   }
 }

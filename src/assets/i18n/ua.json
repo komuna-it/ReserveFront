@@ -302,6 +302,7 @@
     "TOTAL": "Всього"
   },
   "COMMON": {
+    "STATISTICS": "Статистика",
     "DELETE": "Видалити",
     "CLOSE": "Закрити",
     "SELECT": "Вибрати",
@@ -443,5 +444,30 @@
     "ROOM": "Кімната",
     "PRICE": "Ціна",
     "IS_RECORDING_ALLOWED": "Запис"
+  },
+  {
+  "STATISTICS": {
+    "TITLE": "Статистика",
+    "SUBTITLE": "Щоденна кількість бронювань і дохід",
+    "DATE_FROM": "Дата від",
+    "DATE_TO": "Дата до",
+    "SHOW": "Показати",
+    "LOADING": "Завантаження даних...",
+    "TOTAL_USERS": "Усього користувачів",
+    "TOTAL_ORGANIZATIONS": "Усього організацій",
+    "RESERVATION_SUMMARY": "Підсумок бронювань",
+    "TOTAL_RESERVATIONS": "Усього бронювань",
+    "ROOMS_BREAKDOWN": "Розподіл за кімнатами",
+    "NO_RESERVATIONS": "Немає бронювань за вибраний період.",
+    "EARNINGS_SUMMARY": "Підсумок доходів",
+    "TOTAL_EARNINGS": "Загальний дохід",
+    "NO_EARNINGS": "Немає даних про доходи.",
+    "RESERVATION_CHART": "Кількість бронювань",
+    "EARNINGS_CHART": "Дохід",
+    "RESERVATIONS": "Бронювання",
+    "EARNINGS": "Дохід",
+    "NO_DATA": "Немає даних за вибраний період.",
+    "ALL_ROOMS": "Усі кімнати"
   }
+}
 }

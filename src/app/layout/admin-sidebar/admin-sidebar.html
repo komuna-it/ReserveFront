@@ -180,6 +180,30 @@
 
       <div class="space-y-1">
         <a
+          routerLink="/admin/statistics"
+          routerLinkActive="bg-emerald-600 text-white shadow-lg shadow-emerald-900/30"
+          class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/60 hover:text-white transition-all group"
+        >
+          <svg
+            class="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition-colors"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 3v18h18M8 16V9m5 7V5m5 11v-4"
+            />
+          </svg>
+
+          {{ 'COMMON.STATISTICS' | transloco }}
+        </a>
+      </div>
+
+      <div class="space-y-1">
+        <a
           routerLink="/admin/settings"
           routerLinkActive="bg-emerald-600 text-white shadow-lg shadow-emerald-900/30"
           class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/60 hover:text-white transition-all group"

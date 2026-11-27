@@ -302,6 +302,7 @@
     "TOTAL": "Total"
   },
   "COMMON": {
+    "STATISTICS": "Statistics",
     "DELETE": "Delete",
     "CLOSE": "Close",
     "SELECT": "Select",
@@ -444,5 +445,29 @@
     "ROOM": "Sala",
     "PRICE": "Cena",
     "IS_RECORDING_ALLOWED": "Nagrywanie"
+  },
+{
+  "STATISTICS": {
+    "TITLE": "Statistics",
+    "SUBTITLE": "Daily reservations and earnings",
+    "DATE_FROM": "Date from",
+    "DATE_TO": "Date to",
+    "SHOW": "Show",
+    "LOADING": "Loading data...",
+    "TOTAL_USERS": "Total users",
+    "TOTAL_ORGANIZATIONS": "Total organizations",
+    "RESERVATION_SUMMARY": "Reservation summary",
+    "TOTAL_RESERVATIONS": "Total reservations",
+    "ROOMS_BREAKDOWN": "Breakdown by rooms",
+    "NO_RESERVATIONS": "No reservations in the selected period.",
+    "EARNINGS_SUMMARY": "Earnings summary",
+    "TOTAL_EARNINGS": "Total earnings",
+    "NO_EARNINGS": "No earnings data available.",
+    "RESERVATION_CHART": "Number of reservations",
+    "EARNINGS_CHART": "Earnings",
+    "RESERVATIONS": "Reservations",
+    "EARNINGS": "Earnings",
+    "NO_DATA": "No data for the selected period.",
+    "ALL_ROOMS": "All rooms"
   }
 }

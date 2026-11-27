@@ -50,7 +50,7 @@
           }
         </div>
 
-        <!--  Desktop -->
+        <!-- Desktop -->
         @if (authService.isAdmin()) {
           <a
             routerLink="/admin/reservations/confirmed"
@@ -60,6 +60,7 @@
             {{ 'NAVBAR.ADMIN' | transloco }}
           </a>
         }
+
         <a
           routerLink="/calendar"
           routerLinkActive="underline decoration-green-600 decoration-4 underline-offset-4 text-white shadow-md"
@@ -67,6 +68,7 @@
         >
           {{ 'NAVBAR.BOOK' | transloco }}
         </a>
+
         <a
           routerLink="/contact"
           routerLinkActive="underline decoration-green-600 decoration-4 underline-offset-4 text-white shadow-md"
@@ -85,6 +87,7 @@
           >
             {{ 'NAVBAR.LOGIN' | transloco }}
           </a>
+
           <a
             routerLink="/register"
             routerLinkActive="underline decoration-green-600 decoration-4 underline-offset-4 text-white shadow-md"
@@ -100,6 +103,7 @@
           >
             {{ 'NAVBAR.PROFILE' | transloco }}
           </a>
+
           <button
             (click)="logout()"
             class="text-sm font-medium px-4 py-2 text-slate-300 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
@@ -139,7 +143,7 @@
     </div>
   </div>
 
-  <!-- MOBILE HAMBURGER MENU  -->
+  <!-- MOBILE HAMBURGER MENU -->
   @if (isMobileMenuOpen()) {
     <div
       class="md:hidden absolute w-full left-0 border-t border-slate-800 bg-slate-900 shadow-xl z-40"
@@ -149,6 +153,7 @@
           <span class="text-sm font-medium text-slate-400 uppercase tracking-wider text-[11px]">
             {{ 'NAVBAR.LANGUAGE' | transloco }}
           </span>
+
           <div class="flex gap-2">
             @for (lang of settingsStore.availableLanguages(); track lang) {
               <button
@@ -197,6 +202,7 @@
           >
             {{ 'NAVBAR.LOGIN' | transloco }}
           </a>
+
           <a
             routerLink="/register"
             (click)="closeMobileMenu()"
@@ -222,8 +228,26 @@
   <!-- admin -->
   @if (authService.isAdmin()) {
     <div
-      class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 border-t border-slate-800 grid grid-cols-4 z-50 backdrop-blur-lg"
+      class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 border-t border-slate-800 grid grid-cols-5 z-50 backdrop-blur-lg"
     >
+      <!-- Statistics -->
+      <a
+        routerLink="/admin/statistics"
+        routerLinkActive="text-emerald-400 bg-slate-800/50"
+        class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-slate-200 transition-colors"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 3v18h18M18 17V9M13 17V5M8 17v-3"
+          />
+        </svg>
+        <span class="text-[10px] font-medium">{{ 'STATISTICS.TITLE' | transloco }}</span>
+      </a>
+
+      <!-- Organizations -->
       <a
         routerLink="/admin/organizations"
         routerLinkActive="text-emerald-400 bg-slate-800/50"
@@ -239,6 +263,8 @@
         </svg>
         <span class="text-[10px] font-medium">{{ 'COMMON.BANDS' | transloco }}</span>
       </a>
+
+      <!-- Users -->
       <a
         routerLink="/admin/users"
         routerLinkActive="text-emerald-400 bg-slate-800/50"
@@ -259,6 +285,8 @@
         </svg>
         <span class="text-[10px] font-medium">{{ 'PROFILE.USERS' | transloco }}</span>
       </a>
+
+      <!-- Reservations -->
       <a
         routerLink="/admin/reservations"
         routerLinkActive="text-emerald-400 bg-slate-800/50"
@@ -274,6 +302,8 @@
         </svg>
         <span class="text-[10px] font-medium">{{ 'COMMON.RESERVATIONS' | transloco }}</span>
       </a>
+
+      <!-- Calendar -->
       <a
         routerLink="/admin/reservations/calendar"
         routerLinkActive="text-emerald-400 bg-slate-800/50"
@@ -291,6 +321,7 @@
       </a>
     </div>
   }
+
   <!-- user -->
   @else {
     <div
@@ -311,6 +342,7 @@
         </svg>
         <span class="text-[10px] font-medium">{{ 'COMMON.BOOK' | transloco }}</span>
       </a>
+
       <a
         routerLink="/profile/reservations"
         routerLinkActive="text-emerald-400 bg-slate-800/50"
@@ -326,6 +358,7 @@
         </svg>
         <span class="text-[10px] font-medium">{{ 'COMMON.MY_RESERVATIONS' | transloco }}</span>
       </a>
+
       <a
         routerLink="/profile/organizations"
         routerLinkActive="text-emerald-400 bg-slate-800/50"

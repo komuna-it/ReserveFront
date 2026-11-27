@@ -1,0 +1,421 @@
+<div class="mx-auto flex w-full max-w-[1600px] flex-col gap-4 p-3 sm:gap-6 sm:p-6">
+  <!-- Header -->
+  <header>
+    <h1 class="text-2xl font-bold tracking-tight">
+      {{ 'STATISTICS.TITLE' | transloco }}
+    </h1>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      {{ 'STATISTICS.SUBTITLE' | transloco }}
+    </p>
+  </header>
+
+  <!-- Date filters -->
+  <section
+    class="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800 sm:flex-row sm:flex-wrap sm:items-end sm:p-4"
+  >
+    <div class="flex min-w-0 flex-1 flex-col gap-1.5">
+      <label for="dateFrom" class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+        {{ 'STATISTICS.DATE_FROM' | transloco }}
+      </label>
+      <input
+        id="dateFrom"
+        type="date"
+        [value]="dateFrom()"
+        (change)="updateDateFrom($event)"
+        class="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900"
+      />
+    </div>
+
+    <div class="flex min-w-0 flex-1 flex-col gap-1.5">
+      <label for="dateTo" class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+        {{ 'STATISTICS.DATE_TO' | transloco }}
+      </label>
+      <input
+        id="dateTo"
+        type="date"
+        [value]="dateTo()"
+        (change)="updateDateTo($event)"
+        class="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900"
+      />
+    </div>
+
+    <button
+      type="button"
+      (click)="loadStatistics()"
+      [disabled]="loading()"
+      class="h-10 w-full rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
+    >
+      {{ 'STATISTICS.SHOW' | transloco }}
+    </button>
+  </section>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div
+      class="flex min-h-64 items-center justify-center gap-3 text-sm text-gray-500 dark:text-gray-400"
+    >
+      <div
+        class="h-5 w-5 animate-spin rounded-full border-2 border-gray-200 border-t-blue-600"
+      ></div>
+      {{ 'STATISTICS.LOADING' | transloco }}
+    </div>
+  }
+
+  <!-- Error -->
+  @else if (error()) {
+    <div
+      class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
+    >
+      {{ error() }}
+    </div>
+  } @else {
+    <!-- Users and organizations -->
+    <section class="grid grid-cols-2 gap-3 sm:gap-4">
+      <!-- Total users -->
+      <article
+        class="rounded-xl border border-gray-200 border-t-4 border-t-blue-500 bg-white p-3 sm:p-5 dark:border-gray-700 dark:bg-gray-800"
+      >
+        <div class="flex items-center gap-2">
+          <div
+            class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+          </div>
+          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 sm:text-sm">
+            {{ 'STATISTICS.TOTAL_USERS' | transloco }}
+          </p>
+        </div>
+        <p class="mt-3 text-2xl font-bold tabular-nums sm:text-3xl">
+          {{ totalUsers() | number }}
+        </p>
+      </article>
+
+      <!-- Total organizations -->
+      <article
+        class="rounded-xl border border-gray-200 border-t-4 border-t-purple-500 bg-white p-3 sm:p-5 dark:border-gray-700 dark:bg-gray-800"
+      >
+        <div class="flex items-center gap-2">
+          <div
+            class="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9v.01M9 12v.01M9 15v.01M9 18v.01M13 9v.01M13 12v.01M13 15v.01M13 18v.01"
+              />
+            </svg>
+          </div>
+          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 sm:text-sm">
+            {{ 'STATISTICS.TOTAL_ORGANIZATIONS' | transloco }}
+          </p>
+        </div>
+        <p class="mt-3 text-2xl font-bold tabular-nums sm:text-3xl">
+          {{ totalOrganizations() | number }}
+        </p>
+      </article>
+    </section>
+
+    <!-- Reservation summary -->
+    <section
+      class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:p-5"
+    >
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="font-semibold">
+          {{ 'STATISTICS.RESERVATION_SUMMARY' | transloco }}
+        </h2>
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+        >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="mb-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-900/60">
+        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+          {{ 'STATISTICS.TOTAL_RESERVATIONS' | transloco }}
+        </p>
+        <p class="mt-1 text-3xl font-bold tabular-nums">
+          {{ totalReservations() | number }}
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">
+          {{ 'STATISTICS.ROOMS_BREAKDOWN' | transloco }}
+        </p>
+
+        @for (room of totalByRoom(); track room.roomId; let i = $index) {
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex min-w-0 items-center gap-3">
+              <span class="h-3 w-3 shrink-0 rounded-sm" [class]="roomColor(i)"></span>
+              <span class="truncate text-sm font-medium text-gray-700 dark:text-gray-200">
+                {{ room.roomName }}
+              </span>
+            </div>
+            <span class="shrink-0 text-sm font-semibold tabular-nums">
+              {{ room.reservations | number }}
+            </span>
+          </div>
+        } @empty {
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            {{ 'STATISTICS.NO_RESERVATIONS' | transloco }}
+          </p>
+        }
+      </div>
+    </section>
+
+    <!-- Earnings summary -->
+    <section
+      class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:p-5"
+    >
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="font-semibold">
+          {{ 'STATISTICS.EARNINGS_SUMMARY' | transloco }}
+        </h2>
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400"
+        >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 2v8m0 0v2m8-6a8 8 0 11-16 0 8 8 0 0116 0z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="mb-4 rounded-lg bg-green-50 p-4 dark:bg-green-950/20">
+        <p class="text-sm font-medium">
+          {{ 'STATISTICS.TOTAL_EARNINGS' | transloco }}
+        </p>
+        <p class="mt-1 text-2xl font-bold tabular-nums">
+          {{ formatAmount(totalEarnings() + totalUnpaidEarnings()) }}
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">
+          {{ 'STATISTICS.ROOMS_BREAKDOWN' | transloco }}
+        </p>
+
+        @for (room of totalEarningsByRoom(); track room.roomId; let i = $index) {
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex min-w-0 items-center gap-3">
+              <span class="h-3 w-3 shrink-0 rounded-sm" [class]="roomColor(i)"></span>
+              <span class="truncate text-sm font-semibold text-gray-700 dark:text-gray-200">
+                {{ room.roomName }}
+              </span>
+            </div>
+
+            <span class="shrink-0 text-sm font-semibold tabular-nums">
+              {{ formatAmount(room.earnings + room.unpaidEarnings) }}
+            </span>
+          </div>
+        } @empty {
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            {{ 'STATISTICS.NO_EARNINGS' | transloco }}
+          </p>
+        }
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section
+      class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+    >
+      <!-- Chart header -->
+      <div
+        class="flex flex-col gap-3 border-b border-gray-200 p-3 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between sm:p-5"
+      >
+        <div>
+          <h2 class="font-semibold">
+            {{
+              (view() === 'reservations'
+                ? 'STATISTICS.RESERVATION_CHART'
+                : 'STATISTICS.EARNINGS_CHART'
+              ) | transloco
+            }}
+          </h2>
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {{ formatDateRange() }}
+          </p>
+        </div>
+
+        <div
+          class="grid w-full grid-cols-2 rounded-lg bg-gray-100 p-1 dark:bg-gray-700 sm:flex sm:w-auto"
+        >
+          <button
+            type="button"
+            (click)="setView('reservations')"
+            class="rounded-md px-3 py-2 text-sm font-medium transition sm:px-4"
+            [class.bg-white]="view() === 'reservations'"
+            [class.shadow-sm]="view() === 'reservations'"
+            [class.text-gray-900]="view() === 'reservations'"
+            [class.text-gray-500]="view() !== 'reservations'"
+            [class.dark:bg-gray-600]="view() === 'reservations'"
+            [class.dark:text-white]="view() === 'reservations'"
+          >
+            {{ 'STATISTICS.RESERVATIONS' | transloco }}
+          </button>
+
+          <button
+            type="button"
+            (click)="setView('earnings')"
+            class="rounded-md px-3 py-2 text-sm font-medium transition sm:px-4"
+            [class.bg-white]="view() === 'earnings'"
+            [class.shadow-sm]="view() === 'earnings'"
+            [class.text-gray-900]="view() === 'earnings'"
+            [class.text-gray-500]="view() !== 'earnings'"
+            [class.dark:bg-gray-600]="view() === 'earnings'"
+            [class.dark:text-white]="view() === 'earnings'"
+          >
+            {{ 'STATISTICS.EARNINGS' | transloco }}
+          </button>
+        </div>
+      </div>
+
+      @if (data().length === 0) {
+        <div
+          class="flex min-h-72 items-center justify-center px-4 text-center text-sm text-gray-500 dark:text-gray-400"
+        >
+          {{ 'STATISTICS.NO_DATA' | transloco }}
+        </div>
+      } @else {
+        <!-- Reservations chart -->
+        @if (view() === 'reservations') {
+          <div class="overflow-x-auto px-3 pb-10 pt-4 sm:p-5 sm:pb-10">
+            <div class="w-full" [style.min-width.px]="data().length * 76">
+              <!-- Legend -->
+              <div class="mb-6 flex flex-wrap gap-3 sm:gap-4">
+                @for (room of roomSeries(); track room.id; let i = $index) {
+                  <div class="flex items-center gap-2">
+                    <span class="h-3 w-3 shrink-0 rounded-sm" [class]="roomColor(i)"></span>
+                    <span class="text-xs text-gray-600 dark:text-gray-300">
+                      {{ room.name }}
+                    </span>
+                  </div>
+                }
+
+                <div class="flex items-center gap-2">
+                  <span class="h-3 w-3 shrink-0 rounded-sm bg-gray-800 dark:bg-gray-300"></span>
+                  <span class="text-xs text-gray-600 dark:text-gray-300">
+                    {{ 'STATISTICS.ALL_ROOMS' | transloco }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Bars -->
+              <div
+                class="flex w-full items-end gap-1 border-b border-gray-200 pb-4 dark:border-gray-700"
+              >
+                @for (day of data(); track day.date) {
+                  <div class="flex w-[76px] shrink-0 flex-col items-center">
+                    <div class="flex h-48 w-full items-end justify-center gap-1 sm:h-56">
+                      @for (room of roomSeries(); track room.id; let i = $index) {
+                        @let count = day.rooms.find(r => r.roomId === room.id)?.reservations ?? 0;
+
+                        <div class="flex h-full w-3 flex-col items-center justify-end">
+                          @if (count > 0) {
+                            <span
+                              class="mb-1 text-[9px] font-semibold tabular-nums text-gray-600 dark:text-gray-300"
+                            >
+                              {{ count }}
+                            </span>
+                          }
+                          <div
+                            class="w-full rounded-t transition-all"
+                            [class]="roomColor(i)"
+                            [style.height.%]="reservationHeight(count)"
+                            [title]="room.name + ': ' + count"
+                          ></div>
+                        </div>
+                      }
+
+                      <!-- Total bar -->
+                      <div class="flex h-full w-3 flex-col items-center justify-end">
+                        @if (day.total > 0) {
+                          <span
+                            class="mb-1 text-[9px] font-bold tabular-nums text-gray-900 dark:text-white"
+                          >
+                            {{ day.total }}
+                          </span>
+                        }
+                        <div
+                          class="w-full rounded-t bg-gray-800 transition-all dark:bg-gray-300"
+                          [style.height.%]="reservationHeight(day.total)"
+                          [title]="'STATISTICS.ALL_ROOMS' | transloco"
+                        ></div>
+                      </div>
+                    </div>
+
+                    <span
+                      class="mt-3 whitespace-nowrap text-[11px] font-medium tabular-nums text-gray-600 dark:text-gray-300"
+                    >
+                      {{ formatDay(day.date) }}
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Earnings chart -->
+        @if (view() === 'earnings') {
+          <div class="overflow-x-auto px-3 pb-10 pt-4 sm:p-5 sm:pb-10">
+            <div class="flex w-full items-end gap-1" [style.min-width.px]="data().length * 76">
+              @for (day of data(); track day.date) {
+                @let total = day.earnings + day.unpaidEarnings;
+
+                <div class="flex w-[76px] shrink-0 flex-col items-center">
+                  <div
+                    class="flex h-56 w-full items-end justify-center border-b border-gray-200 dark:border-gray-700 sm:h-64"
+                  >
+                    <div class="flex h-full w-8 flex-col items-center justify-end">
+                      @if (total > 0) {
+                        <span
+                          class="mb-1 text-[9px] font-semibold tabular-nums text-green-700 dark:text-green-400"
+                        >
+                          {{ total }}
+                        </span>
+                      }
+                      <div
+                        class="w-full rounded-t-md bg-green-500 transition-all"
+                        [style.height.%]="earningsHeight(total)"
+                        [title]="formatAmount(total)"
+                      ></div>
+                    </div>
+                  </div>
+
+                  <span
+                    class="mt-3 whitespace-nowrap text-[11px] font-medium tabular-nums text-gray-600 dark:text-gray-300"
+                  >
+                    {{ formatDay(day.date) }}
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </section>
+  }
+</div>

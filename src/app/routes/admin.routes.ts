@@ -47,6 +47,13 @@ export const ADMIN_ROUTES: Routes = [
             (m) => m.AdminSettings,
           ),
       },
+      {
+        path: 'statistics',
+        loadComponent: () =>
+          import('../pages/admin/components/statistics/statistics.component').then(
+            (m) => m.StatisticsComponent,
+          ),
+      },
     ],
   },
 ];
